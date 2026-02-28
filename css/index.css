@@ -213,6 +213,18 @@ button:hover {
     filter: brightness(1.05);
 }
 
+/* ✅ 체크박스/라디오 공통 width 100% 방지 */
+input[type="checkbox"],
+input[type="radio"] {
+    width: auto !important;
+    padding: 0 !important;
+}
+
+/* 체크됐을 때 */
+input[type="checkbox"]:checked {
+    accent-color: #111;
+}
+
 /* =========================================================
    Grid Rows / Dividers
 ========================================================= */

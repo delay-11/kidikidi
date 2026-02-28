@@ -4,8 +4,12 @@
 const COMPANY_EMAIL = "bbolcat@naver.com";
 const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
 const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID"; // 회사로(주문정보+시안+사업자)
-const EMAILJS_QUOTE_TEMPLATE_ID = "YOUR_QUOTE_TEMPLATE_ID"; // 주문자에게(견적서)
+
+// 회사로: 주문정보 + 시안 + (견적이면 사업자/일정/납기 포함)
+const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+
+// 고객에게: 견적서(견적 요청 켠 경우에만)
+const EMAILJS_QUOTE_TEMPLATE_ID = "YOUR_QUOTE_TEMPLATE_ID";
 
 /* =========================
  * 가격표
@@ -93,13 +97,19 @@ const phoneEl = $("phone");
 const orderEl = $("orderNo");
 const emailEl = $("email");
 
+const quoteToggleEl = $("quoteToggle");
+const quoteBoxEl = $("quoteBox");
+const quoteProdEl = $("quoteProd");
+const quoteDueEl = $("quoteDue");
+
+const bizFileEl = $("bizFile");
+const bizFileBtn = $("bizFileBtn");
+const bizFileNameEl = $("bizFileName");
+
 const profileEl = $("profile");
 const capTypeEl = $("capType");
 const laserEl = $("laser");
 const qtyEl = $("qty");
-
-// (있을 수도, 없을 수도)
-const rushFormEl = $("rush"); // [NOTE] 있으면 읽고, 없으면 quoteProd에서 읽도록 처리
 
 const unitPriceText = $("unitPriceText");
 
@@ -113,11 +123,18 @@ const bgTextEl = $("bgText");
 
 const fileEl = $("file");
 const fileBtn = $("fileBtn");
+const fileDelBtn = $("fileDelBtn");
 const fileNameEl = $("fileName");
 
-// [ADD] 이미지 삭제 버튼(HTML에 id="fileDelBtn" 있어야 작동)
-const fileDelBtn = $("fileDelBtn");
+const bgPickBtn = $("bgPickBtn");
+const bgPickMount = $("bgPickMount");
+const bgColorSwatch = $("bgColorSwatch");
+const bgColorValue = $("bgColorValue");
 
+const btnAddItemEl = $("btnAddItem");
+const btnConfirmEl = $("btnConfirm");
+
+const canvasWrapEl = $("canvasWrap");
 const canvas = $("designCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -125,78 +142,180 @@ const bboxEl = $("bbox");
 const rotHandleEl = $("rotHandle");
 
 /* =========================
- * [ADD] 견적서 요청 / 사업자등록증 업로드 DOM
+ * [ADD] 필드별 에러 메시지 + 빨간 테두리 (CSS 주입)
  * ========================= */
-const btnQuoteEl = $("btnQuote");
-const bizFileEl = $("bizFile");
-const bizFileBtn = $("bizFileBtn");
-const bizFileNameEl = $("bizFileName");
+(function injectErrCss() {
+  const css = `
+    .fieldErr{margin-top:6px;font-size:12px;color:#d92d20;display:none}
+    .fieldErr.show{display:block}
+    .inputInvalid{border-color:#d92d20 !important; box-shadow:0 0 0 3px rgba(217,45,32,.18) !important;}
+    .inlineCheck{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);}
+  `;
+  const style = document.createElement("style");
+  style.textContent = css;
+  document.head.appendChild(style);
+})();
 
-/* =========================
- * [ADD] 제작 일정(rush) 값: DOM에서 매번 안전하게 읽기
- * - id가 뭐든 대응
- * ========================= */
-function getRushValue() {
-  const el =
-    document.getElementById("rush") ||
-    document.getElementById("quoteProd") ||
-    document.querySelector('select[name="rush"]') ||
-    document.querySelector('select[data-role="rush"]');
+const fieldErr = { name: null, phone: null, order: null, email: null };
 
-  return el ? el.value : "none";
+function ensureFieldErrorBox(inputEl, key) {
+  if (!inputEl) return null;
+  const wrap = inputEl.parentElement;
+  if (!wrap) return null;
+
+  let box = wrap.querySelector(`.fieldErr[data-err="${key}"]`);
+  if (box) return box;
+
+  box = document.createElement("div");
+  box.className = "fieldErr";
+  box.dataset.err = key;
+  wrap.appendChild(box);
+  return box;
 }
 
-// [ADD] rush 변경 이벤트 바인딩 (존재하는 경우에만)
-function bindRushChangeEvent() {
-  const el =
-    document.getElementById("rush") ||
-    document.getElementById("quoteProd") ||
-    document.querySelector('select[name="rush"]') ||
-    document.querySelector('select[data-role="rush"]');
+fieldErr.name = ensureFieldErrorBox(nameEl, "name");
+fieldErr.phone = ensureFieldErrorBox(phoneEl, "phone");
+fieldErr.order = ensureFieldErrorBox(orderEl, "order");
+fieldErr.email = ensureFieldErrorBox(emailEl, "email");
 
-  if (!el) return;
+function setInputInvalid(inputEl, isInvalid) {
+  if (!inputEl) return;
+  inputEl.classList.toggle("inputInvalid", !!isInvalid);
+}
 
-  el.addEventListener("change", () => {
-    updatePriceUI();
-    renderCart();
-  });
+function setFieldError(key, message) {
+  const box = fieldErr[key];
+  if (!box) return;
+
+  const mapInput = {
+    name: nameEl,
+    phone: phoneEl,
+    order: orderEl,
+    email: emailEl,
+  };
+
+  if (!message) {
+    box.textContent = "";
+    box.classList.remove("show");
+    setInputInvalid(mapInput[key], false);
+    return;
+  }
+
+  box.textContent = message;
+  box.classList.add("show");
+  setInputInvalid(mapInput[key], true);
+}
+
+function clearFieldErrors() {
+  setFieldError("name", "");
+  setFieldError("phone", "");
+  setFieldError("order", "");
+  setFieldError("email", "");
 }
 
 /* =========================
- * [ADD] "시안 있음" 판정
+ * [ADD] 수량 할인 + 제작일정(총액 할증)
  * ========================= */
-function hasDesign(it) {
-  return !!it?.design?.imgDataUrl || !!it?.design?.bgSet;
+function getVolumeDiscountRate(qty) {
+  if (qty >= 5000) return 0.2;
+  if (qty >= 1000) return 0.15;
+  if (qty >= 500) return 0.1;
+  return 0;
+}
+
+function getRushRate(v) {
+  if (!v || v === "none") return 0;
+  if (v === "10d") return 0.2;
+  if (v === "5d") return 0.3;
+  return 0;
 }
 
 /* =========================
- * Pickr 배경색
+ * 상태(장바구니/캔버스/견적)
  * ========================= */
-let userBgColor = "#ffffff";
-let bgPickr = null;
+let cartItems = [];
+let selectedItemId = null;
 
-const bgPickBtn = $("bgPickBtn");
-const bgPickMount = $("bgPickMount");
-const bgColorSwatch = $("bgColorSwatch");
-const bgColorValue = $("bgColorValue");
+// 견적 상태(주문 단위)
+let quoteEnabled = false;
+let quoteProd = "none";
+let quoteDue = "";
+let bizFileDataUrl = null;
 
-function setBgUI(hex) {
-  const v = (hex || "#ffffff").toLowerCase();
-  if (bgColorSwatch) bgColorSwatch.style.background = v;
-  if (bgColorValue) bgColorValue.textContent = v;
-}
+// 캔버스 편집 상태
+let userImg = null;
+let imgCX = 0,
+  imgCY = 0;
+let imgScale = 1;
+let imgRot = 0;
+
+// 드래그 상태
+let draggingMove = false;
+let moveStart = { x: 0, y: 0 };
+let centerStart = { x: 0, y: 0 };
+let handleDrag = null;
+let rotateDrag = null;
 
 /* =========================
- * [CHANGE] 배경색은 "아이템별 저장"
+ * 단가/배경 규칙
  * ========================= */
+function getUnitPrice(profile, capType, laser) {
+  const base = PRICE?.[profile]?.[capType] ?? 0;
+  const add = profile === "OEM" ? (LASER_ADDON?.[laser] ?? 0) : 0;
+  return { base, add, unit: base + add };
+}
+
+// 아이템별 배경(레이저 강제는 예외)
 function getItemBgColor(it) {
   const profile = it?.profile || profileEl.value;
   const laser = it?.laser || (profile === "OEM" ? laserEl.value : "none");
 
   if (profile === "OEM" && laser === "black") return "#000000";
   if (profile === "OEM" && laser === "white") return "#ffffff";
+  return it?.bgColor || "#ffffff";
+}
 
-  return it?.bgColor || userBgColor || "#ffffff";
+// 시안 판정: 이미지 있거나 배경 설정(bgSet) true면 OK
+function hasDesign(it) {
+  return !!it?.design?.imgDataUrl || !!it?.design?.bgSet;
+}
+
+/* =========================
+ * 아이템 라인 계산: 할인까지만 (✅ 할증은 총액에서만)
+ * ========================= */
+function calcLineTotal(item) {
+  const { unit } = getUnitPrice(item.profile, item.capType, item.laser);
+  const qty = Math.max(1, Number(item.qty || 1));
+  const baseLine = unit * qty;
+
+  const discRate = getVolumeDiscountRate(qty);
+  const afterDiscount = Math.round(baseLine * (1 - discRate));
+
+  return { unit, qty, baseLine, discRate, afterDiscount };
+}
+
+function cartSubtotal() {
+  return cartItems.reduce(
+    (sum, it) => sum + calcLineTotal(it).afterDiscount,
+    0,
+  );
+}
+
+function cartTotal() {
+  const sub = cartSubtotal();
+  const rate = quoteEnabled ? getRushRate(quoteProd) : 0;
+  return Math.round(sub * (1 + rate));
+}
+
+/* =========================
+ * Pickr 배경색 (Save 버튼 없이 즉시 반영)
+ * ========================= */
+let bgPickr = null;
+
+function setBgUI(hex) {
+  const v = (hex || "#ffffff").toLowerCase();
+  if (bgColorSwatch) bgColorSwatch.style.background = v;
+  if (bgColorValue) bgColorValue.textContent = v;
 }
 
 function initPickr() {
@@ -205,43 +324,45 @@ function initPickr() {
   bgPickr = Pickr.create({
     el: bgPickMount,
     theme: "nano",
-    default: userBgColor,
+    default: "#ffffff",
     showAlways: false,
     closeOnScroll: true,
+    defaultRepresentation: "HEX",
     components: {
       preview: true,
       opacity: false,
       hue: true,
-      interaction: { input: false, save: false },
+      interaction: {
+        input: true, // ✅ HEX/RGB 입력창 표시
+        save: false, // ✅ Save 버튼 제거
+      },
     },
   });
 
-  if (bgPickBtn) {
-    bgPickBtn.addEventListener("click", () => bgPickr && bgPickr.show());
-  }
+  bgPickBtn?.addEventListener("click", () => bgPickr && bgPickr.show());
 
   bgPickr.on("change", (color) => {
     if (!color) return;
 
-    userBgColor = color.toHEXA().toString();
-    setBgUI(userBgColor);
+    const hex = color.toHEXA().toString().toLowerCase();
+    setBgUI(hex);
 
-    // [FIX] 배경만 바꿔도 시안으로 인정
     const it = cartItems.find((x) => x.id === selectedItemId);
     if (it) {
-      it.bgColor = userBgColor;
+      // 레이저 강제 배경이면 저장만 "시안 인정"용으로
+      it.bgColor = hex;
       it.design = it.design || {};
-      it.design.bgSet = true; // [ADD]
+      it.design.bgSet = true;
+      bgTextEl.textContent = getItemBgColor(it);
     }
 
     redraw();
-    const it2 = cartItems.find((x) => x.id === selectedItemId);
-    bgTextEl.textContent = it2 ? getItemBgColor(it2) : userBgColor;
-
     renderCart();
+    updatePriceUI();
+    updateActionLocks();
   });
 
-  setBgUI(userBgColor);
+  setBgUI("#ffffff");
 }
 initPickr();
 
@@ -253,145 +374,17 @@ function updateBgLockUI(profile, laser) {
   if (locked) {
     const forced = laser === "black" ? "#000000" : "#ffffff";
     setBgUI(forced);
-
-    // [ADD] 레이저 강제 배경도 시안 인정
     const it = cartItems.find((x) => x.id === selectedItemId);
     if (it) {
       it.design = it.design || {};
       it.design.bgSet = true;
+      bgTextEl.textContent = forced;
     }
   } else {
     const it = cartItems.find((x) => x.id === selectedItemId);
-    setBgUI(it?.bgColor || userBgColor);
+    setBgUI(it?.bgColor || "#ffffff");
   }
 }
-
-/* =========================
- * 가격 계산
- * ========================= */
-function getUnitPrice(profile, capType, laser) {
-  const base = PRICE?.[profile]?.[capType] ?? 0;
-  const add = profile === "OEM" ? (LASER_ADDON?.[laser] ?? 0) : 0;
-  return { base, add, unit: base + add };
-}
-
-/* =========================
- * [ADD] 수량 할인 + 제작일정(할증)
- * ========================= */
-function getVolumeDiscountRate(qty) {
-  if (qty >= 5000) return 0.2;
-  if (qty >= 1000) return 0.15;
-  if (qty >= 500) return 0.1;
-  return 0;
-}
-
-function getRushRate(rushValue) {
-  if (!rushValue) return 0;
-
-  if (rushValue === "10d") return 0.2;
-  if (rushValue === "5d") return 0.3;
-  if (rushValue === "none" || rushValue === "normal") return 0;
-
-  if (rushValue === "빠른제작" || rushValue === "fast") return 0.2;
-  if (rushValue === "긴급제작" || rushValue === "super") return 0.3;
-
-  const s = String(rushValue);
-  if (s.includes("20")) return 0.2;
-  if (s.includes("30")) return 0.3;
-  if (s.includes("빠른")) return 0.2;
-  if (s.includes("특급")) return 0.3;
-
-  return 0;
-}
-
-function rushLabel(r) {
-  if (!r || r === "none" || r === "normal") return "일반";
-  const rate = getRushRate(r);
-  if (rate === 0.2) return "빠른제작(+20%)";
-  if (rate === 0.3) return "특급제작(+30%)";
-  return "일반";
-}
-
-function calcLineTotal(item) {
-  const { unit } = getUnitPrice(item.profile, item.capType, item.laser);
-  const qty = Math.max(1, Number(item.qty || 1));
-  const baseLine = unit * qty;
-
-  const discRate = getVolumeDiscountRate(qty);
-  const afterDiscount = Math.round(baseLine * (1 - discRate));
-
-  // ✅ item.rush 기준으로 할증(아이템별)
-  const rushRate = getRushRate(item.rush);
-  const finalLine = Math.round(afterDiscount * (1 + rushRate));
-
-  return { unit, qty, baseLine, discRate, rushRate, finalLine };
-}
-
-/* =========================
- * [FIX] 왼쪽 폼 가격 업데이트 (할증 DOM 반영)
- * ========================= */
-function updatePriceUI() {
-  const p = profileEl.value;
-  const cap = capTypeEl.value;
-  const laser = p === "OEM" ? laserEl.value : "none";
-  const q = Math.max(1, parseInt(qtyEl.value || "1", 10));
-
-  // [CHANGE] rush는 DOM에서 매번 읽음 (id 문제 해결)
-  const rush = getRushValue();
-
-  const { base, unit } = getUnitPrice(p, cap, laser);
-  if (!base) {
-    unitPriceText.textContent = "가격 미설정";
-    return;
-  }
-
-  const discRate = getVolumeDiscountRate(q);
-  const baseLine = unit * q;
-  const afterDiscount = Math.round(baseLine * (1 - discRate));
-  const rushRate = getRushRate(rush);
-  const finalLine = Math.round(afterDiscount * (1 + rushRate));
-
-  const discText = discRate
-    ? `할인 ${Math.round(discRate * 100)}%`
-    : "할인 없음";
-  const rushText = rushRate
-    ? `할증 ${Math.round(rushRate * 100)}%`
-    : "할증 없음";
-
-  unitPriceText.textContent =
-    `${finalLine.toLocaleString()}원` +
-    ` (단가 ${unit.toLocaleString()}원 · ${q}개 · ${discText} · ${rushText})`;
-}
-
-function cartTotal() {
-  // [CHANGE] 전역 rush 기준으로 총액 계산 (DOM에서 읽음)
-  const rush = getRushValue();
-  return cartItems.reduce((sum, it) => {
-    const calc = calcLineTotal(it);
-    return sum + calc.finalLine;
-  }, 0);
-}
-
-/* =========================
- * 상태(장바구니/캔버스)
- * ========================= */
-let cartItems = [];
-let selectedItemId = null;
-
-// 캔버스 편집 상태
-let userImg = null;
-let imgCX = 0,
-  imgCY = 0;
-let imgScale = 1;
-let imgRot = 0;
-
-// 이동/리사이즈/회전 드래그 상태
-let draggingMove = false;
-let moveStart = { x: 0, y: 0 };
-let centerStart = { x: 0, y: 0 };
-
-let handleDrag = null;
-let rotateDrag = null;
 
 /* =========================
  * 캔버스 사이즈 변경
@@ -413,7 +406,6 @@ function resizeCanvasKeepView(w, h) {
 
   imgCX = canvas.width * rx;
   imgCY = canvas.height * ry;
-
   redraw();
 }
 
@@ -428,7 +420,7 @@ function applyCanvasSizeFromForm() {
   updateBgLockUI(p, laser);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
-  bgTextEl.textContent = it ? getItemBgColor(it) : userBgColor || "#ffffff";
+  bgTextEl.textContent = it ? getItemBgColor(it) : "#ffffff";
 }
 
 /* =========================
@@ -454,77 +446,274 @@ function setCapTypeOptions() {
 }
 
 /* =========================
- * 장바구니 클릭 시 왼쪽 폼 동기화
+ * 검증(주문자/견적/확정)
  * ========================= */
-function syncLeftFormFromItem(it) {
-  profileEl.value = it.profile;
-  setCapTypeOptions();
-  capTypeEl.value = it.capType;
+function validateUserInfo(showMessage = false) {
+  const name = nameEl.value.trim();
+  const phone = phoneEl.value.trim();
+  const orderNo = orderEl.value.trim();
+  const email = emailEl.value.trim();
 
-  if (it.profile === "OEM") {
-    laserEl.disabled = false;
-    laserEl.value = it.laser || "none";
-  } else {
-    laserEl.disabled = true;
-    laserEl.value = "none";
+  const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (showMessage) clearFieldErrors();
+
+  let ok = true;
+
+  if (!name) {
+    ok = false;
+    if (showMessage) setFieldError("name", "주문자명을 입력해주세요.");
+  }
+  if (!phoneRegex.test(phone)) {
+    ok = false;
+    if (showMessage)
+      setFieldError(
+        "phone",
+        "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)",
+      );
+  }
+  if (!orderNo) {
+    ok = false;
+    if (showMessage) setFieldError("order", "주문번호를 입력해주세요.");
+  }
+  if (!emailRegex.test(email)) {
+    ok = false;
+    if (showMessage) setFieldError("email", "이메일 형식이 올바르지 않습니다.");
   }
 
-  qtyEl.value = it.qty;
+  if (showMessage) msgEl.textContent = ok ? "" : "필수 정보를 확인해주세요.";
+  return ok;
+}
 
-  setBgUI(it.bgColor || userBgColor);
-  updateBgLockUI(it.profile, it.laser);
+function validateQuoteRequest(showMessage = false) {
+  if (!quoteEnabled) return true;
 
-  updatePriceUI();
-  applyCanvasSizeFromForm();
+  if (!quoteProd || quoteProd === "") {
+    if (showMessage) msgEl.textContent = "제작 일정을 선택해주세요.";
+    return false;
+  }
+  if (!quoteDue) {
+    if (showMessage) msgEl.textContent = "납기일을 선택해주세요.";
+    return false;
+  }
+  if (!bizFileDataUrl) {
+    if (showMessage)
+      msgEl.textContent = "사업자등록증 파일 업로드가 필요합니다.";
+    return false;
+  }
+  return true;
+}
+
+function validateCanConfirm(showMessage = false) {
+  if (!validateUserInfo(showMessage)) return false;
+
+  if (cartItems.length === 0) {
+    if (showMessage) msgEl.textContent = "장바구니에 아이템을 추가해주세요.";
+    return false;
+  }
+
+  if (!cartItems.some((it) => hasDesign(it))) {
+    if (showMessage)
+      msgEl.textContent = "최소 1개 이상 배경색 또는 이미지를 설정해주세요.";
+    return false;
+  }
+
+  // ✅ 견적 ON이면 추가정보 필수
+  if (!validateQuoteRequest(showMessage)) return false;
+
+  return true;
 }
 
 /* =========================
- * 이벤트: 폼 변경
+ * 버튼 잠금/활성
+ * ========================= */
+function updateActionLocks() {
+  btnAddItemEl.disabled = !validateUserInfo(false);
+  btnConfirmEl.disabled = !validateCanConfirm(false);
+
+  const it = cartItems.find((x) => x.id === selectedItemId);
+  if (fileDelBtn)
+    fileDelBtn.disabled = !(it && it.design && it.design.imgDataUrl);
+}
+
+/* =========================
+ * 주문자 입력 이벤트 (blur에서 에러 표시)
+ * ========================= */
+[nameEl, phoneEl, orderEl, emailEl].forEach((el) => {
+  if (!el) return;
+
+  el.addEventListener("input", () => {
+    clearFieldErrors();
+    msgEl.textContent = "";
+    updateActionLocks();
+  });
+
+  el.addEventListener("blur", () => {
+    validateUserInfo(true);
+    updateActionLocks();
+  });
+});
+
+/* =========================
+ * 견적 토글 UI
+ * ========================= */
+function setQuoteUI(open) {
+  quoteEnabled = !!open;
+  if (quoteBoxEl) quoteBoxEl.style.display = quoteEnabled ? "block" : "none";
+
+  if (!quoteEnabled) {
+    quoteProd = "none";
+    quoteDue = "";
+    bizFileDataUrl = null;
+    if (quoteProdEl) quoteProdEl.value = "none";
+    if (quoteDueEl) quoteDueEl.value = "";
+    if (bizFileNameEl) bizFileNameEl.textContent = "선택된 파일 없음";
+  }
+
+  updatePriceUI();
+  renderCart();
+  updateActionLocks();
+}
+
+quoteToggleEl?.addEventListener("change", () =>
+  setQuoteUI(quoteToggleEl.checked),
+);
+
+quoteProdEl?.addEventListener("change", () => {
+  quoteProd = quoteProdEl.value;
+  updatePriceUI();
+  renderCart();
+  updateActionLocks();
+});
+
+quoteDueEl?.addEventListener("change", () => {
+  quoteDue = quoteDueEl.value || "";
+  updateActionLocks();
+});
+
+bizFileBtn?.addEventListener("click", () => bizFileEl?.click());
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+bizFileEl?.addEventListener("change", async () => {
+  const f = bizFileEl.files && bizFileEl.files[0];
+  if (!f) return;
+
+  if (bizFileNameEl) bizFileNameEl.textContent = f.name;
+
+  try {
+    bizFileDataUrl = await fileToDataUrl(f);
+
+    // EmailJS 용량 이슈 방지(너무 크면 컷)
+    if (bizFileDataUrl.length > 1_000_000) {
+      bizFileDataUrl = null;
+      if (bizFileNameEl) bizFileNameEl.textContent = "선택된 파일 없음";
+      msgEl.textContent =
+        "사업자등록증 파일 용량이 너무 큽니다. 줄여서 다시 업로드해주세요.";
+    } else {
+      okEl.textContent = "사업자등록증 파일이 업로드되었습니다.";
+    }
+  } catch (e) {
+    bizFileDataUrl = null;
+    msgEl.textContent = "사업자등록증 파일을 읽는 중 오류가 발생했습니다.";
+  } finally {
+    bizFileEl.value = "";
+    updateActionLocks();
+  }
+});
+
+/* =========================
+ * 이벤트: 옵션 변경
  * ========================= */
 profileEl.addEventListener("change", () => {
   setCapTypeOptions();
-  updatePriceUI();
   applyCanvasSizeFromForm();
   redraw();
+  updatePriceUI();
+  updateActionLocks();
 });
 
 capTypeEl.addEventListener("change", () => {
-  updatePriceUI();
   applyCanvasSizeFromForm();
+  updatePriceUI();
+  updateActionLocks();
 });
 
 qtyEl.addEventListener("input", () => {
   updatePriceUI();
 
-  // [FIX] 선택 아이템이 있으면 수량을 아이템에도 반영
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (it) {
     it.qty = Math.max(1, parseInt(qtyEl.value || "1", 10));
     renderCart();
   }
+  updateActionLocks();
 });
 
 laserEl.addEventListener("change", () => {
-  updatePriceUI();
   updateBgLockUI(profileEl.value, laserEl.value);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (it) {
     it.laser = it.profile === "OEM" ? laserEl.value : "none";
-    bgTextEl.textContent = getItemBgColor(it);
-
     it.design = it.design || {};
-    it.design.bgSet = true; // [ADD]
-  } else {
-    bgTextEl.textContent = userBgColor || "#ffffff";
+    it.design.bgSet = true;
+    bgTextEl.textContent = getItemBgColor(it);
   }
 
   redraw();
   renderCart();
+  updatePriceUI();
+  updateActionLocks();
 });
 
 /* =========================
- * 장바구니 렌더
+ * 가격 UI (왼쪽: 선택 입력 기준 + 총액 정보)
+ * ========================= */
+function updatePriceUI() {
+  const p = profileEl.value;
+  const cap = capTypeEl.value;
+  const laser = p === "OEM" ? laserEl.value : "none";
+  const q = Math.max(1, parseInt(qtyEl.value || "1", 10));
+
+  const { base, unit } = getUnitPrice(p, cap, laser);
+  if (!base) {
+    unitPriceText.textContent = "가격 미설정";
+    return;
+  }
+
+  const baseLine = unit * q;
+  const discRate = getVolumeDiscountRate(q);
+  const afterDiscount = Math.round(baseLine * (1 - discRate));
+
+  const sub = cartSubtotal();
+  const rate = quoteEnabled ? getRushRate(quoteProd) : 0;
+  const total = cartTotal();
+
+  const discText = discRate
+    ? `할인 ${Math.round(discRate * 100)}%`
+    : "할인 없음";
+  const rushText = rate
+    ? `총액 할증 +${Math.round(rate * 100)}%`
+    : "총액 할증 없음";
+
+  unitPriceText.textContent =
+    `${afterDiscount.toLocaleString()}원` +
+    ` (단가 ${unit.toLocaleString()}원 · ${q}개 · ${discText})` +
+    ` | 총액 ${total.toLocaleString()}원 (${rushText})` +
+    (quoteEnabled ? ` / 납기 ${quoteDue || "-"}` : "");
+}
+
+/* =========================
+ * 장바구니
  * ========================= */
 function labelLaser(it) {
   if (it.profile !== "OEM") return "레이저 없음";
@@ -536,7 +725,13 @@ function labelLaser(it) {
 function renderCart() {
   cartListEl.innerHTML = "";
   cartCountEl.textContent = String(cartItems.length);
-  cartTotalEl.textContent = cartTotal().toLocaleString() + "원";
+
+  const sub = cartSubtotal();
+  const rate = quoteEnabled ? getRushRate(quoteProd) : 0;
+  const total = cartTotal();
+
+  const rushText = rate ? ` (총액 +${Math.round(rate * 100)}%)` : "";
+  cartTotalEl.textContent = total.toLocaleString() + "원" + rushText;
 
   if (cartItems.length === 0) {
     const div = document.createElement("div");
@@ -546,11 +741,9 @@ function renderCart() {
     cartListEl.appendChild(div);
     selTextEl.textContent = "없음";
     bgTextEl.textContent = "-";
+    updateActionLocks();
     return;
   }
-
-  // [CHANGE] rush는 DOM에서 매번 읽음
-  const rush = getRushValue();
 
   for (const it of cartItems) {
     const box = document.createElement("div");
@@ -558,29 +751,21 @@ function renderCart() {
     box.addEventListener("click", () => selectItem(it.id));
 
     const calc = calcLineTotal(it);
-    const unit = calc.unit;
-    const line = calc.finalLine;
-
     const bg = getItemBgColor(it);
 
     const discText = calc.discRate
       ? `할인 ${Math.round(calc.discRate * 100)}%`
       : "할인 없음";
-    const rushText = calc.rushRate
-      ? `할증 ${Math.round(calc.rushRate * 100)}%`
-      : "일반";
 
     box.innerHTML = `
       <div class="cartTop">
         <div>
-          <div class="cartTitle">
-            <b>${it.profile}</b> / ${it.capType} / ${labelLaser(it)} / 배경 ${bg}
-          </div>
+          <div class="cartTitle"><b>${it.profile}</b> / ${it.capType} / ${labelLaser(it)} / 배경 ${bg}</div>
           <div class="cartMeta">
             <span>수량: <b>${it.qty}</b></span>
-            <span>단가: <b>${unit.toLocaleString()}원</b></span>
-            <span>조건: <b>${discText} / ${rushText}</b></span>
-            <span>합계: <b>${line.toLocaleString()}원</b></span>
+            <span>단가: <b>${calc.unit.toLocaleString()}원</b></span>
+            <span>조건: <b>${discText}</b></span>
+            <span>합계(할인후): <b>${calc.afterDiscount.toLocaleString()}원</b></span>
             <span>시안: <b>${hasDesign(it) ? "있음" : "없음"}</b></span>
           </div>
         </div>
@@ -595,21 +780,19 @@ function renderCart() {
     box.querySelector('[data-act="minus"]').addEventListener("click", (e) => {
       e.stopPropagation();
       it.qty = Math.max(1, it.qty - 1);
-      if (it.id === selectedItemId) {
-        qtyEl.value = it.qty;
-        updatePriceUI();
-      }
+      if (it.id === selectedItemId) qtyEl.value = it.qty;
       renderCart();
+      updatePriceUI();
+      updateActionLocks();
     });
 
     box.querySelector('[data-act="plus"]').addEventListener("click", (e) => {
       e.stopPropagation();
       it.qty += 1;
-      if (it.id === selectedItemId) {
-        qtyEl.value = it.qty;
-        updatePriceUI();
-      }
+      if (it.id === selectedItemId) qtyEl.value = it.qty;
       renderCart();
+      updatePriceUI();
+      updateActionLocks();
     });
 
     box.querySelector('[data-act="del"]').addEventListener("click", (e) => {
@@ -623,6 +806,8 @@ function renderCart() {
   const sel = cartItems.find((x) => x.id === selectedItemId);
   selTextEl.textContent = sel ? `${sel.profile} / ${sel.capType}` : "없음";
   bgTextEl.textContent = sel ? getItemBgColor(sel) : "-";
+
+  updateActionLocks();
 }
 
 function removeItem(id) {
@@ -634,16 +819,20 @@ function removeItem(id) {
     if (selectedItemId) selectItem(selectedItemId);
     else clearEditor();
   }
+
   renderCart();
   updatePriceUI();
+  updateActionLocks();
 }
 
 /* =========================
  * 아이템 추가/선택
  * ========================= */
-$("btnAddItem").addEventListener("click", () => {
+btnAddItemEl.addEventListener("click", () => {
   msgEl.textContent = "";
   okEl.textContent = "";
+
+  if (!validateUserInfo(true)) return;
 
   const p = profileEl.value;
   const cap = capTypeEl.value;
@@ -657,16 +846,14 @@ $("btnAddItem").addEventListener("click", () => {
   }
 
   const id = "it_" + Math.random().toString(36).slice(2, 10);
-
   const item = {
     id,
     profile: p,
     capType: cap,
     laser,
     qty,
-    bgColor: userBgColor, // [CHANGE] 아이템별 배경 저장
-    rush: getRushValue(), // ✅ 아이템별 제작일정 저장
-    design: { imgDataUrl: null, cx: 0, cy: 0, scale: 1, rot: 0, bgSet: false }, // [ADD]
+    bgColor: "#ffffff",
+    design: { imgDataUrl: null, cx: 0, cy: 0, scale: 1, rot: 0, bgSet: false },
   };
 
   cartItems.unshift(item);
@@ -674,9 +861,9 @@ $("btnAddItem").addEventListener("click", () => {
   renderCart();
   updatePriceUI();
 
-  // [CHANGE] 멘트 확정본 적용
   okEl.textContent =
     "이미지 업로드 또는 배경색 설정 후 시안을 확정할 수 있습니다.";
+  updateActionLocks();
 });
 
 function saveCanvasToItem(it) {
@@ -704,7 +891,29 @@ async function loadItemToCanvas(it) {
     });
     userImg = img;
   }
+
   redraw();
+}
+
+function syncLeftFormFromItem(it) {
+  profileEl.value = it.profile;
+  setCapTypeOptions();
+  capTypeEl.value = it.capType;
+
+  if (it.profile === "OEM") {
+    laserEl.disabled = false;
+    laserEl.value = it.laser || "none";
+  } else {
+    laserEl.disabled = true;
+    laserEl.value = "none";
+  }
+
+  qtyEl.value = it.qty;
+  updateBgLockUI(it.profile, it.laser);
+
+  setBgUI(it.bgColor || "#ffffff");
+  updatePriceUI();
+  applyCanvasSizeFromForm();
 }
 
 async function selectItem(id) {
@@ -738,6 +947,7 @@ async function selectItem(id) {
   updateBgLockUI(it.profile, it.laser);
   renderCart();
   updatePriceUI();
+  updateActionLocks();
 }
 
 function clearEditor() {
@@ -747,25 +957,23 @@ function clearEditor() {
   imgScale = 1;
   imgRot = 0;
   redraw();
+  updateActionLocks();
 }
 
 /* =========================
- * 이미지 업로드 (시안 아이템 선택 후 가능)
+ * 이미지 업로드/삭제
  * ========================= */
-if (fileBtn && fileEl) {
-  fileBtn.addEventListener("click", () => {
-    msgEl.textContent = "";
-    okEl.textContent = "";
+fileBtn?.addEventListener("click", () => {
+  msgEl.textContent = "";
+  okEl.textContent = "";
 
-    const it = cartItems.find((x) => x.id === selectedItemId);
-    if (!it) {
-      msgEl.textContent = "시안 제작 전 모든 정보를 입력해주세요.";
-      return;
-    }
-
-    fileEl.click();
-  });
-}
+  const it = cartItems.find((x) => x.id === selectedItemId);
+  if (!it) {
+    msgEl.textContent = "시안 제작 전 모든 정보를 입력해주세요.";
+    return;
+  }
+  fileEl.click();
+});
 
 function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
@@ -788,7 +996,7 @@ function fitImageToCanvas(img) {
   imgCY = canvas.height / 2;
 }
 
-fileEl.addEventListener("change", async () => {
+fileEl?.addEventListener("change", async () => {
   msgEl.textContent = "";
   okEl.textContent = "";
 
@@ -796,6 +1004,7 @@ fileEl.addEventListener("change", async () => {
   if (!it) {
     msgEl.textContent = "시안 제작 전 모든 정보를 입력해주세요.";
     fileEl.value = "";
+    updateActionLocks();
     return;
   }
 
@@ -814,10 +1023,12 @@ fileEl.addEventListener("change", async () => {
     fitImageToCanvas(userImg);
 
     it.design = it.design || {};
-    it.design.bgSet = it.design.bgSet || false; // 유지
-
     redraw();
     saveCanvasToItem(it);
+
+    // 이미지 업로드도 시안 인정
+    it.design.bgSet = it.design.bgSet ?? false;
+
     renderCart();
     okEl.textContent = "이미지가 업로드되었습니다.";
   } catch (e) {
@@ -825,84 +1036,47 @@ fileEl.addEventListener("change", async () => {
       "이미지 파일을 불러오는 중 문제가 발생했습니다. 다른 파일로 다시 시도해주세요.";
   } finally {
     fileEl.value = "";
+    updateActionLocks();
   }
 });
 
-/* =========================
- * [ADD] 이미지 삭제 기능 (클릭 안 되는 문제 해결)
- * ========================= */
-if (fileDelBtn) {
-  fileDelBtn.addEventListener("click", () => {
+fileDelBtn?.addEventListener(
+  "click",
+  (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     msgEl.textContent = "";
     okEl.textContent = "";
 
     const it = cartItems.find((x) => x.id === selectedItemId);
     if (!it) {
       msgEl.textContent = "시안 제작 전 모든 정보를 입력해주세요.";
+      updateActionLocks();
       return;
     }
 
-    // 캔버스 이미지 제거
     userImg = null;
     imgScale = 1;
     imgRot = 0;
     imgCX = canvas.width / 2;
     imgCY = canvas.height / 2;
 
-    // 아이템 이미지 제거(배경은 유지)
     it.design = it.design || {};
     it.design.imgDataUrl = null;
 
-    // 파일명 UI 초기화
     if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
 
     redraw();
     renderCart();
     okEl.textContent = "이미지가 삭제되었습니다.";
-  });
-}
+    updateActionLocks();
+  },
+  true,
+);
 
 /* =========================
- * [ADD] 사업자등록증 업로드 (견적서 요청 시 필수)
- * ========================= */
-let bizFileDataUrl = null;
-
-if (bizFileBtn && bizFileEl) {
-  bizFileBtn.addEventListener("click", () => bizFileEl.click());
-}
-
-if (bizFileEl) {
-  bizFileEl.addEventListener("change", async () => {
-    msgEl.textContent = "";
-    okEl.textContent = "";
-
-    const f = bizFileEl.files && bizFileEl.files[0];
-    if (!f) return;
-
-    if (bizFileNameEl) bizFileNameEl.textContent = f.name;
-
-    const reader = new FileReader();
-    bizFileDataUrl = await new Promise((res, rej) => {
-      reader.onload = () => res(reader.result);
-      reader.onerror = rej;
-      reader.readAsDataURL(f);
-    });
-
-    if (String(bizFileDataUrl).length > 900_000) {
-      bizFileDataUrl = null;
-      bizFileEl.value = "";
-      if (bizFileNameEl) bizFileNameEl.textContent = "선택된 파일 없음";
-      msgEl.textContent =
-        "사업자등록증 파일 용량이 너무 큽니다. 파일 크기를 줄여 다시 업로드해주세요.";
-      return;
-    }
-
-    okEl.textContent = "사업자등록증 파일이 업로드되었습니다.";
-  });
-}
-
-/* =========================
- * 가이드 + 중심선
+ * 캔버스 드로잉 (배경/이미지/중심선/가이드/BBox)
  * ========================= */
 function roundRectPath(c, x, y, w, h, r) {
   const rr = Math.min(r, w / 2, h / 2);
@@ -917,7 +1091,7 @@ function roundRectPath(c, x, y, w, h, r) {
 
 function drawBackground() {
   const it = cartItems.find((x) => x.id === selectedItemId);
-  const bg = it ? getItemBgColor(it) : userBgColor || "#ffffff";
+  const bg = it ? getItemBgColor(it) : "#ffffff";
 
   ctx.save();
   ctx.fillStyle = bg;
@@ -949,7 +1123,6 @@ function drawCenterGuide() {
   ctx.beginPath();
   ctx.arc(cx, cy, 2, 0, Math.PI * 2);
   ctx.fill();
-
   ctx.restore();
 }
 
@@ -1033,7 +1206,6 @@ function getImageAABB() {
     maxX = Math.max(maxX, p.x);
     maxY = Math.max(maxY, p.y);
   }
-
   return { minX, minY, maxX, maxY, w: maxX - minX, h: maxY - minY };
 }
 
@@ -1052,8 +1224,7 @@ function updateBBox() {
   }
 
   const cr = canvas.getBoundingClientRect();
-  const wr = $("canvasWrap").getBoundingClientRect();
-
+  const wr = canvasWrapEl.getBoundingClientRect();
   const sx = cr.width / canvas.width;
   const sy = cr.height / canvas.height;
 
@@ -1077,7 +1248,7 @@ function redraw() {
 }
 
 /* =========================
- * 이동/리사이즈/회전 (이미지 어디든 클릭 이동)
+ * 이동/리사이즈/회전 (이미지 어디든 클릭 → 이동)
  * ========================= */
 function screenToCanvasPoint(e) {
   const rect = canvas.getBoundingClientRect();
@@ -1110,7 +1281,6 @@ function startMoveDrag(e) {
   if (handleDrag || rotateDrag) return;
 
   draggingMove = true;
-
   const rect = canvas.getBoundingClientRect();
   moveStart.x = e.clientX - rect.left;
   moveStart.y = e.clientY - rect.top;
@@ -1119,15 +1289,13 @@ function startMoveDrag(e) {
   centerStart.y = imgCY;
 }
 
-const canvasWrapEl = document.getElementById("canvasWrap");
-
-// 이미지 위 클릭이면 이동(최우선)
-canvasWrapEl.addEventListener(
+// 캔버스에서 이미지 클릭하면 이동 시작
+canvasWrapEl?.addEventListener(
   "mousedown",
   (e) => {
+    if (!userImg) return;
     if (e.target.closest(".h")) return;
     if (e.target.id === "rotHandle") return;
-    if (!userImg) return;
 
     const p = screenToCanvasPoint(e);
     if (!isPointOnImage(p.x, p.y)) return;
@@ -1139,9 +1307,9 @@ canvasWrapEl.addEventListener(
   { capture: true },
 );
 
-canvas.addEventListener("mousedown", (e) => startMoveDrag(e));
-
-bboxEl.addEventListener("mousedown", (e) => {
+// bbox 클릭도 이동
+bboxEl?.addEventListener("mousedown", (e) => {
+  if (!userImg) return;
   if (e.target.closest(".h")) return;
   if (e.target.id === "rotHandle") return;
   e.preventDefault();
@@ -1214,10 +1382,11 @@ window.addEventListener("mouseup", () => {
 
     redraw();
     renderCart();
+    updateActionLocks();
   }
 });
 
-bboxEl.querySelectorAll(".h").forEach((h) => {
+bboxEl?.querySelectorAll(".h").forEach((h) => {
   h.addEventListener("mousedown", (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -1254,7 +1423,7 @@ bboxEl.querySelectorAll(".h").forEach((h) => {
   });
 });
 
-rotHandleEl.addEventListener("mousedown", (e) => {
+rotHandleEl?.addEventListener("mousedown", (e) => {
   e.preventDefault();
   e.stopPropagation();
   if (!userImg) return;
@@ -1276,58 +1445,7 @@ rotHandleEl.addEventListener("mousedown", (e) => {
 canvas.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
 
 /* =========================
- * 메일 발송 검증
- * ========================= */
-function validateBeforeSend() {
-  const errs = [];
-  if (!nameEl.value.trim()) errs.push("주문자명을 입력해주세요.");
-  if (!phoneEl.value.trim()) errs.push("핸드폰번호를 입력해주세요.");
-  if (!orderEl.value.trim()) errs.push("주문번호를 입력해주세요.");
-  if (!emailEl.value.trim()) errs.push("이메일을 입력해주세요.");
-  if (cartItems.length === 0) errs.push("장바구니에 아이템을 추가해주세요.");
-
-  // [FIX] 배경만으로도 시안 인정
-  const hasAnyDesign = cartItems.some((it) => hasDesign(it));
-  if (!hasAnyDesign)
-    errs.push("최소 1개 이상의 아이템에 배경색 또는 이미지를 설정해주세요.");
-
-  if (errs.length) {
-    msgEl.innerHTML = errs.map((e) => `• ${e}`).join("<br>");
-    okEl.textContent = "";
-    return false;
-  }
-  msgEl.textContent = "";
-  return true;
-}
-
-function validateBeforeQuote() {
-  const errs = [];
-
-  if (!nameEl.value.trim()) errs.push("주문자명을 입력해주세요.");
-  if (!phoneEl.value.trim()) errs.push("핸드폰번호를 입력해주세요.");
-  if (!orderEl.value.trim()) errs.push("주문번호를 입력해주세요.");
-  if (!emailEl.value.trim()) errs.push("이메일을 입력해주세요.");
-  if (cartItems.length === 0) errs.push("장바구니에 아이템을 추가해주세요.");
-
-  const hasAnyDesign = cartItems.some((it) => hasDesign(it));
-  if (!hasAnyDesign)
-    errs.push("최소 1개 이상의 아이템에 배경색 또는 이미지를 설정해주세요.");
-
-  if (!bizFileDataUrl)
-    errs.push("견적서 요청 시 사업자등록증 업로드가 필수입니다.");
-
-  if (errs.length) {
-    msgEl.innerHTML = errs.map((e) => `• ${e}`).join("<br>");
-    okEl.textContent = "";
-    return false;
-  }
-
-  msgEl.textContent = "";
-  return true;
-}
-
-/* =========================
- * 최종 PNG 렌더
+ * 메일 발송 유틸
  * ========================= */
 async function renderItemFinalPng(item) {
   const size = getCanvasSize(item.profile, item.capType);
@@ -1367,15 +1485,16 @@ async function renderItemFinalPng(item) {
   return off.toDataURL("image/png");
 }
 
-/* =========================
- * 메일 전송 (회사)
- * ========================= */
-async function sendEmail(extraParams = {}) {
-  if (
+function emailConfigReady(templateId) {
+  return !(
     EMAILJS_PUBLIC_KEY.startsWith("YOUR_") ||
     EMAILJS_SERVICE_ID.startsWith("YOUR_") ||
-    EMAILJS_TEMPLATE_ID.startsWith("YOUR_")
-  ) {
+    templateId.startsWith("YOUR_")
+  );
+}
+
+async function sendEmailToCompany(extraParams = {}) {
+  if (!emailConfigReady(EMAILJS_TEMPLATE_ID)) {
     msgEl.textContent = "메일 전송 설정이 완료되지 않았습니다.";
     return false;
   }
@@ -1385,8 +1504,6 @@ async function sendEmail(extraParams = {}) {
   const itemsSummary = [];
   const designs = [];
   let totalLen = 0;
-
-  const rush = getRushValue();
 
   for (const it of cartItems) {
     const calc = calcLineTotal(it);
@@ -1401,8 +1518,7 @@ async function sendEmail(extraParams = {}) {
       unit: calc.unit,
       baseLine: calc.baseLine,
       discountRate: calc.discRate,
-      rushRate: calc.rushRate,
-      line: calc.finalLine,
+      lineAfterDiscount: calc.afterDiscount,
       design: hasDesign(it) ? "있음" : "없음",
     });
 
@@ -1416,10 +1532,11 @@ async function sendEmail(extraParams = {}) {
     }
   }
 
+  // EmailJS 용량 보호(이미지 너무 많으면 컷)
   const MAX_LEN = 1_800_000;
   if (totalLen > MAX_LEN) {
     msgEl.textContent =
-      "이미지 용량이 커서 전송이 불가능합니다. 파일 크기를 줄인 후 다시 시도해주세요.";
+      "이미지 용량이 커서 전송이 불가능합니다. 파일 크기를 줄여 다시 시도해주세요.";
     return false;
   }
 
@@ -1429,13 +1546,17 @@ async function sendEmail(extraParams = {}) {
     customer_phone: phoneEl.value.trim(),
     order_no: orderEl.value.trim(),
     customer_email: emailEl.value.trim(),
+
+    // ✅ 총액(할증 포함 가능)
+    subtotal_price: String(cartSubtotal()),
     total_price: String(cartTotal()),
+    quote_enabled: quoteEnabled ? "Y" : "N",
+    quote_prod: quoteEnabled ? quoteProd : "",
+    quote_due: quoteEnabled ? quoteDue : "",
+    biz_file_dataurl: quoteEnabled ? bizFileDataUrl || "" : "",
+
     items_json: JSON.stringify(itemsSummary, null, 2),
     designs_json: JSON.stringify(designs, null, 2),
-
-    biz_file_dataurl: bizFileDataUrl || "",
-    rush_value: rush,
-    rush_label: rushLabel(rush),
 
     ...extraParams,
   };
@@ -1443,188 +1564,53 @@ async function sendEmail(extraParams = {}) {
   return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
 }
 
-/* =========================
- * 메일 전송 (주문자: 견적서)
- * ========================= */
-async function sendQuoteEmailToCustomer(itemsSummary, quoteExtra) {
-  if (
-    EMAILJS_PUBLIC_KEY.startsWith("YOUR_") ||
-    EMAILJS_SERVICE_ID.startsWith("YOUR_") ||
-    EMAILJS_QUOTE_TEMPLATE_ID.startsWith("YOUR_")
-  ) {
-    // [CHANGE] 멘트 확정본 적용
-    msgEl.textContent =
-      "현재 견적서 발송이 일시적으로 불가능합니다. 잠시 후 다시 시도해주세요.";
+async function sendQuoteEmailToCustomer(itemsSummary) {
+  if (!emailConfigReady(EMAILJS_QUOTE_TEMPLATE_ID)) {
+    msgEl.textContent = "메일 전송 설정이 완료되지 않았습니다.";
     return false;
   }
 
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-
-  const rush = getRushValue();
 
   const params = {
     to_email: emailEl.value.trim(),
     customer_name: nameEl.value.trim(),
     customer_phone: phoneEl.value.trim(),
     order_no: orderEl.value.trim(),
+
+    subtotal_price: String(cartSubtotal()),
     total_price: String(cartTotal()),
+    quote_prod: quoteProd,
+    quote_due: quoteDue,
+
     items_json: JSON.stringify(itemsSummary, null, 2),
-
-    prod_schedule: quoteExtra?.prod || "",
-    due_date: quoteExtra?.due || "",
-
-    rush_value: rush,
-    rush_label: rushLabel(rush),
   };
 
   return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_QUOTE_TEMPLATE_ID, params);
 }
 
 /* =========================
- * 견적서 추가 UI (레이저/수량 밑)
+ * 시안 확정하기 (견적 ON이면 회사+고객 둘 다 발송)
  * ========================= */
-let quoteExtraWrap = null;
-let quoteProdSel = null;
-let quoteDueInput = null;
-
-function ensureQuoteExtraUI() {
-  if (quoteExtraWrap) return;
-
-  const qtyRow = qtyEl?.closest(".row");
-  const parent = qtyRow?.parentElement || document.body;
-
-  quoteExtraWrap = document.createElement("div");
-  quoteExtraWrap.style.display = "none";
-  quoteExtraWrap.className = "quoteExtraWrap";
-
-  // rushFormEl 있으면 옵션 복사, 없으면 fallback
-  const optionsHtml = (() => {
-    if (rushFormEl && rushFormEl.options && rushFormEl.options.length) {
-      return Array.from(rushFormEl.options)
-        .map((o) => `<option value="${o.value}">${o.textContent}</option>`)
-        .join("");
-    }
-    return `
-      <option value="none">일반 제작</option>
-      <option value="10d">빠른제작(+20%)</option>
-      <option value="5d">특급제작(+30%)</option>
-    `;
-  })();
-
-  quoteExtraWrap.innerHTML = `
-    <div class="divider"></div>
-    <div class="row">
-      <div>
-        <label>제작 일정 선택 *</label>
-        <select id="quoteProd" data-role="rush">
-          ${optionsHtml}
-        </select>
-      </div>
-      <div>
-        <label>납기일 선택 *</label>
-        <input id="quoteDue" type="date" />
-      </div>
-    </div>
-  `;
-
-  parent.insertBefore(quoteExtraWrap, qtyRow ? qtyRow.nextSibling : null);
-
-  quoteProdSel = $("quoteProd");
-  quoteDueInput = $("quoteDue");
-
-  // [FIX] 제작일정 변경 → 즉시 가격/장바구니 반영 (rush는 DOM에서 읽기 때문에 이것만으로 충분)
-  if (quoteProdSel) {
-    quoteProdSel.addEventListener("change", () => {
-      updatePriceUI();
-      renderCart();
-    });
-  }
-
-  // [ADD] 생성됐으니 rush 이벤트도 다시 바인딩
-  bindRushChangeEvent();
-}
-
-function showQuoteExtraUI() {
-  ensureQuoteExtraUI();
-  quoteExtraWrap.style.display = "block";
-
-  // 현재 rush 값으로 맞춰줌
-  if (quoteProdSel) quoteProdSel.value = getRushValue();
-  quoteExtraWrap.scrollIntoView({ behavior: "smooth", block: "center" });
-}
-
-function validateQuoteExtra() {
-  ensureQuoteExtraUI();
-
-  const prod = quoteProdSel ? quoteProdSel.value : "";
-  const due = quoteDueInput ? quoteDueInput.value : "";
-
-  const errs = [];
-  if (!prod) errs.push("제작 일정을 선택해주세요.");
-  if (!due) errs.push("납기일을 선택해주세요.");
-
-  if (errs.length) {
-    msgEl.innerHTML = errs.map((e) => `• ${e}`).join("<br>");
-    okEl.textContent = "";
-    return null;
-  }
-
-  msgEl.textContent = "";
-  return { prod, due };
-}
-
-/* =========================
- * 버튼: 시안 확정하기
- * ========================= */
-$("btnConfirm").addEventListener("click", async () => {
+btnConfirmEl?.addEventListener("click", async () => {
   msgEl.textContent = "";
   okEl.textContent = "";
 
-  if (!validateBeforeSend()) return;
+  if (!validateCanConfirm(true)) return;
 
   try {
     const sel = cartItems.find((x) => x.id === selectedItemId);
     if (sel) saveCanvasToItem(sel);
 
-    const ok = await sendEmail();
-    if (!ok) return;
+    // ✅ 회사로 먼저 전송(시안+주문정보 + 견적이면 사업자/일정/납기 포함)
+    const okCompany = await sendEmailToCompany();
+    if (!okCompany) return;
 
-    okEl.textContent =
-      "시안이 접수되었습니다. 검토 후 입력하신 이메일로 안내드리겠습니다.";
-    msgEl.textContent = "";
-  } catch (e) {
-    console.error("메일 전송 실패:", e);
-    msgEl.textContent =
-      "메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의해주세요.";
-    okEl.textContent = "";
-  }
-});
-
-/* =========================
- * 버튼: 견적서 요청
- * ========================= */
-if (btnQuoteEl) {
-  btnQuoteEl.addEventListener("click", async () => {
-    msgEl.textContent = "";
-    okEl.textContent = "";
-
-    showQuoteExtraUI();
-
-    if (!validateBeforeQuote()) return;
-
-    const quoteExtra = validateQuoteExtra();
-    if (!quoteExtra) return;
-
-    try {
-      const sel = cartItems.find((x) => x.id === selectedItemId);
-      if (sel) saveCanvasToItem(sel);
-
-      const rush = getRushValue();
-
+    // ✅ 견적 ON이면 고객에게 견적서도 전송
+    if (quoteEnabled) {
       const itemsSummary = cartItems.map((it) => {
         const bg = getItemBgColor(it);
         const calc = calcLineTotal(it);
-
         return {
           profile: it.profile,
           capType: it.capType,
@@ -1634,43 +1620,41 @@ if (btnQuoteEl) {
           unit: calc.unit,
           baseLine: calc.baseLine,
           discountRate: calc.discRate,
-          rushRate: calc.rushRate,
-          line: calc.finalLine,
-          design: hasDesign(it) ? "있음" : "없음",
+          lineAfterDiscount: calc.afterDiscount,
         };
       });
 
-      const ok1 = await sendEmail({
-        quote_prod: quoteExtra.prod,
-        quote_due: quoteExtra.due,
-      });
-      if (!ok1) return;
-
-      const ok2 = await sendQuoteEmailToCustomer(itemsSummary, quoteExtra);
-      if (!ok2) return;
+      const okCustomer = await sendQuoteEmailToCustomer(itemsSummary);
+      if (!okCustomer) return;
 
       okEl.textContent =
         "견적서 요청이 완료되었습니다. 입력하신 이메일로 견적서를 발송했습니다.";
       msgEl.textContent = "";
-    } catch (e) {
-      console.error("견적서 요청 실패:", e);
-      msgEl.textContent =
-        "견적서 요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-      okEl.textContent = "";
+      return;
     }
-  });
-}
+
+    okEl.textContent =
+      "시안이 접수되었습니다. 검토 후 입력하신 이메일로 안내드리겠습니다.";
+    msgEl.textContent = "";
+  } catch (e) {
+    console.error("전송 실패:", e);
+    msgEl.textContent =
+      "메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의해주세요.";
+    okEl.textContent = "";
+  } finally {
+    updateActionLocks();
+  }
+});
 
 /* =========================
  * 초기화
  * ========================= */
 setCapTypeOptions();
-updatePriceUI();
-renderCart();
 resizeCanvas(330, 330);
 clearEditor();
 applyCanvasSizeFromForm();
+renderCart();
+updatePriceUI();
+setQuoteUI(false);
 redraw();
-
-// [ADD] 제작일정 변경 시 자동 반영(있을 경우)
-bindRushChangeEvent();
+updateActionLocks();
