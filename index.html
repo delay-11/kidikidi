@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>시안 제작</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
+
+    <!-- Scripts (vendor) -->
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>시안 제작페이지</h1>
+
+        <div class="layout2">
+            <!-- LEFT: 주문 정보/옵션 -->
+            <aside class="leftStack" aria-label="주문 정보 및 옵션">
+                <section class="card">
+                    <div class="row1">
+                        <!-- 주문자 정보 -->
+                        <div class="row">
+                            <div>
+                                <label for="name">주문자명 *</label>
+                                <input id="name" placeholder="홍길동" />
+                            </div>
+
+                            <div>
+                                <label for="phone">핸드폰번호 *</label>
+                                <input id="phone" placeholder="010-1234-5678" />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div>
+                                <label for="orderNo">주문번호 *</label>
+                                <input id="orderNo" placeholder="ORD-YYYYMMDD-0001" />
+                            </div>
+
+                            <div>
+                                <label for="email">이메일 *</label>
+                                <input id="email" placeholder="customer@email.com" />
+                            </div>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- 상품 옵션 -->
+                        <div class="row">
+                            <div>
+                                <label for="profile">키캡 프로파일 *</label>
+                                <select id="profile">
+                                    <option value="OEM">OEM</option>
+                                    <option value="XDA">XDA</option>
+                                    <option value="MAO">MAO</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="capType">키캡 규격 *</label>
+                                <select id="capType"></select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div>
+                                <label for="laser">레이저 각인 (OEM)</label>
+                                <select id="laser">
+                                    <option value="none">없음</option>
+                                    <option value="black">블랙 (+800)</option>
+                                    <option value="white">화이트 (+1,800)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="qty">수량 *</label>
+                                <input id="qty" type="number" min="1" value="1" />
+                            </div>
+                        </div>
+
+                        <!-- 액션 -->
+                        <div class="btns">
+                            <button id="btnAddItem" type="button">시안 제작하기</button>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- 단가 표시 -->
+                        <div class="pill" aria-live="polite">
+                            <span class="tag">가격</span><b id="unitPriceText">-</b>
+                        </div>
+
+                        <div class="divider"></div>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- RIGHT: 편집/장바구니 -->
+            <main class="rightStack" aria-label="편집 및 장바구니">
+                <section class="card">
+                    <div class="editorWrap">
+                        <!-- 캔버스/편집 영역 -->
+                        <section class="canvasFrame" aria-label="캔버스 편집">
+                            <div class="pill" aria-live="polite">
+                                <span class="tag">선택 프로파일/규격</span><b id="selText">없음</b>
+                                <span class="tag">캔버스</span><b id="canvasText">-</b>
+                                <span class="tag">배경</span><b id="bgText">-</b>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div id="canvasWrap" class="canvasWrap">
+                                <canvas id="designCanvas" width="330" height="330"></canvas>
+
+                                <!-- 선택/변형 바운딩 박스 -->
+                                <div id="bbox" class="bbox" aria-hidden="true">
+                                    <div class="rotLine"></div>
+                                    <div class="rot" id="rotHandle" title="회전"></div>
+                                    <div class="h nw" data-h="nw"></div>
+                                    <div class="h ne" data-h="ne"></div>
+                                    <div class="h sw" data-h="sw"></div>
+                                    <div class="h se" data-h="se"></div>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <!-- 업로드/배경색 -->
+                            <div class="row">
+                                <div>
+                                    <label for="file">선택 아이템에 이미지 업로드 *</label>
+
+                                    <div class="fileUpload">
+                                        <input id="file" type="file" accept="image/*" hidden />
+                                        <button type="button" id="fileBtn" class="ghostBtn">
+                                            이미지 선택
+                                        </button>
+                                        <!-- 추가: 이미지 삭제 -->
+                                        <button type="button" id="fileDelBtn" class="dangerBtn">삭제</button>
+
+                                        <span id="fileName" class="fileName">선택된 파일 없음</span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label>배경 색상 선택</label>
+
+                                    <div class="colorPick">
+                                        <button type="button" id="bgPickBtn" class="ghostBtn">
+                                            배경색 선택
+                                        </button>
+                                        <span class="colorSwatch" id="bgColorSwatch" aria-hidden="true"></span>
+                                        <span class="colorValue" id="bgColorValue">#ffffff</span>
+                                        <span id="bgPickMount" class="pickrMount"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <!-- 안내 -->
+                            <div class="hint">
+                                - 가이드 색상:
+                                <b class="red">빨강=바깥선</b>, <b class="yellow">노랑=인쇄 안전선</b><br />
+                                - 실제 제작은 <b>CMYK</b> 색상으로 제작됩니다.
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <!-- 조작 도움말 -->
+                            <div class="pill">
+                                <span class="tag">조작</span><b>드래그 이동</b>
+                                <span> | </span>
+                                <span class="tag">크기</span><b>모서리 핸들</b>
+                                <span> | </span>
+                                <span class="tag">Alt</span><b>중심 확대</b>
+                                <span> | </span>
+                                <span class="tag">회전</span><b>상단 핸들</b>
+                            </div>
+                        </section>
+
+                        <!-- 장바구니 영역 -->
+                        <section class="canvasFrame" aria-label="장바구니">
+                            <div class="pill" aria-live="polite">
+                                <span class="tag">장바구니</span><b id="cartCount">0</b>개
+                                <span class="tag">총액</span><b id="cartTotal">0원</b>
+                            </div>
+
+                            <div class="divider"></div>
+
+                            <div id="cartList" class="cartList"></div>
+
+                            <br />
+
+                            <div class="btns">
+                                <button id="btnConfirm" type="button" class="confirmBtn">
+                                    시안 확정하기
+                                </button>
+                                <button id="btnQuote" type="button" class="quoteBtn">견적서 요청</button>
+                            </div>
+
+                            <br />
+
+                            <div class="row">
+                                <div>
+                                    <div class="fileUpload">
+                                        <input id="bizFile" type="file" accept="image/*,application/pdf" hidden />
+                                        <button type="button" id="bizFileBtn" class="ghostBtn">파일 선택</button>
+                                        <span id="bizFileName" class="fileName">선택된 파일 없음</span>
+                                    </div>
+                                </div>
+                                <div></div>
+                            </div>
+
+                            <br />
+
+                            <div id="msg" class="warn"></div>
+                            <div id="ok" class="ok"></div>
+                        </section>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- App Script -->
+    <script src="/js/index.js"></script>
+</body>
+
+</html>
