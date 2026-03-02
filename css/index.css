@@ -1,5 +1,5 @@
 /* =========================================================
-   Design Tokens
+   디자인 토큰 (변수)
 ========================================================= */
 :root {
     --bg: #f6f7fb;
@@ -28,7 +28,7 @@
 }
 
 /* =========================================================
-   Base / Reset
+   기본 설정 / 리셋
 ========================================================= */
 * {
     box-sizing: border-box;
@@ -48,7 +48,7 @@ h1 {
 }
 
 /* =========================================================
-   Layout
+   레이아웃
 ========================================================= */
 .wrap {
     max-width: 1920px;
@@ -62,19 +62,13 @@ h1 {
     gap: 24px;
 }
 
-@media (max-width: 1100px) {
-    .layout2 {
-        grid-template-columns: 1fr;
-    }
-}
-
 .leftStack,
 .rightStack {
     display: grid;
     gap: 16px;
 }
 
-/* 오른쪽 레이아웃 */
+/* 오른쪽 편집기 레이아웃 */
 .editorWrap {
     display: grid;
     grid-template-columns: 1fr 350px;
@@ -82,14 +76,8 @@ h1 {
     align-items: start;
 }
 
-@media (max-width: 1100px) {
-    .editorWrap {
-        grid-template-columns: 1fr;
-    }
-}
-
 /* =========================================================
-   Surfaces
+   카드 / 영역(서피스)
 ========================================================= */
 .card {
     background: var(--card);
@@ -107,7 +95,7 @@ h1 {
 }
 
 /* =========================================================
-   Forms
+   폼 요소
 ========================================================= */
 label {
     display: block;
@@ -152,7 +140,7 @@ input[type="number"] {
 }
 
 /* =========================================================
-   Buttons
+   버튼
 ========================================================= */
 button {
     cursor: pointer;
@@ -213,7 +201,7 @@ button:hover {
     filter: brightness(1.05);
 }
 
-/* ✅ 체크박스/라디오 공통 width 100% 방지 */
+/* 체크박스/라디오 공통 width 100% 방지 */
 input[type="checkbox"],
 input[type="radio"] {
     width: auto !important;
@@ -226,7 +214,7 @@ input[type="checkbox"]:checked {
 }
 
 /* =========================================================
-   Grid Rows / Dividers
+   그리드 행 / 구분선
 ========================================================= */
 .row {
     display: grid;
@@ -247,7 +235,7 @@ input[type="checkbox"]:checked {
 }
 
 /* =========================================================
-   Pills / Tags / Text
+   뱃지 / 태그 / 텍스트
 ========================================================= */
 .pill {
     display: flex;
@@ -303,7 +291,7 @@ input[type="checkbox"]:checked {
 }
 
 /* =========================================================
-   Canvas
+   캔버스
 ========================================================= */
 .canvasWrap {
     position: relative;
@@ -386,7 +374,6 @@ canvas {
     position: absolute;
     left: 50%;
     top: -34px;
-    /* 직선 위로 살짝 */
     transform: translateX(-50%);
     width: 22px;
     height: 22px;
@@ -407,7 +394,7 @@ canvas {
 }
 
 /* =========================================================
-   File Upload
+   파일 업로드
 ========================================================= */
 .fileUpload {
     display: flex;
@@ -454,7 +441,7 @@ canvas {
 }
 
 /* =========================================================
-   Cart
+   장바구니
 ========================================================= */
 .cartList {
     display: grid;
@@ -508,7 +495,7 @@ canvas {
 }
 
 /* =========================================================
-   Pickr (배경색 UI)
+   컬러 피커 (배경색 UI)
 ========================================================= */
 .colorPick {
     display: flex;
@@ -545,7 +532,7 @@ canvas {
     height: 0;
 }
 
-/* Pickr 버튼 클릭 영역 무력화(네가 원했던 그거) */
+/* Pickr 버튼 클릭 영역 무력화 */
 .pcr-button,
 .pcr-button::after {
     pointer-events: none !important;
@@ -555,4 +542,79 @@ canvas {
 .colorPick.isLocked {
     opacity: 0.55;
     pointer-events: none;
+}
+
+/* =========================================================
+   반응형 (미디어쿼리)
+========================================================= */
+
+/* 1024 이하 */
+@media (max-width: 1024px) {
+    .wrap {
+        padding: 20px;
+    }
+
+    .layout2 {
+        grid-template-columns: 1fr;
+    }
+
+    .editorWrap {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .canvasFrame {
+        padding: 12px;
+    }
+
+    .fileName {
+        max-width: 100%;
+    }
+}
+
+/* 768 이하 */
+@media (max-width: 768px) {
+    .wrap {
+        padding: 16px;
+    }
+
+    .card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .canvasFrame {
+        padding: 10px;
+        border-radius: 16px;
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+    }
+
+    .btns button {
+        min-width: 140px;
+    }
+
+    .fileUpload {
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .fileUpload button,
+    .dangerBtn {
+        width: 100%;
+    }
+
+    .cartTop {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cartActions {
+        justify-content: flex-start;
+    }
 }

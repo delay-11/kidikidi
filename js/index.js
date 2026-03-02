@@ -12,7 +12,7 @@ const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
 const EMAILJS_QUOTE_TEMPLATE_ID = "YOUR_QUOTE_TEMPLATE_ID";
 
 /* =========================
- * ✅ [ADD] 시안 확정 주문번호 잠금 + URL 주문번호 자동입력
+ * [ADD] 시안 확정 주문번호 잠금 + URL 주문번호 자동입력
  * ========================= */
 const CONFIRM_KEY_PREFIX = "design_confirmed_";
 let uiLocked = false;
@@ -40,7 +40,7 @@ function markOrderConfirmed(orderNo) {
   localStorage.setItem(confirmKey(o), "true");
 }
 
-/** ✅ [ADD] 확정 주문이면 전체 잠금 (주문번호 포함) */
+/** [ADD] 확정 주문이면 전체 잠금 (주문번호 포함) */
 function setAllLocked(locked) {
   uiLocked = !!locked;
 
@@ -96,7 +96,7 @@ function setAllLocked(locked) {
   }
 }
 
-/** ✅ [ADD] 주문번호 기준으로 잠금 적용 + 필요시 팝업 */
+/** [ADD] 주문번호 기준으로 잠금 적용 + 필요시 팝업 */
 function applyConfirmedLockIfNeeded(showPopup = false) {
   const orderNo = orderEl?.value?.trim() || "";
   const locked = isOrderConfirmed(orderNo);
@@ -386,7 +386,7 @@ function hasDesign(it) {
 }
 
 /* =========================
- * 아이템 라인 계산: 할인까지만 (✅ 할증은 총액에서만)
+ * 아이템 라인 계산: 할인까지만 (할증은 총액에서만)
  * ========================= */
 function calcLineTotal(item) {
   const { unit } = getUnitPrice(item.profile, item.capType, item.laser);
@@ -445,12 +445,12 @@ function initPickr() {
   });
 
   bgPickBtn?.addEventListener("click", () => {
-    if (uiLocked) return; // ✅ [ADD] 잠금이면 색상 변경 막기
+    if (uiLocked) return; // [ADD] 잠금이면 색상 변경 막기
     bgPickr && bgPickr.show();
   });
 
   bgPickr.on("change", (color) => {
-    if (uiLocked) return; // ✅ [ADD]
+    if (uiLocked) return; // [ADD]
     if (!color) return;
 
     const hex = color.toHEXA().toString().toLowerCase();
@@ -636,7 +636,7 @@ function validateCanConfirm(showMessage = false) {
  * ========================= */
 function updateActionLocks() {
   if (uiLocked) {
-    // ✅ [ADD] 잠금 상태면 강제로 비활성(중복 방지)
+    // [ADD] 잠금 상태면 강제로 비활성(중복 방지)
     if (btnAddItemEl) btnAddItemEl.disabled = true;
     if (btnConfirmEl) btnConfirmEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
@@ -658,16 +658,16 @@ function updateActionLocks() {
   if (!el) return;
 
   el.addEventListener("input", () => {
-    if (uiLocked) return; // ✅ [ADD]
+    if (uiLocked) return; // [ADD]
     clearFieldErrors();
     msgEl.textContent = "";
     updateActionLocks();
   });
 
   el.addEventListener("blur", () => {
-    if (uiLocked) return; // ✅ [ADD]
+    if (uiLocked) return; // [ADD]
     validateUserInfo(true);
-    // ✅ [ADD] 혹시 수동 입력 케이스라도 “확정 주문번호”면 즉시 잠금 + 팝업
+    // [ADD] 혹시 수동 입력 케이스라도 “확정 주문번호”면 즉시 잠금 + 팝업
     if (el === orderEl) applyConfirmedLockIfNeeded(true);
     updateActionLocks();
   });
@@ -695,12 +695,12 @@ function setQuoteUI(open) {
 }
 
 quoteToggleEl?.addEventListener("change", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   setQuoteUI(quoteToggleEl.checked);
 });
 
 quoteProdEl?.addEventListener("change", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   quoteProd = quoteProdEl.value;
   updatePriceUI();
   renderCart();
@@ -708,13 +708,13 @@ quoteProdEl?.addEventListener("change", () => {
 });
 
 quoteDueEl?.addEventListener("change", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   quoteDue = quoteDueEl.value || "";
   updateActionLocks();
 });
 
 bizFileBtn?.addEventListener("click", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   bizFileEl?.click();
 });
 
@@ -728,7 +728,7 @@ function fileToDataUrl(file) {
 }
 
 bizFileEl?.addEventListener("change", async () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   const f = bizFileEl.files && bizFileEl.files[0];
   if (!f) return;
 
@@ -758,7 +758,7 @@ bizFileEl?.addEventListener("change", async () => {
  * 이벤트: 옵션 변경
  * ========================= */
 profileEl.addEventListener("change", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   setCapTypeOptions();
   applyCanvasSizeFromForm();
   redraw();
@@ -767,14 +767,14 @@ profileEl.addEventListener("change", () => {
 });
 
 capTypeEl.addEventListener("change", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   applyCanvasSizeFromForm();
   updatePriceUI();
   updateActionLocks();
 });
 
 qtyEl.addEventListener("input", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   updatePriceUI();
 
   const it = cartItems.find((x) => x.id === selectedItemId);
@@ -786,7 +786,7 @@ qtyEl.addEventListener("input", () => {
 });
 
 laserEl.addEventListener("change", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   updateBgLockUI(profileEl.value, laserEl.value);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
@@ -875,7 +875,7 @@ function renderCart() {
     const box = document.createElement("div");
     box.className = "cartItem" + (it.id === selectedItemId ? " selected" : "");
     box.addEventListener("click", () => {
-      if (uiLocked) return; // ✅ [ADD]
+      if (uiLocked) return; // [ADD]
       selectItem(it.id);
     });
 
@@ -907,7 +907,7 @@ function renderCart() {
 
     box.querySelector('[data-act="minus"]').addEventListener("click", (e) => {
       e.stopPropagation();
-      if (uiLocked) return; // ✅ [ADD]
+      if (uiLocked) return; // [ADD]
       it.qty = Math.max(1, it.qty - 1);
       if (it.id === selectedItemId) qtyEl.value = it.qty;
       renderCart();
@@ -917,7 +917,7 @@ function renderCart() {
 
     box.querySelector('[data-act="plus"]').addEventListener("click", (e) => {
       e.stopPropagation();
-      if (uiLocked) return; // ✅ [ADD]
+      if (uiLocked) return; // [ADD]
       it.qty += 1;
       if (it.id === selectedItemId) qtyEl.value = it.qty;
       renderCart();
@@ -927,7 +927,7 @@ function renderCart() {
 
     box.querySelector('[data-act="del"]').addEventListener("click", (e) => {
       e.stopPropagation();
-      if (uiLocked) return; // ✅ [ADD]
+      if (uiLocked) return; // [ADD]
       removeItem(it.id);
     });
 
@@ -963,7 +963,7 @@ btnAddItemEl.addEventListener("click", () => {
   msgEl.textContent = "";
   okEl.textContent = "";
 
-  // ✅ [ADD] 확정된 주문번호면 전부 막기
+  // [ADD] 확정된 주문번호면 전부 막기
   if (applyConfirmedLockIfNeeded(true)) return;
   if (!validateUserInfo(true)) return;
 
@@ -1050,7 +1050,7 @@ function syncLeftFormFromItem(it) {
 }
 
 async function selectItem(id) {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   const prev = cartItems.find((x) => x.id === selectedItemId);
   if (prev) saveCanvasToItem(prev);
 
@@ -1101,7 +1101,7 @@ fileBtn?.addEventListener("click", () => {
   msgEl.textContent = "";
   okEl.textContent = "";
 
-  // ✅ [ADD] 확정된 주문번호면 업로드 막기
+  // [ADD] 확정된 주문번호면 업로드 막기
   if (applyConfirmedLockIfNeeded(true)) return;
 
   const it = cartItems.find((x) => x.id === selectedItemId);
@@ -1191,7 +1191,7 @@ fileDelBtn?.addEventListener(
     msgEl.textContent = "";
     okEl.textContent = "";
 
-    // ✅ [ADD]
+    // [ADD]
     if (applyConfirmedLockIfNeeded(true)) return;
 
     const it = cartItems.find((x) => x.id === selectedItemId);
@@ -1437,7 +1437,7 @@ function startMoveDrag(e) {
 canvasWrapEl?.addEventListener(
   "mousedown",
   (e) => {
-    if (uiLocked) return; // ✅ [ADD]
+    if (uiLocked) return; // [ADD]
     if (!userImg) return;
     if (e.target.closest(".h")) return;
     if (e.target.id === "rotHandle") return;
@@ -1453,7 +1453,7 @@ canvasWrapEl?.addEventListener(
 );
 
 bboxEl?.addEventListener("mousedown", (e) => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   if (!userImg) return;
   if (e.target.closest(".h")) return;
   if (e.target.id === "rotHandle") return;
@@ -1463,7 +1463,7 @@ bboxEl?.addEventListener("mousedown", (e) => {
 });
 
 window.addEventListener("mousemove", (e) => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   const rect = canvas.getBoundingClientRect();
   const mx = e.clientX - rect.left;
   const my = e.clientY - rect.top;
@@ -1518,7 +1518,7 @@ window.addEventListener("mousemove", (e) => {
 });
 
 window.addEventListener("mouseup", () => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   if (draggingMove || handleDrag || rotateDrag) {
     draggingMove = false;
     handleDrag = null;
@@ -1535,7 +1535,7 @@ window.addEventListener("mouseup", () => {
 
 bboxEl?.querySelectorAll(".h").forEach((h) => {
   h.addEventListener("mousedown", (e) => {
-    if (uiLocked) return; // ✅ [ADD]
+    if (uiLocked) return; // [ADD]
     e.preventDefault();
     e.stopPropagation();
     if (!userImg) return;
@@ -1572,7 +1572,7 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
 });
 
 rotHandleEl?.addEventListener("mousedown", (e) => {
-  if (uiLocked) return; // ✅ [ADD]
+  if (uiLocked) return; // [ADD]
   e.preventDefault();
   e.stopPropagation();
   if (!userImg) return;
@@ -1743,7 +1743,7 @@ btnConfirmEl?.addEventListener("click", async () => {
   msgEl.textContent = "";
   okEl.textContent = "";
 
-  // ✅ [ADD] 확정 주문번호면 바로 막고 팝업
+  // [ADD] 확정 주문번호면 바로 막고 팝업
   if (applyConfirmedLockIfNeeded(true)) return;
 
   if (!validateCanConfirm(true)) return;
@@ -1779,7 +1779,7 @@ btnConfirmEl?.addEventListener("click", async () => {
         "견적서 요청이 완료되었습니다. 입력하신 이메일로 견적서를 발송했습니다.";
       msgEl.textContent = "";
 
-      // ✅ [ADD] (회사+고객 발송 성공) => 주문번호 확정 처리 + 전체 잠금
+      // [ADD] (회사+고객 발송 성공) => 주문번호 확정 처리 + 전체 잠금
       markOrderConfirmed(orderEl.value.trim());
       applyConfirmedLockIfNeeded(false);
       return;
@@ -1789,7 +1789,7 @@ btnConfirmEl?.addEventListener("click", async () => {
       "시안이 접수되었습니다. 검토 후 입력하신 이메일로 안내드리겠습니다.";
     msgEl.textContent = "";
 
-    // ✅ [ADD] (회사 발송 성공) => 주문번호 확정 처리 + 전체 잠금
+    // [ADD] (회사 발송 성공) => 주문번호 확정 처리 + 전체 잠금
     markOrderConfirmed(orderEl.value.trim());
     applyConfirmedLockIfNeeded(false);
   } catch (e) {
@@ -1803,7 +1803,7 @@ btnConfirmEl?.addEventListener("click", async () => {
 });
 
 /* =========================
- * ✅ [MOD] 초기화: URL 주문번호 자동 입력 + 확정 잠금 체크
+ * [MOD] 초기화: URL 주문번호 자동 입력 + 확정 잠금 체크
  * ========================= */
 setCapTypeOptions();
 resizeCanvas(330, 330);
@@ -1815,10 +1815,10 @@ setQuoteUI(false);
 redraw();
 updateActionLocks();
 
-// ✅ [ADD] URL 파라미터로 주문번호 자동 세팅
+// [ADD] URL 파라미터로 주문번호 자동 세팅
 const urlOrder = getOrderFromUrl();
 if (urlOrder && orderEl) orderEl.value = urlOrder;
 
-// ✅ [ADD] 확정된 주문번호면 진입 즉시 팝업 + 전체잠금
+// [ADD] 확정된 주문번호면 진입 즉시 팝업 + 전체잠금
 applyConfirmedLockIfNeeded(true);
 updateActionLocks();
