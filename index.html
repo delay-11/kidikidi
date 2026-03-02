@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="./css/index.css" />
 
     <!-- favicon -->
-    <link rel="icon" type="image/jpeg" href="./image/favicon.jpg">
+    <link rel="icon" type="image/jpeg" href="./image/favicon.jpg" />
 
     <!-- Pickr (커스텀 컬러피커) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
@@ -28,6 +28,7 @@
             <div class="leftStack">
                 <section class="card">
                     <div class="row1">
+                        <!-- 주문자 정보 -->
                         <div class="row">
                             <div>
                                 <label>주문자명 *</label>
@@ -52,7 +53,7 @@
 
                         <div class="divider"></div>
 
-                        <!-- ✅ 견적서 요청 토글 (프로파일 위) -->
+                        <!-- 견적서 요청 토글 (프로파일 위) -->
                         <div class="row1">
                             <label class="inlineCheck">
                                 <input type="checkbox" id="quoteToggle" />
@@ -66,9 +67,10 @@
                                         <select id="quoteProd">
                                             <option value="none">일반 제작</option>
                                             <option value="10d">빠른제작(+20%) / 영업일 10일내 출고</option>
-                                            <option value="5d">특급제작(+30%) / 영업일 5일내 출고</option>
+                                            <option value="5d">긴급제작(+30%) / 영업일 5일내 출고</option>
                                         </select>
                                     </div>
+
                                     <div>
                                         <label>납기일 선택 *</label>
                                         <input id="quoteDue" type="date" />
@@ -88,21 +90,44 @@
                             </div>
                         </div>
 
+                        <!-- 프로파일/규격 -->
                         <div class="row">
                             <div>
-                                <label>키캡 프로파일 *</label>
+                                <label class="labelWithHelp">
+                                    키캡 프로파일 *
+                                    <span class="helpWrap">
+                                        <button type="button" class="helpIcon" data-help="profile"
+                                            aria-label="키캡 프로파일 안내">
+                                            ?
+                                        </button>
+                                        <div class="helpTooltip" data-help-tooltip="profile"></div>
+                                    </span>
+                                </label>
+
                                 <select id="profile">
                                     <option value="OEM">OEM</option>
                                     <option value="XDA">XDA</option>
                                     <option value="MAO">MAO</option>
                                 </select>
                             </div>
+
                             <div>
-                                <label>키캡 규격 *</label>
+                                <label class="labelWithHelp">
+                                    키캡 규격 *
+                                    <span class="helpWrap">
+                                        <button type="button" class="helpIcon" data-help="capType"
+                                            aria-label="키캡 규격 안내">
+                                            ?
+                                        </button>
+                                        <div class="helpTooltip" data-help-tooltip="capType"></div>
+                                    </span>
+                                </label>
+
                                 <select id="capType"></select>
                             </div>
                         </div>
 
+                        <!-- 옵션/수량 -->
                         <div class="row">
                             <div>
                                 <label>레이저 각인 (OEM)</label>
@@ -112,6 +137,7 @@
                                     <option value="white">화이트 (+1,800)</option>
                                 </select>
                             </div>
+
                             <div>
                                 <label>수량 *</label>
                                 <input id="qty" type="number" min="1" value="1" />
@@ -121,18 +147,6 @@
                         <div class="btns">
                             <button id="btnAddItem" type="button">시안 추가</button>
                         </div>
-
-                        <div class="divider"></div>
-
-                        <div class="pill">
-                            <span class="tag">가격</span><b id="unitPriceText">-</b>
-                        </div>
-
-                        <div class="hint">
-                            * 배송비 미포함
-                        </div>
-
-                        <div class="divider"></div>
                     </div>
                 </section>
             </div>
@@ -173,7 +187,7 @@
                                         <input id="file" type="file" accept="image/*" hidden />
                                         <button type="button" id="fileBtn" class="ghostBtn">이미지 선택하기</button>
 
-                                        <!-- ✅ 이미지 삭제 버튼 -->
+                                        <!-- 이미지 삭제 버튼 -->
                                         <button type="button" id="fileDelBtn" class="dangerBtn">삭제</button>
 
                                         <span id="fileName" class="fileName">선택된 파일 없음</span>
@@ -201,17 +215,13 @@
                             <div class="divider"></div>
 
                             <div class="pill">
-                                <span class="tag">조작</span>
-                                <b>드래그 이동</b>
+                                <span class="tag">조작</span><b>드래그 이동</b>
                                 <span> | </span>
-                                <span class="tag">크기</span>
-                                <b>모서리 핸들</b>
+                                <span class="tag">크기</span><b>모서리 핸들</b>
                                 <span> | </span>
-                                <span class="tag">Alt</span>
-                                <b>중심 확대</b>
+                                <span class="tag">Alt</span><b>중심 확대</b>
                                 <span> | </span>
-                                <span class="tag">회전</span>
-                                <b>상단 핸들</b>
+                                <span class="tag">회전</span><b>상단 핸들</b>
                             </div>
                         </div>
 
@@ -219,7 +229,7 @@
                         <div class="canvasFrame">
                             <div id="cartList" class="cartList"></div>
 
-                            <br>
+                            <br />
 
                             <div class="btns">
                                 <button id="btnConfirm" type="button" class="confirmBtn">시안 확정하기</button>
@@ -232,7 +242,7 @@
                                 <span class="tag">총액</span><b id="cartTotal">0원</b>
                             </div>
 
-                            <br>
+                            <br />
 
                             <div class="hint">
                                 * 배송비 미포함
@@ -240,7 +250,6 @@
 
                             <div id="msg" class="warn"></div>
                             <div id="ok" class="ok"></div>
-
                         </div>
                     </div>
                 </section>

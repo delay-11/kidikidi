@@ -140,6 +140,110 @@ input[type="number"] {
 }
 
 /* =========================================================
+   라벨 도움말(?) 툴팁
+========================================================= */
+.labelWithHelp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.helpWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* helpIcon은 button 공통 스타일(width:100%, 노랑 배경) 무시 */
+.helpIcon {
+    all: unset;
+    /* 핵심: 기본 버튼 스타일 싹 제거 */
+    box-sizing: border-box;
+
+    width: 18px !important;
+    height: 18px !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    border: 1px solid var(--line) !important;
+
+    background: var(--acc) !important;
+    color: var(--muted) !important;
+
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 18px !important;
+
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.helpIcon:hover {
+    border-color: var(--acc) !important;
+    box-shadow: var(--focus-ring) !important;
+    color: var(--txt) !important;
+}
+
+.helpTooltip {
+    position: absolute;
+    top: 26px;
+    left: 0;
+
+    width: min(320px, calc(100vw - 40px));
+    padding: 10px 12px;
+
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--txt);
+
+    display: none;
+    z-index: 999;
+}
+
+.helpTooltip.show {
+    display: block;
+}
+
+.helpTooltip::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 10px;
+
+    width: 10px;
+    height: 10px;
+
+    background: #fff;
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    transform: rotate(45deg);
+}
+
+.helpTooltip b {
+    font-weight: 900;
+}
+
+.helpTooltip .muted {
+    color: var(--muted);
+}
+
+.helpTooltip .hr {
+    height: 1px;
+    background: var(--line);
+    margin: 8px 0;
+}
+
+/* =========================================================
    버튼
 ========================================================= */
 button {
@@ -317,10 +421,12 @@ canvas {
     height: 0;
     border: 2px solid rgba(43, 108, 255, 0.95);
     border-radius: var(--radius-sm);
+
     display: none;
+    background: transparent;
+
     pointer-events: auto;
     /* none -> auto */
-    background: transparent;
 }
 
 .bbox .h {
@@ -375,12 +481,15 @@ canvas {
     left: 50%;
     top: -34px;
     transform: translateX(-50%);
+
     width: 22px;
     height: 22px;
     border-radius: 8px;
+
     background: #fff;
     border: 1px solid rgba(43, 108, 255, 0.95);
     box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
+
     cursor: grab;
 
     background-repeat: no-repeat;
@@ -391,6 +500,18 @@ canvas {
 
 .bbox .rot:active {
     cursor: grabbing;
+}
+
+/* 모바일 터치 드래그/리사이즈/회전 필수 */
+#canvasWrap,
+#designCanvas,
+#bbox,
+#bbox .h,
+#rotHandle {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 /* =========================================================
@@ -424,6 +545,7 @@ canvas {
     padding: 10px 14px;
     border-radius: 12px;
     font-weight: 700;
+
     background: #fff;
     color: var(--bad);
     border: 1px solid var(--line);
@@ -453,9 +575,11 @@ canvas {
     border-radius: var(--radius-md);
     padding: 10px;
     background: #ffffff;
+
     cursor: pointer;
     display: grid;
     gap: 8px;
+
     transition: transform 0.08s ease, border-color 0.08s ease;
 }
 
@@ -487,10 +611,12 @@ canvas {
     width: auto;
     padding: 6px 10px;
     font-size: var(--fs-12);
+
     border-radius: 10px;
     background: #ffffff;
     color: var(--txt);
     border: 1px solid var(--line);
+
     cursor: pointer;
 }
 
@@ -616,5 +742,10 @@ canvas {
 
     .cartActions {
         justify-content: flex-start;
+    }
+
+    .helpTooltip {
+        left: 0 !important;
+        right: auto !important;
     }
 }

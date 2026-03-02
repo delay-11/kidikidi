@@ -1,6 +1,6 @@
-/* =========================
+/* =========================================================
  * EmailJS 설정
- * ========================= */
+========================================================= */
 const COMPANY_EMAIL = "bbolcat@naver.com";
 const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
 const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
@@ -11,114 +11,9 @@ const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
 // 고객에게: 견적서(견적 요청 켠 경우에만)
 const EMAILJS_QUOTE_TEMPLATE_ID = "YOUR_QUOTE_TEMPLATE_ID";
 
-/* =========================
- * [ADD] 시안 확정 주문번호 잠금 + URL 주문번호 자동입력
- * ========================= */
-const CONFIRM_KEY_PREFIX = "design_confirmed_";
-let uiLocked = false;
-let didConfirmedPopup = false;
-
-function getOrderFromUrl() {
-  try {
-    const sp = new URLSearchParams(location.search);
-    return (sp.get("order") || "").trim();
-  } catch {
-    return "";
-  }
-}
-function confirmKey(orderNo) {
-  return CONFIRM_KEY_PREFIX + String(orderNo || "").trim();
-}
-function isOrderConfirmed(orderNo) {
-  const o = String(orderNo || "").trim();
-  if (!o) return false;
-  return localStorage.getItem(confirmKey(o)) === "true";
-}
-function markOrderConfirmed(orderNo) {
-  const o = String(orderNo || "").trim();
-  if (!o) return;
-  localStorage.setItem(confirmKey(o), "true");
-}
-
-/** [ADD] 확정 주문이면 전체 잠금 (주문번호 포함) */
-function setAllLocked(locked) {
-  uiLocked = !!locked;
-
-  const lockEls = [
-    nameEl,
-    phoneEl,
-    orderEl,
-    emailEl,
-
-    quoteToggleEl,
-    quoteProdEl,
-    quoteDueEl,
-    bizFileEl,
-    bizFileBtn,
-
-    profileEl,
-    capTypeEl,
-    laserEl,
-    qtyEl,
-
-    fileEl,
-    fileBtn,
-    fileDelBtn,
-
-    bgPickBtn,
-
-    btnAddItemEl,
-    btnConfirmEl,
-  ];
-
-  lockEls.forEach((el) => {
-    if (!el) return;
-    el.disabled = uiLocked;
-  });
-
-  // 장바구니/캔버스 영역 클릭 막기
-  if (cartListEl) {
-    cartListEl.style.pointerEvents = uiLocked ? "none" : "auto";
-    cartListEl.style.opacity = uiLocked ? "0.55" : "1";
-  }
-  if (canvasWrapEl) {
-    canvasWrapEl.style.pointerEvents = uiLocked ? "none" : "auto";
-    canvasWrapEl.style.opacity = uiLocked ? "0.55" : "1";
-  }
-  if (bboxEl) {
-    bboxEl.style.pointerEvents = uiLocked ? "none" : "auto";
-  }
-
-  // 안내 문구
-  if (uiLocked) {
-    if (okEl) okEl.textContent = "이미 시안이 접수된 주문번호입니다.";
-    if (msgEl) msgEl.textContent = "";
-  }
-}
-
-/** [ADD] 주문번호 기준으로 잠금 적용 + 필요시 팝업 */
-function applyConfirmedLockIfNeeded(showPopup = false) {
-  const orderNo = orderEl?.value?.trim() || "";
-  const locked = isOrderConfirmed(orderNo);
-
-  if (!locked) {
-    setAllLocked(false);
-    return false;
-  }
-
-  setAllLocked(true);
-
-  if (showPopup && !didConfirmedPopup) {
-    didConfirmedPopup = true;
-    alert("이미 시안 확정된 주문번호입니다");
-  }
-
-  return true;
-}
-
-/* =========================
- * 가격표
- * ========================= */
+/* =========================================================
+ * 가격표 / 옵션 / 캔버스 사이즈
+========================================================= */
 const PRICE = {
   OEM: {
     "R1-1u": 1280,
@@ -138,11 +33,9 @@ const PRICE = {
   XDA: { STD: 1680 },
   MAO: { STD: 1780 },
 };
+
 const LASER_ADDON = { none: 0, black: 800, white: 1800 };
 
-/* =========================
- * 캔버스 사이즈
- * ========================= */
 const CANVAS_SIZE_MAP = {
   "R1-1u": { w: 330, h: 330 },
   "R2-1u": { w: 330, h: 330 },
@@ -161,14 +54,6 @@ const CANVAS_SIZE_MAP = {
   "R1-6.25u": { w: 2060, h: 330 },
 };
 
-function getCanvasSize(profile, capType) {
-  if (profile === "OEM") return CANVAS_SIZE_MAP[capType] || { w: 330, h: 330 };
-  return CANVAS_SIZE_MAP["STD"] || { w: 330, h: 330 };
-}
-
-/* =========================
- * 옵션 목록
- * ========================= */
 const CAP_OPTIONS = {
   OEM: [
     { value: "R1-1u", label: "R1-1u" },
@@ -189,9 +74,14 @@ const CAP_OPTIONS = {
   MAO: [{ value: "STD", label: "MAO" }],
 };
 
-/* =========================
+function getCanvasSize(profile, capType) {
+  if (profile === "OEM") return CANVAS_SIZE_MAP[capType] || { w: 330, h: 330 };
+  return CANVAS_SIZE_MAP.STD || { w: 330, h: 330 };
+}
+
+/* =========================================================
  * DOM
- * ========================= */
+========================================================= */
 const $ = (id) => document.getElementById(id);
 
 const msgEl = $("msg");
@@ -216,6 +106,7 @@ const capTypeEl = $("capType");
 const laserEl = $("laser");
 const qtyEl = $("qty");
 
+// (왼쪽 가격 섹션 제거했을 수 있어서 null 가능)
 const unitPriceText = $("unitPriceText");
 
 const cartListEl = $("cartList");
@@ -246,9 +137,42 @@ const ctx = canvas.getContext("2d");
 const bboxEl = $("bbox");
 const rotHandleEl = $("rotHandle");
 
-/* =========================
+/* =========================================================
+ * 유틸
+========================================================= */
+const PHONE_RE = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function setMsg(text = "") {
+  if (msgEl) msgEl.textContent = text;
+}
+function setOk(text = "") {
+  if (okEl) okEl.textContent = text;
+}
+function clearMsgOk() {
+  setMsg("");
+  setOk("");
+}
+function clamp(n, min, max) {
+  return Math.min(max, Math.max(min, n));
+}
+function toInt(v, fallback = 1) {
+  const n = parseInt(String(v ?? ""), 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+function safeTrim(v) {
+  return String(v ?? "").trim();
+}
+function rerenderAll() {
+  redraw();
+  renderCart();
+  updatePriceUI();
+  updateActionLocks();
+}
+
+/* =========================================================
  * [ADD] 필드별 에러 메시지 + 빨간 테두리 (CSS 주입)
- * ========================= */
+========================================================= */
 (function injectErrCss() {
   const css = `
     .fieldErr{margin-top:6px;font-size:12px;color:#d92d20;display:none}
@@ -318,9 +242,9 @@ function clearFieldErrors() {
   setFieldError("email", "");
 }
 
-/* =========================
+/* =========================================================
  * [ADD] 수량 할인 + 제작일정(총액 할증)
- * ========================= */
+========================================================= */
 function getVolumeDiscountRate(qty) {
   if (qty >= 5000) return 0.2;
   if (qty >= 1000) return 0.15;
@@ -335,9 +259,9 @@ function getRushRate(v) {
   return 0;
 }
 
-/* =========================
+/* =========================================================
  * 상태(장바구니/캔버스/견적)
- * ========================= */
+========================================================= */
 let cartItems = [];
 let selectedItemId = null;
 
@@ -361,16 +285,122 @@ let centerStart = { x: 0, y: 0 };
 let handleDrag = null;
 let rotateDrag = null;
 
-/* =========================
+/* =========================================================
+ * [ADD] 시안 확정 주문번호 잠금 + URL 주문번호 자동입력
+========================================================= */
+const CONFIRM_KEY_PREFIX = "design_confirmed_";
+let uiLocked = false;
+let didConfirmedPopup = false;
+
+function getOrderFromUrl() {
+  try {
+    const sp = new URLSearchParams(location.search);
+    return safeTrim(sp.get("order") || "");
+  } catch {
+    return "";
+  }
+}
+
+function confirmKey(orderNo) {
+  return CONFIRM_KEY_PREFIX + safeTrim(orderNo || "");
+}
+
+function isOrderConfirmed(orderNo) {
+  const o = safeTrim(orderNo || "");
+  if (!o) return false;
+  return localStorage.getItem(confirmKey(o)) === "true";
+}
+
+function markOrderConfirmed(orderNo) {
+  const o = safeTrim(orderNo || "");
+  if (!o) return;
+  localStorage.setItem(confirmKey(o), "true");
+}
+
+/** 확정 주문이면 전체 잠금 */
+function setAllLocked(locked) {
+  uiLocked = !!locked;
+
+  const lockEls = [
+    nameEl,
+    phoneEl,
+    orderEl,
+    emailEl,
+
+    quoteToggleEl,
+    quoteProdEl,
+    quoteDueEl,
+    bizFileEl,
+    bizFileBtn,
+
+    profileEl,
+    capTypeEl,
+    laserEl,
+    qtyEl,
+
+    fileEl,
+    fileBtn,
+    fileDelBtn,
+
+    bgPickBtn,
+
+    btnAddItemEl,
+    btnConfirmEl,
+  ];
+
+  lockEls.forEach((el) => {
+    if (!el) return;
+    el.disabled = uiLocked;
+  });
+
+  // 장바구니/캔버스 영역 클릭 막기
+  if (cartListEl) {
+    cartListEl.style.pointerEvents = uiLocked ? "none" : "auto";
+    cartListEl.style.opacity = uiLocked ? "0.55" : "1";
+  }
+  if (canvasWrapEl) {
+    canvasWrapEl.style.pointerEvents = uiLocked ? "none" : "auto";
+    canvasWrapEl.style.opacity = uiLocked ? "0.55" : "1";
+  }
+  if (bboxEl) {
+    bboxEl.style.pointerEvents = uiLocked ? "none" : "auto";
+  }
+
+  if (uiLocked) {
+    setOk("이미 시안이 접수된 주문번호입니다.");
+    setMsg("");
+  }
+}
+
+/** 주문번호 기준으로 잠금 적용 + 필요시 팝업 */
+function applyConfirmedLockIfNeeded(showPopup = false) {
+  const orderNo = safeTrim(orderEl?.value || "");
+  const locked = isOrderConfirmed(orderNo);
+
+  if (!locked) {
+    setAllLocked(false);
+    return false;
+  }
+
+  setAllLocked(true);
+
+  if (showPopup && !didConfirmedPopup) {
+    didConfirmedPopup = true;
+    alert("이미 시안 확정된 주문번호입니다");
+  }
+
+  return true;
+}
+
+/* =========================================================
  * 단가/배경 규칙
- * ========================= */
+========================================================= */
 function getUnitPrice(profile, capType, laser) {
   const base = PRICE?.[profile]?.[capType] ?? 0;
   const add = profile === "OEM" ? (LASER_ADDON?.[laser] ?? 0) : 0;
   return { base, add, unit: base + add };
 }
 
-// 아이템별 배경(레이저 강제는 예외)
 function getItemBgColor(it) {
   const profile = it?.profile || profileEl.value;
   const laser = it?.laser || (profile === "OEM" ? laserEl.value : "none");
@@ -385,9 +415,9 @@ function hasDesign(it) {
   return !!it?.design?.imgDataUrl || !!it?.design?.bgSet;
 }
 
-/* =========================
+/* =========================================================
  * 아이템 라인 계산: 할인까지만 (할증은 총액에서만)
- * ========================= */
+========================================================= */
 function calcLineTotal(item) {
   const { unit } = getUnitPrice(item.profile, item.capType, item.laser);
   const qty = Math.max(1, Number(item.qty || 1));
@@ -412,15 +442,168 @@ function cartTotal() {
   return Math.round(sub * (1 + rate));
 }
 
-/* =========================
+/* =========================================================
+ * [ADD] 도움말(?) 툴팁 (프로파일/규격)
+========================================================= */
+const helpIcons = Array.from(document.querySelectorAll(".helpIcon"));
+
+function closeAllTooltips() {
+  document
+    .querySelectorAll(".helpTooltip")
+    .forEach((t) => t.classList.remove("show"));
+}
+
+function getProfileHelp(profile) {
+  switch (profile) {
+    case "OEM":
+      return `
+    <b>OEM 프로파일</b><br>
+    높이 약 12mm의 계단 구조입니다.<br>
+    열마다 높이와 각도가 다릅니다. (R1~R4 구분)<br>
+    <div class="hr"></div>
+    ✔ 기존 기성 키보드와 동일한 구조<br>
+    ✔ 교체 시 이질감 적음<br>
+    ✔ 반드시 위치에 맞는 규격 선택 필요<br>
+    <div class="hr"></div>
+    <span class="muted">기존 키보드 교체용 추천</span>
+  `;
+    case "XDA":
+      return `
+    <b>XDA 프로파일</b><br>
+    높이 약 9mm의 낮은 플랫 구조입니다.<br>
+    모든 열이 동일한 높이를 가집니다.<br>
+    <div class="hr"></div>
+    ✔ 위치 구분 없이 제작 가능<br>
+    ✔ 기업/행사 단체 주문에 적합<br>
+    ✔ 넓은 표면으로 로고 인쇄 유리<br>
+    ✔ 일관된 키감<br>
+    <div class="hr"></div>
+    <span class="muted">단체 굿즈 · 로고 키캡 제작 추천</span>
+  `;
+    case "MAO":
+      return `
+    <b>MAO 프로파일</b><br>
+    높이 약 9.8mm의 플랫 구조입니다.<br>
+    모든 열이 동일한 높이와 각도를 가집니다.<br>
+    <div class="hr"></div>
+    ✔ 위치에 관계없이 사용 가능<br>
+    ✔ 부드러운 곡면으로 감성 디자인에 적합<br>
+    ✔ 비교적 낮은 높이로 부담 적음<br>
+    <div class="hr"></div>
+    <span class="muted">포인트 키캡 제작에 적합</span>
+  `;
+    default:
+      return "프로파일을 선택해주세요.";
+  }
+}
+
+function getCapTypeHelp(profile, capType) {
+  const selected = safeTrim(capType || "") || "-";
+
+  const selectedLine = `
+    <div style="margin-bottom:8px;">
+      <span class="tag">현재 선택</span>
+      <b style="margin-left:6px;">${selected}</b>
+    </div>
+  `;
+
+  if (profile === "OEM") {
+    return `
+      ${selectedLine}
+      <b>OEM 규격 안내</b><br/>
+      · <b>R1~R4</b> = 키보드 줄 위치(높이 차이)<br/>
+      · <b>u</b> = 키 가로 길이 단위 (1u 기본)<br/>
+      <div class="hr"></div>
+      <b class="muted">자주 선택하는 규격</b><br/>
+      · 1u : 일반 문자 키 (ESC, F1~F12, A, S, D 등)<br/>
+      · 1.25u : Ctrl / Alt / Win<br/>
+      · 1.5u : Tab 등<br/>
+      · 1.75u : Caps Lock<br/>
+      · 2u : Backspace (키보드에 따라 다름)<br/>
+      · 2.25u : Enter / 좌측 Shift<br/>
+      · 2.75u : 우측 Shift<br/>
+      · 6.25u : 스페이스바<br/>
+    `;
+  }
+
+  return `
+    현재는 <b>${profile}</b> 1종만 제공됩니다.<br/>
+    별도 규격 선택이 필요하지 않습니다.
+  `;
+}
+
+function fillTooltipByType(type, tooltipEl) {
+  if (!tooltipEl) return;
+
+  if (type === "profile") {
+    tooltipEl.innerHTML = getProfileHelp(profileEl.value);
+    return;
+  }
+  if (type === "capType") {
+    tooltipEl.innerHTML = getCapTypeHelp(profileEl.value, capTypeEl.value);
+  }
+}
+
+helpIcons.forEach((icon) => {
+  icon.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const type = icon.dataset.help;
+    const tooltip = icon.nextElementSibling;
+
+    // 다른 툴팁 닫고(자기꺼 제외)
+    document.querySelectorAll(".helpTooltip").forEach((t) => {
+      if (t !== tooltip) t.classList.remove("show");
+    });
+
+    fillTooltipByType(type, tooltip);
+    tooltip?.classList.toggle("show");
+  });
+});
+
+document.addEventListener("click", closeAllTooltips);
+window.addEventListener("scroll", closeAllTooltips, { passive: true });
+
+function refreshOpenTooltips() {
+  document.querySelectorAll(".helpIcon").forEach((icon) => {
+    const type = icon.dataset.help;
+    const tooltip = icon.nextElementSibling;
+    if (tooltip?.classList.contains("show")) fillTooltipByType(type, tooltip);
+  });
+}
+
+/* =========================================================
  * Pickr 배경색 (Save 버튼 없이 즉시 반영)
- * ========================= */
+========================================================= */
 let bgPickr = null;
 
 function setBgUI(hex) {
   const v = (hex || "#ffffff").toLowerCase();
   if (bgColorSwatch) bgColorSwatch.style.background = v;
   if (bgColorValue) bgColorValue.textContent = v;
+}
+
+function updateBgLockUI(profile, laser) {
+  const wrap = bgPickBtn?.closest(".colorPick");
+  const locked = profile === "OEM" && (laser === "black" || laser === "white");
+  if (wrap) wrap.classList.toggle("isLocked", locked);
+
+  if (locked) {
+    const forced = laser === "black" ? "#000000" : "#ffffff";
+    setBgUI(forced);
+
+    const it = cartItems.find((x) => x.id === selectedItemId);
+    if (it) {
+      it.design = it.design || {};
+      it.design.bgSet = true;
+      bgTextEl.textContent = forced;
+    }
+    return;
+  }
+
+  const it = cartItems.find((x) => x.id === selectedItemId);
+  setBgUI(it?.bgColor || "#ffffff");
 }
 
 function initPickr() {
@@ -437,20 +620,17 @@ function initPickr() {
       preview: true,
       opacity: false,
       hue: true,
-      interaction: {
-        input: true,
-        save: false,
-      },
+      interaction: { input: true, save: false },
     },
   });
 
   bgPickBtn?.addEventListener("click", () => {
-    if (uiLocked) return; // [ADD] 잠금이면 색상 변경 막기
+    if (uiLocked) return;
     bgPickr && bgPickr.show();
   });
 
   bgPickr.on("change", (color) => {
-    if (uiLocked) return; // [ADD]
+    if (uiLocked) return;
     if (!color) return;
 
     const hex = color.toHEXA().toString().toLowerCase();
@@ -464,39 +644,16 @@ function initPickr() {
       bgTextEl.textContent = getItemBgColor(it);
     }
 
-    redraw();
-    renderCart();
-    updatePriceUI();
-    updateActionLocks();
+    rerenderAll();
   });
 
   setBgUI("#ffffff");
 }
 initPickr();
 
-function updateBgLockUI(profile, laser) {
-  const wrap = bgPickBtn?.closest(".colorPick");
-  const locked = profile === "OEM" && (laser === "black" || laser === "white");
-  if (wrap) wrap.classList.toggle("isLocked", locked);
-
-  if (locked) {
-    const forced = laser === "black" ? "#000000" : "#ffffff";
-    setBgUI(forced);
-    const it = cartItems.find((x) => x.id === selectedItemId);
-    if (it) {
-      it.design = it.design || {};
-      it.design.bgSet = true;
-      bgTextEl.textContent = forced;
-    }
-  } else {
-    const it = cartItems.find((x) => x.id === selectedItemId);
-    setBgUI(it?.bgColor || "#ffffff");
-  }
-}
-
-/* =========================
+/* =========================================================
  * 캔버스 사이즈 변경
- * ========================= */
+========================================================= */
 function resizeCanvas(w, h) {
   canvas.width = w;
   canvas.height = h;
@@ -531,9 +688,9 @@ function applyCanvasSizeFromForm() {
   bgTextEl.textContent = it ? getItemBgColor(it) : "#ffffff";
 }
 
-/* =========================
+/* =========================================================
  * 옵션 구성
- * ========================= */
+========================================================= */
 function setCapTypeOptions() {
   const p = profileEl.value;
 
@@ -551,19 +708,17 @@ function setCapTypeOptions() {
 
   updateBgLockUI(profileEl.value, laserEl.value);
   updatePriceUI();
+  refreshOpenTooltips();
 }
 
-/* =========================
+/* =========================================================
  * 검증(주문자/견적/확정)
- * ========================= */
+========================================================= */
 function validateUserInfo(showMessage = false) {
-  const name = nameEl.value.trim();
-  const phone = phoneEl.value.trim();
-  const orderNo = orderEl.value.trim();
-  const email = emailEl.value.trim();
-
-  const phoneRegex = /^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$/;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const name = safeTrim(nameEl.value);
+  const phone = safeTrim(phoneEl.value);
+  const orderNo = safeTrim(orderEl.value);
+  const email = safeTrim(emailEl.value);
 
   if (showMessage) clearFieldErrors();
 
@@ -573,24 +728,25 @@ function validateUserInfo(showMessage = false) {
     ok = false;
     if (showMessage) setFieldError("name", "주문자명을 입력해주세요.");
   }
-  if (!phoneRegex.test(phone)) {
+  if (!PHONE_RE.test(phone)) {
     ok = false;
-    if (showMessage)
+    if (showMessage) {
       setFieldError(
         "phone",
         "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)",
       );
+    }
   }
   if (!orderNo) {
     ok = false;
     if (showMessage) setFieldError("order", "주문번호를 입력해주세요.");
   }
-  if (!emailRegex.test(email)) {
+  if (!EMAIL_RE.test(email)) {
     ok = false;
     if (showMessage) setFieldError("email", "이메일 형식이 올바르지 않습니다.");
   }
 
-  if (showMessage) msgEl.textContent = ok ? "" : "필수 정보를 입력해주세요.";
+  if (showMessage) setMsg(ok ? "" : "필수 정보를 입력해주세요.");
   return ok;
 }
 
@@ -598,16 +754,15 @@ function validateQuoteRequest(showMessage = false) {
   if (!quoteEnabled) return true;
 
   if (!quoteProd || quoteProd === "") {
-    if (showMessage) msgEl.textContent = "제작 일정을 선택해주세요.";
+    if (showMessage) setMsg("제작 일정을 선택해주세요.");
     return false;
   }
   if (!quoteDue) {
-    if (showMessage) msgEl.textContent = "납기일을 선택해주세요.";
+    if (showMessage) setMsg("납기일을 선택해주세요.");
     return false;
   }
   if (!bizFileDataUrl) {
-    if (showMessage)
-      msgEl.textContent = "사업자등록증 파일 업로드가 필요합니다.";
+    if (showMessage) setMsg("사업자등록증 파일 업로드가 필요합니다.");
     return false;
   }
   return true;
@@ -617,13 +772,12 @@ function validateCanConfirm(showMessage = false) {
   if (!validateUserInfo(showMessage)) return false;
 
   if (cartItems.length === 0) {
-    if (showMessage) msgEl.textContent = "장바구니에 아이템을 추가해주세요.";
+    if (showMessage) setMsg("장바구니에 아이템을 추가해주세요.");
     return false;
   }
 
   if (!cartItems.some((it) => hasDesign(it))) {
-    if (showMessage)
-      msgEl.textContent = "최소 1개 이상 배경색 또는 이미지를 설정해주세요.";
+    if (showMessage) setMsg("최소 1개 이상 배경색 또는 이미지를 설정해주세요.");
     return false;
   }
 
@@ -631,12 +785,11 @@ function validateCanConfirm(showMessage = false) {
   return true;
 }
 
-/* =========================
+/* =========================================================
  * 버튼 잠금/활성
- * ========================= */
+========================================================= */
 function updateActionLocks() {
   if (uiLocked) {
-    // [ADD] 잠금 상태면 강제로 비활성(중복 방지)
     if (btnAddItemEl) btnAddItemEl.disabled = true;
     if (btnConfirmEl) btnConfirmEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
@@ -651,31 +804,30 @@ function updateActionLocks() {
     fileDelBtn.disabled = !(it && it.design && it.design.imgDataUrl);
 }
 
-/* =========================
+/* =========================================================
  * 주문자 입력 이벤트 (blur에서 에러 표시)
- * ========================= */
+========================================================= */
 [nameEl, phoneEl, orderEl, emailEl].forEach((el) => {
   if (!el) return;
 
   el.addEventListener("input", () => {
-    if (uiLocked) return; // [ADD]
+    if (uiLocked) return;
     clearFieldErrors();
-    msgEl.textContent = "";
+    setMsg("");
     updateActionLocks();
   });
 
   el.addEventListener("blur", () => {
-    if (uiLocked) return; // [ADD]
+    if (uiLocked) return;
     validateUserInfo(true);
-    // [ADD] 혹시 수동 입력 케이스라도 “확정 주문번호”면 즉시 잠금 + 팝업
     if (el === orderEl) applyConfirmedLockIfNeeded(true);
     updateActionLocks();
   });
 });
 
-/* =========================
+/* =========================================================
  * 견적 토글 UI
- * ========================= */
+========================================================= */
 function setQuoteUI(open) {
   quoteEnabled = !!open;
   if (quoteBoxEl) quoteBoxEl.style.display = quoteEnabled ? "block" : "none";
@@ -684,37 +836,34 @@ function setQuoteUI(open) {
     quoteProd = "none";
     quoteDue = "";
     bizFileDataUrl = null;
+
     if (quoteProdEl) quoteProdEl.value = "none";
     if (quoteDueEl) quoteDueEl.value = "";
     if (bizFileNameEl) bizFileNameEl.textContent = "선택된 파일 없음";
   }
 
-  updatePriceUI();
-  renderCart();
-  updateActionLocks();
+  rerenderAll();
 }
 
 quoteToggleEl?.addEventListener("change", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
   setQuoteUI(quoteToggleEl.checked);
 });
 
 quoteProdEl?.addEventListener("change", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
   quoteProd = quoteProdEl.value;
-  updatePriceUI();
-  renderCart();
-  updateActionLocks();
+  rerenderAll();
 });
 
 quoteDueEl?.addEventListener("change", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
   quoteDue = quoteDueEl.value || "";
   updateActionLocks();
 });
 
 bizFileBtn?.addEventListener("click", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
   bizFileEl?.click();
 });
 
@@ -728,7 +877,8 @@ function fileToDataUrl(file) {
 }
 
 bizFileEl?.addEventListener("change", async () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
+
   const f = bizFileEl.files && bizFileEl.files[0];
   if (!f) return;
 
@@ -740,53 +890,55 @@ bizFileEl?.addEventListener("change", async () => {
     if (bizFileDataUrl.length > 1_000_000) {
       bizFileDataUrl = null;
       if (bizFileNameEl) bizFileNameEl.textContent = "선택된 파일 없음";
-      msgEl.textContent =
-        "사업자등록증 파일 용량이 너무 큽니다. 줄여서 다시 업로드해주세요.";
+      setMsg(
+        "사업자등록증 파일 용량이 너무 큽니다. 줄여서 다시 업로드해주세요.",
+      );
     } else {
-      okEl.textContent = "사업자등록증 파일이 업로드되었습니다.";
+      setOk("사업자등록증 파일이 업로드되었습니다.");
     }
-  } catch (e) {
+  } catch {
     bizFileDataUrl = null;
-    msgEl.textContent = "사업자등록증 파일을 읽는 중 오류가 발생했습니다.";
+    setMsg("사업자등록증 파일을 읽는 중 오류가 발생했습니다.");
   } finally {
     bizFileEl.value = "";
     updateActionLocks();
   }
 });
 
-/* =========================
+/* =========================================================
  * 이벤트: 옵션 변경
- * ========================= */
+========================================================= */
 profileEl.addEventListener("change", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
   setCapTypeOptions();
   applyCanvasSizeFromForm();
-  redraw();
-  updatePriceUI();
-  updateActionLocks();
+  rerenderAll();
+  refreshOpenTooltips();
 });
 
 capTypeEl.addEventListener("change", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
   applyCanvasSizeFromForm();
-  updatePriceUI();
-  updateActionLocks();
+  rerenderAll();
+  refreshOpenTooltips();
 });
 
 qtyEl.addEventListener("input", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
+
   updatePriceUI();
 
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (it) {
-    it.qty = Math.max(1, parseInt(qtyEl.value || "1", 10));
+    it.qty = Math.max(1, toInt(qtyEl.value, 1));
     renderCart();
   }
   updateActionLocks();
 });
 
 laserEl.addEventListener("change", () => {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
+
   updateBgLockUI(profileEl.value, laserEl.value);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
@@ -797,20 +949,19 @@ laserEl.addEventListener("change", () => {
     bgTextEl.textContent = getItemBgColor(it);
   }
 
-  redraw();
-  renderCart();
-  updatePriceUI();
-  updateActionLocks();
+  rerenderAll();
 });
 
-/* =========================
+/* =========================================================
  * 가격 UI (왼쪽: 선택 입력 기준 + 총액 정보)
- * ========================= */
+========================================================= */
 function updatePriceUI() {
+  if (!unitPriceText) return;
+
   const p = profileEl.value;
   const cap = capTypeEl.value;
   const laser = p === "OEM" ? laserEl.value : "none";
-  const q = Math.max(1, parseInt(qtyEl.value || "1", 10));
+  const q = Math.max(1, toInt(qtyEl.value, 1));
 
   const { base, unit } = getUnitPrice(p, cap, laser);
   if (!base) {
@@ -822,7 +973,6 @@ function updatePriceUI() {
   const discRate = getVolumeDiscountRate(q);
   const afterDiscount = Math.round(baseLine * (1 - discRate));
 
-  const sub = cartSubtotal();
   const rate = quoteEnabled ? getRushRate(quoteProd) : 0;
   const total = cartTotal();
 
@@ -840,9 +990,9 @@ function updatePriceUI() {
     (quoteEnabled ? ` / 납기 ${quoteDue || "-"}` : "");
 }
 
-/* =========================
+/* =========================================================
  * 장바구니
- * ========================= */
+========================================================= */
 function labelLaser(it) {
   if (it.profile !== "OEM") return "레이저 없음";
   if (it.laser === "black") return "레이저 블랙";
@@ -865,6 +1015,7 @@ function renderCart() {
     div.textContent =
       "제작된 시안이 없습니다. 왼쪽에서 옵션 선택 후 [시안 추가]를 눌러주세요.";
     cartListEl.appendChild(div);
+
     selTextEl.textContent = "없음";
     bgTextEl.textContent = "-";
     updateActionLocks();
@@ -875,7 +1026,7 @@ function renderCart() {
     const box = document.createElement("div");
     box.className = "cartItem" + (it.id === selectedItemId ? " selected" : "");
     box.addEventListener("click", () => {
-      if (uiLocked) return; // [ADD]
+      if (uiLocked) return;
       selectItem(it.id);
     });
 
@@ -907,7 +1058,7 @@ function renderCart() {
 
     box.querySelector('[data-act="minus"]').addEventListener("click", (e) => {
       e.stopPropagation();
-      if (uiLocked) return; // [ADD]
+      if (uiLocked) return;
       it.qty = Math.max(1, it.qty - 1);
       if (it.id === selectedItemId) qtyEl.value = it.qty;
       renderCart();
@@ -917,7 +1068,7 @@ function renderCart() {
 
     box.querySelector('[data-act="plus"]').addEventListener("click", (e) => {
       e.stopPropagation();
-      if (uiLocked) return; // [ADD]
+      if (uiLocked) return;
       it.qty += 1;
       if (it.id === selectedItemId) qtyEl.value = it.qty;
       renderCart();
@@ -927,7 +1078,7 @@ function renderCart() {
 
     box.querySelector('[data-act="del"]').addEventListener("click", (e) => {
       e.stopPropagation();
-      if (uiLocked) return; // [ADD]
+      if (uiLocked) return;
       removeItem(it.id);
     });
 
@@ -956,25 +1107,23 @@ function removeItem(id) {
   updateActionLocks();
 }
 
-/* =========================
+/* =========================================================
  * 아이템 추가/선택
- * ========================= */
+========================================================= */
 btnAddItemEl.addEventListener("click", () => {
-  msgEl.textContent = "";
-  okEl.textContent = "";
+  clearMsgOk();
 
-  // [ADD] 확정된 주문번호면 전부 막기
   if (applyConfirmedLockIfNeeded(true)) return;
   if (!validateUserInfo(true)) return;
 
   const p = profileEl.value;
   const cap = capTypeEl.value;
   const laser = p === "OEM" ? laserEl.value : "none";
-  const qty = Math.max(1, parseInt(qtyEl.value || "1", 10));
+  const qty = Math.max(1, toInt(qtyEl.value, 1));
 
   const { base } = getUnitPrice(p, cap, laser);
   if (base === 0) {
-    msgEl.textContent = "선택하신 규격은 현재 주문이 불가능합니다.";
+    setMsg("선택하신 규격은 현재 주문이 불가능합니다.");
     return;
   }
 
@@ -994,8 +1143,7 @@ btnAddItemEl.addEventListener("click", () => {
   renderCart();
   updatePriceUI();
 
-  okEl.textContent =
-    "이미지 업로드 또는 배경색 설정 후 시안을 확정할 수 있습니다.";
+  setOk("이미지 업로드 또는 배경색 설정 후 시안을 확정할 수 있습니다.");
   updateActionLocks();
 });
 
@@ -1047,10 +1195,12 @@ function syncLeftFormFromItem(it) {
   setBgUI(it.bgColor || "#ffffff");
   updatePriceUI();
   applyCanvasSizeFromForm();
+  refreshOpenTooltips();
 }
 
 async function selectItem(id) {
-  if (uiLocked) return; // [ADD]
+  if (uiLocked) return;
+
   const prev = cartItems.find((x) => x.id === selectedItemId);
   if (prev) saveCanvasToItem(prev);
 
@@ -1094,19 +1244,17 @@ function clearEditor() {
   updateActionLocks();
 }
 
-/* =========================
+/* =========================================================
  * 이미지 업로드/삭제
- * ========================= */
+========================================================= */
 fileBtn?.addEventListener("click", () => {
-  msgEl.textContent = "";
-  okEl.textContent = "";
+  clearMsgOk();
 
-  // [ADD] 확정된 주문번호면 업로드 막기
   if (applyConfirmedLockIfNeeded(true)) return;
 
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (!it) {
-    msgEl.textContent = "시안 제작 전 모든 정보를 입력해주세요.";
+    setMsg("시안 제작 전 모든 정보를 입력해주세요.");
     return;
   }
   fileEl.click();
@@ -1134,10 +1282,8 @@ function fitImageToCanvas(img) {
 }
 
 fileEl?.addEventListener("change", async () => {
-  msgEl.textContent = "";
-  okEl.textContent = "";
+  clearMsgOk();
 
-  // ✅ [ADD]
   if (applyConfirmedLockIfNeeded(true)) {
     fileEl.value = "";
     return;
@@ -1145,7 +1291,7 @@ fileEl?.addEventListener("change", async () => {
 
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (!it) {
-    msgEl.textContent = "시안 제작 전 모든 정보를 입력해주세요.";
+    setMsg("시안 제작 전 모든 정보를 입력해주세요.");
     fileEl.value = "";
     updateActionLocks();
     return;
@@ -1172,10 +1318,11 @@ fileEl?.addEventListener("change", async () => {
     it.design.bgSet = it.design.bgSet ?? false;
 
     renderCart();
-    okEl.textContent = "이미지가 업로드되었습니다.";
-  } catch (e) {
-    msgEl.textContent =
-      "이미지 파일을 불러오는 중 문제가 발생했습니다. 다른 파일로 다시 시도해주세요.";
+    setOk("이미지가 업로드되었습니다.");
+  } catch {
+    setMsg(
+      "이미지 파일을 불러오는 중 문제가 발생했습니다. 다른 파일로 다시 시도해주세요.",
+    );
   } finally {
     fileEl.value = "";
     updateActionLocks();
@@ -1188,15 +1335,13 @@ fileDelBtn?.addEventListener(
     e.preventDefault();
     e.stopPropagation();
 
-    msgEl.textContent = "";
-    okEl.textContent = "";
+    clearMsgOk();
 
-    // [ADD]
     if (applyConfirmedLockIfNeeded(true)) return;
 
     const it = cartItems.find((x) => x.id === selectedItemId);
     if (!it) {
-      msgEl.textContent = "시안 제작 전 모든 정보를 입력해주세요.";
+      setMsg("시안 제작 전 모든 정보를 입력해주세요.");
       updateActionLocks();
       return;
     }
@@ -1214,15 +1359,15 @@ fileDelBtn?.addEventListener(
 
     redraw();
     renderCart();
-    okEl.textContent = "이미지가 삭제되었습니다.";
+    setOk("이미지가 삭제되었습니다.");
     updateActionLocks();
   },
   true,
 );
 
-/* =========================
+/* =========================================================
  * 캔버스 드로잉 (배경/이미지/중심선/가이드/BBox)
- * ========================= */
+========================================================= */
 function roundRectPath(c, x, y, w, h, r) {
   const rr = Math.min(r, w / 2, h / 2);
   c.beginPath();
@@ -1325,8 +1470,8 @@ function getImageAABB() {
 
   const w = userImg.width * imgScale;
   const h = userImg.height * imgScale;
-  const hw = w / 2,
-    hh = h / 2;
+  const hw = w / 2;
+  const hh = h / 2;
 
   const cos = Math.cos(imgRot);
   const sin = Math.sin(imgRot);
@@ -1345,12 +1490,14 @@ function getImageAABB() {
     minY = Infinity,
     maxX = -Infinity,
     maxY = -Infinity;
+
   for (const p of corners) {
     minX = Math.min(minX, p.x);
     minY = Math.min(minY, p.y);
     maxX = Math.max(maxX, p.x);
     maxY = Math.max(maxY, p.y);
   }
+
   return { minX, minY, maxX, maxY, w: maxX - minX, h: maxY - minY };
 }
 
@@ -1392,9 +1539,9 @@ function redraw() {
   updateBBox();
 }
 
-/* =========================
- * 이동/리사이즈/회전 (이미지 어디든 클릭 → 이동)
- * ========================= */
+/* =========================================================
+ * 이동/리사이즈/회전 (PC+모바일: Pointer Events)
+========================================================= */
 function screenToCanvasPoint(e) {
   const rect = canvas.getBoundingClientRect();
   return {
@@ -1426,51 +1573,108 @@ function startMoveDrag(e) {
   if (handleDrag || rotateDrag) return;
 
   draggingMove = true;
-  const rect = canvas.getBoundingClientRect();
-  moveStart.x = e.clientX - rect.left;
-  moveStart.y = e.clientY - rect.top;
+
+  const p = screenToCanvasPoint(e);
+  moveStart.x = p.x;
+  moveStart.y = p.y;
 
   centerStart.x = imgCX;
   centerStart.y = imgCY;
 }
 
-canvasWrapEl?.addEventListener(
-  "mousedown",
-  (e) => {
-    if (uiLocked) return; // [ADD]
-    if (!userImg) return;
-    if (e.target.closest(".h")) return;
-    if (e.target.id === "rotHandle") return;
+function onMainPointerDown(e) {
+  if (uiLocked) return;
+  if (!userImg) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
 
-    const p = screenToCanvasPoint(e);
-    if (!isPointOnImage(p.x, p.y)) return;
+  if (e.target.closest(".h")) return;
+  if (e.target.id === "rotHandle") return;
+
+  const p = screenToCanvasPoint(e);
+  if (!isPointOnImage(p.x, p.y)) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  (e.currentTarget || canvasWrapEl)?.setPointerCapture?.(e.pointerId);
+  startMoveDrag(e);
+}
+
+canvasWrapEl?.addEventListener("pointerdown", onMainPointerDown, {
+  capture: true,
+});
+bboxEl?.addEventListener("pointerdown", onMainPointerDown);
+
+bboxEl?.querySelectorAll(".h").forEach((h) => {
+  h.addEventListener("pointerdown", (e) => {
+    if (uiLocked) return;
+    if (!userImg) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
 
     e.preventDefault();
     e.stopPropagation();
-    startMoveDrag(e);
-  },
-  { capture: true },
-);
 
-bboxEl?.addEventListener("mousedown", (e) => {
-  if (uiLocked) return; // [ADD]
-  if (!userImg) return;
-  if (e.target.closest(".h")) return;
-  if (e.target.id === "rotHandle") return;
-  e.preventDefault();
-  e.stopPropagation();
-  startMoveDrag(e);
+    bboxEl?.setPointerCapture?.(e.pointerId);
+
+    draggingMove = false;
+
+    const handle = h.dataset.h;
+    const aabb = getImageAABB();
+    if (!aabb) return;
+
+    const p = screenToCanvasPoint(e);
+
+    const opposite =
+      handle === "nw"
+        ? "se"
+        : handle === "ne"
+          ? "sw"
+          : handle === "sw"
+            ? "ne"
+            : "nw";
+
+    const anchor = cornerPoint(aabb, opposite);
+
+    handleDrag = {
+      anchorX: anchor.x,
+      anchorY: anchor.y,
+      anchorCorner: opposite,
+      startDist: Math.hypot(p.x - anchor.x, p.y - anchor.y),
+      startScale: imgScale,
+    };
+  });
 });
 
-window.addEventListener("mousemove", (e) => {
-  if (uiLocked) return; // [ADD]
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
+rotHandleEl?.addEventListener("pointerdown", (e) => {
+  if (uiLocked) return;
+  if (!userImg) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  bboxEl?.setPointerCapture?.(e.pointerId);
+
+  draggingMove = false;
+
+  const p = screenToCanvasPoint(e);
+
+  rotateDrag = {
+    cx: imgCX,
+    cy: imgCY,
+    startRot: imgRot,
+    startAngle: Math.atan2(p.y - imgCY, p.x - imgCX),
+  };
+});
+
+document.addEventListener("pointermove", (e) => {
+  if (uiLocked) return;
+
+  const p = screenToCanvasPoint(e);
 
   if (draggingMove) {
-    imgCX = centerStart.x + (mx - moveStart.x);
-    imgCY = centerStart.y + (my - moveStart.y);
+    imgCX = centerStart.x + (p.x - moveStart.x);
+    imgCY = centerStart.y + (p.y - moveStart.y);
     redraw();
     return;
   }
@@ -1481,12 +1685,12 @@ window.addEventListener("mousemove", (e) => {
     const ax = handleDrag.anchorX;
     const ay = handleDrag.anchorY;
 
-    const distNow = Math.hypot(mx - ax, my - ay);
+    const distNow = Math.hypot(p.x - ax, p.y - ay);
     const distStart = handleDrag.startDist;
     if (distStart < 1) return;
 
     let nextScale = handleDrag.startScale * (distNow / distStart);
-    nextScale = Math.min(10, Math.max(0.1, nextScale));
+    nextScale = clamp(nextScale, 0.1, 10);
 
     if (alt) {
       imgScale = nextScale;
@@ -1510,15 +1714,13 @@ window.addEventListener("mousemove", (e) => {
   }
 
   if (rotateDrag) {
-    const angle = Math.atan2(my - rotateDrag.cy, mx - rotateDrag.cx);
+    const angle = Math.atan2(p.y - rotateDrag.cy, p.x - rotateDrag.cx);
     imgRot = rotateDrag.startRot + (angle - rotateDrag.startAngle);
     redraw();
-    return;
   }
 });
 
-window.addEventListener("mouseup", () => {
-  if (uiLocked) return; // [ADD]
+function endPointerInteraction() {
   if (draggingMove || handleDrag || rotateDrag) {
     draggingMove = false;
     handleDrag = null;
@@ -1531,71 +1733,22 @@ window.addEventListener("mouseup", () => {
     renderCart();
     updateActionLocks();
   }
+}
+
+document.addEventListener("pointerup", () => {
+  if (uiLocked) return;
+  endPointerInteraction();
 });
-
-bboxEl?.querySelectorAll(".h").forEach((h) => {
-  h.addEventListener("mousedown", (e) => {
-    if (uiLocked) return; // [ADD]
-    e.preventDefault();
-    e.stopPropagation();
-    if (!userImg) return;
-
-    draggingMove = false;
-
-    const handle = h.dataset.h;
-    const aabb = getImageAABB();
-    if (!aabb) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-
-    const opposite =
-      handle === "nw"
-        ? "se"
-        : handle === "ne"
-          ? "sw"
-          : handle === "sw"
-            ? "ne"
-            : "nw";
-
-    const anchor = cornerPoint(aabb, opposite);
-
-    handleDrag = {
-      anchorX: anchor.x,
-      anchorY: anchor.y,
-      anchorCorner: opposite,
-      startDist: Math.hypot(mx - anchor.x, my - anchor.y),
-      startScale: imgScale,
-    };
-  });
-});
-
-rotHandleEl?.addEventListener("mousedown", (e) => {
-  if (uiLocked) return; // [ADD]
-  e.preventDefault();
-  e.stopPropagation();
-  if (!userImg) return;
-
-  draggingMove = false;
-
-  const rect = canvas.getBoundingClientRect();
-  const mx = e.clientX - rect.left;
-  const my = e.clientY - rect.top;
-
-  rotateDrag = {
-    cx: imgCX,
-    cy: imgCY,
-    startRot: imgRot,
-    startAngle: Math.atan2(my - imgCY, mx - imgCX),
-  };
+document.addEventListener("pointercancel", () => {
+  if (uiLocked) return;
+  endPointerInteraction();
 });
 
 canvas.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
 
-/* =========================
+/* =========================================================
  * 메일 발송 유틸
- * ========================= */
+========================================================= */
 async function renderItemFinalPng(item) {
   const size = getCanvasSize(item.profile, item.capType);
 
@@ -1644,7 +1797,7 @@ function emailConfigReady(templateId) {
 
 async function sendEmailToCompany(extraParams = {}) {
   if (!emailConfigReady(EMAILJS_TEMPLATE_ID)) {
-    msgEl.textContent = "메일 전송 설정이 완료되지 않았습니다.";
+    setMsg("메일 전송 설정이 완료되지 않았습니다.");
     return false;
   }
 
@@ -1674,7 +1827,7 @@ async function sendEmailToCompany(extraParams = {}) {
     if (it.design?.imgDataUrl) {
       const png = await renderItemFinalPng(it);
       designs.push({
-        filename: `${orderEl.value.trim()}_${it.profile}_${it.capType}_${it.laser}.png`,
+        filename: `${safeTrim(orderEl.value)}_${it.profile}_${it.capType}_${it.laser}.png`,
         dataUrl: png,
       });
       totalLen += png.length;
@@ -1683,17 +1836,18 @@ async function sendEmailToCompany(extraParams = {}) {
 
   const MAX_LEN = 1_800_000;
   if (totalLen > MAX_LEN) {
-    msgEl.textContent =
-      "이미지 용량이 커서 전송이 불가능합니다. 파일 크기를 줄여 다시 시도해주세요.";
+    setMsg(
+      "이미지 용량이 커서 전송이 불가능합니다. 파일 크기를 줄여 다시 시도해주세요.",
+    );
     return false;
   }
 
   const params = {
     to_email: COMPANY_EMAIL,
-    customer_name: nameEl.value.trim(),
-    customer_phone: phoneEl.value.trim(),
-    order_no: orderEl.value.trim(),
-    customer_email: emailEl.value.trim(),
+    customer_name: safeTrim(nameEl.value),
+    customer_phone: safeTrim(phoneEl.value),
+    order_no: safeTrim(orderEl.value),
+    customer_email: safeTrim(emailEl.value),
 
     subtotal_price: String(cartSubtotal()),
     total_price: String(cartTotal()),
@@ -1713,17 +1867,17 @@ async function sendEmailToCompany(extraParams = {}) {
 
 async function sendQuoteEmailToCustomer(itemsSummary) {
   if (!emailConfigReady(EMAILJS_QUOTE_TEMPLATE_ID)) {
-    msgEl.textContent = "메일 전송 설정이 완료되지 않았습니다.";
+    setMsg("메일 전송 설정이 완료되지 않았습니다.");
     return false;
   }
 
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
   const params = {
-    to_email: emailEl.value.trim(),
-    customer_name: nameEl.value.trim(),
-    customer_phone: phoneEl.value.trim(),
-    order_no: orderEl.value.trim(),
+    to_email: safeTrim(emailEl.value),
+    customer_name: safeTrim(nameEl.value),
+    customer_phone: safeTrim(phoneEl.value),
+    order_no: safeTrim(orderEl.value),
 
     subtotal_price: String(cartSubtotal()),
     total_price: String(cartTotal()),
@@ -1736,16 +1890,13 @@ async function sendQuoteEmailToCustomer(itemsSummary) {
   return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_QUOTE_TEMPLATE_ID, params);
 }
 
-/* =========================
+/* =========================================================
  * 시안 확정하기 (견적 ON이면 회사+고객 둘 다 발송)
- * ========================= */
+========================================================= */
 btnConfirmEl?.addEventListener("click", async () => {
-  msgEl.textContent = "";
-  okEl.textContent = "";
+  clearMsgOk();
 
-  // [ADD] 확정 주문번호면 바로 막고 팝업
   if (applyConfirmedLockIfNeeded(true)) return;
-
   if (!validateCanConfirm(true)) return;
 
   try {
@@ -1775,36 +1926,35 @@ btnConfirmEl?.addEventListener("click", async () => {
       const okCustomer = await sendQuoteEmailToCustomer(itemsSummary);
       if (!okCustomer) return;
 
-      okEl.textContent =
-        "견적서 요청이 완료되었습니다. 입력하신 이메일로 견적서를 발송했습니다.";
-      msgEl.textContent = "";
+      setOk(
+        "견적서 요청이 완료되었습니다. 입력하신 이메일로 견적서를 발송했습니다.",
+      );
+      setMsg("");
 
-      // [ADD] (회사+고객 발송 성공) => 주문번호 확정 처리 + 전체 잠금
-      markOrderConfirmed(orderEl.value.trim());
+      markOrderConfirmed(safeTrim(orderEl.value));
       applyConfirmedLockIfNeeded(false);
       return;
     }
 
-    okEl.textContent =
-      "시안이 접수되었습니다. 검토 후 입력하신 이메일로 안내드리겠습니다.";
-    msgEl.textContent = "";
+    setOk("시안이 접수되었습니다. 검토 후 입력하신 이메일로 안내드리겠습니다.");
+    setMsg("");
 
-    // [ADD] (회사 발송 성공) => 주문번호 확정 처리 + 전체 잠금
-    markOrderConfirmed(orderEl.value.trim());
+    markOrderConfirmed(safeTrim(orderEl.value));
     applyConfirmedLockIfNeeded(false);
   } catch (e) {
     console.error("전송 실패:", e);
-    msgEl.textContent =
-      "메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의해주세요.";
-    okEl.textContent = "";
+    setMsg(
+      "메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의해주세요.",
+    );
+    setOk("");
   } finally {
     updateActionLocks();
   }
 });
 
-/* =========================
- * [MOD] 초기화: URL 주문번호 자동 입력 + 확정 잠금 체크
- * ========================= */
+/* =========================================================
+ * 초기화: URL 주문번호 자동 입력 + 확정 잠금 체크
+========================================================= */
 setCapTypeOptions();
 resizeCanvas(330, 330);
 clearEditor();
@@ -1815,10 +1965,8 @@ setQuoteUI(false);
 redraw();
 updateActionLocks();
 
-// [ADD] URL 파라미터로 주문번호 자동 세팅
 const urlOrder = getOrderFromUrl();
 if (urlOrder && orderEl) orderEl.value = urlOrder;
 
-// [ADD] 확정된 주문번호면 진입 즉시 팝업 + 전체잠금
 applyConfirmedLockIfNeeded(true);
 updateActionLocks();
