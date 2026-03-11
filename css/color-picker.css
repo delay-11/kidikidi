@@ -1,0 +1,49 @@
+/* =========================================================
+   컬러 피커 (배경색 UI)
+========================================================= */
+.colorPick {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#bgPickBtn.ghostBtn {
+    width: auto;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+}
+
+.colorSwatch {
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: #ffffff;
+}
+
+.colorValue {
+    font-size: var(--fs-13);
+    color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.pickrMount {
+    position: relative;
+    display: inline-block;
+    width: 0;
+    height: 0;
+}
+
+/* Pickr 버튼 클릭 영역 무력화 */
+.pcr-button,
+.pcr-button::after {
+    pointer-events: none !important;
+}
+
+/* OEM 레이저 고정일 때 배경 선택 잠금 */
+.colorPick.isLocked {
+    opacity: 0.55;
+    pointer-events: none;
+}

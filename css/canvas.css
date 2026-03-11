@@ -1,0 +1,139 @@
+/* =========================================================
+   캔버스
+========================================================= */
+.canvasWrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 0 auto;
+}
+
+canvas {
+    display: block;
+    margin: 0 auto;
+    border-radius: var(--radius-sm);
+    max-width: 100%;
+    border: 1px solid var(--line);
+}
+
+/* 선택 박스/핸들 */
+.bbox {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 2px solid rgba(43, 108, 255, 0.95);
+    border-radius: var(--radius-sm);
+    display: none;
+    background: transparent;
+    pointer-events: auto;
+}
+
+.bbox .h {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: #fff;
+    border: 2px solid rgba(43, 108, 255, 0.95);
+    pointer-events: auto;
+}
+
+.bbox .h.nw {
+    left: -8px;
+    top: -8px;
+    cursor: nwse-resize;
+}
+
+.bbox .h.ne {
+    right: -8px;
+    top: -8px;
+    cursor: nesw-resize;
+}
+
+.bbox .h.sw {
+    left: -8px;
+    bottom: -8px;
+    cursor: nesw-resize;
+}
+
+.bbox .h.se {
+    right: -8px;
+    bottom: -8px;
+    cursor: nwse-resize;
+}
+
+/* 회전 핸들 */
+.bbox .rotLine {
+    position: absolute;
+    left: 50%;
+    top: -14px;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 14px;
+    background: rgba(43, 108, 255, 0.55);
+    pointer-events: none;
+}
+
+.bbox .rot {
+    position: absolute;
+    left: 50%;
+    top: -34px;
+    transform: translateX(-50%);
+
+    width: 22px;
+    height: 22px;
+    border-radius: 8px;
+
+    background: #fff;
+    border: 1px solid rgba(43, 108, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
+
+    cursor: grab;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M4.5 12a7.5 7.5 0 0 1 12.9-5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M18 4v4h-4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M19.5 12a7.5 7.5 0 0 1-12.9 5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M6 20v-4h4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.bbox .rot:active {
+    cursor: grabbing;
+}
+
+/* 모바일 터치 드래그/리사이즈/회전 필수 */
+#canvasWrap,
+#designCanvas,
+#bbox,
+#bbox .h,
+#rotHandle {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================================
+   파일 업로드
+========================================================= */
+.fileUpload {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.fileUpload button {
+    width: auto;
+    padding: 10px 18px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+}
+
+.fileName {
+    font-size: var(--fs-13);
+    color: #667085;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 240px;
+}

@@ -1,0 +1,272 @@
+/* =========================================================
+   도움말 라벨 / 툴팁
+========================================================= */
+.labelWithHelp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.helpWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* helpIcon은 button 공통 스타일(width:100%, 노랑 배경) 무시 */
+.helpIcon {
+    all: unset;
+    box-sizing: border-box;
+
+    width: 18px !important;
+    height: 18px !important;
+    padding: 0 !important;
+    flex: 0 0 auto !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 999px !important;
+    border: 1px solid var(--line) !important;
+
+    background: var(--acc) !important;
+    color: var(--muted) !important;
+
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    line-height: 18px !important;
+
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.helpIcon:hover {
+    border-color: var(--acc) !important;
+    box-shadow: var(--focus-ring) !important;
+    color: var(--txt) !important;
+}
+
+.helpTooltip {
+    position: absolute;
+    top: 26px;
+    left: 0;
+
+    width: min(320px, calc(100vw - 40px));
+    padding: 10px 12px;
+
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--txt);
+
+    display: none;
+    z-index: 999;
+}
+
+.helpTooltip.show {
+    display: block;
+}
+
+.helpTooltip::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 10px;
+
+    width: 10px;
+    height: 10px;
+
+    background: #fff;
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    transform: rotate(45deg);
+}
+
+.helpTooltip b {
+    font-weight: 900;
+}
+
+.helpTooltip .muted {
+    color: var(--muted);
+}
+
+.helpTooltip .hr {
+    height: 1px;
+    background: var(--line);
+    margin: 8px 0;
+}
+
+/* =========================================================
+   버튼
+========================================================= */
+button {
+    width: 100%;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--line);
+    background: var(--acc);
+    color: #000;
+    padding: 10px 12px;
+    font-size: var(--fs-14);
+    font-weight: 700;
+    outline: none;
+    cursor: pointer;
+    border-radius: 16px;
+}
+
+button:hover {
+    filter: brightness(1.02);
+}
+
+.ghostBtn {
+    background: #fff !important;
+    color: var(--txt) !important;
+    border: 1px solid var(--line) !important;
+}
+
+.ghostBtn:hover {
+    background: var(--acc) !important;
+    border-color: var(--acc) !important;
+    color: var(--txt) !important;
+}
+
+.confirmBtn {
+    background: var(--acc) !important;
+    border-color: var(--acc) !important;
+    color: var(--txt) !important;
+}
+
+.confirmBtn:hover {
+    filter: brightness(0.98);
+}
+
+.quoteBtn {
+    background: #111111;
+    border: 1px solid #111111;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 16px;
+}
+
+.quoteBtn:hover {
+    background: #000000;
+    border-color: #000000;
+    filter: brightness(1.05);
+}
+
+.dangerBtn {
+    width: auto;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-weight: 700;
+
+    background: #fff;
+    color: var(--bad);
+    border: 1px solid var(--line);
+}
+
+.dangerBtn:hover {
+    border-color: var(--bad);
+    background: rgba(217, 45, 32, 0.06);
+}
+
+.dangerBtn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: none;
+}
+
+.miniBtn {
+    width: auto;
+    padding: 6px 10px;
+    font-size: var(--fs-12);
+
+    border-radius: 10px;
+    background: #ffffff;
+    color: var(--txt);
+    border: 1px solid var(--line);
+
+    cursor: pointer;
+}
+
+.btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btns button {
+    flex: 1;
+    min-width: 160px;
+}
+
+/* =========================================================
+   체크라인 / 인라인 옵션
+========================================================= */
+.inlineCheck {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--txt);
+}
+
+/* =========================================================
+   뱃지 / 태그 / 텍스트
+========================================================= */
+.pill {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    font-size: var(--fs-12);
+    color: var(--muted);
+}
+
+.pill b {
+    color: var(--txt);
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: var(--fs-11);
+    color: var(--muted);
+    background: #f2f4f7;
+}
+
+.hint {
+    font-size: var(--fs-12);
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+.warn,
+.ok {
+    font-size: var(--fs-12);
+    margin-top: 8px;
+    white-space: pre-line;
+}
+
+.warn {
+    color: var(--bad);
+}
+
+.ok {
+    color: var(--ok);
+}
+
+.red {
+    color: var(--bad);
+}
+
+.yellow {
+    color: #fdb022;
+}

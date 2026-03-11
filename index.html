@@ -6,13 +6,23 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>시안 제작</title>
 
-    <link rel="stylesheet" href="./css/index.css" />
-
     <!-- favicon -->
     <link rel="icon" type="image/png" href="./image/favicon.png">
 
     <!-- Pickr (커스텀 컬러피커) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="./css/base.css" />
+    <link rel="stylesheet" href="./css/layout.css" />
+    <link rel="stylesheet" href="./css/form.css" />
+    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/canvas.css" />
+    <link rel="stylesheet" href="./css/cart.css" />
+    <link rel="stylesheet" href="./css/color-picker.css" />
+    <link rel="stylesheet" href="./css/responsive.css" />
+
+    <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
     <!-- EmailJS -->
@@ -20,7 +30,6 @@
 
     <!-- JSZip -->
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-
 </head>
 
 <body>
@@ -56,7 +65,7 @@
 
                         <div class="divider"></div>
 
-                        <!-- 견적서 요청 토글 (프로파일 위) -->
+                        <!-- 견적서 요청 토글 -->
                         <div class="row1">
                             <label class="inlineCheck">
                                 <input type="checkbox" id="quoteToggle" />
@@ -90,7 +99,6 @@
 
                                 <div class="divider"></div>
 
-                                <!-- [ADD] 키캡 키링 옵션 -->
                                 <div class="row">
                                     <div>
                                         <label>키캡 키링 수량</label>
@@ -127,7 +135,6 @@
 
                                 <div class="divider"></div>
 
-                                <!-- [ADD] 포장 요구사항 -->
                                 <div class="row">
                                     <div>
                                         <label>포장 요구사항</label>
@@ -157,7 +164,6 @@
                                 <div style="margin-top:12px;">
                                     <label>기타 유의사항</label>
                                     <textarea id="quoteNotes" rows="4"
-                                        style="width:100%; border-radius:12px; border:1px solid var(--line); padding:10px 12px; font-size:14px; outline:none;"
                                         placeholder="예) 포장 시 주의사항 / 구성 관련 요청 / 참고사항 등"></textarea>
                                 </div>
 
@@ -212,7 +218,6 @@
                         <div class="btns">
                             <button id="btnAddItem" type="button">시안 추가</button>
                         </div>
-
                     </div>
                 </section>
             </div>
@@ -221,7 +226,6 @@
             <div class="rightStack">
                 <section class="card">
                     <div class="editorWrap">
-                        <!-- 캔버스 영역 -->
                         <div class="canvasFrame">
                             <div class="pill">
                                 <span class="tag">선택 프로파일/규격</span><b id="selText">없음</b>
@@ -292,7 +296,6 @@
                             </div>
                         </div>
 
-                        <!-- 장바구니 영역 -->
                         <div class="canvasFrame">
                             <div id="cartList" class="cartList"></div>
 
@@ -317,7 +320,6 @@
 
                             <div id="msg" class="warn"></div>
                             <div id="ok" class="ok"></div>
-
                         </div>
                     </div>
                 </section>
@@ -325,7 +327,19 @@
         </div>
     </div>
 
-    <script src="./js/index.js"></script>
+    <!-- JS -->
+    <script src="./js/constants.js"></script>
+    <script src="./js/dom.js"></script>
+    <script src="./js/state.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/validation.js"></script>
+    <script src="./js/tooltip.js"></script>
+    <script src="./js/color-picker.js"></script>
+    <script src="./js/canvas.js"></script>
+    <script src="./js/quote.js"></script>
+    <script src="./js/cart.js"></script>
+    <script src="./js/email.js"></script>
+    <script src="./js/app.js"></script>
 </body>
 
 </html>

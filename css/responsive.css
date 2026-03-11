@@ -1,0 +1,79 @@
+/* =========================================================
+   반응형
+========================================================= */
+
+/* 1024 이하 */
+@media (max-width: 1024px) {
+    .wrap {
+        padding: 20px;
+    }
+
+    .layout2 {
+        grid-template-columns: 1fr;
+    }
+
+    .editorWrap {
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .canvasFrame {
+        padding: 12px;
+    }
+
+    .fileName {
+        max-width: 100%;
+    }
+}
+
+/* 768 이하 */
+@media (max-width: 768px) {
+    .wrap {
+        padding: 16px;
+    }
+
+    .card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .canvasFrame {
+        padding: 10px;
+        border-radius: 16px;
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+    }
+
+    .btns button {
+        min-width: 140px;
+    }
+
+    .fileUpload {
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .fileUpload button,
+    .dangerBtn {
+        width: 100%;
+    }
+
+    .cartTop {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .cartActions {
+        justify-content: flex-start;
+    }
+
+    .helpTooltip {
+        left: 0 !important;
+        right: auto !important;
+    }
+}
