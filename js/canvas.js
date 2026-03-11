@@ -37,9 +37,16 @@ function applyCanvasSizeFromForm() {
   updateBgLockUI(p, laser);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
-  bgTextEl.textContent = it ? getItemBgColor(it) : "#ffffff";
+  if (it) {
+    bgTextEl.textContent = getItemBgColor(it);
+  } else {
+    bgTextEl.textContent = draftBgSet ? draftBgColor : "-";
+  }
 }
 
+/* =========================================================
+ * 현재 캔버스 상태 저장 / 로드
+========================================================= */
 function saveCanvasToItem(it) {
   it.design = it.design || {};
   it.design.imgDataUrl = userImg ? userImg.src : null;
@@ -47,6 +54,8 @@ function saveCanvasToItem(it) {
   it.design.cy = imgCY;
   it.design.scale = imgScale;
   it.design.rot = imgRot;
+  it.design.bgSet = !!draftBgSet;
+  it.bgColor = draftBgColor || "#ffffff";
 }
 
 async function loadItemToCanvas(it) {
@@ -55,6 +64,9 @@ async function loadItemToCanvas(it) {
   imgCY = it.design?.cy ?? canvas.height / 2;
   imgScale = it.design?.scale ?? 1;
   imgRot = it.design?.rot ?? 0;
+
+  draftBgColor = it.bgColor || "#ffffff";
+  draftBgSet = !!it.design?.bgSet;
 
   if (it.design?.imgDataUrl) {
     const img = new Image();
@@ -66,6 +78,12 @@ async function loadItemToCanvas(it) {
     userImg = img;
   }
 
+  if (fileNameEl) {
+    fileNameEl.textContent = it.design?.imgDataUrl
+      ? "업로드된 이미지 있음"
+      : "선택된 파일 없음";
+  }
+
   redraw();
 }
 
@@ -75,10 +93,23 @@ function clearEditor() {
   imgCY = canvas.height / 2;
   imgScale = 1;
   imgRot = 0;
+
+  draftBgColor = "#ffffff";
+  draftBgSet = false;
+  selectedItemId = null;
+
+  if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
+  if (bgTextEl) bgTextEl.textContent = "-";
+  if (selTextEl) selTextEl.textContent = "없음";
+  setBgUI("#ffffff");
+
   redraw();
   updateActionLocks();
 }
 
+/* =========================================================
+ * 이미지 업로드 / 삭제
+========================================================= */
 function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -93,6 +124,22 @@ function loadImageFromFile(file) {
   });
 }
 
+function warnLowResolutionImage(img) {
+  if (!img) return false;
+
+  const minSide = Math.min(img.width, img.height);
+  const maxSide = Math.max(img.width, img.height);
+
+  if (minSide < 600 || maxSide < 600) {
+    setMsg(
+      "업로드한 이미지 해상도가 낮습니다.\n제작 시 이미지 품질이 떨어질 수 있습니다.",
+    );
+    return true;
+  }
+
+  return false;
+}
+
 function fitImageToCanvas(img) {
   imgScale = Math.max(canvas.width / img.width, canvas.height / img.height);
   imgRot = 0;
@@ -104,14 +151,9 @@ fileBtn?.addEventListener("click", () => {
   clearMsgOk();
 
   if (applyConfirmedLockIfNeeded(true)) return;
+  if (!validateUserInfo(true)) return;
 
-  const it = cartItems.find((x) => x.id === selectedItemId);
-  if (!it) {
-    setMsg("시안 제작 전 모든 정보를 입력해주세요.");
-    return;
-  }
-
-  fileEl.click();
+  fileEl?.click();
 });
 
 fileEl?.addEventListener("change", async () => {
@@ -122,9 +164,7 @@ fileEl?.addEventListener("change", async () => {
     return;
   }
 
-  const it = cartItems.find((x) => x.id === selectedItemId);
-  if (!it) {
-    setMsg("시안 제작 전 모든 정보를 입력해주세요.");
+  if (!validateUserInfo(true)) {
     fileEl.value = "";
     updateActionLocks();
     return;
@@ -144,13 +184,15 @@ fileEl?.addEventListener("change", async () => {
     userImg = await loadImageFromFile(f);
     fitImageToCanvas(userImg);
 
-    it.design = it.design || {};
     redraw();
-    saveCanvasToItem(it);
-    it.design.bgSet = it.design.bgSet ?? false;
 
-    renderCart();
-    setOk("이미지가 업로드되었습니다.");
+    const warned = warnLowResolutionImage(userImg);
+
+    if (!warned) {
+      setOk("이미지가 업로드되었습니다.");
+    } else {
+      setOk("이미지가 업로드되었습니다. 해상도를 함께 확인해주세요.");
+    }
   } catch {
     setMsg(
       "이미지 파일을 불러오는 중 문제가 발생했습니다. 다른 파일로 다시 시도해주세요.",
@@ -171,26 +213,15 @@ fileDelBtn?.addEventListener(
 
     if (applyConfirmedLockIfNeeded(true)) return;
 
-    const it = cartItems.find((x) => x.id === selectedItemId);
-    if (!it) {
-      setMsg("시안 제작 전 모든 정보를 입력해주세요.");
-      updateActionLocks();
-      return;
-    }
-
     userImg = null;
     imgScale = 1;
     imgRot = 0;
     imgCX = canvas.width / 2;
     imgCY = canvas.height / 2;
 
-    it.design = it.design || {};
-    it.design.imgDataUrl = null;
-
     if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
 
     redraw();
-    renderCart();
     setOk("이미지가 삭제되었습니다.");
     updateActionLocks();
   },
@@ -213,7 +244,14 @@ function roundRectPath(c, x, y, w, h, r) {
 
 function drawBackground() {
   const it = cartItems.find((x) => x.id === selectedItemId);
-  const bg = it ? getItemBgColor(it) : "#ffffff";
+
+  let bg = "#ffffff";
+
+  if (it) {
+    bg = getItemBgColor(it);
+  } else {
+    bg = draftBgColor || "#ffffff";
+  }
 
   ctx.save();
   ctx.fillStyle = bg;
@@ -552,12 +590,7 @@ function endPointerInteraction() {
     draggingMove = false;
     handleDrag = null;
     rotateDrag = null;
-
-    const it = cartItems.find((x) => x.id === selectedItemId);
-    if (it) saveCanvasToItem(it);
-
     redraw();
-    renderCart();
     updateActionLocks();
   }
 }

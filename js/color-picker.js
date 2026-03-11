@@ -1,6 +1,8 @@
 /* =========================================================
  * Pickr 배경색
 ========================================================= */
+let bgPickr = null;
+
 function setBgUI(hex) {
   const v = (hex || "#ffffff").toLowerCase();
   if (bgColorSwatch) bgColorSwatch.style.background = v;
@@ -18,6 +20,7 @@ function updateBgLockUI(profile, laser) {
 
     const it = cartItems.find((x) => x.id === selectedItemId);
     if (it) {
+      it.bgColor = forced;
       it.design = it.design || {};
       it.design.bgSet = true;
       bgTextEl.textContent = forced;
@@ -54,19 +57,26 @@ function initPickr() {
 
   bgPickr.on("change", (color) => {
     if (uiLocked || !color) return;
+    if (!validateUserInfo(false)) return;
 
     const hex = color.toHEXA().toString().toLowerCase();
     setBgUI(hex);
 
     const it = cartItems.find((x) => x.id === selectedItemId);
+
     if (it) {
       it.bgColor = hex;
       it.design = it.design || {};
       it.design.bgSet = true;
-      bgTextEl.textContent = getItemBgColor(it);
+      if (bgTextEl) bgTextEl.textContent = getItemBgColor(it);
+    } else {
+      draftBgColor = hex;
+      draftBgSet = true;
+      if (bgTextEl) bgTextEl.textContent = hex;
     }
 
-    rerenderAll();
+    redraw();
+    updateActionLocks();
   });
 
   setBgUI("#ffffff");

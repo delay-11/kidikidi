@@ -1,6 +1,13 @@
 /* =========================================================
  * 필드 에러 처리
 ========================================================= */
+const fieldErr = {
+  name: null,
+  phone: null,
+  order: null,
+  email: null,
+};
+
 function ensureFieldErrorBox(inputEl, key) {
   if (!inputEl) return null;
   const wrap = inputEl.parentElement;
@@ -253,21 +260,59 @@ function validateCanConfirm(showMessage = false) {
 }
 
 /* =========================================================
- * 버튼 잠금/활성
+ * 버튼 잠금 / 활성
 ========================================================= */
 function updateActionLocks() {
   if (uiLocked) {
     if (btnAddItemEl) btnAddItemEl.disabled = true;
     if (btnConfirmEl) btnConfirmEl.disabled = true;
+
+    if (fileBtn) fileBtn.disabled = true;
+    if (fileEl) fileEl.disabled = true;
+    if (bgPickBtn) bgPickBtn.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
+
     return;
   }
 
-  btnAddItemEl.disabled = !validateUserInfo(false);
-  btnConfirmEl.disabled = !validateCanConfirm(false);
+  const hasUserInfo = validateUserInfo(false);
+  const hasCanvasDesign = !!userImg || !!draftBgSet;
 
-  const it = cartItems.find((x) => x.id === selectedItemId);
+  if (btnAddItemEl) {
+    btnAddItemEl.disabled = !hasCanvasDesign;
+  }
+  const hasAnyDesign = cartItems.some((it) => hasDesign(it));
+
+  /* 주문자 정보 입력 전 : 전체 막기 */
+  if (!hasUserInfo) {
+    if (btnAddItemEl) btnAddItemEl.disabled = true;
+    if (btnConfirmEl) btnConfirmEl.disabled = true;
+
+    if (fileBtn) fileBtn.disabled = true;
+    if (fileEl) fileEl.disabled = true;
+    if (bgPickBtn) bgPickBtn.disabled = true;
+    if (fileDelBtn) fileDelBtn.disabled = true;
+
+    return;
+  }
+
+  /* 주문자 정보 입력 후 : 이미지 업로드 / 배경 설정 가능 */
+  if (fileBtn) fileBtn.disabled = false;
+  if (fileEl) fileEl.disabled = false;
+  if (bgPickBtn) bgPickBtn.disabled = false;
+
+  /* 이미지 또는 배경 설정 후 : 새 시안 추가 가능 */
+  if (btnAddItemEl) {
+    btnAddItemEl.disabled = !hasCanvasDesign;
+  }
+
+  /* 현재 캔버스에 이미지 있을 때만 삭제 가능 */
   if (fileDelBtn) {
-    fileDelBtn.disabled = !(it && it.design && it.design.imgDataUrl);
+    fileDelBtn.disabled = !userImg;
+  }
+
+  /* 장바구니에 디자인이 하나라도 있어야 시안 확정 가능 */
+  if (btnConfirmEl) {
+    btnConfirmEl.disabled = !(hasAnyDesign && validateCanConfirm(false));
   }
 }

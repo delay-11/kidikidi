@@ -1,8 +1,6 @@
 /* =========================================================
  * 가격 / 옵션 / 장바구니
 ========================================================= */
-
-/* 수량 할인 */
 function getVolumeDiscountRate(qty) {
   if (qty >= 5000) return 0.2;
   if (qty >= 1000) return 0.15;
@@ -10,7 +8,6 @@ function getVolumeDiscountRate(qty) {
   return 0;
 }
 
-/* 제작 일정 할증 */
 function getRushRate(v) {
   if (!v || v === "none") return 0;
   if (v === "10d") return 0.2;
@@ -18,14 +15,12 @@ function getRushRate(v) {
   return 0;
 }
 
-/* 단가 계산 */
 function getUnitPrice(profile, capType, laser) {
   const base = PRICE?.[profile]?.[capType] ?? 0;
   const add = profile === "OEM" ? (LASER_ADDON?.[laser] ?? 0) : 0;
   return { base, add, unit: base + add };
 }
 
-/* 아이템 배경색 규칙 */
 function getItemBgColor(it) {
   const profile = it?.profile || profileEl.value;
   const laser = it?.laser || (profile === "OEM" ? laserEl.value : "none");
@@ -35,12 +30,10 @@ function getItemBgColor(it) {
   return it?.bgColor || "#ffffff";
 }
 
-/* 시안 존재 여부 */
 function hasDesign(it) {
   return !!it?.design?.imgDataUrl || !!it?.design?.bgSet;
 }
 
-/* 라인 합계 계산 */
 function calcLineTotal(item) {
   const { unit } = getUnitPrice(item.profile, item.capType, item.laser);
   const qty = Math.max(1, Number(item.qty || 1));
@@ -52,7 +45,6 @@ function calcLineTotal(item) {
   return { unit, qty, baseLine, discRate, afterDiscount };
 }
 
-/* 장바구니 소계 */
 function cartSubtotal() {
   return cartItems.reduce(
     (sum, it) => sum + calcLineTotal(it).afterDiscount,
@@ -60,7 +52,6 @@ function cartSubtotal() {
   );
 }
 
-/* 장바구니 총액 */
 function cartTotal() {
   const sub = cartSubtotal();
   const rate = quoteEnabled ? getRushRate(quoteProd) : 0;
@@ -134,9 +125,6 @@ function updatePriceUI() {
     (quoteEnabled ? ` / 희망 납기 ${quoteDue || "-"}` : "");
 }
 
-/* =========================================================
- * 장바구니 표시용 텍스트
-========================================================= */
 function labelLaser(it) {
   if (it.profile !== "OEM") return "레이저 없음";
   if (it.laser === "black") return "레이저 블랙";
@@ -163,13 +151,15 @@ function renderCart() {
 
   if (cartItems.length === 0) {
     const div = document.createElement("div");
-    div.className = "hint";
-    div.textContent =
-      "제작된 시안이 없습니다. 왼쪽에서 옵션 선택 후 [시안 추가]를 눌러주세요.";
+    div.className = "cartEmpty";
+    div.innerHTML = `
+      <div class="cartEmptyTitle">제작된 시안이 없습니다</div>
+      <div class="cartEmptyDesc">이미지 또는 배경을 설정한 뒤 <b>[시안 추가]</b> 버튼을 눌러주세요.</div>
+    `;
     cartListEl.appendChild(div);
 
     if (selTextEl) selTextEl.textContent = "없음";
-    if (bgTextEl) bgTextEl.textContent = "-";
+    if (bgTextEl) bgTextEl.textContent = draftBgSet ? draftBgColor : "-";
 
     updateActionLocks();
     return;
@@ -191,24 +181,36 @@ function renderCart() {
       : "할인 없음";
 
     box.innerHTML = `
-      <div class="cartTop">
-        <div>
-          <div class="cartTitle"><b>${it.profile}</b> / ${it.capType} / ${labelLaser(it)} / 배경 ${bg}</div>
-          <div class="cartMeta">
-            <span>수량: <b>${it.qty}</b></span>
-            <span>단가: <b>${calc.unit.toLocaleString()}원</b></span>
-            <span>조건: <b>${discText}</b></span>
-            <span>합계(할인후): <b>${calc.afterDiscount.toLocaleString()}원</b></span>
-            <span>시안: <b>${hasDesign(it) ? "있음" : "없음"}</b></span>
-          </div>
-        </div>
-        <div class="cartActions">
-          <button class="miniBtn" type="button" data-act="minus">-</button>
-          <button class="miniBtn" type="button" data-act="plus">+</button>
-          <button class="miniBtn" type="button" data-act="del">x</button>
-        </div>
+  <div class="cartTop">
+
+    <div class="cartThumb">
+      ${
+        it.design && it.design.imgDataUrl
+          ? `<img src="${it.design.imgDataUrl}" />`
+          : `<div class="thumbEmpty" style="background:${bg}"></div>`
+      }
+    </div>
+
+    <div>
+      <div class="cartTitle"><b>${it.profile}</b> / ${it.capType} / ${labelLaser(it)} / 배경 ${bg}</div>
+
+      <div class="cartMeta">
+        <span>수량: <b>${it.qty}</b></span>
+        <span>단가: <b>${calc.unit.toLocaleString()}원</b></span>
+        <span>조건: <b>${discText}</b></span>
+        <span>합계(할인후): <b>${calc.afterDiscount.toLocaleString()}원</b></span>
+        <span>시안: <b>${hasDesign(it) ? "있음" : "없음"}</b></span>
       </div>
-    `;
+    </div>
+
+    <div class="cartActions">
+      <button class="miniBtn" type="button" data-act="minus">-</button>
+      <button class="miniBtn" type="button" data-act="plus">+</button>
+      <button class="miniBtn" type="button" data-act="del">x</button>
+    </div>
+
+  </div>
+`;
 
     const minusBtn = box.querySelector('[data-act="minus"]');
     const plusBtn = box.querySelector('[data-act="plus"]');
@@ -248,16 +250,17 @@ function renderCart() {
   }
 
   const sel = cartItems.find((x) => x.id === selectedItemId);
-  if (selTextEl)
-    selTextEl.textContent = sel ? `${sel.profile} / ${sel.capType}` : "없음";
-  if (bgTextEl) bgTextEl.textContent = sel ? getItemBgColor(sel) : "-";
+  if (sel) {
+    if (selTextEl) selTextEl.textContent = `${sel.profile} / ${sel.capType}`;
+    if (bgTextEl) bgTextEl.textContent = getItemBgColor(sel);
+  } else {
+    if (selTextEl) selTextEl.textContent = "없음";
+    if (bgTextEl) bgTextEl.textContent = draftBgSet ? draftBgColor : "-";
+  }
 
   updateActionLocks();
 }
 
-/* =========================================================
- * 아이템 삭제
-========================================================= */
 function removeItem(id) {
   const idx = cartItems.findIndex((x) => x.id === id);
   if (idx >= 0) {
@@ -265,13 +268,8 @@ function removeItem(id) {
   }
 
   if (selectedItemId === id) {
-    selectedItemId = cartItems[0]?.id ?? null;
-
-    if (selectedItemId) {
-      selectItem(selectedItemId);
-    } else {
-      clearEditor();
-    }
+    selectedItemId = null;
+    clearEditor();
   }
 
   renderCart();
@@ -312,11 +310,6 @@ function syncLeftFormFromItem(it) {
 async function selectItem(id) {
   if (uiLocked) return;
 
-  const prev = cartItems.find((x) => x.id === selectedItemId);
-  if (prev) {
-    saveCanvasToItem(prev);
-  }
-
   const it = cartItems.find((x) => x.id === id);
   if (!it) return;
 
@@ -327,13 +320,15 @@ async function selectItem(id) {
   const size = getCanvasSize(it.profile, it.capType);
   resizeCanvasKeepView(size.w, size.h);
 
-  if (!it.design || (it.design.cx === 0 && it.design.cy === 0)) {
-    it.design = it.design || {};
-    it.design.cx = canvas.width / 2;
-    it.design.cy = canvas.height / 2;
-    it.design.scale = it.design.scale ?? 1;
-    it.design.rot = it.design.rot ?? 0;
-    it.design.bgSet = it.design.bgSet ?? false;
+  if (!it.design) {
+    it.design = {
+      imgDataUrl: null,
+      cx: canvas.width / 2,
+      cy: canvas.height / 2,
+      scale: 1,
+      rot: 0,
+      bgSet: false,
+    };
   }
 
   await loadItemToCanvas(it);
@@ -348,7 +343,7 @@ async function selectItem(id) {
 }
 
 /* =========================================================
- * 시안 추가
+ * 새 시안 추가
 ========================================================= */
 btnAddItemEl?.addEventListener("click", () => {
   clearMsgOk();
@@ -356,13 +351,18 @@ btnAddItemEl?.addEventListener("click", () => {
   if (applyConfirmedLockIfNeeded(true)) return;
   if (!validateUserInfo(true)) return;
 
+  const hasCanvasDesign = userImg || draftBgSet;
+  if (!hasCanvasDesign) {
+    setMsg("이미지 업로드 또는 배경 설정 후 새로운 시안을 추가할 수 있습니다.");
+    return;
+  }
+
   const p = profileEl.value;
   const cap = capTypeEl.value;
   const laser = p === "OEM" ? laserEl.value : "none";
   const qty = Math.max(1, toInt(qtyEl.value, 1));
 
   const { base } = getUnitPrice(p, cap, laser);
-
   if (base === 0) {
     setMsg("선택하신 규격은 현재 주문이 불가능합니다.");
     return;
@@ -376,24 +376,29 @@ btnAddItemEl?.addEventListener("click", () => {
     capType: cap,
     laser,
     qty,
-    bgColor: "#ffffff",
+    bgColor: draftBgColor || "#ffffff",
     design: {
       imgDataUrl: null,
-      cx: 0,
-      cy: 0,
-      scale: 1,
-      rot: 0,
-      bgSet: false,
+      cx: imgCX,
+      cy: imgCY,
+      scale: imgScale,
+      rot: imgRot,
+      bgSet: !!draftBgSet,
     },
   };
 
+  saveCanvasToItem(item);
+
   cartItems.unshift(item);
-  selectItem(id);
+
+  clearEditor();
   renderCart();
   updatePriceUI();
-
-  setOk("이미지 업로드 또는 배경색 설정 후 시안을 확정할 수 있습니다.");
   updateActionLocks();
+
+  setOk(
+    "새로운 시안이 추가되었습니다. 계속해서 새로운 시안을 제작할 수 있습니다.",
+  );
 });
 
 /* =========================================================
@@ -404,15 +409,22 @@ profileEl?.addEventListener("change", () => {
 
   setCapTypeOptions();
   applyCanvasSizeFromForm();
-  rerenderAll();
+
+  selectedItemId = null;
+  updateDraftInfo();
+  redraw();
+  updateActionLocks();
   refreshOpenTooltips();
 });
 
 capTypeEl?.addEventListener("change", () => {
   if (uiLocked) return;
 
+  selectedItemId = null;
   applyCanvasSizeFromForm();
-  rerenderAll();
+  updateDraftInfo();
+  redraw();
+  updateActionLocks();
   refreshOpenTooltips();
 });
 
@@ -433,18 +445,9 @@ qtyEl?.addEventListener("input", () => {
 laserEl?.addEventListener("change", () => {
   if (uiLocked) return;
 
+  selectedItemId = null;
   updateBgLockUI(profileEl.value, laserEl.value);
-
-  const it = cartItems.find((x) => x.id === selectedItemId);
-  if (it) {
-    it.laser = it.profile === "OEM" ? laserEl.value : "none";
-    it.design = it.design || {};
-    it.design.bgSet = true;
-
-    if (bgTextEl) {
-      bgTextEl.textContent = getItemBgColor(it);
-    }
-  }
-
-  rerenderAll();
+  updateDraftInfo();
+  redraw();
+  updateActionLocks();
 });

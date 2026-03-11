@@ -102,97 +102,233 @@
 }
 
 /* =========================================================
-   버튼
+   버튼 기본
 ========================================================= */
 button {
     width: 100%;
-    border-radius: var(--radius-md);
-    border: 1px solid var(--line);
-    background: var(--acc);
-    color: #000;
+    min-height: 44px;
     padding: 10px 12px;
+
+    border-radius: 14px;
+    border: 1px solid var(--line);
+
+    background: var(--acc);
+    color: #111111;
+
     font-size: var(--fs-14);
     font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+
     outline: none;
     cursor: pointer;
-    border-radius: 16px;
+
+    transition:
+        background-color 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        filter 0.18s ease;
 }
 
 button:hover {
-    filter: brightness(1.02);
+    filter: none;
 }
 
+button:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   공통 액션 버튼
+========================================================= */
+.actionBtn {
+    min-height: 46px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* =========================================================
+   기본 고스트 버튼
+========================================================= */
 .ghostBtn {
     background: #fff !important;
     color: var(--txt) !important;
     border: 1px solid var(--line) !important;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
 }
 
 .ghostBtn:hover {
-    background: var(--acc) !important;
-    border-color: var(--acc) !important;
+    background: #f9fafb !important;
+    border-color: #d0d5dd !important;
     color: var(--txt) !important;
+    filter: none !important;
 }
 
-.confirmBtn {
-    background: var(--acc) !important;
-    border-color: var(--acc) !important;
+/* =========================================================
+   1단계: 유틸 버튼
+   이미지 선택 / 배경색 선택
+========================================================= */
+.softActionBtn {
+    background: #ffffff !important;
     color: var(--txt) !important;
+    border: 1px solid #d0d5dd !important;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04) !important;
+}
+
+.softActionBtn:hover {
+    background: #f9fafb !important;
+    border-color: #bfc7d4 !important;
+    color: var(--txt) !important;
+    filter: none !important;
+    transform: translateY(-1px);
+}
+
+.softActionBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03) !important;
+}
+
+/* 유틸 버튼 높이 살짝 축소 */
+#fileBtn,
+#bgPickBtn {
+    min-height: 42px;
+}
+
+/* =========================================================
+   2단계: 보조 핵심 버튼
+   시안 추가
+========================================================= */
+.secondaryActionBtn {
+    background: #fff8e8 !important;
+    color: var(--txt) !important;
+    border: 1px solid #f2d27a !important;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.05);
+}
+
+.secondaryActionBtn:hover {
+    background: #fef1c7 !important;
+    border-color: #e9c35d !important;
+    color: var(--txt) !important;
+    filter: none !important;
+    transform: translateY(-1px);
+}
+
+.secondaryActionBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 4px rgba(16, 24, 40, 0.04);
+}
+
+/* =========================================================
+   3단계: 최종 메인 버튼
+   시안 확정하기
+========================================================= */
+.confirmBtn {
+    background: #f4c95d !important;
+    border: 1px solid #efc24f !important;
+    color: #111111 !important;
+    box-shadow: 0 4px 10px rgba(244, 201, 93, 0.22);
 }
 
 .confirmBtn:hover {
-    filter: brightness(0.98);
+    background: #efc24f !important;
+    border-color: #e5b63e !important;
+    color: #111111 !important;
+    filter: none !important;
+    transform: translateY(-1px);
 }
 
+.confirmBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(244, 201, 93, 0.18);
+}
+
+/* =========================================================
+   견적 전용 버튼
+========================================================= */
 .quoteBtn {
     background: #111111;
     border: 1px solid #111111;
     color: #ffffff;
     font-weight: 700;
-    border-radius: 16px;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.12);
 }
 
 .quoteBtn:hover {
     background: #000000;
     border-color: #000000;
-    filter: brightness(1.05);
+    color: #ffffff;
+    filter: none;
+    transform: translateY(-1px);
 }
 
+.quoteBtn:active {
+    transform: translateY(0);
+}
+
+/* =========================================================
+   위험 버튼
+========================================================= */
 .dangerBtn {
     width: auto;
     padding: 10px 14px;
+    min-height: 42px;
+
     border-radius: 12px;
     font-weight: 700;
 
     background: #fff;
-    color: var(--bad);
-    border: 1px solid var(--line);
+    color: #b42318;
+    border: 1px solid #f0c7c2;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
 }
 
 .dangerBtn:hover {
-    border-color: var(--bad);
-    background: rgba(217, 45, 32, 0.06);
+    border-color: #e7a9a2;
+    background: #fef3f2;
+    color: #b42318;
+    filter: none;
 }
 
 .dangerBtn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     filter: none;
+    transform: none;
+    box-shadow: none;
 }
 
+/* =========================================================
+   미니 버튼
+========================================================= */
 .miniBtn {
     width: auto;
+    min-height: auto;
     padding: 6px 10px;
+
     font-size: var(--fs-12);
+    font-weight: 700;
 
     border-radius: 10px;
     background: #ffffff;
     color: var(--txt);
     border: 1px solid var(--line);
-
-    cursor: pointer;
+    box-shadow: none;
 }
 
+.miniBtn:hover {
+    background: #f9fafb;
+    border-color: #d0d5dd;
+    color: var(--txt);
+    filter: none;
+}
+
+/* =========================================================
+   버튼 묶음
+========================================================= */
 .btns {
     display: flex;
     gap: 10px;
@@ -269,4 +405,51 @@ button:hover {
 
 .yellow {
     color: #fdb022;
+}
+
+/* =========================================================
+   버튼 비활성 상태
+========================================================= */
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+}
+
+/* =========================================================
+   주문자 정보 입력 상태 박스
+========================================================= */
+.formReadyBox {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #fafbfc;
+    padding: 14px 16px;
+    display: grid;
+    gap: 6px;
+}
+
+.formReadyTitle {
+    font-size: var(--fs-13);
+    font-weight: 700;
+    color: var(--txt);
+}
+
+.formReadyDesc {
+    font-size: var(--fs-12);
+    color: var(--muted);
+    line-height: 1.6;
+}
+
+/* =========================================================
+   가운데 작업 영역 액션 바
+========================================================= */
+.editorActionBar {
+    margin-top: 14px;
+    display: flex;
+}
+
+.editorActionBar button {
+    width: 100%;
 }

@@ -2,7 +2,10 @@
    반응형
 ========================================================= */
 
-/* 1024 이하 */
+
+/* =========================================================
+   1024 이하
+========================================================= */
 @media (max-width: 1024px) {
     .wrap {
         padding: 20px;
@@ -27,9 +30,20 @@
     .fileName {
         max-width: 100%;
     }
+
+    .canvasControlRow {
+        grid-template-columns: 1fr;
+    }
+
+    .footerInner {
+        gap: 16px;
+    }
 }
 
-/* 768 이하 */
+
+/* =========================================================
+   768 이하
+========================================================= */
 @media (max-width: 768px) {
     .wrap {
         padding: 16px;
@@ -53,27 +67,183 @@
         min-width: 140px;
     }
 
-    .fileUpload {
-        flex-wrap: wrap;
-        align-items: stretch;
+    .canvasControlRow {
+        grid-template-columns: 1fr;
+        gap: 14px;
     }
 
-    .fileUpload button,
+    .uploadRow {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .fileBtn,
     .dangerBtn {
         width: 100%;
     }
 
+    .uploadGuide {
+        width: 100%;
+        order: 3;
+    }
+
+    .fileName {
+        max-width: 100%;
+        display: block;
+        margin-top: 8px;
+    }
+
+    .colorPick {
+        align-items: center;
+        gap: 8px;
+    }
+
     .cartTop {
-        flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
     }
 
     .cartActions {
         justify-content: flex-start;
+        margin-left: 0;
+        width: 100%;
+        margin-top: 8px;
     }
 
     .helpTooltip {
         left: 0 !important;
         right: auto !important;
+    }
+
+    .headerInner {
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .orderInner {
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .footerInner {
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+    }
+
+    .footerRight {
+        text-align: center;
+    }
+}
+
+
+/* =========================================================
+   640 이하
+========================================================= */
+@media (max-width: 640px) {
+    .pill {
+        gap: 6px;
+    }
+
+    .pill b {
+        font-size: var(--fs-12);
+    }
+
+    .cartTop {
+        gap: 10px;
+    }
+
+    .cartThumb {
+        width: 42px;
+        height: 42px;
+    }
+
+    .cartMeta {
+        gap: 8px;
+        line-height: 1.5;
+    }
+
+    .miniBtn {
+        padding: 6px 9px;
+    }
+
+    .fileBtn {
+        min-width: 100%;
+        height: 42px;
+    }
+
+    .dangerBtn {
+        height: 38px;
+    }
+
+    #bgPickBtn.ghostBtn {
+        width: 100%;
+    }
+
+    .colorPick {
+        width: 100%;
+    }
+
+    .colorValue {
+        word-break: break-all;
+    }
+}
+
+
+/* =========================================================
+   480 이하
+========================================================= */
+@media (max-width: 480px) {
+    .wrap {
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .canvasFrame {
+        padding: 8px;
+    }
+
+    .tag {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+
+    .pill {
+        gap: 4px;
+    }
+
+    .cartTitle {
+        font-size: 12px;
+    }
+
+    .cartMeta {
+        font-size: 11px;
+    }
+
+    .uploadGuide {
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .colorSwatch {
+        width: 24px;
+        height: 24px;
+    }
+
+    .colorValue {
+        font-size: 12px;
+    }
+
+    .helpTooltip {
+        width: min(280px, calc(100vw - 24px));
     }
 }
