@@ -2,81 +2,111 @@
  * EmailJS 설정
 ========================================================= */
 const COMPANY_EMAIL = "bbolcat@naver.com";
-const EMAILJS_PUBLIC_KEY = "YOUR_PUBLIC_KEY";
-const EMAILJS_SERVICE_ID = "YOUR_SERVICE_ID";
+const EMAILJS_PUBLIC_KEY = "rzyGqBY1HaHCNyQCK";
+const EMAILJS_SERVICE_ID = "service_kp5nyyt";
 
-// 회사로: 주문정보 + 시안 + (견적이면 사업자/일정/납기 포함)
-const EMAILJS_TEMPLATE_ID = "YOUR_TEMPLATE_ID";
+// 회사로: 주문정보 + 시안 첨부 + (견적이면 견적 섹션 포함)
+const EMAILJS_TEMPLATE_ID = "template_ndnu8z3";
 
 // 고객에게: 견적서(견적 요청 켠 경우에만)
-const EMAILJS_QUOTE_TEMPLATE_ID = "YOUR_QUOTE_TEMPLATE_ID";
+const EMAILJS_QUOTE_TEMPLATE_ID = "template_eb3xcbg";
 
 /* =========================================================
- * 가격표 / 옵션 / 캔버스 사이즈
+ * 가격표 / 옵션 / 캔버스 사이즈 / 가이드 사이즈
 ========================================================= */
 const PRICE = {
   OEM: {
-    "R1-1u": 1280,
-    "R1-1.25u": 1580,
-    "R1-2.25u": 1780,
-    "R1-2.75u": 1980,
-    "R1-6.25u": 2280,
-    "R2-1u": 1280,
-    "R2-1u(돌기)": 1280,
-    "R2-1.75u": 1580,
-    "R2-2.25u": 1780,
-    "R3-1u": 1280,
-    "R3-1.5u": 1580,
-    "R4-1u": 1280,
-    "R4-2u": 1780,
+    "R1-1U": 1280,
+    "R1-1.25U": 1580,
+    "R1-2.25U": 1780,
+    "R1-2.75U": 1980,
+    "R1-6.25U": 2280,
+
+    "R2-1U": 1280,
+    "R2-1.75U": 1580,
+    "R2-2.25U": 1780,
+
+    "R3-1U": 1280,
+    "R3-1.5U": 1580,
+
+    "R4-1U": 1280,
+    "R4-2U": 1780,
   },
-  XDA: { STD: 1680 },
-  MAO: { STD: 1780 },
+  XDA: { XDA: 1680 },
+  MAO: { MAO: 1780 },
 };
 
 const LASER_ADDON = { none: 0, black: 800, white: 1800 };
 
 const CANVAS_SIZE_MAP = {
-  "R1-1u": { w: 330, h: 330 },
-  "R2-1u": { w: 330, h: 330 },
-  "R2-1u(돌기)": { w: 330, h: 330 },
-  "R3-1u": { w: 330, h: 330 },
-  "R4-1u": { w: 330, h: 330 },
-  STD: { w: 330, h: 330 },
+  "R4-1U": { w: 330, h: 330 },
+  "R4-2U": { w: 500, h: 367 },
 
-  "R1-1.25u": { w: 410, h: 330 },
-  "R3-1.5u": { w: 495, h: 330 },
-  "R2-1.75u": { w: 580, h: 330 },
-  "R4-2u": { w: 660, h: 330 },
-  "R1-2.25u": { w: 740, h: 330 },
-  "R2-2.25u": { w: 740, h: 330 },
-  "R1-2.75u": { w: 900, h: 330 },
-  "R1-6.25u": { w: 2060, h: 330 },
+  "R3-1U": { w: 330, h: 330 },
+  "R3-1.5U": { w: 500, h: 355 },
+
+  "R2-1U": { w: 330, h: 330 },
+  "R2-1.75U": { w: 520, h: 332 },
+  "R2-2.25U": { w: 640, h: 330 },
+
+  "R1-1U": { w: 330, h: 330 },
+  "R1-1.25U": { w: 396, h: 330 },
+  "R1-2.25U": { w: 620, h: 360 },
+  "R1-2.75U": { w: 752, h: 365 },
+  "R1-6.25U": { w: 1559, h: 368 },
+
+  XDA: { w: 330, h: 330 },
+  MAO: { w: 330, h: 330 },
+  STD: { w: 330, h: 330 },
+};
+
+const GUIDE_SIZE_MAP = {
+  "R4-1U": { safe: { w: 130, h: 140 }, outer: { w: 177, h: 175 } },
+  "R4-2U": { safe: { w: 348, h: 140 }, outer: { w: 400, h: 175 } },
+
+  "R3-1U": { safe: { w: 133, h: 145 }, outer: { w: 177, h: 175 } },
+  "R3-1.5U": { safe: { w: 242, h: 144 }, outer: { w: 288, h: 174 } },
+
+  "R2-1U": { safe: { w: 130, h: 147 }, outer: { w: 178, h: 175 } },
+  "R2-1.75U": { safe: { w: 297, h: 147 }, outer: { w: 343, h: 173 } },
+  "R2-2.25U": { safe: { w: 409, h: 145 }, outer: { w: 453, h: 175 } },
+
+  "R1-1U": { safe: { w: 130, h: 145 }, outer: { w: 176, h: 172 } },
+  "R1-1.25U": { safe: { w: 187, h: 143 }, outer: { w: 232, h: 173 } },
+  "R1-2.25U": { safe: { w: 407, h: 144 }, outer: { w: 455, h: 175 } },
+  "R1-2.75U": { safe: { w: 514, h: 144 }, outer: { w: 564, h: 174 } },
+  "R1-6.25U": { safe: { w: 1282, h: 140 }, outer: { w: 1336, h: 177 } },
+
+  XDA: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },
+  MAO: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },
+  STD: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },
 };
 
 const CAP_OPTIONS = {
   OEM: [
-    { value: "R1-1u", label: "R1-1u" },
-    { value: "R1-1.25u", label: "R1-1.25u (Ctrl/Alt 등)" },
-    { value: "R1-2.25u", label: "R1-2.25u (좌측 쉬프트)" },
-    { value: "R1-2.75u", label: "R1-2.75u (우측 쉬프트)" },
-    { value: "R1-6.25u", label: "R1-6.25u (스페이스바)" },
-    { value: "R2-1u", label: "R2-1u" },
-    { value: "R2-1u(돌기)", label: "R2-1u (돌기)" },
-    { value: "R2-1.75u", label: "R2-1.75u (Caps Lock)" },
-    { value: "R2-2.25u", label: "R2-2.25u (Enter)" },
-    { value: "R3-1u", label: "R3-1u" },
-    { value: "R3-1.5u", label: "R3-1.5u (Tab/₩)" },
-    { value: "R4-1u", label: "R4-1u" },
-    { value: "R4-2u", label: "R4-2u (Backspace)" },
+    { value: "R1-1U", label: "R1-1U" },
+    { value: "R1-1.25U", label: "R1-1.25U (Ctrl/Alt 등)" },
+    { value: "R1-2.25U", label: "R1-2.25U (좌측 쉬프트)" },
+    { value: "R1-2.75U", label: "R1-2.75U (우측 쉬프트)" },
+    { value: "R1-6.25U", label: "R1-6.25U (스페이스바)" },
+
+    { value: "R2-1U", label: "R2-1U" },
+    { value: "R2-1.75U", label: "R2-1.75U (Caps Lock)" },
+    { value: "R2-2.25U", label: "R2-2.25U (Enter)" },
+
+    { value: "R3-1U", label: "R3-1U" },
+    { value: "R3-1.5U", label: "R3-1.5U (Tab/₩)" },
+
+    { value: "R4-1U", label: "R4-1U" },
+    { value: "R4-2U", label: "R4-2U (Backspace)" },
   ],
-  XDA: [{ value: "STD", label: "XDA" }],
-  MAO: [{ value: "STD", label: "MAO" }],
+  XDA: [{ value: "XDA", label: "XDA" }],
+  MAO: [{ value: "MAO", label: "MAO" }],
 };
 
 function getCanvasSize(profile, capType) {
   if (profile === "OEM") return CANVAS_SIZE_MAP[capType] || { w: 330, h: 330 };
-  return CANVAS_SIZE_MAP.STD || { w: 330, h: 330 };
+  return CANVAS_SIZE_MAP[profile] || CANVAS_SIZE_MAP.STD;
 }
 
 /* =========================================================
@@ -101,12 +131,22 @@ const bizFileEl = $("bizFile");
 const bizFileBtn = $("bizFileBtn");
 const bizFileNameEl = $("bizFileName");
 
+// 견적 추가 항목
+const keyringQtyEl = $("keyringQty");
+const keyringLedEl = $("keyringLed");
+const keyringColorEl = $("keyringColor");
+const keyringSlotsEl = $("keyringSlots");
+
+const packTypeEl = $("packType");
+const packSheetEl = $("packSheet");
+const packStickerEl = $("packSticker");
+const quoteNotesEl = $("quoteNotes");
+
 const profileEl = $("profile");
 const capTypeEl = $("capType");
 const laserEl = $("laser");
 const qtyEl = $("qty");
 
-// (왼쪽 가격 섹션 제거했을 수 있어서 null 가능)
 const unitPriceText = $("unitPriceText");
 
 const cartListEl = $("cartList");
@@ -171,7 +211,7 @@ function rerenderAll() {
 }
 
 /* =========================================================
- * [ADD] 필드별 에러 메시지 + 빨간 테두리 (CSS 주입)
+ * 필드별 에러 메시지 + 빨간 테두리 (CSS 주입)
 ========================================================= */
 (function injectErrCss() {
   const css = `
@@ -243,7 +283,7 @@ function clearFieldErrors() {
 }
 
 /* =========================================================
- * [ADD] 수량 할인 + 제작일정(총액 할증)
+ * 수량 할인 + 제작일정(총액 할증)
 ========================================================= */
 function getVolumeDiscountRate(qty) {
   if (qty >= 5000) return 0.2;
@@ -271,10 +311,21 @@ let quoteProd = "none";
 let quoteDue = "";
 let bizFileDataUrl = null;
 
+// 견적 추가 상태
+let keyringQty = 0;
+let keyringLed = "none";
+let keyringColor = "black";
+let keyringSlots = "1";
+
+let packType = "none";
+let packSheet = false;
+let packSticker = false;
+let quoteNotes = "";
+
 // 캔버스 편집 상태
 let userImg = null;
-let imgCX = 0,
-  imgCY = 0;
+let imgCX = 0;
+let imgCY = 0;
 let imgScale = 1;
 let imgRot = 0;
 
@@ -286,7 +337,7 @@ let handleDrag = null;
 let rotateDrag = null;
 
 /* =========================================================
- * [ADD] 시안 확정 주문번호 잠금 + URL 주문번호 자동입력
+ * 시안 확정 주문번호 잠금 + URL 주문번호 자동입력
 ========================================================= */
 const CONFIRM_KEY_PREFIX = "design_confirmed_";
 let uiLocked = false;
@@ -317,7 +368,6 @@ function markOrderConfirmed(orderNo) {
   localStorage.setItem(confirmKey(o), "true");
 }
 
-/** 확정 주문이면 전체 잠금 */
 function setAllLocked(locked) {
   uiLocked = !!locked;
 
@@ -332,6 +382,15 @@ function setAllLocked(locked) {
     quoteDueEl,
     bizFileEl,
     bizFileBtn,
+
+    keyringQtyEl,
+    keyringLedEl,
+    keyringColorEl,
+    keyringSlotsEl,
+    packTypeEl,
+    packSheetEl,
+    packStickerEl,
+    quoteNotesEl,
 
     profileEl,
     capTypeEl,
@@ -353,7 +412,6 @@ function setAllLocked(locked) {
     el.disabled = uiLocked;
   });
 
-  // 장바구니/캔버스 영역 클릭 막기
   if (cartListEl) {
     cartListEl.style.pointerEvents = uiLocked ? "none" : "auto";
     cartListEl.style.opacity = uiLocked ? "0.55" : "1";
@@ -372,7 +430,6 @@ function setAllLocked(locked) {
   }
 }
 
-/** 주문번호 기준으로 잠금 적용 + 필요시 팝업 */
 function applyConfirmedLockIfNeeded(showPopup = false) {
   const orderNo = safeTrim(orderEl?.value || "");
   const locked = isOrderConfirmed(orderNo);
@@ -410,13 +467,12 @@ function getItemBgColor(it) {
   return it?.bgColor || "#ffffff";
 }
 
-// 시안 판정: 이미지 있거나 배경 설정(bgSet) true면 OK
 function hasDesign(it) {
   return !!it?.design?.imgDataUrl || !!it?.design?.bgSet;
 }
 
 /* =========================================================
- * 아이템 라인 계산: 할인까지만 (할증은 총액에서만)
+ * 아이템 라인 계산: 할인까지만
 ========================================================= */
 function calcLineTotal(item) {
   const { unit } = getUnitPrice(item.profile, item.capType, item.laser);
@@ -430,10 +486,7 @@ function calcLineTotal(item) {
 }
 
 function cartSubtotal() {
-  return cartItems.reduce(
-    (sum, it) => sum + calcLineTotal(it).afterDiscount,
-    0,
-  );
+  return cartItems.reduce((sum, it) => sum + calcLineTotal(it).afterDiscount, 0);
 }
 
 function cartTotal() {
@@ -443,14 +496,12 @@ function cartTotal() {
 }
 
 /* =========================================================
- * [ADD] 도움말(?) 툴팁 (프로파일/규격)
+ * 도움말(?) 툴팁
 ========================================================= */
 const helpIcons = Array.from(document.querySelectorAll(".helpIcon"));
 
 function closeAllTooltips() {
-  document
-    .querySelectorAll(".helpTooltip")
-    .forEach((t) => t.classList.remove("show"));
+  document.querySelectorAll(".helpTooltip").forEach((t) => t.classList.remove("show"));
 }
 
 function getProfileHelp(profile) {
@@ -512,17 +563,16 @@ function getCapTypeHelp(profile, capType) {
       ${selectedLine}
       <b>OEM 규격 안내</b><br/>
       · <b>R1~R4</b> = 키보드 줄 위치(높이 차이)<br/>
-      · <b>u</b> = 키 가로 길이 단위 (1u 기본)<br/>
+      · <b>U</b> = 키 가로 길이 단위 (1U 기본)<br/>
       <div class="hr"></div>
       <b class="muted">자주 선택하는 규격</b><br/>
-      · 1u : 일반 문자 키 (ESC, F1~F12, A, S, D 등)<br/>
-      · 1.25u : Ctrl / Alt / Win<br/>
-      · 1.5u : Tab 등<br/>
-      · 1.75u : Caps Lock<br/>
-      · 2u : Backspace (키보드에 따라 다름)<br/>
-      · 2.25u : Enter / 좌측 Shift<br/>
-      · 2.75u : 우측 Shift<br/>
-      · 6.25u : 스페이스바<br/>
+      · 1U : 일반 문자 키<br/>
+      · 1.25U : Ctrl / Alt / Win<br/>
+      · 1.5U : Tab 등<br/>
+      · 1.75U : Caps Lock<br/>
+      · 2.25U : Enter / 좌측 Shift<br/>
+      · 2.75U : 우측 Shift<br/>
+      · 6.25U : 스페이스바<br/>
     `;
   }
 
@@ -552,7 +602,6 @@ helpIcons.forEach((icon) => {
     const type = icon.dataset.help;
     const tooltip = icon.nextElementSibling;
 
-    // 다른 툴팁 닫고(자기꺼 제외)
     document.querySelectorAll(".helpTooltip").forEach((t) => {
       if (t !== tooltip) t.classList.remove("show");
     });
@@ -574,7 +623,7 @@ function refreshOpenTooltips() {
 }
 
 /* =========================================================
- * Pickr 배경색 (Save 버튼 없이 즉시 반영)
+ * Pickr 배경색
 ========================================================= */
 let bgPickr = null;
 
@@ -626,12 +675,11 @@ function initPickr() {
 
   bgPickBtn?.addEventListener("click", () => {
     if (uiLocked) return;
-    bgPickr && bgPickr.show();
+    bgPickr?.show();
   });
 
   bgPickr.on("change", (color) => {
-    if (uiLocked) return;
-    if (!color) return;
+    if (uiLocked || !color) return;
 
     const hex = color.toHEXA().toString().toLowerCase();
     setBgUI(hex);
@@ -712,7 +760,7 @@ function setCapTypeOptions() {
 }
 
 /* =========================================================
- * 검증(주문자/견적/확정)
+ * 검증
 ========================================================= */
 function validateUserInfo(showMessage = false) {
   const name = safeTrim(nameEl.value);
@@ -731,10 +779,7 @@ function validateUserInfo(showMessage = false) {
   if (!PHONE_RE.test(phone)) {
     ok = false;
     if (showMessage) {
-      setFieldError(
-        "phone",
-        "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)",
-      );
+      setFieldError("phone", "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
     }
   }
   if (!orderNo) {
@@ -758,13 +803,23 @@ function validateQuoteRequest(showMessage = false) {
     return false;
   }
   if (!quoteDue) {
-    if (showMessage) setMsg("납기일을 선택해주세요.");
+    if (showMessage) setMsg("희망 납기일을 선택해주세요.");
     return false;
   }
   if (!bizFileDataUrl) {
     if (showMessage) setMsg("사업자등록증 파일 업로드가 필요합니다.");
     return false;
   }
+
+  const kQty = Math.max(0, toInt(keyringQtyEl?.value ?? keyringQty, 0));
+  if (kQty > 0) {
+    const led = safeTrim(keyringLedEl?.value ?? keyringLed) || "none";
+    if (led === "none") {
+      if (showMessage) setMsg("키캡 키링 수량이 있으면 LED 유무를 선택해주세요.");
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -800,12 +855,13 @@ function updateActionLocks() {
   btnConfirmEl.disabled = !validateCanConfirm(false);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
-  if (fileDelBtn)
+  if (fileDelBtn) {
     fileDelBtn.disabled = !(it && it.design && it.design.imgDataUrl);
+  }
 }
 
 /* =========================================================
- * 주문자 입력 이벤트 (blur에서 에러 표시)
+ * 주문자 입력 이벤트
 ========================================================= */
 [nameEl, phoneEl, orderEl, emailEl].forEach((el) => {
   if (!el) return;
@@ -826,8 +882,41 @@ function updateActionLocks() {
 });
 
 /* =========================================================
- * 견적 토글 UI
+ * 견적 토글 UI + 추가 항목 동기화
 ========================================================= */
+function syncQuoteExtrasFromUI() {
+  keyringQty = Math.max(0, toInt(keyringQtyEl?.value ?? keyringQty, 0));
+  keyringLed = safeTrim(keyringLedEl?.value ?? keyringLed) || "none";
+  keyringColor = safeTrim(keyringColorEl?.value ?? keyringColor) || "black";
+  keyringSlots = safeTrim(keyringSlotsEl?.value ?? keyringSlots) || "1";
+
+  packType = safeTrim(packTypeEl?.value ?? packType) || "none";
+  packSheet = !!(packSheetEl?.checked ?? packSheet);
+  packSticker = !!(packStickerEl?.checked ?? packSticker);
+  quoteNotes = safeTrim(quoteNotesEl?.value ?? quoteNotes);
+}
+
+function resetQuoteExtras() {
+  keyringQty = 0;
+  keyringLed = "none";
+  keyringColor = "black";
+  keyringSlots = "1";
+
+  packType = "none";
+  packSheet = false;
+  packSticker = false;
+  quoteNotes = "";
+
+  if (keyringQtyEl) keyringQtyEl.value = "0";
+  if (keyringLedEl) keyringLedEl.value = "none";
+  if (keyringColorEl) keyringColorEl.value = "black";
+  if (keyringSlotsEl) keyringSlotsEl.value = "1";
+  if (packTypeEl) packTypeEl.value = "none";
+  if (packSheetEl) packSheetEl.checked = false;
+  if (packStickerEl) packStickerEl.checked = false;
+  if (quoteNotesEl) quoteNotesEl.value = "";
+}
+
 function setQuoteUI(open) {
   quoteEnabled = !!open;
   if (quoteBoxEl) quoteBoxEl.style.display = quoteEnabled ? "block" : "none";
@@ -840,6 +929,10 @@ function setQuoteUI(open) {
     if (quoteProdEl) quoteProdEl.value = "none";
     if (quoteDueEl) quoteDueEl.value = "";
     if (bizFileNameEl) bizFileNameEl.textContent = "선택된 파일 없음";
+
+    resetQuoteExtras();
+  } else {
+    syncQuoteExtrasFromUI();
   }
 
   rerenderAll();
@@ -867,6 +960,31 @@ bizFileBtn?.addEventListener("click", () => {
   bizFileEl?.click();
 });
 
+[
+  keyringQtyEl,
+  keyringLedEl,
+  keyringColorEl,
+  keyringSlotsEl,
+  packTypeEl,
+  packSheetEl,
+  packStickerEl,
+  quoteNotesEl,
+].forEach((el) => {
+  if (!el) return;
+
+  el.addEventListener("input", () => {
+    if (uiLocked || !quoteEnabled) return;
+    syncQuoteExtrasFromUI();
+    updateActionLocks();
+  });
+
+  el.addEventListener("change", () => {
+    if (uiLocked || !quoteEnabled) return;
+    syncQuoteExtrasFromUI();
+    updateActionLocks();
+  });
+});
+
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -890,9 +1008,7 @@ bizFileEl?.addEventListener("change", async () => {
     if (bizFileDataUrl.length > 1_000_000) {
       bizFileDataUrl = null;
       if (bizFileNameEl) bizFileNameEl.textContent = "선택된 파일 없음";
-      setMsg(
-        "사업자등록증 파일 용량이 너무 큽니다. 줄여서 다시 업로드해주세요.",
-      );
+      setMsg("사업자등록증 파일 용량이 너무 큽니다. 줄여서 다시 업로드해주세요.");
     } else {
       setOk("사업자등록증 파일이 업로드되었습니다.");
     }
@@ -953,7 +1069,7 @@ laserEl.addEventListener("change", () => {
 });
 
 /* =========================================================
- * 가격 UI (왼쪽: 선택 입력 기준 + 총액 정보)
+ * 가격 UI
 ========================================================= */
 function updatePriceUI() {
   if (!unitPriceText) return;
@@ -976,18 +1092,14 @@ function updatePriceUI() {
   const rate = quoteEnabled ? getRushRate(quoteProd) : 0;
   const total = cartTotal();
 
-  const discText = discRate
-    ? `할인 ${Math.round(discRate * 100)}%`
-    : "할인 없음";
-  const rushText = rate
-    ? `총액 할증 +${Math.round(rate * 100)}%`
-    : "총액 할증 없음";
+  const discText = discRate ? `할인 ${Math.round(discRate * 100)}%` : "할인 없음";
+  const rushText = rate ? `총액 할증 +${Math.round(rate * 100)}%` : "총액 할증 없음";
 
   unitPriceText.textContent =
     `${afterDiscount.toLocaleString()}원` +
     ` (단가 ${unit.toLocaleString()}원 · ${q}개 · ${discText})` +
     ` | 총액 ${total.toLocaleString()}원 (${rushText})` +
-    (quoteEnabled ? ` / 납기 ${quoteDue || "-"}` : "");
+    (quoteEnabled ? ` / 희망 납기 ${quoteDue || "-"}` : "");
 }
 
 /* =========================================================
@@ -1012,8 +1124,7 @@ function renderCart() {
   if (cartItems.length === 0) {
     const div = document.createElement("div");
     div.className = "hint";
-    div.textContent =
-      "제작된 시안이 없습니다. 왼쪽에서 옵션 선택 후 [시안 추가]를 눌러주세요.";
+    div.textContent = "제작된 시안이 없습니다. 왼쪽에서 옵션 선택 후 [시안 추가]를 눌러주세요.";
     cartListEl.appendChild(div);
 
     selTextEl.textContent = "없음";
@@ -1032,9 +1143,7 @@ function renderCart() {
 
     const calc = calcLineTotal(it);
     const bg = getItemBgColor(it);
-    const discText = calc.discRate
-      ? `할인 ${Math.round(calc.discRate * 100)}%`
-      : "할인 없음";
+    const discText = calc.discRate ? `할인 ${Math.round(calc.discRate * 100)}%` : "할인 없음";
 
     box.innerHTML = `
       <div class="cartTop">
@@ -1299,9 +1408,7 @@ fileEl?.addEventListener("change", async () => {
 
   if (fileNameEl) {
     fileNameEl.textContent =
-      fileEl.files && fileEl.files[0]
-        ? fileEl.files[0].name
-        : "선택된 파일 없음";
+      fileEl.files && fileEl.files[0] ? fileEl.files[0].name : "선택된 파일 없음";
   }
 
   const f = fileEl.files && fileEl.files[0];
@@ -1314,15 +1421,12 @@ fileEl?.addEventListener("change", async () => {
     it.design = it.design || {};
     redraw();
     saveCanvasToItem(it);
-
     it.design.bgSet = it.design.bgSet ?? false;
 
     renderCart();
     setOk("이미지가 업로드되었습니다.");
   } catch {
-    setMsg(
-      "이미지 파일을 불러오는 중 문제가 발생했습니다. 다른 파일로 다시 시도해주세요.",
-    );
+    setMsg("이미지 파일을 불러오는 중 문제가 발생했습니다. 다른 파일로 다시 시도해주세요.");
   } finally {
     fileEl.value = "";
     updateActionLocks();
@@ -1417,36 +1521,36 @@ function drawCenterGuide() {
 }
 
 function drawGuide() {
-  const m = Math.min(canvas.width, canvas.height);
-  const outer = Math.round(m * 0.06);
-  const safe = Math.round(m * 0.12);
+  const profile = profileEl.value;
+  const capType = capTypeEl.value;
+  const key = profile === "OEM" ? capType : profile;
+
+  const guide = GUIDE_SIZE_MAP[key] || GUIDE_SIZE_MAP.STD;
+  if (!guide) return;
+
+  const outerW = guide.outer.w;
+  const outerH = guide.outer.h;
+  const safeW = guide.safe.w;
+  const safeH = guide.safe.h;
+
+  const outerX = (canvas.width - outerW) / 2;
+  const outerY = (canvas.height - outerH) / 2;
+
+  const safeX = (canvas.width - safeW) / 2;
+  const safeY = (canvas.height - safeH) / 2;
 
   ctx.save();
 
   ctx.strokeStyle = "rgba(217,45,32,0.95)";
   ctx.lineWidth = 2;
   ctx.setLineDash([]);
-  roundRectPath(
-    ctx,
-    outer,
-    outer,
-    canvas.width - outer * 2,
-    canvas.height - outer * 2,
-    18,
-  );
+  roundRectPath(ctx, outerX, outerY, outerW, outerH, 18);
   ctx.stroke();
 
   ctx.strokeStyle = "rgba(253,176,34,0.95)";
   ctx.lineWidth = 2;
   ctx.setLineDash([8, 6]);
-  roundRectPath(
-    ctx,
-    safe,
-    safe,
-    canvas.width - safe * 2,
-    canvas.height - safe * 2,
-    14,
-  );
+  roundRectPath(ctx, safeX, safeY, safeW, safeH, 14);
   ctx.stroke();
 
   ctx.restore();
@@ -1486,10 +1590,10 @@ function getImageAABB() {
     y: imgCY + (p.x * sin + p.y * cos),
   }));
 
-  let minX = Infinity,
-    minY = Infinity,
-    maxX = -Infinity,
-    maxY = -Infinity;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
 
   for (const p of corners) {
     minX = Math.min(minX, p.x);
@@ -1540,7 +1644,7 @@ function redraw() {
 }
 
 /* =========================================================
- * 이동/리사이즈/회전 (PC+모바일: Pointer Events)
+ * 이동/리사이즈/회전
 ========================================================= */
 function screenToCanvasPoint(e) {
   const rect = canvas.getBoundingClientRect();
@@ -1600,22 +1704,18 @@ function onMainPointerDown(e) {
   startMoveDrag(e);
 }
 
-canvasWrapEl?.addEventListener("pointerdown", onMainPointerDown, {
-  capture: true,
-});
+canvasWrapEl?.addEventListener("pointerdown", onMainPointerDown, { capture: true });
 bboxEl?.addEventListener("pointerdown", onMainPointerDown);
 
 bboxEl?.querySelectorAll(".h").forEach((h) => {
   h.addEventListener("pointerdown", (e) => {
-    if (uiLocked) return;
-    if (!userImg) return;
+    if (uiLocked || !userImg) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
 
     e.preventDefault();
     e.stopPropagation();
 
     bboxEl?.setPointerCapture?.(e.pointerId);
-
     draggingMove = false;
 
     const handle = h.dataset.h;
@@ -1625,13 +1725,9 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
     const p = screenToCanvasPoint(e);
 
     const opposite =
-      handle === "nw"
-        ? "se"
-        : handle === "ne"
-          ? "sw"
-          : handle === "sw"
-            ? "ne"
-            : "nw";
+      handle === "nw" ? "se" :
+        handle === "ne" ? "sw" :
+          handle === "sw" ? "ne" : "nw";
 
     const anchor = cornerPoint(aabb, opposite);
 
@@ -1646,15 +1742,13 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
 });
 
 rotHandleEl?.addEventListener("pointerdown", (e) => {
-  if (uiLocked) return;
-  if (!userImg) return;
+  if (uiLocked || !userImg) return;
   if (e.pointerType === "mouse" && e.button !== 0) return;
 
   e.preventDefault();
   e.stopPropagation();
 
   bboxEl?.setPointerCapture?.(e.pointerId);
-
   draggingMove = false;
 
   const p = screenToCanvasPoint(e);
@@ -1681,7 +1775,6 @@ document.addEventListener("pointermove", (e) => {
 
   if (handleDrag) {
     const alt = e.altKey;
-
     const ax = handleDrag.anchorX;
     const ay = handleDrag.anchorY;
 
@@ -1749,6 +1842,34 @@ canvas.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
 /* =========================================================
  * 메일 발송 유틸
 ========================================================= */
+function dataUrlToBase64(dataUrl) {
+  return String(dataUrl || "").split(",")[1] || "";
+}
+
+async function buildZipFromDesigns(designs, orderNo) {
+  if (!window.JSZip) {
+    throw new Error("JSZip 라이브러리가 로드되지 않았습니다.");
+  }
+
+  const zip = new JSZip();
+  const folder = zip.folder(`${orderNo}_designs`);
+
+  designs.forEach((file) => {
+    if (!file?.filename || !file?.dataUrl) return;
+    const base64 = dataUrlToBase64(file.dataUrl);
+    folder.file(file.filename, base64, { base64: true });
+  });
+
+  const zipBlob = await zip.generateAsync({ type: "blob" });
+
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = reject;
+    reader.readAsDataURL(zipBlob);
+  });
+}
+
 async function renderItemFinalPng(item) {
   const size = getCanvasSize(item.profile, item.capType);
 
@@ -1801,11 +1922,12 @@ async function sendEmailToCompany(extraParams = {}) {
     return false;
   }
 
+  if (quoteEnabled) syncQuoteExtrasFromUI();
+
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
   const itemsSummary = [];
   const designs = [];
-  let totalLen = 0;
 
   for (const it of cartItems) {
     const calc = calcLineTotal(it);
@@ -1826,43 +1948,117 @@ async function sendEmailToCompany(extraParams = {}) {
 
     if (it.design?.imgDataUrl) {
       const png = await renderItemFinalPng(it);
+
       designs.push({
-        filename: `${safeTrim(orderEl.value)}_${it.profile}_${it.capType}_${it.laser}.png`,
+        filename: `${safeTrim(orderEl.value)}_${it.profile}_${it.capType}_${it.laser || "none"}.png`,
         dataUrl: png,
       });
-      totalLen += png.length;
     }
   }
 
-  const MAX_LEN = 1_800_000;
-  if (totalLen > MAX_LEN) {
-    setMsg(
-      "이미지 용량이 커서 전송이 불가능합니다. 파일 크기를 줄여 다시 시도해주세요.",
-    );
-    return false;
+  const orderNo = safeTrim(orderEl.value);
+  const useZip = designs.length >= 10;
+
+  let attachmentParams = {};
+
+  if (useZip) {
+    const zipDataUrl = await buildZipFromDesigns(designs, orderNo);
+
+    attachmentParams = {
+      attachment_mode: "zip",
+      zip_filename: `${orderNo}_designs.zip`,
+      zip_file: zipDataUrl,
+    };
+  } else {
+    attachmentParams = {
+      attachment_mode: "files",
+
+      design_1_filename: designs[0]?.filename || "",
+      design_1_file: designs[0]?.dataUrl || "",
+
+      design_2_filename: designs[1]?.filename || "",
+      design_2_file: designs[1]?.dataUrl || "",
+
+      design_3_filename: designs[2]?.filename || "",
+      design_3_file: designs[2]?.dataUrl || "",
+
+      design_4_filename: designs[3]?.filename || "",
+      design_4_file: designs[3]?.dataUrl || "",
+
+      design_5_filename: designs[4]?.filename || "",
+      design_5_file: designs[4]?.dataUrl || "",
+
+      design_6_filename: designs[5]?.filename || "",
+      design_6_file: designs[5]?.dataUrl || "",
+
+      design_7_filename: designs[6]?.filename || "",
+      design_7_file: designs[6]?.dataUrl || "",
+
+      design_8_filename: designs[7]?.filename || "",
+      design_8_file: designs[7]?.dataUrl || "",
+
+      design_9_filename: designs[8]?.filename || "",
+      design_9_file: designs[8]?.dataUrl || "",
+    };
   }
 
   const params = {
     to_email: COMPANY_EMAIL,
     customer_name: safeTrim(nameEl.value),
     customer_phone: safeTrim(phoneEl.value),
-    order_no: safeTrim(orderEl.value),
+    order_no: orderNo,
     customer_email: safeTrim(emailEl.value),
 
-    subtotal_price: String(cartSubtotal()),
-    total_price: String(cartTotal()),
     quote_enabled: quoteEnabled ? "Y" : "N",
     quote_prod: quoteEnabled ? quoteProd : "",
     quote_due: quoteEnabled ? quoteDue : "",
     biz_file_dataurl: quoteEnabled ? bizFileDataUrl || "" : "",
 
-    items_json: JSON.stringify(itemsSummary, null, 2),
-    designs_json: JSON.stringify(designs, null, 2),
+    quote_keyring_qty: quoteEnabled ? keyringQty || "" : "",
+    quote_keyring_led: quoteEnabled ? keyringLed || "" : "",
+    quote_keyring_color: quoteEnabled ? keyringColor || "" : "",
+    quote_keyring_holes: quoteEnabled ? keyringSlots || "" : "",
 
+    quote_packaging: quoteEnabled ? packType || "" : "",
+    quote_has_sheet: quoteEnabled ? (packSheet ? "있음" : "없음") : "",
+    quote_has_sticker: quoteEnabled ? (packSticker ? "있음" : "없음") : "",
+    quote_notes: quoteEnabled ? quoteNotes || "" : "",
+
+    quote_section_html: quoteEnabled
+      ? `
+    <div style="padding:12px 14px; border:1px solid #e6e9f2; border-radius:12px; background:#fff; margin-bottom:14px;">
+      <div style="margin-bottom:8px;"><b>견적 요청 사항</b></div>
+      <div><b>제작 일정</b> : ${quoteProd || "-"}</div>
+      <div><b>희망 납기일</b> : ${quoteDue || "-"}</div>
+      <div><b>키캡 키링 수량</b> : ${keyringQty || "-"}</div>
+      <div><b>LED 유무</b> : ${keyringLed || "-"}</div>
+      <div><b>키링 색상</b> : ${keyringColor || "-"}</div>
+      <div><b>키링 종류</b> : ${keyringSlots || "-"}</div>
+      <div><b>포장 요구사항</b> : ${packType || "-"}</div>
+      <div><b>대지 포함</b> : ${packSheet ? "있음" : "없음"}</div>
+      <div><b>스티커 제작</b> : ${packSticker ? "있음" : "없음"}</div>
+      <div><b>기타 유의사항</b> : ${quoteNotes || "-"}</div>
+    </div>
+  `
+      : "",
+
+    items_json: JSON.stringify(itemsSummary, null, 2),
+
+    ...attachmentParams,
     ...extraParams,
   };
 
-  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+  try {
+    return await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      params,
+    );
+  } catch (error) {
+    console.error("회사 메일 전송 실패:", error);
+    setMsg("회사 메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    return false;
+  }
 }
 
 async function sendQuoteEmailToCustomer(itemsSummary) {
@@ -1871,27 +2067,52 @@ async function sendQuoteEmailToCustomer(itemsSummary) {
     return false;
   }
 
+  if (quoteEnabled) syncQuoteExtrasFromUI();
+
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
 
   const params = {
     to_email: safeTrim(emailEl.value),
+
     customer_name: safeTrim(nameEl.value),
     customer_phone: safeTrim(phoneEl.value),
     order_no: safeTrim(orderEl.value),
 
     subtotal_price: String(cartSubtotal()),
     total_price: String(cartTotal()),
+
     quote_prod: quoteProd,
     quote_due: quoteDue,
+
+    quote_keyring_qty: keyringQty || "",
+    quote_keyring_led: keyringLed || "",
+    quote_keyring_color: keyringColor || "",
+    quote_keyring_holes: keyringSlots || "",
+
+    quote_packaging: packType || "",
+    quote_has_sheet: packSheet ? "있음" : "없음",
+    quote_has_sticker: packSticker ? "있음" : "없음",
+
+    quote_notes: quoteNotes || "",
 
     items_json: JSON.stringify(itemsSummary, null, 2),
   };
 
-  return emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_QUOTE_TEMPLATE_ID, params);
+  try {
+    return await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_QUOTE_TEMPLATE_ID,
+      params,
+    );
+  } catch (error) {
+    console.error("고객 견적서 메일 전송 실패:", error);
+    setMsg("견적서 메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    return false;
+  }
 }
 
 /* =========================================================
- * 시안 확정하기 (견적 ON이면 회사+고객 둘 다 발송)
+ * 시안 확정하기
 ========================================================= */
 btnConfirmEl?.addEventListener("click", async () => {
   clearMsgOk();
@@ -1900,6 +2121,8 @@ btnConfirmEl?.addEventListener("click", async () => {
   if (!validateCanConfirm(true)) return;
 
   try {
+    if (quoteEnabled) syncQuoteExtrasFromUI();
+
     const sel = cartItems.find((x) => x.id === selectedItemId);
     if (sel) saveCanvasToItem(sel);
 
@@ -1926,9 +2149,7 @@ btnConfirmEl?.addEventListener("click", async () => {
       const okCustomer = await sendQuoteEmailToCustomer(itemsSummary);
       if (!okCustomer) return;
 
-      setOk(
-        "견적서 요청이 완료되었습니다. 입력하신 이메일로 견적서를 발송했습니다.",
-      );
+      setOk("견적서 요청이 완료되었습니다. 입력하신 이메일로 견적서를 발송했습니다.");
       setMsg("");
 
       markOrderConfirmed(safeTrim(orderEl.value));
@@ -1943,9 +2164,7 @@ btnConfirmEl?.addEventListener("click", async () => {
     applyConfirmedLockIfNeeded(false);
   } catch (e) {
     console.error("전송 실패:", e);
-    setMsg(
-      "메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의해주세요.",
-    );
+    setMsg("메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의해주세요.");
     setOk("");
   } finally {
     updateActionLocks();
@@ -1953,7 +2172,7 @@ btnConfirmEl?.addEventListener("click", async () => {
 });
 
 /* =========================================================
- * 초기화: URL 주문번호 자동 입력 + 확정 잠금 체크
+ * 초기화
 ========================================================= */
 setCapTypeOptions();
 resizeCanvas(330, 330);

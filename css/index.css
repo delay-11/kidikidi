@@ -305,6 +305,13 @@ button:hover {
     filter: brightness(1.05);
 }
 
+/* 견적서 요청 폼 간격 조정 */
+#quoteBox .row {
+    gap: 18px;
+    margin-top: 10px;
+}
+
+
 /* 체크박스/라디오 공통 width 100% 방지 */
 input[type="checkbox"],
 input[type="radio"] {
