@@ -35,6 +35,67 @@ function updateSelectedInfoText() {
   }
 }
 
+/* =========================================================
+ * MAO SVG 가이드
+========================================================= */
+function ensureMaoGuide() {
+  if (!canvasWrapEl) return null;
+
+  let wrap = document.getElementById("maoGuideWrap");
+  if (wrap) return wrap;
+
+  wrap = document.createElement("div");
+  wrap.id = "maoGuideWrap";
+  wrap.style.position = "absolute";
+  wrap.style.inset = "0";
+  wrap.style.pointerEvents = "none";
+  wrap.style.zIndex = "2";
+  wrap.style.display = "none";
+
+  const outline = document.createElement("img");
+  outline.id = "maoGuideOutline";
+  outline.src = "./image/guides/mao-outline.svg";
+  outline.alt = "";
+  outline.draggable = false;
+  outline.style.position = "absolute";
+  outline.style.inset = "0";
+  outline.style.width = "100%";
+  outline.style.height = "100%";
+  outline.style.pointerEvents = "none";
+
+  const inner = document.createElement("img");
+  inner.id = "maoGuideInner";
+  inner.src = "./image/guides/mao-inner.svg";
+  inner.alt = "";
+  inner.draggable = false;
+  inner.style.position = "absolute";
+  inner.style.inset = "0";
+  inner.style.width = "100%";
+  inner.style.height = "100%";
+  inner.style.pointerEvents = "none";
+
+  wrap.appendChild(outline);
+  wrap.appendChild(inner);
+
+  if (bboxEl && bboxEl.parentNode === canvasWrapEl) {
+    canvasWrapEl.insertBefore(wrap, bboxEl);
+  } else {
+    canvasWrapEl.appendChild(wrap);
+  }
+
+  return wrap;
+}
+
+function updateMaoGuide() {
+  const wrap = ensureMaoGuide();
+  if (!wrap) return;
+
+  wrap.style.display = profileEl?.value === "MAO" ? "block" : "none";
+}
+
+/* =========================================================
+ * 캔버스 설정 반영
+========================================================= */
 function applyCanvasSizeFromForm() {
   const p = profileEl?.value || "OEM";
   const cap = capTypeEl?.value || "-";
@@ -43,7 +104,6 @@ function applyCanvasSizeFromForm() {
   const size = getCanvasSize(p, cap);
   resizeCanvasKeepView(size.w, size.h);
 
-  /* OEM 레이저 선택 시 캔버스 배경도 같이 맞춤 */
   if (!selectedItemId) {
     if (p === "OEM" && laser === "black") {
       draftBgColor = "#000000";
@@ -61,6 +121,7 @@ function applyCanvasSizeFromForm() {
   }
 
   updateBgLockUI(p, laser);
+  updateMaoGuide();
 
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (it) {
@@ -116,6 +177,7 @@ async function loadItemToCanvas(it) {
   }
 
   updateSelectedInfoText();
+  updateMaoGuide();
   redraw();
   updateDraftInfo();
   updateActionLocks();
@@ -137,6 +199,7 @@ function clearEditor() {
   setBgUI("#ffffff");
 
   updateSelectedInfoText();
+  updateMaoGuide();
   redraw();
   updateDraftInfo();
   updateActionLocks();
@@ -335,6 +398,9 @@ function drawCenterGuide() {
 
 function drawGuide() {
   const profile = profileEl.value;
+
+  if (profile === "MAO") return;
+
   const capType = capTypeEl.value;
   const key = profile === "OEM" ? capType : profile;
 
