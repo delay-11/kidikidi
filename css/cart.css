@@ -40,6 +40,13 @@
     gap: 12px;
 }
 
+.cartEmpty {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
 
 /* =========================================================
    시안 썸네일

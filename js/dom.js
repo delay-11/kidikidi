@@ -65,3 +65,7 @@ const ctx = canvas.getContext("2d");
 
 const bboxEl = $("bbox");
 const rotHandleEl = $("rotHandle");
+
+const draftProfile = $("draftProfile");
+const draftCap = $("draftCap");
+const draftLaser = $("draftLaser");

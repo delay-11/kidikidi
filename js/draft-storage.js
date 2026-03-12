@@ -1,7 +1,7 @@
 /* =========================================================
  * 자동 저장 / 복구 / 이탈 경고
 ========================================================= */
-const DRAFT_STORAGE_KEY = "keycap_design_draft_v1";
+const DRAFT_STORAGE_KEY = "keycap_design_draft_v2";
 
 function hasUnsavedDraft() {
   return !!(
@@ -16,6 +16,7 @@ function hasUnsavedDraft() {
 }
 
 function collectDraftData() {
+  
   if (quoteEnabled) syncQuoteExtrasFromUI();
 
   return {
@@ -143,9 +144,7 @@ async function loadDraftFromStorage() {
     if (quoteDueEl) quoteDueEl.value = quoteDue || "";
 
     if (bizFileNameEl) {
-      bizFileNameEl.textContent = bizFileDataUrl
-        ? "이전 업로드 파일 복구됨"
-        : "선택된 파일 없음";
+      bizFileNameEl.textContent = "선택된 파일 없음";
     }
 
     if (keyringQtyEl) keyringQtyEl.value = String(keyringQty);
@@ -182,7 +181,7 @@ async function loadDraftFromStorage() {
     userImg = await loadImageFromDataUrl(data.draft?.imgDataUrl || null);
 
     if (fileNameEl) {
-      fileNameEl.textContent = data.draft?.fileName || "선택된 파일 없음";
+      fileNameEl.textContent = "선택된 파일 없음";
     }
 
     applyCanvasSizeFromForm();
@@ -198,7 +197,7 @@ async function loadDraftFromStorage() {
     }
 
     clearMsgOk();
-    setOk("이전 작업 내용을 불러왔습니다.");
+    setOk();
     return true;
   } catch (e) {
     console.error("드래프트 복구 실패:", e);

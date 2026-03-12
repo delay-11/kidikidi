@@ -26,14 +26,40 @@ function resizeCanvasKeepView(w, h) {
   redraw();
 }
 
+function updateSelectedInfoText() {
+  const profile = safeTrim(profileEl?.value || "") || "-";
+  const cap = safeTrim(capTypeEl?.value || "") || "-";
+
+  if (selTextEl) {
+    selTextEl.textContent = `${profile} / ${cap}`;
+  }
+}
+
 function applyCanvasSizeFromForm() {
-  const p = profileEl.value;
-  const cap = capTypeEl.value;
+  const p = profileEl?.value || "OEM";
+  const cap = capTypeEl?.value || "-";
+  const laser = p === "OEM" ? laserEl?.value || "none" : "none";
 
   const size = getCanvasSize(p, cap);
   resizeCanvasKeepView(size.w, size.h);
 
-  const laser = p === "OEM" ? laserEl.value : "none";
+  /* OEM 레이저 선택 시 캔버스 배경도 같이 맞춤 */
+  if (!selectedItemId) {
+    if (p === "OEM" && laser === "black") {
+      draftBgColor = "#000000";
+      draftBgSet = true;
+      setBgUI("#000000");
+    } else if (p === "OEM" && laser === "white") {
+      draftBgColor = "#ffffff";
+      draftBgSet = true;
+      setBgUI("#ffffff");
+    } else if (p === "OEM" && laser === "none") {
+      draftBgColor = "#ffffff";
+      draftBgSet = false;
+      setBgUI("#ffffff");
+    }
+  }
+
   updateBgLockUI(p, laser);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
@@ -42,6 +68,11 @@ function applyCanvasSizeFromForm() {
   } else {
     bgTextEl.textContent = draftBgSet ? draftBgColor : "-";
   }
+
+  updateSelectedInfoText();
+  updateDraftInfo();
+  redraw();
+  updateActionLocks();
 }
 
 /* =========================================================
@@ -80,11 +111,14 @@ async function loadItemToCanvas(it) {
 
   if (fileNameEl) {
     fileNameEl.textContent = it.design?.imgDataUrl
-      ? "업로드된 이미지 있음"
+      ? "저장된 이미지 불러옴"
       : "선택된 파일 없음";
   }
 
+  updateSelectedInfoText();
   redraw();
+  updateDraftInfo();
+  updateActionLocks();
 }
 
 function clearEditor() {
@@ -100,10 +134,11 @@ function clearEditor() {
 
   if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
   if (bgTextEl) bgTextEl.textContent = "-";
-  if (selTextEl) selTextEl.textContent = "없음";
   setBgUI("#ffffff");
 
+  updateSelectedInfoText();
   redraw();
+  updateDraftInfo();
   updateActionLocks();
 }
 
@@ -113,12 +148,14 @@ function clearEditor() {
 function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+
     reader.onload = () => {
       const img = new Image();
       img.onload = () => resolve(img);
       img.onerror = reject;
       img.src = reader.result;
     };
+
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
@@ -147,14 +184,20 @@ function fitImageToCanvas(img) {
   imgCY = canvas.height / 2;
 }
 
-fileBtn?.addEventListener("click", () => {
-  clearMsgOk();
+fileBtn?.addEventListener(
+  "click",
+  (e) => {
+    e.preventDefault();
+    e.stopPropagation();
 
-  if (applyConfirmedLockIfNeeded(true)) return;
-  if (!validateUserInfo(true)) return;
+    clearMsgOk();
 
-  fileEl?.click();
-});
+    if (applyConfirmedLockIfNeeded(true)) return;
+
+    fileEl?.click();
+  },
+  true,
+);
 
 fileEl?.addEventListener("change", async () => {
   clearMsgOk();
@@ -170,14 +213,12 @@ fileEl?.addEventListener("change", async () => {
     return;
   }
 
+  const f = fileEl.files && fileEl.files[0];
+
   if (fileNameEl) {
-    fileNameEl.textContent =
-      fileEl.files && fileEl.files[0]
-        ? fileEl.files[0].name
-        : "선택된 파일 없음";
+    fileNameEl.textContent = f ? f.name : "선택된 파일 없음";
   }
 
-  const f = fileEl.files && fileEl.files[0];
   if (!f) return;
 
   try {
@@ -185,6 +226,9 @@ fileEl?.addEventListener("change", async () => {
     fitImageToCanvas(userImg);
 
     redraw();
+    updateSelectedInfoText();
+    updateDraftInfo();
+    updateActionLocks();
 
     const warned = warnLowResolutionImage(userImg);
 
@@ -193,7 +237,8 @@ fileEl?.addEventListener("change", async () => {
     } else {
       setOk("이미지가 업로드되었습니다. 해상도를 함께 확인해주세요.");
     }
-  } catch {
+  } catch (e) {
+    console.error("이미지 업로드 실패:", e);
     setMsg(
       "이미지 파일을 불러오는 중 문제가 발생했습니다. 다른 파일로 다시 시도해주세요.",
     );
@@ -222,8 +267,10 @@ fileDelBtn?.addEventListener(
     if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
 
     redraw();
-    setOk("이미지가 삭제되었습니다.");
+    updateSelectedInfoText();
+    updateDraftInfo();
     updateActionLocks();
+    setOk("이미지가 삭제되었습니다.");
   },
   true,
 );

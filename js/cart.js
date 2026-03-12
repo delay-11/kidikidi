@@ -153,8 +153,8 @@ function renderCart() {
     const div = document.createElement("div");
     div.className = "cartEmpty";
     div.innerHTML = `
-      <div class="cartEmptyTitle">제작된 시안이 없습니다</div>
-      <div class="cartEmptyDesc">이미지 또는 배경을 설정한 뒤 <b>[시안 추가]</b> 버튼을 눌러주세요.</div>
+      <div class="formReadyTitle">제작된 시안이 없습니다</div>
+      <div class="formReadyDesc">이미지 또는 배경을 설정한 뒤 [시안 추가] 버튼을 눌러주세요.</div>
     `;
     cartListEl.appendChild(div);
 
@@ -184,10 +184,9 @@ function renderCart() {
   <div class="cartTop">
 
     <div class="cartThumb">
-      ${
-        it.design && it.design.imgDataUrl
-          ? `<img src="${it.design.imgDataUrl}" />`
-          : `<div class="thumbEmpty" style="background:${bg}"></div>`
+      ${it.design && it.design.imgDataUrl
+        ? `<img src="${it.design.imgDataUrl}" />`
+        : `<div class="thumbEmpty" style="background:${bg}"></div>`
       }
     </div>
 
