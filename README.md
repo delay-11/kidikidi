@@ -8,7 +8,7 @@
 
 ## Access
 
-🔗 https://custom.keycapdesign.co.kr
+🌐 https://custom.keycapdesign.co.kr
 
 ---
 
