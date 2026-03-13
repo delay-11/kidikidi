@@ -154,10 +154,14 @@ function openConfirmModal(message) {
 /* =========================================================
  * 시안 확정하기
 ========================================================= */
+/* =========================================================
+ * 시안 확정하기
+========================================================= */
 btnConfirmEl?.addEventListener("click", async () => {
   const confirmMessage = quoteEnabled
-    ? "시안을 최종 확정하시겠습니까?\n\n시안 확정 후에는 수정이 어렵습니다.\n업로드한 이미지와 제작 내용을 다시 한번 확인해주세요.\n\n확인을 누르면 시안이 접수됩니다.\n접수된 시안은 담당자가 검토 후 이메일로 안내드릴 예정입니다.\n\n※ 여러 시안을 제작한 경우 [시안 추가] 버튼으로 등록된 시안만 접수됩니다.\n※ 견적 요청 시 견적서가 이메일로 발송됩니다."
-    : "시안을 최종 확정하시겠습니까?\n\n시안 확정 후에는 수정이 어렵습니다.\n업로드한 이미지와 제작 내용을 다시 한번 확인해주세요.\n\n확인을 누르면 시안이 접수됩니다.\n접수된 시안은 담당자가 검토 후 이메일로 안내드릴 예정입니다.\n\n※ 여러 시안을 제작한 경우 [시안 추가] 버튼으로 등록된 시안만 접수됩니다.\n※ 확인에는 일정 시간이 소요될 수 있습니다.";
+    ? "시안을 최종 확정하시겠습니까?\n\n시안 확정 후에는 수정이 어려울 수 있습니다.\n업로드한 이미지와 제작 내용을 다시 한번 확인해주세요.\n\n확인을 누르면 시안이 접수됩니다.\n접수된 시안은 담당자가 검토 후 이메일로 안내드릴 예정입니다.\n\n※ 여러 시안을 제작한 경우 [시안 추가] 버튼으로 등록된 시안만 접수됩니다.\n※ 견적 요청 시 견적서가 이메일로 발송됩니다."
+    : "시안을 최종 확정하시겠습니까?\n\n시안 확정 후에는 수정이 어려울 수 있습니다.\n업로드한 이미지와 제작 내용을 다시 한번 확인해주세요.\n\n확인을 누르면 시안이 접수됩니다.\n접수된 시안은 담당자가 검토 후 이메일로 안내드릴 예정입니다.\n\n※ 여러 시안을 제작한 경우 [시안 추가] 버튼으로 등록된 시안만 접수됩니다.\n※ 확인에는 일정 시간이 소요될 수 있습니다.";
+
   const okConfirm = await openConfirmModal(confirmMessage);
   if (!okConfirm) return;
 
@@ -165,6 +169,12 @@ btnConfirmEl?.addEventListener("click", async () => {
 
   if (applyConfirmedLockIfNeeded(true)) return;
   if (!validateCanConfirm(true)) return;
+
+  /* ===== 추가: 버튼 중복 클릭 방지 ===== */
+  btnConfirmEl.disabled = true;
+
+  /* ===== 추가: 전송 중 안내 메시지 ===== */
+  setMsg("시안을 접수 중입니다. 잠시만 기다려주세요...");
 
   try {
     if (quoteEnabled) syncQuoteExtrasFromUI();
@@ -194,7 +204,7 @@ btnConfirmEl?.addEventListener("click", async () => {
       if (!customerResult.ok) return;
 
       setOk(
-        `견적서 요청이 완료되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n입력하신 이메일로 견적서를 발송했습니다.`,
+        `시안이 정상적으로 접수되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n\n담당자가 시안을 확인한 후 입력하신 이메일로 안내드릴 예정입니다.\n견적 요청 건은 검토 후 함께 안내드립니다.`,
       );
 
       setMsg("");
@@ -211,7 +221,7 @@ btnConfirmEl?.addEventListener("click", async () => {
     }
 
     setOk(
-      `시안이 접수되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n검토 후 입력하신 이메일로 안내드리겠습니다.`,
+      `시안이 정상적으로 접수되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n\n담당자가 시안을 확인한 후 입력하신 이메일로 안내드릴 예정입니다.`,
     );
 
     setMsg("");
@@ -234,6 +244,9 @@ btnConfirmEl?.addEventListener("click", async () => {
 
     setOk("");
   } finally {
+    /* ===== 추가: 버튼 다시 활성화 ===== */
+    btnConfirmEl.disabled = false;
+
     updateActionLocks();
   }
 });

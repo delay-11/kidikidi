@@ -4,11 +4,6 @@
 
 let __emailJsInitialized = false;
 
-const EMAILJS_PUBLIC_KEY = "rzyGqBY1HaHCNyQCK";
-const EMAILJS_SERVICE_ID = "service_kp5nyyt";
-const EMAILJS_TEMPLATE_ID = "template_ndnu8z3";
-const EMAILJS_QUOTE_TEMPLATE_ID = "template_eb3xcbg";
-
 /* =========================================================
 EmailJS 초기화
 ========================================================= */
@@ -143,7 +138,7 @@ async function buildAttachments(orderNo) {
     ].join("_");
 
     designs.push({
-      filename: name + ".png",
+      filename: `${name}.png`,
       dataUrl: png,
     });
   }
@@ -195,19 +190,23 @@ async function sendEmailToCompany() {
     order_no: orderNo,
 
     items_json: JSON.stringify(itemsSummary, null, 2),
-
     biz_file_dataurl: bizFileDataUrl || "",
 
     ...attachments,
   };
 
-  const result = await emailjs.send(
-    EMAILJS_SERVICE_ID,
-    EMAILJS_TEMPLATE_ID,
-    params
-  );
+  try {
+    const result = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      params,
+    );
 
-  return { ok: true, itemsSummary, result };
+    return { ok: true, itemsSummary, result };
+  } catch (err) {
+    console.error("회사 메일 전송 실패:", err);
+    return { ok: false, itemsSummary: [], result: null };
+  }
 }
 
 /* =========================================================
@@ -234,13 +233,18 @@ async function sendQuoteEmailToCustomer(itemsSummary) {
     items_json: JSON.stringify(itemsSummary, null, 2),
   };
 
-  const result = await emailjs.send(
-    EMAILJS_SERVICE_ID,
-    EMAILJS_QUOTE_TEMPLATE_ID,
-    params
-  );
+  try {
+    const result = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_QUOTE_TEMPLATE_ID,
+      params,
+    );
 
-  return { ok: true, result };
+    return { ok: true, result };
+  } catch (err) {
+    console.error("고객 견적 메일 전송 실패:", err);
+    return { ok: false, result: null };
+  }
 }
 
 /* =========================================================
@@ -257,10 +261,18 @@ async function sendOrderEmails() {
 
   try {
     const company = await sendEmailToCompany();
+    if (!company.ok) {
+      setMsg("회사 메일 전송 실패");
+      return false;
+    }
 
     await wait(1200);
 
-    await sendQuoteEmailToCustomer(company.itemsSummary);
+    const customer = await sendQuoteEmailToCustomer(company.itemsSummary);
+    if (!customer.ok) {
+      setMsg("고객 견적 메일 전송 실패");
+      return false;
+    }
 
     setMsg("메일 전송 완료");
     return true;
