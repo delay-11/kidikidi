@@ -1,29 +1,67 @@
 /* =========================================================
- * 메일 발송 유틸
+메일 발송 유틸 (안정 버전)
 ========================================================= */
-async function buildZipFromDesigns(designs, orderNo) {
-  if (!window.JSZip) {
-    throw new Error("JSZip 라이브러리가 로드되지 않았습니다.");
+
+let __emailJsInitialized = false;
+
+const EMAILJS_PUBLIC_KEY = "rzyGqBY1HaHCNyQCK";
+const EMAILJS_SERVICE_ID = "service_kp5nyyt";
+const EMAILJS_TEMPLATE_ID = "template_ndnu8z3";
+const EMAILJS_QUOTE_TEMPLATE_ID = "template_eb3xcbg";
+
+/* =========================================================
+EmailJS 초기화
+========================================================= */
+
+function ensureEmailJsInit() {
+  if (__emailJsInitialized) return;
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  __emailJsInitialized = true;
+}
+
+/* =========================================================
+유틸
+========================================================= */
+
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function safeFilePart(v) {
+  return String(v || "")
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, "-");
+}
+
+/* =========================================================
+주문 요약 생성
+========================================================= */
+
+function buildItemsSummary() {
+  const arr = [];
+
+  for (const it of cartItems) {
+    const calc = calcLineTotal(it);
+    const bg = getItemBgColor(it);
+
+    arr.push({
+      profile: it.profile,
+      capType: it.capType,
+      laser: it.profile === "OEM" ? it.laser || "none" : "none",
+      bg,
+      qty: calc.qty,
+      unit: calc.unit,
+      line: calc.afterDiscount,
+      design: hasDesign(it) ? "있음" : "없음",
+    });
   }
 
-  const zip = new JSZip();
-  const folder = zip.folder(`${orderNo}_designs`);
-
-  designs.forEach((file) => {
-    if (!file?.filename || !file?.dataUrl) return;
-    const base64 = dataUrlToBase64(file.dataUrl);
-    folder.file(file.filename, base64, { base64: true });
-  });
-
-  const zipBlob = await zip.generateAsync({ type: "blob" });
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(zipBlob);
-  });
+  return arr;
 }
+
+/* =========================================================
+PNG 렌더
+========================================================= */
 
 async function renderItemFinalPng(item) {
   const size = getCanvasSize(item.profile, item.capType);
@@ -31,17 +69,18 @@ async function renderItemFinalPng(item) {
   const off = document.createElement("canvas");
   off.width = size.w;
   off.height = size.h;
-  const c = off.getContext("2d");
 
-  const bg = getItemBgColor(item);
-  c.fillStyle = bg;
-  c.fillRect(0, 0, off.width, off.height);
+  const ctx = off.getContext("2d");
+
+  ctx.fillStyle = getItemBgColor(item);
+  ctx.fillRect(0, 0, off.width, off.height);
 
   if (item.design?.imgDataUrl) {
     const img = new Image();
-    await new Promise((res, rej) => {
-      img.onload = res;
-      img.onerror = rej;
+
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
       img.src = item.design.imgDataUrl;
     });
 
@@ -53,211 +92,181 @@ async function renderItemFinalPng(item) {
     const w = img.width * scale;
     const h = img.height * scale;
 
-    c.save();
-    c.translate(cx, cy);
-    c.rotate(rot);
-    c.drawImage(img, -w / 2, -h / 2, w, h);
-    c.restore();
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(rot);
+    ctx.drawImage(img, -w / 2, -h / 2, w, h);
+    ctx.restore();
   }
 
   return off.toDataURL("image/png");
 }
 
-function emailConfigReady(templateId) {
-  return !(
-    EMAILJS_PUBLIC_KEY.startsWith("YOUR_") ||
-    EMAILJS_SERVICE_ID.startsWith("YOUR_") ||
-    templateId.startsWith("YOUR_")
-  );
+/* =========================================================
+ZIP 생성
+========================================================= */
+
+async function buildZip(designs, orderNo) {
+  const zip = new JSZip();
+  const folder = zip.folder(`${orderNo}_designs`);
+
+  designs.forEach((d) => {
+    const base64 = d.dataUrl.split(",")[1];
+    folder.file(d.filename, base64, { base64: true });
+  });
+
+  const blob = await zip.generateAsync({ type: "blob" });
+
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
 }
 
-async function sendEmailToCompany(extraParams = {}) {
-  if (!emailConfigReady(EMAILJS_TEMPLATE_ID)) {
-    setMsg("메일 전송 설정이 완료되지 않았습니다.");
-    return false;
-  }
+/* =========================================================
+첨부파일 생성
+========================================================= */
 
-  if (quoteEnabled) syncQuoteExtrasFromUI();
-
-  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
-
-  const itemsSummary = [];
+async function buildAttachments(orderNo) {
   const designs = [];
 
   for (const it of cartItems) {
-    const calc = calcLineTotal(it);
-    const bg = getItemBgColor(it);
+    if (!it.design?.imgDataUrl) continue;
 
-    itemsSummary.push({
-      profile: it.profile,
-      capType: it.capType,
-      laser: it.profile === "OEM" ? it.laser : "none",
-      bg,
-      qty: calc.qty,
-      unit: calc.unit,
-      baseLine: calc.baseLine,
-      discountRate: calc.discRate,
-      lineAfterDiscount: calc.afterDiscount,
-      design: hasDesign(it) ? "있음" : "없음",
+    const png = await renderItemFinalPng(it);
+
+    const name = [
+      safeFilePart(orderNo),
+      safeFilePart(it.profile),
+      safeFilePart(it.capType),
+    ].join("_");
+
+    designs.push({
+      filename: name + ".png",
+      dataUrl: png,
     });
-
-    if (it.design?.imgDataUrl) {
-      const png = await renderItemFinalPng(it);
-
-      designs.push({
-        filename: `${safeTrim(orderEl.value)}_${it.profile}_${it.capType}_${it.laser || "none"}.png`,
-        dataUrl: png,
-      });
-    }
   }
 
-  const orderNo = safeTrim(orderEl.value);
-  const useZip = designs.length >= 10;
+  if (designs.length >= 10) {
+    const zipData = await buildZip(designs, orderNo);
 
-  let attachmentParams = {};
-
-  if (useZip) {
-    const zipDataUrl = await buildZipFromDesigns(designs, orderNo);
-
-    attachmentParams = {
+    return {
       attachment_mode: "zip",
       zip_filename: `${orderNo}_designs.zip`,
-      zip_file: zipDataUrl,
-    };
-  } else {
-    attachmentParams = {
-      attachment_mode: "files",
-
-      design_1_filename: designs[0]?.filename || "",
-      design_1_file: designs[0]?.dataUrl || "",
-
-      design_2_filename: designs[1]?.filename || "",
-      design_2_file: designs[1]?.dataUrl || "",
-
-      design_3_filename: designs[2]?.filename || "",
-      design_3_file: designs[2]?.dataUrl || "",
-
-      design_4_filename: designs[3]?.filename || "",
-      design_4_file: designs[3]?.dataUrl || "",
-
-      design_5_filename: designs[4]?.filename || "",
-      design_5_file: designs[4]?.dataUrl || "",
-
-      design_6_filename: designs[5]?.filename || "",
-      design_6_file: designs[5]?.dataUrl || "",
-
-      design_7_filename: designs[6]?.filename || "",
-      design_7_file: designs[6]?.dataUrl || "",
-
-      design_8_filename: designs[7]?.filename || "",
-      design_8_file: designs[7]?.dataUrl || "",
-
-      design_9_filename: designs[8]?.filename || "",
-      design_9_file: designs[8]?.dataUrl || "",
+      zip_file: zipData,
     };
   }
+
+  const obj = { attachment_mode: "files" };
+
+  designs.forEach((d, i) => {
+    const idx = i + 1;
+    obj[`design_${idx}_filename`] = d.filename;
+    obj[`design_${idx}_file`] = d.dataUrl;
+  });
+
+  return obj;
+}
+
+/* =========================================================
+회사 메일
+========================================================= */
+
+async function sendEmailToCompany() {
+  ensureEmailJsInit();
+
+  const customerName = safeTrim(nameEl?.value);
+  const customerPhone = safeTrim(phoneEl?.value);
+  const customerEmail = safeTrim(emailEl?.value);
+  const orderNo = safeTrim(orderEl?.value);
+
+  const itemsSummary = buildItemsSummary();
+  const attachments = await buildAttachments(orderNo);
 
   const params = {
     to_email: COMPANY_EMAIL,
-    customer_name: safeTrim(nameEl.value),
-    customer_phone: safeTrim(phoneEl.value),
+    from_name: customerName,
+    reply_to: customerEmail,
+
+    customer_name: customerName,
+    customer_phone: customerPhone,
+    customer_email: customerEmail,
     order_no: orderNo,
-    customer_email: safeTrim(emailEl.value),
-
-    quote_enabled: quoteEnabled ? "Y" : "N",
-    quote_prod: quoteEnabled ? quoteProd : "",
-    quote_due: quoteEnabled ? quoteDue : "",
-    biz_file_dataurl: quoteEnabled ? bizFileDataUrl || "" : "",
-
-    quote_keyring_qty: quoteEnabled ? keyringQty || "" : "",
-    quote_keyring_led: quoteEnabled ? keyringLed || "" : "",
-    quote_keyring_color: quoteEnabled ? keyringColor || "" : "",
-    quote_keyring_holes: quoteEnabled ? keyringSlots || "" : "",
-
-    quote_packaging: quoteEnabled ? packType || "" : "",
-    quote_has_sheet: quoteEnabled ? (packSheet ? "있음" : "없음") : "",
-    quote_has_sticker: quoteEnabled ? (packSticker ? "있음" : "없음") : "",
-    quote_notes: quoteEnabled ? quoteNotes || "" : "",
-
-    quote_section_html: quoteEnabled
-      ? `
-    <div style="padding:12px 14px; border:1px solid #e6e9f2; border-radius:12px; background:#fff; margin-bottom:14px;">
-      <div style="margin-bottom:8px;"><b>견적 요청 사항</b></div>
-      <div><b>제작 일정</b> : ${quoteProd || "-"}</div>
-      <div><b>희망 납기일</b> : ${quoteDue || "-"}</div>
-      <div><b>키캡 키링 수량</b> : ${keyringQty || "-"}</div>
-      <div><b>LED 유무</b> : ${keyringLed || "-"}</div>
-      <div><b>키링 색상</b> : ${keyringColor || "-"}</div>
-      <div><b>키링 종류</b> : ${keyringSlots || "-"}</div>
-      <div><b>포장 요구사항</b> : ${packType || "-"}</div>
-      <div><b>대지 포함</b> : ${packSheet ? "있음" : "없음"}</div>
-      <div><b>스티커 제작</b> : ${packSticker ? "있음" : "없음"}</div>
-      <div><b>기타 유의사항</b> : ${quoteNotes || "-"}</div>
-    </div>
-  `
-      : "",
 
     items_json: JSON.stringify(itemsSummary, null, 2),
 
-    ...attachmentParams,
-    ...extraParams,
+    biz_file_dataurl: bizFileDataUrl || "",
+
+    ...attachments,
   };
 
-  try {
-    return await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
-  } catch (error) {
-    console.error("회사 메일 전송 실패:", error);
-    setMsg("회사 메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
-    return false;
-  }
+  const result = await emailjs.send(
+    EMAILJS_SERVICE_ID,
+    EMAILJS_TEMPLATE_ID,
+    params
+  );
+
+  return { ok: true, itemsSummary, result };
 }
 
+/* =========================================================
+고객 견적 메일
+========================================================= */
+
 async function sendQuoteEmailToCustomer(itemsSummary) {
-  if (!emailConfigReady(EMAILJS_QUOTE_TEMPLATE_ID)) {
-    setMsg("메일 전송 설정이 완료되지 않았습니다.");
-    return false;
-  }
+  ensureEmailJsInit();
 
-  if (quoteEnabled) syncQuoteExtrasFromUI();
-
-  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  const customerEmail = safeTrim(emailEl?.value);
+  const customerName = safeTrim(nameEl?.value);
+  const orderNo = safeTrim(orderEl?.value);
 
   const params = {
-    to_email: safeTrim(emailEl.value),
+    to_email: customerEmail,
+    from_name: "KidiKidi",
 
-    customer_name: safeTrim(nameEl.value),
-    customer_phone: safeTrim(phoneEl.value),
-    order_no: safeTrim(orderEl.value),
+    customer_name: customerName,
+    order_no: orderNo,
 
     subtotal_price: String(cartSubtotal()),
     total_price: String(cartTotal()),
 
-    quote_prod: quoteProd,
-    quote_due: quoteDue,
-
-    quote_keyring_qty: keyringQty || "",
-    quote_keyring_led: keyringLed || "",
-    quote_keyring_color: keyringColor || "",
-    quote_keyring_holes: keyringSlots || "",
-
-    quote_packaging: packType || "",
-    quote_has_sheet: packSheet ? "있음" : "없음",
-    quote_has_sticker: packSticker ? "있음" : "없음",
-
-    quote_notes: quoteNotes || "",
-
     items_json: JSON.stringify(itemsSummary, null, 2),
   };
 
+  const result = await emailjs.send(
+    EMAILJS_SERVICE_ID,
+    EMAILJS_QUOTE_TEMPLATE_ID,
+    params
+  );
+
+  return { ok: true, result };
+}
+
+/* =========================================================
+전체 메일 전송
+========================================================= */
+
+async function sendOrderEmails() {
+  if (!cartItems?.length) {
+    setMsg("시안이 없습니다.");
+    return false;
+  }
+
+  setMsg("메일 전송중...");
+
   try {
-    return await emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_QUOTE_TEMPLATE_ID,
-      params,
-    );
-  } catch (error) {
-    console.error("고객 견적서 메일 전송 실패:", error);
-    setMsg("견적서 메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    const company = await sendEmailToCompany();
+
+    await wait(1200);
+
+    await sendQuoteEmailToCustomer(company.itemsSummary);
+
+    setMsg("메일 전송 완료");
+    return true;
+  } catch (err) {
+    console.error(err);
+    setMsg("메일 전송 실패");
     return false;
   }
 }
