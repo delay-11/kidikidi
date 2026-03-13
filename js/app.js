@@ -21,7 +21,6 @@
   });
 });
 
-
 /* =========================================================
  * 상단 주문번호 바 표시
 ========================================================= */
@@ -32,12 +31,10 @@ function updateOrderBar() {
   el.textContent = safeTrim(orderEl?.value || "") || "-";
 }
 
-
 /* =========================================================
  * 상단 현재 선택 규격 표시
 ========================================================= */
 function updateDraftInfo() {
-
   const p = document.getElementById("draftProfile");
   const c = document.getElementById("draftCap");
   const l = document.getElementById("draftLaser");
@@ -59,12 +56,10 @@ function updateDraftInfo() {
   if (l) l.textContent = laser;
 }
 
-
 /* =========================================================
  * 왼쪽 주문자 정보 입력 상태 표시
 ========================================================= */
 function updateFormReadyBox() {
-
   const titleEl = document.getElementById("formReadyTitle");
   const descEl = document.getElementById("formReadyDesc");
 
@@ -73,7 +68,6 @@ function updateFormReadyBox() {
   const ready = validateUserInfo(false);
 
   if (!ready) {
-
     titleEl.textContent = "주문자 정보 입력이 필요합니다.";
     descEl.textContent =
       "주문자명, 연락처, 주문번호, 이메일을 모두 입력해주세요.";
@@ -85,7 +79,6 @@ function updateFormReadyBox() {
   descEl.textContent =
     "이미지 업로드 또는 배경 설정 후 [시안 추가]를 눌러주세요.";
 }
-
 
 /* =========================================================
  * 상단 바 이벤트 연결
@@ -109,17 +102,63 @@ laserEl?.addEventListener("change", () => {
   updateDraftInfo();
 });
 
+/* =========================================================
+ * 시안 확정 모달
+========================================================= */
+function openConfirmModal(message) {
+  const modal = document.getElementById("confirmModal");
+  const body = document.getElementById("confirmModalBody");
+  const okBtn = document.getElementById("confirmModalOk");
+  const cancelBtn = document.getElementById("confirmModalCancel");
+  const dim = modal?.querySelector(".confirmModalDim");
+
+  if (!modal || !body || !okBtn || !cancelBtn || !dim) {
+    return Promise.resolve(confirm(message));
+  }
+
+  return new Promise((resolve) => {
+    const close = (result) => {
+      modal.classList.remove("show");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.classList.remove("modalOpen");
+
+      okBtn.removeEventListener("click", onOk);
+      cancelBtn.removeEventListener("click", onCancel);
+      dim.removeEventListener("click", onCancel);
+      document.removeEventListener("keydown", onKeyDown);
+
+      resolve(result);
+    };
+
+    const onOk = () => close(true);
+    const onCancel = () => close(false);
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") close(false);
+    };
+
+    body.textContent = message;
+
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modalOpen");
+
+    okBtn.addEventListener("click", onOk);
+    cancelBtn.addEventListener("click", onCancel);
+    dim.addEventListener("click", onCancel);
+    document.addEventListener("keydown", onKeyDown);
+
+    setTimeout(() => okBtn.focus(), 0);
+  });
+}
 
 /* =========================================================
  * 시안 확정하기
 ========================================================= */
 btnConfirmEl?.addEventListener("click", async () => {
-
   const confirmMessage = quoteEnabled
-    ? "시안을 최종 확정하시겠습니까?\n\n확정 후에는 시안 수정이 어렵습니다.\n주문 정보와 첨부 이미지를 다시 확인해주세요.\n\n확인을 누르면 시안 접수 메일이 발송되며\n입력하신 이메일로 견적서가 함께 발송됩니다."
-    : "시안을 최종 확정하시겠습니까?\n\n확정 후에는 시안 수정이 어렵습니다.\n주문 정보와 첨부 이미지를 다시 확인해주세요.\n\n확인을 누르면 시안 접수 메일이 발송됩니다.";
-
-  const okConfirm = confirm(confirmMessage);
+    ? "시안을 최종 확정하시겠습니까?\n\n시안 확정 후에는 수정이 어렵습니다.\n업로드한 이미지와 제작 내용을 다시 한번 확인해주세요.\n\n확인을 누르면 시안이 접수됩니다.\n접수된 시안은 담당자가 검토 후 이메일로 안내드릴 예정입니다.\n\n※ 여러 시안을 제작한 경우 [시안 추가] 버튼으로 등록된 시안만 접수됩니다.\n※ 견적 요청 시 견적서가 이메일로 발송됩니다."
+    : "시안을 최종 확정하시겠습니까?\n\n시안 확정 후에는 수정이 어렵습니다.\n업로드한 이미지와 제작 내용을 다시 한번 확인해주세요.\n\n확인을 누르면 시안이 접수됩니다.\n접수된 시안은 담당자가 검토 후 이메일로 안내드릴 예정입니다.\n\n※ 여러 시안을 제작한 경우 [시안 추가] 버튼으로 등록된 시안만 접수됩니다.\n※ 확인에는 일정 시간이 소요될 수 있습니다.";
+  const okConfirm = await openConfirmModal(confirmMessage);
   if (!okConfirm) return;
 
   clearMsgOk();
@@ -128,16 +167,13 @@ btnConfirmEl?.addEventListener("click", async () => {
   if (!validateCanConfirm(true)) return;
 
   try {
-
     if (quoteEnabled) syncQuoteExtrasFromUI();
 
     const companyResult = await sendEmailToCompany();
     if (!companyResult.ok) return;
 
     if (quoteEnabled) {
-
       const itemsSummary = cartItems.map((it) => {
-
         const bg = getItemBgColor(it);
         const calc = calcLineTotal(it);
 
@@ -152,7 +188,6 @@ btnConfirmEl?.addEventListener("click", async () => {
           discountRate: calc.discRate,
           lineAfterDiscount: calc.afterDiscount,
         };
-
       });
 
       const customerResult = await sendQuoteEmailToCustomer(itemsSummary);
@@ -190,9 +225,7 @@ btnConfirmEl?.addEventListener("click", async () => {
     updateFormReadyBox();
 
     return;
-
   } catch (e) {
-
     console.error("전송 실패:", e);
 
     setMsg(
@@ -200,21 +233,15 @@ btnConfirmEl?.addEventListener("click", async () => {
     );
 
     setOk("");
-
   } finally {
-
     updateActionLocks();
-
   }
-
 });
-
 
 /* =========================================================
  * 초기화
 ========================================================= */
 (async function initApp() {
-
   initPickr();
 
   setCapTypeOptions();
@@ -246,5 +273,4 @@ btnConfirmEl?.addEventListener("click", async () => {
   }
 
   registerDraftAutoSave();
-
 })();

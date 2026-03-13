@@ -4,9 +4,13 @@
 const helpIcons = Array.from(document.querySelectorAll(".helpIcon"));
 
 function closeAllTooltips() {
-  document
-    .querySelectorAll(".helpTooltip")
-    .forEach((t) => t.classList.remove("show"));
+  document.querySelectorAll(".helpTooltip").forEach((tooltip) => {
+    tooltip.classList.remove("show");
+  });
+
+  document.querySelectorAll(".helpWrap").forEach((wrap) => {
+    wrap.classList.remove("alignRight", "alignCenter", "alignTop");
+  });
 }
 
 function getProfileHelp(profile) {
@@ -97,6 +101,44 @@ function fillTooltipByType(type, tooltipEl) {
 
   if (type === "capType") {
     tooltipEl.innerHTML = getCapTypeHelp(profileEl.value, capTypeEl.value);
+    return;
+  }
+}
+
+function positionTooltip(icon, tooltip) {
+  const wrap = icon.closest(".helpWrap");
+  if (!wrap || !tooltip) return;
+
+  wrap.classList.remove("alignRight", "alignCenter", "alignTop");
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  if (vw <= 768) {
+    wrap.classList.add("alignCenter");
+  }
+
+  let rect = tooltip.getBoundingClientRect();
+
+  if (rect.right > vw - 12) {
+    wrap.classList.remove("alignCenter");
+    wrap.classList.add("alignRight");
+    rect = tooltip.getBoundingClientRect();
+  }
+
+  if (rect.left < 12) {
+    wrap.classList.remove("alignRight");
+    wrap.classList.add("alignCenter");
+    rect = tooltip.getBoundingClientRect();
+  }
+
+  if (rect.bottom > vh - 12) {
+    wrap.classList.add("alignTop");
+    rect = tooltip.getBoundingClientRect();
+  }
+
+  if (rect.top < 12) {
+    wrap.classList.remove("alignTop");
   }
 }
 
@@ -107,23 +149,51 @@ helpIcons.forEach((icon) => {
 
     const type = icon.dataset.help;
     const tooltip = icon.nextElementSibling;
+    const wrap = icon.closest(".helpWrap");
+    const willOpen = !tooltip?.classList.contains("show");
 
     document.querySelectorAll(".helpTooltip").forEach((t) => {
       if (t !== tooltip) t.classList.remove("show");
     });
 
+    document.querySelectorAll(".helpWrap").forEach((w) => {
+      if (w !== wrap)
+        w.classList.remove("alignRight", "alignCenter", "alignTop");
+    });
+
     fillTooltipByType(type, tooltip);
-    tooltip?.classList.toggle("show");
+
+    if (!tooltip) return;
+
+    if (!willOpen) {
+      tooltip.classList.remove("show");
+      wrap?.classList.remove("alignRight", "alignCenter", "alignTop");
+      return;
+    }
+
+    tooltip.classList.add("show");
+
+    requestAnimationFrame(() => {
+      positionTooltip(icon, tooltip);
+    });
   });
 });
 
 document.addEventListener("click", closeAllTooltips);
 window.addEventListener("scroll", closeAllTooltips, { passive: true });
+window.addEventListener("resize", closeAllTooltips);
 
 function refreshOpenTooltips() {
   document.querySelectorAll(".helpIcon").forEach((icon) => {
     const type = icon.dataset.help;
     const tooltip = icon.nextElementSibling;
-    if (tooltip?.classList.contains("show")) fillTooltipByType(type, tooltip);
+
+    if (tooltip?.classList.contains("show")) {
+      fillTooltipByType(type, tooltip);
+
+      requestAnimationFrame(() => {
+        positionTooltip(icon, tooltip);
+      });
+    }
   });
 }

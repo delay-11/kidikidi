@@ -14,6 +14,7 @@
 }
 
 /* helpIcon은 button 공통 스타일(width:100%, 노랑 배경) 무시 */
+/* 프로파일 helpIcon */
 .helpIcon {
     all: unset;
     box-sizing: border-box;
@@ -99,6 +100,80 @@
     height: 1px;
     background: var(--line);
     margin: 8px 0;
+}
+
+/* 업로드 helpIcon */
+.uploadHelpWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    overflow: visible;
+}
+
+.uploadHelpTooltip {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+
+    width: max-content;
+    min-width: 180px;
+    max-width: min(320px, calc(100vw - 24px));
+    padding: 10px 12px;
+
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--txt);
+    white-space: normal;
+    word-break: keep-all;
+
+    display: none;
+    z-index: 9999;
+}
+
+.uploadHelpTooltip.show {
+    display: block;
+}
+
+.uploadHelpTooltip::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    left: 10px;
+
+    width: 10px;
+    height: 10px;
+
+    background: #fff;
+    border-left: 1px solid var(--line);
+    border-top: 1px solid var(--line);
+    transform: rotate(45deg);
+}
+
+.uploadHelpWrap.alignRight .uploadHelpTooltip {
+    left: auto;
+    right: 0;
+}
+
+.uploadHelpWrap.alignRight .uploadHelpTooltip::before {
+    left: auto;
+    right: 10px;
+}
+
+.uploadHelpWrap.alignCenter .uploadHelpTooltip {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+}
+
+.uploadHelpWrap.alignCenter .uploadHelpTooltip::before {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%) rotate(45deg);
 }
 
 /* =========================================================
@@ -452,4 +527,97 @@ button:disabled {
 
 .editorActionBar button {
     width: 100%;
+}
+
+/* =========================================================
+ * 시안 확정 모달
+========================================================= */
+.confirmModal {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+}
+
+.confirmModal.show {
+    display: block;
+}
+
+.confirmModalDim {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.42);
+    backdrop-filter: blur(2px);
+}
+
+.confirmModalDialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: min(520px, calc(100vw - 32px));
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: 0 24px 50px rgba(15, 23, 42, 0.18);
+    padding: 22px 22px 18px;
+}
+
+.confirmModalHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+}
+
+.confirmModalBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--acc);
+    color: #3b2f12;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.confirmModalTitle {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--txt);
+    letter-spacing: -0.02em;
+}
+
+.confirmModalBody {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--txt);
+    white-space: pre-line;
+    word-break: keep-all;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 16px 2px;
+}
+
+.confirmModalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.confirmModalActions .ghostBtn,
+.confirmModalActions .confirmBtn {
+    min-width: 96px;
+    height: 42px;
+}
+
+body.modalOpen {
+    overflow: hidden;
 }

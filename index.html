@@ -294,11 +294,12 @@
 
                             <div class="canvasControlRow">
                                 <div>
-                                    <label>선택 아이템에 이미지 업로드 *
+                                    <label>선택한 규격에 이미지 업로드 *
 
-                                        <span class="helpWrap">
-                                            <button type="button" class="helpIcon" aria-label="이미지 업로드 안내">!</button>
-                                            <div class="helpTooltip">
+                                        <span class="helpWrap uploadHelpWrap">
+                                            <button type="button" class="helpIcon uploadHelpIcon"
+                                                aria-label="이미지 업로드 안내">!</button>
+                                            <div class="helpTooltip uploadHelpTooltip">
                                                 · PNG / JPG / WEBP 업로드 가능<br>
                                                 · 배경이 없는 이미지를 권장합니다<br>
                                                 · 저해상도 이미지는 제작 품질이 떨어질 수 있습니다
@@ -410,6 +411,25 @@
 
         </div>
     </footer>
+
+    <!-- 시안 확정 모달 -->
+    <div id="confirmModal" class="confirmModal" aria-hidden="true">
+        <div class="confirmModalDim"></div>
+
+        <div class="confirmModalDialog" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+            <div class="confirmModalHeader">
+                <div class="confirmModalBadge">안내</div>
+                <h3 id="confirmModalTitle" class="confirmModalTitle">시안 최종 확정</h3>
+            </div>
+
+            <div id="confirmModalBody" class="confirmModalBody"></div>
+
+            <div class="confirmModalActions">
+                <button type="button" id="confirmModalCancel" class="ghostBtn">취소</button>
+                <button type="button" id="confirmModalOk" class="confirmBtn">확정하기</button>
+            </div>
+        </div>
+    </div>
 
     <!-- JS -->
     <script src="./js/constants.js"></script>

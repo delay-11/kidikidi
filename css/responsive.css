@@ -110,9 +110,17 @@
         margin-top: 8px;
     }
 
+    /* 프로파일 helpIcon */
     .helpTooltip {
         left: 0 !important;
         right: auto !important;
+    }
+
+    /* 업로드 helpIcon */
+    .uploadHelpTooltip {
+        min-width: 0;
+        width: min(260px, calc(100vw - 24px));
+        max-width: calc(100vw - 24px);
     }
 
     .headerInner {
@@ -135,6 +143,32 @@
 
     .footerRight {
         text-align: center;
+    }
+
+    .confirmModalDialog {
+        width: calc(100vw - 24px);
+        padding: 18px 18px 16px;
+        border-radius: 18px;
+    }
+
+    .confirmModalTitle {
+        font-size: 18px;
+    }
+
+    .confirmModalBody {
+        font-size: 13px;
+        line-height: 1.65;
+        padding: 14px 2px;
+    }
+
+    .confirmModalActions {
+        gap: 8px;
+    }
+
+    .confirmModalActions .ghostBtn,
+    .confirmModalActions .confirmBtn {
+        flex: 1 1 auto;
+        min-width: 0;
     }
 }
 
