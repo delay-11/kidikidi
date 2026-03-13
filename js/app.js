@@ -174,7 +174,7 @@ btnConfirmEl?.addEventListener("click", async () => {
   btnConfirmEl.disabled = true;
 
   /* ===== 추가: 전송 중 안내 메시지 ===== */
-  setMsg("시안을 접수 중입니다. 잠시만 기다려주세요...");
+  setMsg("시안을 접수 중입니다. 잠시만 기다려주세요.");
 
   try {
     if (quoteEnabled) syncQuoteExtrasFromUI();
