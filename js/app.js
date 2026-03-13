@@ -115,10 +115,11 @@ laserEl?.addEventListener("change", () => {
 ========================================================= */
 btnConfirmEl?.addEventListener("click", async () => {
 
-  const okConfirm = confirm(
-    "시안을 확정하시겠습니까?\n\n확정 후에는 수정이 어렵습니다.",
-  );
+  const confirmMessage = quoteEnabled
+    ? "시안을 최종 확정하시겠습니까?\n\n확정 후에는 시안 수정이 어렵습니다.\n주문 정보와 첨부 이미지를 다시 확인해주세요.\n\n확인을 누르면 시안 접수 메일이 발송되며\n입력하신 이메일로 견적서가 함께 발송됩니다."
+    : "시안을 최종 확정하시겠습니까?\n\n확정 후에는 시안 수정이 어렵습니다.\n주문 정보와 첨부 이미지를 다시 확인해주세요.\n\n확인을 누르면 시안 접수 메일이 발송됩니다.";
 
+  const okConfirm = confirm(confirmMessage);
   if (!okConfirm) return;
 
   clearMsgOk();
@@ -130,8 +131,8 @@ btnConfirmEl?.addEventListener("click", async () => {
 
     if (quoteEnabled) syncQuoteExtrasFromUI();
 
-    const okCompany = await sendEmailToCompany();
-    if (!okCompany) return;
+    const companyResult = await sendEmailToCompany();
+    if (!companyResult.ok) return;
 
     if (quoteEnabled) {
 
@@ -154,8 +155,8 @@ btnConfirmEl?.addEventListener("click", async () => {
 
       });
 
-      const okCustomer = await sendQuoteEmailToCustomer(itemsSummary);
-      if (!okCustomer) return;
+      const customerResult = await sendQuoteEmailToCustomer(itemsSummary);
+      if (!customerResult.ok) return;
 
       setOk(
         `견적서 요청이 완료되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n입력하신 이메일로 견적서를 발송했습니다.`,
@@ -216,26 +217,18 @@ btnConfirmEl?.addEventListener("click", async () => {
 
   initPickr();
 
-  /* 기본 폼 / 캔버스 초기화 */
-
   setCapTypeOptions();
   resizeCanvas(330, 330);
   clearEditor();
   setQuoteUI(false);
 
-  /* 드래프트 복구 */
-
   const restored = await loadDraftFromStorage();
-
-  /* URL 주문번호 우선 적용 */
 
   const urlOrder = getOrderFromUrl();
 
   if (urlOrder && orderEl) {
     orderEl.value = urlOrder;
   }
-
-  /* 최종 UI 동기화 */
 
   applyCanvasSizeFromForm();
   renderCart();
