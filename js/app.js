@@ -12,10 +12,10 @@
     updateFormReadyBox();
   });
 
-  el.addEventListener("blur", () => {
+  el.addEventListener("blur", async () => {
     if (uiLocked) return;
     validateUserInfo(true);
-    if (el === orderEl) applyConfirmedLockIfNeeded(true);
+    if (el === orderEl) await applyConfirmedLockIfNeeded(true);
     updateActionLocks();
     updateFormReadyBox();
   });
@@ -103,51 +103,108 @@ laserEl?.addEventListener("change", () => {
 });
 
 /* =========================================================
- * 시안 확정 모달
+ * 공통 모달
 ========================================================= */
-function openConfirmModal(message) {
+function openBaseModal({
+  title = "안내",
+  badge = "안내",
+  message = "",
+  okText = "확인",
+  cancelText = "취소",
+  showCancel = true,
+}) {
   const modal = document.getElementById("confirmModal");
+  const dim = modal?.querySelector(".confirmModalDim");
+  const titleEl = document.getElementById("confirmModalTitle");
   const body = document.getElementById("confirmModalBody");
   const okBtn = document.getElementById("confirmModalOk");
   const cancelBtn = document.getElementById("confirmModalCancel");
-  const dim = modal?.querySelector(".confirmModalDim");
+  const badgeEl = modal?.querySelector(".confirmModalBadge");
 
-  if (!modal || !body || !okBtn || !cancelBtn || !dim) {
-    return Promise.resolve(confirm(message));
+  if (!modal || !dim || !titleEl || !body || !okBtn || !cancelBtn || !badgeEl) {
+    return Promise.resolve(window.confirm(message));
   }
 
   return new Promise((resolve) => {
-    const close = (result) => {
-      modal.classList.remove("show");
+    let handled = false;
+
+    const cleanup = () => {
+      modal.classList.remove("show", "single");
       modal.setAttribute("aria-hidden", "true");
       document.body.classList.remove("modalOpen");
 
       okBtn.removeEventListener("click", onOk);
       cancelBtn.removeEventListener("click", onCancel);
-      dim.removeEventListener("click", onCancel);
+      dim.removeEventListener("click", onDimClick);
       document.removeEventListener("keydown", onKeyDown);
+    };
 
+    const close = (result) => {
+      if (handled) return;
+      handled = true;
+      cleanup();
       resolve(result);
     };
 
     const onOk = () => close(true);
     const onCancel = () => close(false);
+    const onDimClick = () => {
+      if (showCancel) onCancel();
+      else onOk();
+    };
     const onKeyDown = (e) => {
-      if (e.key === "Escape") close(false);
+      if (e.key === "Escape") {
+        if (showCancel) onCancel();
+        else onOk();
+      }
+      if (!showCancel && e.key === "Enter") {
+        onOk();
+      }
     };
 
+    titleEl.textContent = title;
+    badgeEl.textContent = badge;
     body.textContent = message;
+    okBtn.textContent = okText;
+    cancelBtn.textContent = cancelText;
+
+    cancelBtn.hidden = !showCancel;
+    modal.classList.toggle("single", !showCancel);
 
     modal.classList.add("show");
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("modalOpen");
 
     okBtn.addEventListener("click", onOk);
-    cancelBtn.addEventListener("click", onCancel);
-    dim.addEventListener("click", onCancel);
+    if (showCancel) cancelBtn.addEventListener("click", onCancel);
+    dim.addEventListener("click", onDimClick);
     document.addEventListener("keydown", onKeyDown);
 
     setTimeout(() => okBtn.focus(), 0);
+  });
+}
+
+/* =========================================================
+ * 시안 확정 / 안내 모달
+========================================================= */
+function openConfirmModal(message) {
+  return openBaseModal({
+    title: "시안 최종 확정",
+    badge: "안내",
+    message,
+    okText: "확정하기",
+    cancelText: "취소",
+    showCancel: true,
+  });
+}
+
+function openNoticeModal(message, title = "안내") {
+  return openBaseModal({
+    title,
+    badge: "안내",
+    message,
+    okText: "확인",
+    showCancel: false,
   });
 }
 
@@ -164,7 +221,7 @@ btnConfirmEl?.addEventListener("click", async () => {
 
   clearMsgOk();
 
-  if (applyConfirmedLockIfNeeded(true)) return;
+  if (await applyConfirmedLockIfNeeded(true)) return;
   if (!validateCanConfirm(true)) return;
 
   btnConfirmEl.disabled = true;
@@ -175,7 +232,6 @@ btnConfirmEl?.addEventListener("click", async () => {
 
     const companyResult = await sendEmailToCompany();
 
-    /* ===== fallback 1: 회사 메일 실패 ===== */
     if (!companyResult.ok) {
       setOk("");
       setMsg(
@@ -204,7 +260,6 @@ btnConfirmEl?.addEventListener("click", async () => {
 
       const customerResult = await sendQuoteEmailToCustomer(itemsSummary);
 
-      /* ===== fallback 2: 회사 메일 성공 / 고객 견적 메일 실패 ===== */
       if (!customerResult.ok) {
         setOk(
           `시안은 정상적으로 접수되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n\n다만 견적서 메일 발송 중 문제가 발생했습니다.\n담당자가 시안을 확인한 후 별도로 안내드릴 예정입니다.`,
@@ -213,7 +268,7 @@ btnConfirmEl?.addEventListener("click", async () => {
 
         markOrderConfirmed(safeTrim(orderEl.value));
         clearDraftStorage();
-        applyConfirmedLockIfNeeded(false);
+        await applyConfirmedLockIfNeeded(false);
 
         updateOrderBar();
         updateDraftInfo();
@@ -230,7 +285,7 @@ btnConfirmEl?.addEventListener("click", async () => {
 
       markOrderConfirmed(safeTrim(orderEl.value));
       clearDraftStorage();
-      applyConfirmedLockIfNeeded(false);
+      await applyConfirmedLockIfNeeded(false);
 
       updateOrderBar();
       updateDraftInfo();
@@ -247,7 +302,7 @@ btnConfirmEl?.addEventListener("click", async () => {
 
     markOrderConfirmed(safeTrim(orderEl.value));
     clearDraftStorage();
-    applyConfirmedLockIfNeeded(false);
+    await applyConfirmedLockIfNeeded(false);
 
     updateOrderBar();
     updateDraftInfo();
@@ -292,7 +347,7 @@ btnConfirmEl?.addEventListener("click", async () => {
   updatePriceUI();
   redraw();
 
-  applyConfirmedLockIfNeeded(true);
+  await applyConfirmedLockIfNeeded(true);
   updateActionLocks();
   updateOrderBar();
   updateDraftInfo();
