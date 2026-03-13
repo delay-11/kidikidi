@@ -31,7 +31,17 @@ image/
 
 ## Usage
 
-주문 고객에게 전달된 링크를 통해 접속하여 사용.
+주문 고객에게 전달된 링크를 통해 접속하여  
+시안을 제작하고 최종 확정 시 회사로 접수 메일이 발송된다.
+
+---
+
+## Mail Flow
+
+* 시안 확정 시 회사 접수 메일이 발송된다.
+* 제작 시안 이미지는 PNG 파일로 첨부된다.
+* 시안이 10개 이상일 경우 ZIP 파일로 압축되어 전송된다.
+* 견적 요청이 활성화된 경우 고객에게 견적 안내 메일이 함께 발송된다.
 
 ---
 
@@ -39,5 +49,5 @@ image/
 
 Internal Use Only
 
-This project is developed for internal company use.
+This project is developed for internal company use.  
 Unauthorized distribution or reuse is not permitted.
