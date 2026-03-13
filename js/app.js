@@ -154,9 +154,6 @@ function openConfirmModal(message) {
 /* =========================================================
  * 시안 확정하기
 ========================================================= */
-/* =========================================================
- * 시안 확정하기
-========================================================= */
 btnConfirmEl?.addEventListener("click", async () => {
   const confirmMessage = quoteEnabled
     ? "시안을 최종 확정하시겠습니까?\n\n시안 확정 후에는 수정이 어려울 수 있습니다.\n업로드한 이미지와 제작 내용을 다시 한번 확인해주세요.\n\n확인을 누르면 시안이 접수됩니다.\n접수된 시안은 담당자가 검토 후 이메일로 안내드릴 예정입니다.\n\n※ 여러 시안을 제작한 경우 [시안 추가] 버튼으로 등록된 시안만 접수됩니다.\n※ 견적 요청 시 견적서가 이메일로 발송됩니다."
@@ -170,17 +167,22 @@ btnConfirmEl?.addEventListener("click", async () => {
   if (applyConfirmedLockIfNeeded(true)) return;
   if (!validateCanConfirm(true)) return;
 
-  /* ===== 추가: 버튼 중복 클릭 방지 ===== */
   btnConfirmEl.disabled = true;
-
-  /* ===== 추가: 전송 중 안내 메시지 ===== */
   setMsg("시안을 접수 중입니다. 잠시만 기다려주세요.");
 
   try {
     if (quoteEnabled) syncQuoteExtrasFromUI();
 
     const companyResult = await sendEmailToCompany();
-    if (!companyResult.ok) return;
+
+    /* ===== fallback 1: 회사 메일 실패 ===== */
+    if (!companyResult.ok) {
+      setOk("");
+      setMsg(
+        `시안 전송 중 문제가 발생했습니다.\n주문번호: ${safeTrim(orderEl.value)}\n\n잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의 부탁드립니다.`,
+      );
+      return;
+    }
 
     if (quoteEnabled) {
       const itemsSummary = cartItems.map((it) => {
@@ -196,12 +198,29 @@ btnConfirmEl?.addEventListener("click", async () => {
           unit: calc.unit,
           baseLine: calc.baseLine,
           discountRate: calc.discRate,
-          lineAfterDiscount: calc.afterDiscount,
+          lineAfterDiscount: calc.lineAfterDiscount ?? calc.afterDiscount,
         };
       });
 
       const customerResult = await sendQuoteEmailToCustomer(itemsSummary);
-      if (!customerResult.ok) return;
+
+      /* ===== fallback 2: 회사 메일 성공 / 고객 견적 메일 실패 ===== */
+      if (!customerResult.ok) {
+        setOk(
+          `시안은 정상적으로 접수되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n\n다만 견적서 메일 발송 중 문제가 발생했습니다.\n담당자가 시안을 확인한 후 별도로 안내드릴 예정입니다.`,
+        );
+        setMsg("");
+
+        markOrderConfirmed(safeTrim(orderEl.value));
+        clearDraftStorage();
+        applyConfirmedLockIfNeeded(false);
+
+        updateOrderBar();
+        updateDraftInfo();
+        updateFormReadyBox();
+
+        return;
+      }
 
       setOk(
         `시안이 정상적으로 접수되었습니다.\n주문번호: ${safeTrim(orderEl.value)}\n\n담당자가 시안을 확인한 후 입력하신 이메일로 안내드릴 예정입니다.\n견적 요청 건은 검토 후 함께 안내드립니다.`,
@@ -239,14 +258,12 @@ btnConfirmEl?.addEventListener("click", async () => {
     console.error("전송 실패:", e);
 
     setMsg(
-      "메일 전송에 실패했습니다. 잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의해주세요.",
+      `시안 전송 중 문제가 발생했습니다.\n주문번호: ${safeTrim(orderEl.value)}\n\n잠시 후 다시 시도해주세요.\n문제가 계속될 경우 고객센터로 문의 부탁드립니다.`,
     );
 
     setOk("");
   } finally {
-    /* ===== 추가: 버튼 다시 활성화 ===== */
     btnConfirmEl.disabled = false;
-
     updateActionLocks();
   }
 });

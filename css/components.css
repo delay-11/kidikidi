@@ -621,3 +621,18 @@ button:disabled {
 body.modalOpen {
     overflow: hidden;
 }
+
+/* =========================================================
+ * 이미 시안이 확정된 주문번호
+========================================================= */
+.confirmModal.single .confirmModalActions {
+    justify-content: center;
+}
+
+.confirmModal.single #confirmModalCancel {
+    display: none;
+}
+
+.confirmModal.single #confirmModalOk {
+    min-width: 140px;
+}

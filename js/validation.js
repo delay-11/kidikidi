@@ -155,12 +155,13 @@ function setAllLocked(locked) {
   }
 }
 
-function applyConfirmedLockIfNeeded(showPopup = false) {
+async function applyConfirmedLockIfNeeded(showPopup = false) {
   const orderNo = safeTrim(orderEl?.value || "");
   const locked = isOrderConfirmed(orderNo);
 
   if (!locked) {
     setAllLocked(false);
+    didConfirmedPopup = false;
     return false;
   }
 
@@ -168,7 +169,15 @@ function applyConfirmedLockIfNeeded(showPopup = false) {
 
   if (showPopup && !didConfirmedPopup) {
     didConfirmedPopup = true;
-    alert("이미 시안 확정된 주문번호입니다");
+
+    if (typeof openNoticeModal === "function") {
+      await openNoticeModal(
+        "이미 시안이 접수된 주문번호입니다.",
+        "접수 완료 주문",
+      );
+    } else {
+      alert("이미 시안이 접수된 주문번호입니다.");
+    }
   }
 
   return true;
