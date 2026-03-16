@@ -249,13 +249,13 @@ function fitImageToCanvas(img) {
 
 fileBtn?.addEventListener(
   "click",
-  (e) => {
+  async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     clearMsgOk();
 
-    if (applyConfirmedLockIfNeeded(true)) return;
+    if (await applyConfirmedLockIfNeeded(true)) return;
 
     fileEl?.click();
   },
@@ -265,7 +265,7 @@ fileBtn?.addEventListener(
 fileEl?.addEventListener("change", async () => {
   clearMsgOk();
 
-  if (applyConfirmedLockIfNeeded(true)) {
+  if (await applyConfirmedLockIfNeeded(true)) {
     fileEl.value = "";
     return;
   }
@@ -313,13 +313,13 @@ fileEl?.addEventListener("change", async () => {
 
 fileDelBtn?.addEventListener(
   "click",
-  (e) => {
+  async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     clearMsgOk();
 
-    if (applyConfirmedLockIfNeeded(true)) return;
+    if (await applyConfirmedLockIfNeeded(true)) return;
 
     userImg = null;
     imgScale = 1;
