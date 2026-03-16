@@ -184,9 +184,10 @@ function renderCart() {
   <div class="cartTop">
 
     <div class="cartThumb">
-      ${it.design && it.design.imgDataUrl
-        ? `<img src="${it.design.imgDataUrl}" />`
-        : `<div class="thumbEmpty" style="background:${bg}"></div>`
+      ${
+        it.design && it.design.imgDataUrl
+          ? `<img src="${it.design.imgDataUrl}" />`
+          : `<div class="thumbEmpty" style="background:${bg}"></div>`
       }
     </div>
 
@@ -344,10 +345,10 @@ async function selectItem(id) {
 /* =========================================================
  * 새 시안 추가
 ========================================================= */
-btnAddItemEl?.addEventListener("click", () => {
+btnAddItemEl?.addEventListener("click", async () => {
   clearMsgOk();
 
-  if (applyConfirmedLockIfNeeded(true)) return;
+  if (await applyConfirmedLockIfNeeded(true)) return;
   if (!validateUserInfo(true)) return;
 
   const hasCanvasDesign = userImg || draftBgSet;
