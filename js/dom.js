@@ -51,6 +51,7 @@ const fileBtn = $("fileBtn");
 const fileDelBtn = $("fileDelBtn");
 const fileNameEl = $("fileName");
 
+const bgEyeBtn = document.getElementById("bgEyeBtn");
 const bgPickBtn = $("bgPickBtn");
 const bgPickMount = $("bgPickMount");
 const bgColorSwatch = $("bgColorSwatch");
