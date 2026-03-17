@@ -1,0 +1,112 @@
+/* =========================================================
+   장바구니 리스트
+========================================================= */
+
+.cartList {
+    display: grid;
+    gap: 10px;
+}
+
+/* =========================================================
+   장바구니 아이템 카드
+========================================================= */
+
+.cartItem {
+    display: grid;
+    gap: 8px;
+
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+
+    background: #ffffff;
+    cursor: pointer;
+
+    transition: transform 0.08s ease, border-color 0.08s ease;
+}
+
+.cartItem:hover {
+    border-color: var(--acc);
+}
+
+/* =========================================================
+   상단 영역
+========================================================= */
+
+.cartTop {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cartEmpty {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+/* =========================================================
+   시안 썸네일
+========================================================= */
+
+.cartThumb {
+    width: 46px;
+    height: 46px;
+
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.cartThumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.thumbEmpty {
+    width: 100%;
+    height: 100%;
+}
+
+/* =========================================================
+   제목 / 메타 정보
+========================================================= */
+
+.cartTitle {
+    font-size: var(--fs-13);
+    line-height: 1.4;
+}
+
+.cartMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+
+    font-size: var(--fs-12);
+    color: var(--muted);
+}
+
+/* =========================================================
+   액션 버튼 영역
+========================================================= */
+
+.cartActions {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* =========================================================
+   현재 편집중 시안 강조
+========================================================= */
+
+.cartItem.active,
+.cartItem.selected {
+    border: 2px solid var(--acc);
+    background: #fffdf5;
+}

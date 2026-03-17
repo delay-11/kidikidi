@@ -1,0 +1,51 @@
+/* =========================================================
+   시안 확정 모달
+========================================================= */
+
+.confirmModal {
+    position: fixed;
+    inset: 0;
+    z-index: 5000;
+    display: none;
+}
+
+.confirmModal.show {
+    display: block;
+}
+
+.confirmModalDim {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.42);
+}
+
+.confirmModalDialog {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+    width: min(520px, calc(100vw - 32px));
+
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 22px;
+}
+
+.confirmModalHeader {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+.confirmModalTitle {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.confirmModalActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

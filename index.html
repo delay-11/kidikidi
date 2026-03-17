@@ -16,7 +16,9 @@
     <link rel="stylesheet" href="./css/base.css" />
     <link rel="stylesheet" href="./css/layout.css" />
     <link rel="stylesheet" href="./css/form.css" />
-    <link rel="stylesheet" href="./css/components.css" />
+    <link rel="stylesheet" href="./css/components-tooltip.css" />
+    <link rel="stylesheet" href="./css/components-ui.css" />
+    <link rel="stylesheet" href="./css/modal.css" />
     <link rel="stylesheet" href="./css/canvas.css" />
     <link rel="stylesheet" href="./css/cart.css" />
     <link rel="stylesheet" href="./css/color-picker.css" />
@@ -39,15 +41,12 @@
         <div class="headerInner">
 
             <div class="headerBrand">
-
                 <img src="./image/favicon.png" class="headerLogo" alt="KidiKidi">
-
                 <span class="systemName">키캡 시안 제작 시스템</span>
-
             </div>
 
             <div class="headerVersion">
-                v1.0
+                v1.1
             </div>
 
         </div>
@@ -56,7 +55,6 @@
     <!-- ORDER BAR -->
     <div class="orderBar">
         <div class="orderInner">
-
             <div class="orderLine">
                 <span class="orderLabel">주문번호</span>
                 <span id="orderBarNo" class="orderNumber">-</span>
@@ -69,13 +67,12 @@
                 <span class="draftDivider">/</span>
                 <span id="draftLaser">레이저 없음</span>
             </div>
-
         </div>
     </div>
 
     <div class="wrap">
-
         <div class="layout2">
+
             <!-- LEFT -->
             <div class="leftStack">
                 <section class="card">
@@ -158,7 +155,7 @@
                                         <label>키링 색상</label>
                                         <select id="keyringColor">
                                             <option value="black">블랙</option>
-                                            <option value="white">화이트</option>
+                                            <option value="white">투명</option>
                                         </select>
                                     </div>
                                     <div>
@@ -254,6 +251,8 @@
                             </div>
                         </div>
 
+                        <div id="formNotice" class="formNotice"></div>
+
                         <div id="formReadyBox" class="formReadyBox">
                             <div id="formReadyTitle" class="formReadyTitle">주문자 정보 입력이 필요합니다.</div>
                             <div id="formReadyDesc" class="formReadyDesc">
@@ -268,107 +267,114 @@
             <div class="rightStack">
                 <section class="card">
                     <div class="editorWrap">
-                        <div class="canvasFrame">
-                            <div class="pill">
-                                <span class="tag">선택 프로파일/규격</span><b id="selText">없음</b>
-                                <span class="tag">캔버스</span><b id="canvasText">-</b>
-                                <span class="tag">배경</span><b id="bgText">-</b>
-                            </div>
 
-                            <div class="divider"></div>
-
-                            <div id="canvasWrap" class="canvasWrap">
-                                <canvas id="designCanvas" width="330" height="330"></canvas>
-
-                                <div id="bbox" class="bbox">
-                                    <div class="rotLine"></div>
-                                    <div class="rot" id="rotHandle" title="회전"></div>
-                                    <div class="h nw" data-h="nw"></div>
-                                    <div class="h ne" data-h="ne"></div>
-                                    <div class="h sw" data-h="sw"></div>
-                                    <div class="h se" data-h="se"></div>
-                                </div>
-                            </div>
-
-                            <div class="divider"></div>
-
-                            <div class="canvasControlRow">
-                                <div>
-                                    <label>선택한 규격에 이미지 업로드 *
-
-                                        <span class="helpWrap uploadHelpWrap">
-                                            <button type="button" class="helpIcon uploadHelpIcon"
-                                                aria-label="이미지 업로드 안내">!</button>
-                                            <div class="helpTooltip uploadHelpTooltip">
-                                                · PNG / JPG / WEBP 업로드 가능<br>
-                                                · 배경이 없는 이미지를 권장합니다<br>
-                                                · 저해상도 이미지는 제작 품질이 떨어질 수 있습니다
-                                            </div>
-                                        </span>
-
-                                    </label>
-
-                                    <div class="uploadRow">
-                                        <button type="button" id="fileBtn" class="ghostBtn fileBtn">
-                                            이미지 업로드
-                                        </button>
-
-                                        <button type="button" id="fileDelBtn" class="dangerBtn">
-                                            삭제
-                                        </button>
-
-                                        <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden />
-                                    </div>
-
-                                    <span id="fileName" class="fileName">선택된 파일 없음</span>
-
+                        <!-- LEFT COLUMN IN EDITOR -->
+                        <div class="editorMain">
+                            <div class="canvasFrame">
+                                <div class="pill">
+                                    <span class="tag">선택 프로파일/규격</span><b id="selText">없음</b>
+                                    <span class="tag">캔버스</span><b id="canvasText">-</b>
+                                    <span class="tag">배경</span><b id="bgText">-</b>
                                 </div>
 
-                                <div>
-                                    <label>배경 색상 선택</label>
+                                <div class="divider"></div>
 
-                                    <div class="colorPick">
-                                        <button type="button" id="bgPickBtn" class="ghostBtn">배경 설정</button>
-                                        <button type="button" id="bgEyeBtn" class="iconToolBtn" aria-label="스포이드">
-                                            🎨
-                                        </button>
-                                        <span class="colorSwatch" id="bgColorSwatch" aria-hidden="true"></span>
-                                        <span class="colorValue" id="bgColorValue">#ffffff</span>
-                                        <span id="bgPickMount" class="pickrMount"></span>
+                                <div id="canvasWrap" class="canvasWrap">
+                                    <canvas id="designCanvas" width="330" height="330"></canvas>
+
+                                    <div id="bbox" class="bbox">
+                                        <div class="rotLine"></div>
+                                        <div class="rot" id="rotHandle" title="회전"></div>
+                                        <div class="h nw" data-h="nw"></div>
+                                        <div class="h ne" data-h="ne"></div>
+                                        <div class="h sw" data-h="sw"></div>
+                                        <div class="h se" data-h="se"></div>
                                     </div>
                                 </div>
+
+                                <div class="divider"></div>
+
+                                <div class="canvasControlRow">
+                                    <div>
+                                        <label>
+                                            선택한 규격에 이미지 업로드 *
+
+                                            <span class="helpWrap uploadHelpWrap">
+                                                <button type="button" class="helpIcon uploadHelpIcon"
+                                                    aria-label="이미지 업로드 안내">!</button>
+                                                <div class="helpTooltip uploadHelpTooltip">
+                                                    · PNG / JPG / WEBP 업로드 가능<br>
+                                                    · 배경이 없는 이미지를 권장합니다<br>
+                                                    · 저해상도 이미지는 제작 품질이 떨어질 수 있습니다
+                                                </div>
+                                            </span>
+                                        </label>
+
+                                        <div class="uploadRow">
+                                            <button type="button" id="fileBtn" class="ghostBtn fileBtn">
+                                                이미지 업로드
+                                            </button>
+
+                                            <button type="button" id="fileDelBtn" class="dangerBtn">
+                                                삭제
+                                            </button>
+
+                                            <input type="file" id="file" accept="image/png,image/jpeg,image/webp"
+                                                hidden />
+                                        </div>
+
+                                        <span id="fileName" class="fileName">선택된 파일 없음</span>
+                                    </div>
+
+                                    <div>
+                                        <label>배경 색상 선택</label>
+
+                                        <div class="colorPick">
+                                            <button type="button" id="bgPickBtn" class="ghostBtn">배경 설정</button>
+                                            <button type="button" id="bgEyeBtn" class="iconToolBtn" aria-label="스포이드">
+                                                🎨
+                                            </button>
+                                            <span class="colorSwatch" id="bgColorSwatch" aria-hidden="true"></span>
+                                            <span class="colorValue" id="bgColorValue">#ffffff</span>
+                                            <span id="bgPickMount" class="pickrMount"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="hint">
+                                    - 가이드 색상: <b class="red">빨강=바깥선</b>, <b class="yellow">노랑=인쇄 안전선</b><br />
+                                    - 실제 제작은 <b>CMYK</b> 색상으로 제작됩니다.
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="pill">
+                                    <span class="tag">조작</span>
+                                    <b>드래그 이동</b>
+                                    <span> | </span>
+                                    <span class="tag">크기</span>
+                                    <b>모서리 핸들</b>
+                                    <span> | </span>
+                                    <span class="tag">Alt</span>
+                                    <b>중심 확대/축소</b>
+                                    <span> | </span>
+                                    <span class="tag">회전</span>
+                                    <b>상단 핸들</b>
+                                </div>
                             </div>
+
+                            <div id="canvasNotice" class="canvasNotice"></div>
 
                             <div class="editorActionBar">
                                 <button id="btnAddItem" type="button" class="secondaryActionBtn actionBtn">
                                     시안 추가
                                 </button>
                             </div>
-
-                            <div class="divider"></div>
-
-                            <div class="hint">
-                                - 가이드 색상: <b class="red">빨강=바깥선</b>, <b class="yellow">노랑=인쇄 안전선</b><br />
-                                - 실제 제작은 <b>CMYK</b> 색상으로 제작됩니다.
-                            </div>
-
-                            <div class="divider"></div>
-
-                            <div class="pill">
-                                <span class="tag">조작</span>
-                                <b>드래그 이동</b>
-                                <span> | </span>
-                                <span class="tag">크기</span>
-                                <b>모서리 핸들</b>
-                                <span> | </span>
-                                <span class="tag">Alt</span>
-                                <b>중심 확대/축소</b>
-                                <span> | </span>
-                                <span class="tag">회전</span>
-                                <b>상단 핸들</b>
-                            </div>
                         </div>
 
+                        <!-- RIGHT COLUMN IN EDITOR -->
                         <div class="canvasFrame">
                             <div id="cartList" class="cartList"></div>
 
@@ -394,15 +400,16 @@
                             <div id="msg" class="warn"></div>
                             <div id="ok" class="ok"></div>
                         </div>
+
                     </div>
                 </section>
             </div>
+
         </div>
     </div>
 
     <footer class="footer">
         <div class="footerInner">
-
             <div class="footerLeft">
                 © 2026 KidiKidi. All rights reserved.
             </div>
@@ -411,7 +418,6 @@
                 본 제작 시스템 및 디자인 툴은 KidiKidi의 자산입니다.<br>
                 무단 복제, 배포, 재사용을 금지합니다.
             </div>
-
         </div>
     </footer>
 
@@ -442,10 +448,24 @@
     <script src="./js/validation.js"></script>
     <script src="./js/tooltip.js"></script>
     <script src="./js/color-picker.js"></script>
-    <script src="./js/canvas.js"></script>
+
+    <script src="./js/canvas-core.js"></script>
+    <script src="./js/canvas-draw.js"></script>
+    <script src="./js/canvas-upload.js"></script>
+    <script src="./js/canvas-interaction.js"></script>
+
     <script src="./js/quote.js"></script>
-    <script src="./js/cart.js"></script>
-    <script src="./js/email.js"></script>
+
+    <script src="./js/cart-price.js"></script>
+    <script src="./js/cart-options.js"></script>
+    <script src="./js/cart-render.js"></script>
+    <script src="./js/cart-actions.js"></script>
+
+    <script src="./js/email-core.js"></script>
+    <script src="./js/email-summary.js"></script>
+    <script src="./js/email-attachments.js"></script>
+    <script src="./js/email-send.js"></script>
+
     <script src="./js/draft-storage.js"></script>
     <script src="./js/app.js"></script>
 
