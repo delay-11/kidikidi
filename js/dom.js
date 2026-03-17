@@ -21,6 +21,7 @@ const nameEl = $("name");
 const phoneEl = $("phone");
 const orderEl = $("orderNo");
 const emailEl = $("email");
+const orderLabelEl = $("orderLabel");
 
 /* =========================================================
  * 견적 요청 기본

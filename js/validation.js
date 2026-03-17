@@ -98,13 +98,27 @@ function validateUserInfo(showMessage = false) {
     }
   }
 
-  if (!/^[0-9]{16}$/.test(orderNo)) {
-    ok = false;
-    if (showMessage) {
-      setFieldError(
-        "order",
-        "주문번호 형식이 올바르지 않습니다. (숫자 16자리)",
-      );
+  if (quoteEnabled) {
+    // 견적 요청일 때는 주문번호 선택
+    if (orderNo && !/^[0-9]{16}$/.test(orderNo)) {
+      ok = false;
+      if (showMessage) {
+        setFieldError(
+          "order",
+          "주문번호 형식이 올바르지 않습니다. (숫자 16자리)",
+        );
+      }
+    }
+  } else {
+    // 일반 주문은 필수
+    if (!/^[0-9]{16}$/.test(orderNo)) {
+      ok = false;
+      if (showMessage) {
+        setFieldError(
+          "order",
+          "주문번호 형식이 올바르지 않습니다. (숫자 16자리)",
+        );
+      }
     }
   }
 

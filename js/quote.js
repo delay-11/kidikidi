@@ -1,4 +1,17 @@
 /* =========================================================
+ * 주문번호 입력 UI
+========================================================= */
+function updateOrderFieldUI() {
+  if (quoteEnabled) {
+    if (orderLabelEl) orderLabelEl.textContent = "주문번호 입력 (선택)";
+    if (orderEl) orderEl.placeholder = "주문번호 입력 (선택)";
+  } else {
+    if (orderLabelEl) orderLabelEl.textContent = "주문번호 *";
+    if (orderEl) orderEl.placeholder = "주문번호 16자리 입력";
+  }
+}
+
+/* =========================================================
  * 견적 추가 항목 상태 동기화
 ========================================================= */
 function syncQuoteExtrasFromUI() {
@@ -62,6 +75,8 @@ function setQuoteUI(open) {
     syncQuoteExtrasFromUI();
   }
 
+  updateOrderFieldUI();
+  updateActionLocks();
   rerenderAll();
 }
 
@@ -70,6 +85,8 @@ function setQuoteUI(open) {
 ========================================================= */
 quoteToggleEl?.addEventListener("change", () => {
   if (uiLocked) return;
+
+  clearFormNotice();
   setQuoteUI(quoteToggleEl.checked);
 });
 
@@ -77,6 +94,7 @@ quoteProdEl?.addEventListener("change", () => {
   if (uiLocked) return;
 
   quoteProd = quoteProdEl.value;
+  updateActionLocks();
   rerenderAll();
 });
 
