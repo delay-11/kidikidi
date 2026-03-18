@@ -1,106 +1,141 @@
 /* =========================================================
- * PNG 렌더
+ * 회사 메일
 ========================================================= */
-async function renderItemFinalPng(item) {
-  const size = getCanvasSize(item.profile, item.capType);
+async function sendEmailToCompany() {
+  ensureEmailJsInit();
 
-  const off = document.createElement("canvas");
-  off.width = size.w;
-  off.height = size.h;
+  const customerName = safeTrim(nameEl?.value);
+  const customerPhone = safeTrim(phoneEl?.value);
+  const customerEmail = safeTrim(emailEl?.value);
+  const orderNo = safeTrim(orderEl?.value);
 
-  const ctx = off.getContext("2d");
+  const itemsSummary = buildItemsSummary();
+  const attachments = await buildAttachments(orderNo);
 
-  ctx.fillStyle = getItemBgColor(item);
-  ctx.fillRect(0, 0, off.width, off.height);
+  const designTypeCount = itemsSummary.length;
+  const totalQty = itemsSummary.reduce(
+    (sum, it) => sum + Math.max(1, Number(it.qty || 1)),
+    0,
+  );
+  const itemsSummaryHtml = buildItemsSummaryHtml(itemsSummary);
+  const quoteSectionHtml = buildQuoteSectionHtml();
 
-  if (item.design?.imgDataUrl) {
-    const img = new Image();
+  const params = {
+    to_email: COMPANY_EMAIL,
+    from_name: customerName,
+    reply_to: customerEmail,
 
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
-      img.src = item.design.imgDataUrl;
-    });
+    customer_name: customerName,
+    customer_phone: customerPhone,
+    customer_email: customerEmail,
+    order_no: orderNo,
 
-    const scale = item.design.scale ?? 1;
-    const rot = item.design.rot ?? 0;
-    const cx = item.design.cx ?? off.width / 2;
-    const cy = item.design.cy ?? off.height / 2;
+    design_type_count: designTypeCount,
+    total_qty: totalQty,
+    items_summary_html: itemsSummaryHtml,
+    quote_section_html: quoteSectionHtml,
 
-    const w = img.width * scale;
-    const h = img.height * scale;
+    items_json: JSON.stringify(itemsSummary, null, 2),
 
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(rot);
-    ctx.drawImage(img, -w / 2, -h / 2, w, h);
-    ctx.restore();
+    biz_file_dataurl: bizFileDataUrl || "",
+    biz_file_filename: getBizFileName(),
+
+    ...attachments,
+  };
+
+  try {
+    const result = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      params,
+    );
+
+    return { ok: true, itemsSummary, result };
+  } catch (err) {
+    console.error("회사 메일 전송 실패:", err);
+    return { ok: false, itemsSummary: [], result: null };
   }
-
-  return off.toDataURL("image/png");
 }
 
 /* =========================================================
- * ZIP 생성
+ * 고객 견적 메일
 ========================================================= */
-async function buildZip(designs, orderNo) {
-  const zip = new JSZip();
-  const folder = zip.folder(`${orderNo}_designs`);
+async function sendQuoteEmailToCustomer(itemsSummary) {
+  ensureEmailJsInit();
 
-  designs.forEach((d) => {
-    const base64 = d.dataUrl.split(",")[1];
-    folder.file(d.filename, base64, { base64: true });
-  });
+  const customerEmail = safeTrim(emailEl?.value);
+  const customerName = safeTrim(nameEl?.value);
+  const orderNo = safeTrim(orderEl?.value);
 
-  const blob = await zip.generateAsync({ type: "blob" });
+  const designTypeCount = itemsSummary.length;
+  const totalQty = itemsSummary.reduce(
+    (sum, it) => sum + Math.max(1, Number(it.qty || 1)),
+    0,
+  );
+  const itemsSummaryHtml = buildQuoteItemsSummaryHtml(itemsSummary);
 
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsDataURL(blob);
-  });
+  const params = {
+    to_email: customerEmail,
+    from_name: "KidiKidi",
+
+    customer_name: customerName,
+    order_no: orderNo,
+
+    design_type_count: designTypeCount,
+    total_qty: totalQty,
+    items_summary_html: itemsSummaryHtml,
+
+    subtotal_price: cartSubtotal().toLocaleString(),
+    total_price: cartTotal().toLocaleString(),
+
+    items_json: JSON.stringify(itemsSummary, null, 2),
+  };
+
+  try {
+    const result = await emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_QUOTE_TEMPLATE_ID,
+      params,
+    );
+
+    return { ok: true, result };
+  } catch (err) {
+    console.error("고객 견적 메일 전송 실패:", err);
+    return { ok: false, result: null };
+  }
 }
 
 /* =========================================================
- * 첨부파일 생성
+ * 전체 메일 전송
 ========================================================= */
-async function buildAttachments(orderNo) {
-  const designs = [];
-
-  for (const it of cartItems) {
-    if (!it.design?.imgDataUrl) continue;
-
-    const png = await renderItemFinalPng(it);
-
-    const name = [
-      safeFilePart(orderNo),
-      safeFilePart(it.profile),
-      safeFilePart(it.capType),
-    ].join("_");
-
-    designs.push({
-      filename: `${name}.png`,
-      dataUrl: png,
-    });
+async function sendOrderEmails() {
+  if (!cartItems?.length) {
+    setMsg("시안이 없습니다.");
+    return false;
   }
 
-  if (designs.length >= 10) {
-    const zipData = await buildZip(designs, orderNo);
+  setMsg("메일 전송중...");
 
-    return {
-      attachment_mode: "zip",
-      zip_filename: `${orderNo}_designs.zip`,
-      zip_file: zipData,
-    };
+  try {
+    const company = await sendEmailToCompany();
+    if (!company.ok) {
+      setMsg("회사 메일 전송 실패");
+      return false;
+    }
+
+    await wait(1200);
+
+    const customer = await sendQuoteEmailToCustomer(company.itemsSummary);
+    if (!customer.ok) {
+      setMsg("고객 견적 메일 전송 실패");
+      return false;
+    }
+
+    setMsg("메일 전송 완료");
+    return true;
+  } catch (err) {
+    console.error(err);
+    setMsg("메일 전송 실패");
+    return false;
   }
-
-  const obj = { attachment_mode: "files" };
-
-  designs.forEach((d, i) => {
-    const idx = i + 1;
-    obj[`design_${idx}_filename`] = d.filename;
-    obj[`design_${idx}_file`] = d.dataUrl;
-  });
-
-  return obj;
 }
