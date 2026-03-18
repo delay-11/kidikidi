@@ -110,3 +110,55 @@
     border: 2px solid var(--acc);
     background: #fffdf5;
 }
+
+/* =========================================================
+   장바구니 버튼 (전용)
+========================================================= */
+
+.cartActions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cartActions .cartBtn {
+    width: 32px;
+    min-width: 32px;
+    height: 32px;
+    min-height: 32px;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--txt);
+
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.cartActions .cartBtn:hover {
+    background: #f8fafc;
+}
+
+.cartActions .cartBtn:active {
+    transform: scale(0.95);
+}
+
+/* 삭제만 강조 */
+.cartActions .cartBtn.delete {
+    color: var(--bad);
+}
+
+.cartActions .cartBtn.delete:hover {
+    background: rgba(217, 45, 32, 0.06);
+    border-color: rgba(217, 45, 32, 0.2);
+}

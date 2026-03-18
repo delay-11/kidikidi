@@ -50,10 +50,9 @@ function renderCart() {
   <div class="cartTop">
 
     <div class="cartThumb">
-      ${
-        it.design && it.design.imgDataUrl
-          ? `<img src="${it.design.imgDataUrl}" />`
-          : `<div class="thumbEmpty" style="background:${bg}"></div>`
+      ${it.design && it.design.imgDataUrl
+        ? `<img src="${it.design.imgDataUrl}" />`
+        : `<div class="thumbEmpty" style="background:${bg}"></div>`
       }
     </div>
 
@@ -70,10 +69,10 @@ function renderCart() {
     </div>
 
     <div class="cartActions">
-      <button class="miniBtn" type="button" data-act="minus">-</button>
-      <button class="miniBtn" type="button" data-act="plus">+</button>
-      <button class="miniBtn" type="button" data-act="del">x</button>
-    </div>
+<button class="iconBtn cartBtn minus" type="button" data-act="minus">−</button>
+<button class="iconBtn cartBtn plus" type="button" data-act="plus">+</button>
+<button class="iconBtn cartBtn delete" type="button" data-act="del">×</button>
+</div>
 
   </div>
 `;

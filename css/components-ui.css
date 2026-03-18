@@ -78,6 +78,20 @@ button:disabled {
     font-size: var(--fs-12);
 }
 
+/* 업로드 버튼 묶음 */
+.uploadRow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#fileBtn,
+#fileDelBtn {
+    width: fit-content !important;
+    min-width: 0;
+    flex: 0 0 auto;
+}
+
 /* =========================================================
    버튼 묶음
 ========================================================= */
