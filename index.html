@@ -46,7 +46,7 @@
             </div>
 
             <div class="headerVersion">
-                v1.1
+                v1.0
             </div>
 
         </div>
@@ -84,13 +84,13 @@
                             </div>
                             <div>
                                 <label>핸드폰번호 *</label>
-                                <input id="phone" placeholder="010-1234-5678" />
+                                <input id="phone" placeholder="01012345678" />
                             </div>
                         </div>
 
                         <div class="row">
                             <div>
-                                <label>주문번호 *</label>
+                                <label id="orderLabel">주문번호 *</label>
                                 <input id="orderNo" placeholder="주문번호 16자리" />
                             </div>
                             <div>
@@ -100,112 +100,6 @@
                         </div>
 
                         <div class="divider"></div>
-
-                        <!-- 견적서 요청 토글 -->
-                        <div class="row1">
-                            <label class="inlineCheck">
-                                <input type="checkbox" id="quoteToggle" />
-                                견적서 요청
-                            </label>
-
-                            <div id="quoteBox" style="display:none;">
-                                <div class="row">
-                                    <div>
-                                        <label>제작 일정 선택 *</label>
-                                        <select id="quoteProd">
-                                            <option value="none">일반 제작</option>
-                                            <option value="10d">빠른제작(+20%) / 영업일 10일내 출고</option>
-                                            <option value="5d">긴급제작(+30%) / 영업일 5일내 출고</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label>희망 납기일 *</label>
-                                        <input id="quoteDue" type="date" />
-                                    </div>
-                                </div>
-
-                                <div style="margin-top:12px;">
-                                    <label>사업자등록증 업로드 *</label>
-                                    <div class="fileUpload">
-                                        <input id="bizFile" type="file" accept="image/*,.pdf" hidden />
-                                        <button type="button" id="bizFileBtn" class="ghostBtn">파일 선택</button>
-                                        <span id="bizFileName" class="fileName">선택된 파일 없음</span>
-                                    </div>
-                                </div>
-
-                                <div class="divider"></div>
-
-                                <div class="row">
-                                    <div>
-                                        <label>키캡 키링 수량</label>
-                                        <input id="keyringQty" type="number" min="0" value="0" />
-                                    </div>
-                                    <div>
-                                        <label>LED 유무</label>
-                                        <select id="keyringLed">
-                                            <option value="none">선택 안 함</option>
-                                            <option value="yes">있음</option>
-                                            <option value="no">없음</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div>
-                                        <label>키링 색상</label>
-                                        <select id="keyringColor">
-                                            <option value="black">블랙</option>
-                                            <option value="white">투명</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label>키링 종류</label>
-                                        <select id="keyringSlots">
-                                            <option value="1">1구</option>
-                                            <option value="2">2구</option>
-                                            <option value="3">3구</option>
-                                            <option value="4">4구</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="divider"></div>
-
-                                <div class="row">
-                                    <div>
-                                        <label>포장 요구사항</label>
-                                        <select id="packType">
-                                            <option value="none">선택 안 함</option>
-                                            <option value="opp">개별 OPP 포장</option>
-                                            <option value="byDesign">각 시안별 묶음 포장</option>
-                                            <option value="set">세트 포장</option>
-                                            <option value="case">케이스 제작</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label>추가 옵션</label>
-                                        <div class="row1">
-                                            <label class="inlineCheck" style="margin:0;">
-                                                <input type="checkbox" id="packSheet" />
-                                                대지 포함
-                                            </label>
-                                            <label class="inlineCheck" style="margin:0;">
-                                                <input type="checkbox" id="packSticker" />
-                                                스티커 제작
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div style="margin-top:12px;">
-                                    <label>기타 유의사항</label>
-                                    <textarea id="quoteNotes" rows="4"
-                                        placeholder="예) 포장 시 주의사항 / 구성 관련 요청 / 참고사항 등"></textarea>
-                                </div>
-
-                                <div class="divider"></div>
-                            </div>
-                        </div>
 
                         <div class="row">
                             <div>
@@ -241,13 +135,13 @@
                                 <label>레이저 각인 (OEM)</label>
                                 <select id="laser">
                                     <option value="none">없음</option>
-                                    <option value="black">블랙 (+800)</option>
-                                    <option value="white">화이트 (+1,800)</option>
+                                    <option value="black">블랙</option>
+                                    <option value="white">화이트</option>
                                 </select>
                             </div>
                             <div>
-                                <label>수량 *</label>
-                                <input id="qty" type="number" min="1" value="1" />
+                                <!-- <label>수량 *</label> -->
+                                <input id="qty" type="hidden" value="1" />
                             </div>
                         </div>
 
@@ -304,34 +198,46 @@
                                                     aria-label="이미지 업로드 안내">!</button>
                                                 <div class="helpTooltip uploadHelpTooltip">
                                                     · PNG / JPG / WEBP 업로드 가능<br>
-                                                    · 배경이 없는 이미지를 권장합니다<br>
+                                                    · <b>배경이 없는 이미지를 권장</b>합니다<br>
                                                     · 저해상도 이미지는 제작 품질이 떨어질 수 있습니다
                                                 </div>
                                             </span>
                                         </label>
 
                                         <div class="uploadRow">
-                                            <button type="button" id="fileBtn" class="ghostBtn fileBtn">
+                                            <button type="button" id="fileBtn" class="ghostBtn fileBtn" disabled>
                                                 이미지 업로드
                                             </button>
 
-                                            <button type="button" id="fileDelBtn" class="dangerBtn">
+                                            <button type="button" id="fileDelBtn" class="dangerBtn" disabled>
                                                 삭제
                                             </button>
 
-                                            <input type="file" id="file" accept="image/png,image/jpeg,image/webp"
-                                                hidden />
+                                            <input type="file" id="file" accept="image/png,image/jpeg,image/webp" hidden
+                                                disabled />
                                         </div>
 
                                         <span id="fileName" class="fileName">선택된 파일 없음</span>
                                     </div>
 
                                     <div>
-                                        <label>배경 색상 선택</label>
+                                        <label>배경 색상 선택
+
+                                            <span class="helpWrap uploadHelpWrap">
+                                                <button type="button" class="helpIcon uploadHelpIcon"
+                                                    aria-label="스포이드 안내">!</button>
+                                                <div class="helpTooltip uploadHelpTooltip">
+                                                    · 스포이드는 <b>웹/PC 환경에서만</b> 사용 가능합니다<br>
+                                                    · 모바일에서는 색상 직접 입력을 이용해주세요
+                                                </div>
+                                            </span>
+                                        </label>
 
                                         <div class="colorPick">
-                                            <button type="button" id="bgPickBtn" class="ghostBtn">배경 설정</button>
-                                            <button type="button" id="bgEyeBtn" class="iconToolBtn" aria-label="스포이드">
+                                            <button type="button" id="bgPickBtn" class="ghostBtn" disabled>배경
+                                                설정</button>
+                                            <button type="button" id="bgEyeBtn" class="iconToolBtn" aria-label="스포이드"
+                                                disabled>
                                                 🎨
                                             </button>
                                             <span class="colorSwatch" id="bgColorSwatch" aria-hidden="true"></span>
@@ -340,6 +246,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                <div id="canvasNotice" class="canvasNotice"></div>
 
                                 <div class="divider"></div>
 
@@ -365,10 +272,8 @@
                                 </div>
                             </div>
 
-                            <div id="canvasNotice" class="canvasNotice"></div>
-
                             <div class="editorActionBar">
-                                <button id="btnAddItem" type="button" class="secondaryActionBtn actionBtn">
+                                <button id="btnAddItem" type="button" class="secondaryActionBtn actionBtn" disabled>
                                     시안 추가
                                 </button>
                             </div>
@@ -381,20 +286,14 @@
                             <br>
 
                             <div class="btns">
-                                <button id="btnConfirm" type="button" class="confirmBtn actionBtn">시안 확정</button>
+                                <button id="btnConfirm" type="button" class="confirmBtn actionBtn" disabled>시안
+                                    확정</button>
                             </div>
 
                             <div class="divider"></div>
 
                             <div class="pill">
                                 <span class="tag">추가된 시안</span><b id="cartCount">0</b>개
-                                <span class="tag">총액</span><b id="cartTotal">0원</b>
-                            </div>
-
-                            <br>
-
-                            <div class="hint">
-                                * 배송비 미포함
                             </div>
 
                             <div id="msg" class="warn"></div>
@@ -448,25 +347,19 @@
     <script src="./js/validation.js"></script>
     <script src="./js/tooltip.js"></script>
     <script src="./js/color-picker.js"></script>
-
     <script src="./js/canvas-core.js"></script>
     <script src="./js/canvas-draw.js"></script>
-    <script src="./js/canvas-upload.js"></script>
     <script src="./js/canvas-interaction.js"></script>
-
-    <script src="./js/quote.js"></script>
-
-    <script src="./js/cart-price.js"></script>
-    <script src="./js/cart-options.js"></script>
-    <script src="./js/cart-render.js"></script>
+    <script src="./js/canvas-upload.js"></script>
     <script src="./js/cart-actions.js"></script>
-
+    <script src="./js/cart-options.js"></script>
+    <script src="./js/cart-price.js"></script>
+    <script src="./js/cart-render.js"></script>
+    <script src="./js/email-attachments.js"></script>
     <script src="./js/email-core.js"></script>
     <script src="./js/email-summary.js"></script>
-    <script src="./js/email-attachments.js"></script>
     <script src="./js/email-send.js"></script>
-
-    <script src="./js/draft-storage.js"></script>
+    <script src="./js/modal.js"></script>
     <script src="./js/app.js"></script>
 
 </body>
