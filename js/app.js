@@ -175,6 +175,8 @@ async function confirmOrder() {
   if (uiLocked) return false;
   if (!validateCanConfirm?.(true)) return false;
 
+  let confirmed = false;
+
   uiLocked = true;
   if (btnConfirmEl) btnConfirmEl.disabled = true;
   if (confirmModalOkEl) confirmModalOkEl.disabled = true;
@@ -185,27 +187,35 @@ async function confirmOrder() {
     const ok = await sendOrderEmails();
     if (!ok) return false;
 
+    const orderNo = safeTrim(orderEl?.value || "");
+    if (typeof markOrderConfirmed === "function") {
+      markOrderConfirmed(orderNo);
+    }
+
     setMsg?.("");
     setOk?.("시안이 정상적으로 접수되었습니다.");
-
-    if (typeof markDraftConfirmed === "function") {
-      markDraftConfirmed();
-    }
 
     if (typeof closeConfirmModal === "function") {
       closeConfirmModal();
     }
 
+    if (typeof applyConfirmedLockIfNeeded === "function") {
+      await applyConfirmedLockIfNeeded(true);
+    }
+
+    confirmed = true;
     return true;
   } catch (err) {
     console.error(err);
     setMsg?.("시안 접수 중 오류가 발생했습니다.");
     return false;
   } finally {
-    uiLocked = false;
-    if (btnConfirmEl) btnConfirmEl.disabled = false;
-    if (confirmModalOkEl) confirmModalOkEl.disabled = false;
-    updateActionLocks?.();
+    if (!confirmed) {
+      uiLocked = false;
+      if (btnConfirmEl) btnConfirmEl.disabled = false;
+      if (confirmModalOkEl) confirmModalOkEl.disabled = false;
+      updateActionLocks?.();
+    }
   }
 }
 
