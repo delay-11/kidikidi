@@ -47,12 +47,8 @@ function buildItemSummaryText(item, index, items = cartItems) {
   const lines = [
     `[시안 ${index + 1}]`,
     `파일명: ${getItemDisplayName(item, index, items)}`,
-    `프로파일: ${safeTrim(item?.profile) || "-"}`,
-    `규격: ${safeTrim(item?.capType) || "-"}`,
-    `레이저: ${getLaserText(item?.profile, item?.laser)}`,
     `수량: ${numberWithCommas(qty)}개`,
-    `배경색: ${item?.bgSet ? safeTrim(item?.bgColor || "#ffffff") : "없음"}`,
-    `이미지 포함: ${item?.design?.imgDataUrl ? "예" : "아니오"}`,
+    `레이저: ${getLaserText(item?.profile, item?.laser)}`,
   ];
 
   return lines.join("\n");
@@ -92,34 +88,17 @@ function buildItemSummaryHtml(item, index, items = cartItems) {
           <td style="padding:4px 0;">${esc(getItemDisplayName(item, index, items))}</td>
         </tr>
         <tr>
-          <td style="padding:4px 0;font-weight:700;">프로파일</td>
-          <td style="padding:4px 0;">${esc(item?.profile || "-")}</td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;font-weight:700;">규격</td>
-          <td style="padding:4px 0;">${esc(item?.capType || "-")}</td>
+          <td style="padding:4px 0;font-weight:700;">수량</td>
+          <td style="padding:4px 0;">${esc(numberWithCommas(qty))}개</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">레이저</td>
           <td style="padding:4px 0;">${esc(getLaserText(item?.profile, item?.laser))}</td>
         </tr>
-        <tr>
-          <td style="padding:4px 0;font-weight:700;">수량</td>
-          <td style="padding:4px 0;">${esc(numberWithCommas(qty))}개</td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;font-weight:700;">배경색</td>
-          <td style="padding:4px 0;">${item?.bgSet ? esc(item?.bgColor || "#ffffff") : "없음"}</td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;font-weight:700;">이미지 포함</td>
-          <td style="padding:4px 0;">${item?.design?.imgDataUrl ? "예" : "아니오"}</td>
-        </tr>
       </table>
     </div>
   `;
 }
-
 /* =========================================================
  * 전체 시안 요약 HTML
 ========================================================= */
