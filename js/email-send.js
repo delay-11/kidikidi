@@ -20,7 +20,7 @@ function getTotalQty(items) {
   if (!Array.isArray(items) || !items.length) return 0;
 
   return items.reduce((sum, item) => {
-    return sum + Number(item.quantity || 1);
+    return sum + Number(item.qty || 1);
   }, 0);
 }
 

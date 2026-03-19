@@ -4,50 +4,83 @@
 function getItemDisplayName(item, index = 0, items = cartItems) {
   const orderNo = safeTrim(orderEl?.value) || "order";
   const profile = safeFilePart(item?.profile || "-");
-  const capType = safeFilePart(item?.capType || safeTrim(capTypeEl?.value) || "-");
+  const capType = safeFilePart(
+    item?.capType || safeTrim(capTypeEl?.value) || "-"
+  );
 
-  const sameGroupItems = (Array.isArray(items) ? items : []).filter((it) => {
-    return (
-      safeFilePart(it?.profile || "-") === profile &&
-      safeFilePart(it?.capType || "-") === capType
-    );
-  });
+  let seq = 1;
 
-  const currentIndexInGroup =
-    sameGroupItems.findIndex((it) => it === item) + 1 || 1;
+  if (Array.isArray(items) && items.length) {
+    let sameGroupCount = 0;
 
-  const seq = String(currentIndexInGroup).padStart(2, "0");
+    for (const it of items) {
+      const sameProfile =
+        safeFilePart(it?.profile || "-") === profile;
+      const sameCapType =
+        safeFilePart(it?.capType || "-") === capType;
 
-  return `${safeFilePart(orderNo)}_${profile}_${capType}_${seq}.png`;
+      if (!sameProfile || !sameCapType) continue;
+
+      sameGroupCount += 1;
+
+      if (it === item) {
+        seq = sameGroupCount;
+        break;
+      }
+    }
+  }
+
+  return `${safeFilePart(orderNo)}_${profile}_${capType}_${String(seq).padStart(
+    2,
+    "0"
+  )}.png`;
 }
 
 /* =========================================================
  * 시안 1개 요약 텍스트
 ========================================================= */
-function buildItemSummaryText(item, index) {
+function buildItemSummaryText(item, index, items = cartItems) {
   if (!item) return "";
+
+  const qty = Math.max(1, toInt(item?.qty ?? 1, 1));
 
   const lines = [
     `[시안 ${index + 1}]`,
-    `파일명: ${getItemDisplayName(item, index, cartItems)}`,
-    `프로파일: ${safeTrim(item.profile) || "-"}`,
-    `규격: ${safeTrim(item.capType) || "-"}`,
-    `레이저: ${getLaserText(item.profile, item.laser)}`,
-    `수량: ${numberWithCommas(Math.max(1, toInt(item.qty ?? 1, 1)))}개`,
-    `배경색: ${item.bgSet ? safeTrim(item.bgColor || "#ffffff") : "없음"}`,
-    `이미지 포함: ${item.design?.imgDataUrl ? "예" : "아니오"}`,
+    `파일명: ${getItemDisplayName(item, index, items)}`,
+    `프로파일: ${safeTrim(item?.profile) || "-"}`,
+    `규격: ${safeTrim(item?.capType) || "-"}`,
+    `레이저: ${getLaserText(item?.profile, item?.laser)}`,
+    `수량: ${numberWithCommas(qty)}개`,
+    `배경색: ${item?.bgSet ? safeTrim(item?.bgColor || "#ffffff") : "없음"}`,
+    `이미지 포함: ${item?.design?.imgDataUrl ? "예" : "아니오"}`,
   ];
 
   return lines.join("\n");
 }
 
 /* =========================================================
+ * 전체 시안 요약 텍스트
+========================================================= */
+function buildItemsSummaryText(items = cartItems) {
+  if (!Array.isArray(items) || !items.length) {
+    return "추가된 시안이 없습니다.";
+  }
+
+  const blocks = items.map((item, index) =>
+    buildItemSummaryText(item, index, items)
+  );
+
+  return [...blocks, "", `총 시안 수: ${items.length}개`].join("\n\n");
+}
+
+/* =========================================================
  * 시안 1개 요약 HTML
 ========================================================= */
-function buildItemSummaryHtml(item, index) {
+function buildItemSummaryHtml(item, index, items = cartItems) {
   if (!item) return "";
 
   const esc = (v) => escapeHtml(String(v ?? "-"));
+  const qty = Math.max(1, toInt(item?.qty ?? 1, 1));
 
   return `
     <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:12px;">
@@ -56,31 +89,31 @@ function buildItemSummaryHtml(item, index) {
       <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;">
         <tr>
           <td style="padding:4px 0;width:120px;font-weight:700;">파일명</td>
-          <td style="padding:4px 0;">${esc(getItemDisplayName(item, index, cartItems))}</td>
+          <td style="padding:4px 0;">${esc(getItemDisplayName(item, index, items))}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">프로파일</td>
-          <td style="padding:4px 0;">${esc(item.profile || "-")}</td>
+          <td style="padding:4px 0;">${esc(item?.profile || "-")}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">규격</td>
-          <td style="padding:4px 0;">${esc(item.capType || "-")}</td>
+          <td style="padding:4px 0;">${esc(item?.capType || "-")}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">레이저</td>
-          <td style="padding:4px 0;">${esc(getLaserText(item.profile, item.laser))}</td>
+          <td style="padding:4px 0;">${esc(getLaserText(item?.profile, item?.laser))}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">수량</td>
-          <td style="padding:4px 0;">${esc(numberWithCommas(Math.max(1, toInt(item.qty ?? 1, 1))))}개</td>
+          <td style="padding:4px 0;">${esc(numberWithCommas(qty))}개</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">배경색</td>
-          <td style="padding:4px 0;">${item.bgSet ? esc(item.bgColor || "#ffffff") : "없음"}</td>
+          <td style="padding:4px 0;">${item?.bgSet ? esc(item?.bgColor || "#ffffff") : "없음"}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">이미지 포함</td>
-          <td style="padding:4px 0;">${item.design?.imgDataUrl ? "예" : "아니오"}</td>
+          <td style="padding:4px 0;">${item?.design?.imgDataUrl ? "예" : "아니오"}</td>
         </tr>
       </table>
     </div>
@@ -102,7 +135,7 @@ function buildItemsSummaryHtml(items = cartItems) {
   }
 
   const body = items
-    .map((item, index) => buildItemSummaryHtml(item, index))
+    .map((item, index) => buildItemSummaryHtml(item, index, items))
     .join("");
 
   return `
