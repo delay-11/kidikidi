@@ -1,23 +1,9 @@
 /* =========================================================
- * 시안 첨부 zip 파일명
-========================================================= */
-function getDesignZipFilename() {
-  const orderNo = safeTrim(orderEl?.value) || "order";
-  return `${orderNo}_designs.zip`;
-}
-
-/* =========================================================
- * 시안 첨부 zip 생성 파라미터
+ * 시안 첨부 파라미터 생성
 ========================================================= */
 async function buildDesignAttachmentParams() {
   const orderNo = safeTrim(orderEl?.value) || "order";
-  const zipBase64 = await buildZipFromDesigns(cartItems, orderNo);
-
-  return {
-    attachment_filename: `${orderNo}_designs`,
-    attachment_extension: "zip",
-    attachment_base64: zipBase64,
-  };
+  return await buildAttachments(orderNo);
 }
 
 /* =========================================================
@@ -56,9 +42,7 @@ async function buildDesignCompanyEmailParams() {
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
 
-    attachment_filename: attachment.attachment_filename,
-    attachment_extension: attachment.attachment_extension,
-    attachment_base64: attachment.attachment_base64,
+    ...attachment,
   };
 }
 
@@ -78,9 +62,7 @@ async function buildDesignCustomerEmailParams() {
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
 
-    attachment_filename: attachment.attachment_filename,
-    attachment_extension: attachment.attachment_extension,
-    attachment_base64: attachment.attachment_base64,
+    ...attachment,
   };
 }
 

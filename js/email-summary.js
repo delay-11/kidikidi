@@ -1,12 +1,24 @@
 /* =========================================================
  * 시안 1개 표시명
 ========================================================= */
-function getItemDisplayName(item) {
+function getItemDisplayName(item, index = 0, items = cartItems) {
   const orderNo = safeTrim(orderEl?.value) || "order";
-  const capType = safeTrim(item?.capType) || safeTrim(capTypeEl?.value) || "-";
-  const qty = Math.max(1, toInt(item?.qty ?? 1, 1));
+  const profile = safeFilePart(item?.profile || "-");
+  const capType = safeFilePart(item?.capType || safeTrim(capTypeEl?.value) || "-");
 
-  return `${orderNo}-${capType} (${qty}개)`;
+  const sameGroupItems = (Array.isArray(items) ? items : []).filter((it) => {
+    return (
+      safeFilePart(it?.profile || "-") === profile &&
+      safeFilePart(it?.capType || "-") === capType
+    );
+  });
+
+  const currentIndexInGroup =
+    sameGroupItems.findIndex((it) => it === item) + 1 || 1;
+
+  const seq = String(currentIndexInGroup).padStart(2, "0");
+
+  return `${safeFilePart(orderNo)}_${profile}_${capType}_${seq}.png`;
 }
 
 /* =========================================================
@@ -17,29 +29,16 @@ function buildItemSummaryText(item, index) {
 
   const lines = [
     `[시안 ${index + 1}]`,
-    `파일명: ${getItemDisplayName(item)}`,
+    `파일명: ${getItemDisplayName(item, index, cartItems)}`,
     `프로파일: ${safeTrim(item.profile) || "-"}`,
     `규격: ${safeTrim(item.capType) || "-"}`,
     `레이저: ${getLaserLabel(item.laser)}`,
     `수량: ${numberWithCommas(Math.max(1, toInt(item.qty ?? 1, 1)))}개`,
     `배경색: ${item.bgSet ? safeTrim(item.bgColor || "#ffffff") : "없음"}`,
-    `이미지 포함: ${item.dataUrl ? "예" : "아니오"}`,
+    `이미지 포함: ${item.design?.imgDataUrl ? "예" : "아니오"}`,
   ];
 
   return lines.join("\n");
-}
-
-/* =========================================================
- * 전체 시안 요약 텍스트
-========================================================= */
-function buildItemsSummaryText(items = cartItems) {
-  if (!Array.isArray(items) || !items.length) {
-    return "추가된 시안이 없습니다.";
-  }
-
-  const blocks = items.map((item, index) => buildItemSummaryText(item, index));
-
-  return [...blocks, "", `총 시안 수: ${items.length}개`].join("\n\n");
 }
 
 /* =========================================================
@@ -57,7 +56,7 @@ function buildItemSummaryHtml(item, index) {
       <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;">
         <tr>
           <td style="padding:4px 0;width:120px;font-weight:700;">파일명</td>
-          <td style="padding:4px 0;">${esc(getItemDisplayName(item))}</td>
+          <td style="padding:4px 0;">${esc(getItemDisplayName(item, index, cartItems))}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">프로파일</td>
@@ -81,7 +80,7 @@ function buildItemSummaryHtml(item, index) {
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">이미지 포함</td>
-          <td style="padding:4px 0;">${item.dataUrl ? "예" : "아니오"}</td>
+          <td style="padding:4px 0;">${item.design?.imgDataUrl ? "예" : "아니오"}</td>
         </tr>
       </table>
     </div>

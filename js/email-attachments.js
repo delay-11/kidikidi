@@ -88,23 +88,11 @@ async function buildAttachments(orderNo) {
     });
   }
 
-  if (designs.length >= 10) {
-    const zipData = await buildZip(designs, orderNo);
+  const zipData = await buildZip(designs, orderNo);
 
-    return {
-      attachment_mode: "zip",
-      zip_filename: `${orderNo}_designs.zip`,
-      zip_file: zipData,
-    };
-  }
-
-  const obj = { attachment_mode: "files" };
-
-  designs.forEach((d, i) => {
-    const idx = i + 1;
-    obj[`design_${idx}_filename`] = d.filename;
-    obj[`design_${idx}_file`] = d.dataUrl;
-  });
-
-  return obj;
+  return {
+    attachment_mode: "zip",
+    zip_filename: `${orderNo}_designs.zip`,
+    zip_file: zipData,
+  };
 }
