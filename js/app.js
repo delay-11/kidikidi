@@ -216,6 +216,13 @@ async function initDesignPage() {
   if (typeof initPickr === "function") initPickr();
   if (typeof initProfileOptions === "function") initProfileOptions();
 
+  const orderFromUrl =
+    typeof getOrderFromUrl === "function" ? getOrderFromUrl() : "";
+
+  if (orderEl && orderFromUrl) {
+    orderEl.value = orderFromUrl.replace(/[^0-9]/g, "").slice(0, 16);
+  }
+
   bindCustomerFieldEvents();
   bindDesignActionEvents();
 
