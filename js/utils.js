@@ -70,6 +70,12 @@ function safeTrim(v) {
   return String(v ?? "").trim();
 }
 
+function numberWithCommas(v) {
+  const n = Number(v ?? 0);
+  if (!Number.isFinite(n)) return "0";
+  return n.toLocaleString("ko-KR");
+}
+
 /* =========================================================
  * 파일 / 데이터 변환
 ========================================================= */
