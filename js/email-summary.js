@@ -32,7 +32,7 @@ function buildItemSummaryText(item, index) {
     `파일명: ${getItemDisplayName(item, index, cartItems)}`,
     `프로파일: ${safeTrim(item.profile) || "-"}`,
     `규격: ${safeTrim(item.capType) || "-"}`,
-    `레이저: ${getLaserLabel(item.laser)}`,
+    `레이저: ${getLaserText(item.profile, item.laser)}`,
     `수량: ${numberWithCommas(Math.max(1, toInt(item.qty ?? 1, 1)))}개`,
     `배경색: ${item.bgSet ? safeTrim(item.bgColor || "#ffffff") : "없음"}`,
     `이미지 포함: ${item.design?.imgDataUrl ? "예" : "아니오"}`,
@@ -68,7 +68,7 @@ function buildItemSummaryHtml(item, index) {
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">레이저</td>
-          <td style="padding:4px 0;">${esc(getLaserLabel(item.laser))}</td>
+          <td style="padding:4px 0;">${esc(getLaserText(item.profile, item.laser))}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">수량</td>
