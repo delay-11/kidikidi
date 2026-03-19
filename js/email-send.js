@@ -21,35 +21,40 @@ async function buildDesignAttachmentParams() {
 }
 
 /* =========================================================
+ * 시안 종류 수
+========================================================= */
+function getDesignTypeCount(items) {
+  return Array.isArray(items) ? items.length : 0;
+}
+
+/* =========================================================
+ * 총 주문 수량
+========================================================= */
+function getTotalQty(items) {
+  if (!Array.isArray(items) || !items.length) return 0;
+
+  return items.reduce((sum, item) => {
+    return sum + Number(item.quantity || 1);
+  }, 0);
+}
+
+/* =========================================================
  * 회사 발송용 메일 파라미터
 ========================================================= */
 async function buildDesignCompanyEmailParams() {
   const orderNo = safeTrim(orderEl?.value) || "";
-  const total = typeof cartTotal === "function" ? cartTotal() : 0;
   const attachment = await buildDesignAttachmentParams();
 
   return {
     to_email: COMPANY_EMAIL,
 
     customer_name: safeTrim(nameEl?.value),
-    customer_phone: safeTrim(phoneEl?.value),
     customer_order_no: orderNo,
     customer_email: safeTrim(emailEl?.value),
 
-    summary_text: buildItemsSummaryText(cartItems),
-    summary_html: `
-      ${buildCustomerSummaryHtml()}
-      <div style="height:16px;"></div>
-      ${buildItemsSummaryHtml(cartItems)}
-      <div style="height:16px;"></div>
-      <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.7;color:#111;">
-        <b>총액</b> : ${numberWithCommas(total)}원
-      </div>
-    `,
-
-    total_price: String(total),
-    total_price_text: `${numberWithCommas(total)}원`,
-    cart_count: String(cartItems.length),
+    design_type_count: String(getDesignTypeCount(cartItems)),
+    total_qty: String(getTotalQty(cartItems)),
+    items_summary_html: buildItemsSummaryHtml(cartItems),
 
     attachment_filename: attachment.attachment_filename,
     attachment_extension: attachment.attachment_extension,
@@ -60,32 +65,22 @@ async function buildDesignCompanyEmailParams() {
 /* =========================================================
  * 고객 발송용 메일 파라미터
 ========================================================= */
-function buildDesignCustomerEmailParams() {
+async function buildDesignCustomerEmailParams() {
   const orderNo = safeTrim(orderEl?.value) || "-";
-  const total = typeof cartTotal === "function" ? cartTotal() : 0;
+  const attachment = await buildDesignAttachmentParams();
 
   return {
     to_email: safeTrim(emailEl?.value),
     customer_name: safeTrim(nameEl?.value),
     customer_order_no: orderNo,
-    summary_text: buildItemsSummaryText(cartItems),
-    summary_html: `
-      <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.7;color:#111;">
-        <p style="margin:0 0 12px;">시안이 정상적으로 접수되었습니다.</p>
-        <p style="margin:0 0 12px;">주문번호: <b>${escapeHtml(orderNo)}</b></p>
-      </div>
 
-      ${buildItemsSummaryHtml(cartItems)}
+    design_type_count: String(getDesignTypeCount(cartItems)),
+    total_qty: String(getTotalQty(cartItems)),
+    items_summary_html: buildItemsSummaryHtml(cartItems),
 
-      <div style="height:16px;"></div>
-
-      <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.7;color:#111;">
-        <b>총액</b> : ${numberWithCommas(total)}원
-      </div>
-    `,
-    total_price: String(total),
-    total_price_text: `${numberWithCommas(total)}원`,
-    cart_count: String(cartItems.length),
+    attachment_filename: attachment.attachment_filename,
+    attachment_extension: attachment.attachment_extension,
+    attachment_base64: attachment.attachment_base64,
   };
 }
 
@@ -114,7 +109,7 @@ async function sendDesignToCustomer() {
   const customerEmail = safeTrim(emailEl?.value);
   if (!customerEmail) return true;
 
-  const params = buildDesignCustomerEmailParams();
+  const params = await buildDesignCustomerEmailParams();
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,

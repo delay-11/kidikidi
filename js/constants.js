@@ -10,10 +10,13 @@ const COMPANY_EMAIL = "bbolcat@naver.com";
 const EMAILJS_PUBLIC_KEY = "rzyGqBY1HaHCNyQCK";
 const EMAILJS_SERVICE_ID = "service_kp5nyyt";
 
-// 회사로: 주문정보 + 시안 첨부 + (견적이면 견적 섹션 포함)
-const EMAILJS_TEMPLATE_ID = "template_ndnu8z3";
+// 회사용 (시안 접수)
+const EMAILJS_DESIGN_COMPANY_TEMPLATE_ID = "template_ndnu8z3";
 
-// 고객에게: 견적서(견적 요청 켠 경우에만)
+// 고객용 (시안 접수 확인)
+const EMAILJS_DESIGN_CUSTOMER_TEMPLATE_ID = "template_1mv0p2j";
+
+// 고객에게: 견적서
 const EMAILJS_QUOTE_TEMPLATE_ID = "template_eb3xcbg";
 
 /* =========================================================
