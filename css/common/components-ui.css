@@ -1,0 +1,244 @@
+/* =========================================================
+   버튼 기본
+========================================================= */
+
+button {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+
+    border: 1px solid var(--line);
+    border-radius: 14px;
+
+    background: var(--acc);
+    color: #111;
+
+    font-family: inherit;
+    font-size: var(--fs-14);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+
+    cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   버튼 타입
+========================================================= */
+
+.actionBtn {
+    min-height: 46px;
+}
+
+.ghostBtn {
+    background: #fff !important;
+    border: 1px solid var(--line) !important;
+}
+
+.softActionBtn {
+    background: #fff !important;
+    border: 1px solid #d0d5dd !important;
+}
+
+.secondaryActionBtn {
+    background: #fff8e8 !important;
+    border: 1px solid #f2d27a !important;
+}
+
+.confirmBtn {
+    background: #f4c95d !important;
+    border: 1px solid #efc24f !important;
+}
+
+.dangerBtn {
+    background: #fff !important;
+    border: 1px solid var(--line) !important;
+    color: var(--bad) !important;
+}
+
+.dangerBtn:hover {
+    border-color: var(--bad) !important;
+    background: rgba(217, 45, 32, 0.05) !important;
+}
+
+.miniBtn {
+    width: auto;
+    padding: 6px 10px;
+    font-size: var(--fs-12);
+}
+
+/* 업로드 버튼 묶음 */
+.uploadRow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+#fileBtn,
+#fileDelBtn {
+    width: fit-content !important;
+    min-width: 0;
+    flex: 0 0 auto;
+}
+
+/* =========================================================
+   버튼 묶음
+========================================================= */
+
+.btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btns button {
+    flex: 1;
+    min-width: 160px;
+}
+
+/* =========================================================
+   체크라인
+========================================================= */
+
+.inlineCheck {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    color: var(--txt);
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+/* =========================================================
+   태그 / 상태 텍스트
+========================================================= */
+
+.pill {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+
+    color: var(--muted);
+    font-family: inherit;
+    font-size: var(--fs-12);
+    line-height: 1.4;
+}
+
+.pill b {
+    color: var(--txt);
+    font-weight: 700;
+}
+
+.tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+
+    border: 1px solid var(--line);
+    border-radius: 999px;
+
+    background: #f2f4f7;
+    color: var(--muted);
+
+    font-family: inherit;
+    font-size: var(--fs-11);
+    line-height: 1.4;
+}
+
+.hint {
+    margin: 4px 0;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: var(--fs-12);
+    line-height: 1.5;
+}
+
+.warn,
+.ok {
+    margin-top: 8px;
+    white-space: pre-line;
+
+    font-family: inherit;
+    font-size: var(--fs-12);
+    line-height: 1.6;
+}
+
+.warn {
+    color: var(--bad);
+}
+
+.ok {
+    color: var(--ok);
+}
+
+/* =========================================================
+   상태 안내 박스
+========================================================= */
+
+.formReadyBox {
+    display: grid;
+    gap: 4px;
+    padding: 14px 16px;
+
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #fafbfc;
+
+    font-family: inherit;
+}
+
+.formReadyTitle,
+.formReadyDesc {
+    margin: 0;
+    font-family: inherit;
+    letter-spacing: 0;
+}
+
+.formReadyTitle {
+    color: var(--txt);
+    font-size: var(--fs-12);
+    font-weight: 600;
+    line-height: 1.55;
+}
+
+.formReadyDesc {
+    color: var(--txt);
+    font-size: var(--fs-12);
+    font-weight: 400;
+    line-height: 1.55;
+}
+
+/* =========================================================
+   가운데 작업 액션 영역
+========================================================= */
+
+.editorActionBar {
+    display: flex;
+    margin-top: 14px;
+}
+
+.editorActionBar button {
+    width: 100%;
+}
+
+/* =========================================================
+   가이드 색상 표시
+========================================================= */
+
+.red {
+    color: #e5483b;
+    font-weight: 700;
+}
+
+.yellow {
+    color: #f59e0b;
+    font-weight: 700;
+}

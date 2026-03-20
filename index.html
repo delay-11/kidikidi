@@ -13,16 +13,22 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" />
 
     <!-- CSS -->
-    <link rel="stylesheet" href="./css/base.css" />
-    <link rel="stylesheet" href="./css/layout.css" />
-    <link rel="stylesheet" href="./css/form.css" />
-    <link rel="stylesheet" href="./css/components-tooltip.css" />
-    <link rel="stylesheet" href="./css/components-ui.css" />
-    <link rel="stylesheet" href="./css/modal.css" />
-    <link rel="stylesheet" href="./css/canvas.css" />
-    <link rel="stylesheet" href="./css/cart.css" />
-    <link rel="stylesheet" href="./css/color-picker.css" />
-    <link rel="stylesheet" href="./css/responsive.css" />
+    <!-- common -->
+    <link rel="stylesheet" href="./css/common/base.css" />
+    <link rel="stylesheet" href="./css/common/layout.css" />
+    <link rel="stylesheet" href="./css/common/components-ui.css" />
+    <link rel="stylesheet" href="./css/common/components-tooltip.css" />
+    <link rel="stylesheet" href="./css/common/modal.css" />
+    <link rel="stylesheet" href="./css/common/toast.css" />
+    <link rel="stylesheet" href="./css/common/responsive-common.css" />
+
+    <!-- design -->
+    <link rel="stylesheet" href="./css/design/panel-left.css" />
+    <link rel="stylesheet" href="./css/design/panel-canvas.css" />
+    <link rel="stylesheet" href="./css/design/panel-right.css" />
+    <link rel="stylesheet" href="./css/design/color-picker.css" />
+    <link rel="stylesheet" href="./css/design/responsive-design.css" />
+
 
     <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
@@ -46,7 +52,7 @@
             </div>
 
             <div class="headerVersion">
-                v1.0
+                v1.5
             </div>
 
         </div>
@@ -145,6 +151,11 @@
                             </div>
                         </div>
 
+                        <div id="optionGuideBox" class="optionGuideBox">
+                            <div id="optionGuideTitle" class="optionGuideTitle">프로파일 / 규격 안내</div>
+                            <div id="optionGuideDesc" class="optionGuideDesc"></div>
+                        </div>
+
                         <div id="formNotice" class="formNotice"></div>
 
                         <div id="formReadyBox" class="formReadyBox">
@@ -197,9 +208,8 @@
                                                 <button type="button" class="helpIcon uploadHelpIcon"
                                                     aria-label="이미지 업로드 안내">!</button>
                                                 <div class="helpTooltip uploadHelpTooltip">
-                                                    · PNG / JPG / WEBP 업로드 가능<br>
-                                                    · <b>배경이 없는 이미지를 권장</b>합니다<br>
-                                                    · 저해상도 이미지는 제작 품질이 떨어질 수 있습니다
+                                                    · PNG / JPG / WEBP 가능<br>
+                                                    · 투명 배경 권장
                                                 </div>
                                             </span>
                                         </label>
@@ -227,8 +237,7 @@
                                                 <button type="button" class="helpIcon uploadHelpIcon"
                                                     aria-label="스포이드 안내">!</button>
                                                 <div class="helpTooltip uploadHelpTooltip">
-                                                    · 스포이드는 <b>웹/PC 환경에서만</b> 사용 가능합니다<br>
-                                                    · 모바일에서는 색상 직접 입력을 이용해주세요
+                                                    · 스포이드는 웹 / PC에서만 가능
                                                 </div>
                                             </span>
                                         </label>
@@ -293,11 +302,9 @@
                             <div class="divider"></div>
 
                             <div class="pill">
-                                <span class="tag">추가된 시안</span><b id="cartCount">0</b>개
+                                <span class="tag">시안 리스트</span><b id="cartCount">0</b>개
                             </div>
 
-                            <div id="msg" class="warn"></div>
-                            <div id="ok" class="ok"></div>
                         </div>
 
                     </div>
@@ -306,6 +313,9 @@
 
         </div>
     </div>
+
+
+    <div id="toastStack" class="toastStack" aria-live="polite" aria-atomic="true"></div>
 
     <footer class="footer">
         <div class="footerInner">
@@ -340,27 +350,29 @@
     </div>
 
     <!-- JS -->
-    <script src="./js/constants.js"></script>
-    <script src="./js/dom.js"></script>
-    <script src="./js/state.js"></script>
-    <script src="./js/utils.js"></script>
-    <script src="./js/validation.js"></script>
-    <script src="./js/tooltip.js"></script>
-    <script src="./js/color-picker.js"></script>
-    <script src="./js/canvas-core.js"></script>
-    <script src="./js/canvas-draw.js"></script>
-    <script src="./js/canvas-interaction.js"></script>
-    <script src="./js/canvas-upload.js"></script>
-    <script src="./js/cart-actions.js"></script>
-    <script src="./js/cart-options.js"></script>
-    <script src="./js/cart-price.js"></script>
-    <script src="./js/cart-render.js"></script>
-    <script src="./js/email-attachments.js"></script>
-    <script src="./js/email-core.js"></script>
-    <script src="./js/email-summary.js"></script>
-    <script src="./js/email-send.js"></script>
-    <script src="./js/modal.js"></script>
-    <script src="./js/app.js"></script>
+    <!-- common -->
+    <script src="./js/common/constants.js"></script>
+    <script src="./js/common/utils.js"></script>
+    <script src="./js/common/toast.js"></script>
+    <script src="./js/common/tooltip.js"></script>
+    <script src="./js/common/email-core.js"></script>
+    <script src="./js/common/modal.js"></script>
+
+    <!-- design -->
+    <script src="./js/design/design-dom.js"></script>
+    <script src="./js/design/design-state.js"></script>
+    <script src="./js/design/design-validation.js"></script>
+
+    <script src="./js/design/panel-left.js"></script>
+    <script src="./js/design/panel-canvas.js"></script>
+    <script src="./js/design/panel-right.js"></script>
+
+    <script src="./js/design/design-email-attachments.js"></script>
+    <script src="./js/design/design-email-summary.js"></script>
+    <script src="./js/design/design-email-send.js"></script>
+
+    <!-- 마지막 -->
+    <script src="./js/design/app-design.js"></script>
 
 </body>
 
