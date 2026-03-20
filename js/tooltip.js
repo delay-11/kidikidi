@@ -155,6 +155,48 @@ function positionTooltip(icon, tooltip) {
   }
 }
 
+/* =========================================================
+ * 툴팁 확인 상태 반영
+ * - 레이저/인쇄/배경잠금 여부와 무관하게
+ *   ? / ! 안내는 확인 가능해야 함
+========================================================= */
+function markTooltipAsRead(type, isUploadTooltip) {
+  const isQuestionTooltip = type === "profile" || type === "capType";
+
+  if (isQuestionTooltip) {
+    didReadProfileTooltip = true;
+
+    if (typeof clearFormNotice === "function") {
+      clearFormNotice();
+    }
+
+    if (typeof updateFormReadyState === "function") {
+      updateFormReadyState();
+    }
+
+    if (typeof updateActionLocks === "function") {
+      updateActionLocks();
+    }
+  }
+
+  if (isUploadTooltip) {
+    didReadUploadTooltip = true;
+    console.log("[tooltip] didReadUploadTooltip =", didReadUploadTooltip);
+
+    if (typeof clearCanvasNotice === "function") {
+      clearCanvasNotice();
+    }
+
+    if (typeof updateFormReadyState === "function") {
+      updateFormReadyState();
+    }
+
+    if (typeof updateActionLocks === "function") {
+      updateActionLocks();
+    }
+  }
+}
+
 helpIcons.forEach((icon) => {
   icon.addEventListener("click", (e) => {
     e.preventDefault();
@@ -165,13 +207,16 @@ helpIcons.forEach((icon) => {
     const wrap = icon.closest(".helpWrap");
     const willOpen = !tooltip?.classList.contains("show");
 
-    /* ? 툴팁은 주문자 정보 입력 후에만 확인 가능 */
     const isQuestionTooltip = type === "profile" || type === "capType";
 
     const isUploadTooltip =
       icon.classList.contains("uploadHelpIcon") ||
       icon.closest(".uploadHelpWrap");
-      
+
+    /* 
+     * ? 툴팁은 주문자 정보 입력 후에만 확인 가능
+     * 단, 레이저/업로드 잠금 상태와는 무관해야 함
+     */
     if (isQuestionTooltip && !hasRequiredUserInfo()) {
       closeAllTooltips();
 
@@ -211,39 +256,11 @@ helpIcons.forEach((icon) => {
 
     tooltip.classList.add("show");
 
-    /* ? 확인 완료 */
-    if (isQuestionTooltip) {
-      didReadProfileTooltip = true;
-
-      if (typeof clearFormNotice === "function") {
-        clearFormNotice();
-      }
-
-      if (typeof updateFormReadyState === "function") {
-        updateFormReadyState();
-      }
-
-      if (typeof updateActionLocks === "function") {
-        updateActionLocks();
-      }
-    }
-
-    if (isUploadTooltip) {
-      didReadUploadTooltip = true;
-      console.log("[tooltip] didReadUploadTooltip =", didReadUploadTooltip);
-
-      if (typeof clearCanvasNotice === "function") {
-        clearCanvasNotice();
-      }
-
-      if (typeof updateFormReadyState === "function") {
-        updateFormReadyState();
-      }
-
-      if (typeof updateActionLocks === "function") {
-        updateActionLocks();
-      }
-    }
+    /* 
+     * 툴팁이 정상적으로 열리면 그 시점에 확인 완료 처리
+     * 레이저 선택 상태여도 여기까지 오면 무조건 읽은 것으로 처리
+     */
+    markTooltipAsRead(type, isUploadTooltip);
 
     requestAnimationFrame(() => {
       positionTooltip(icon, tooltip);
