@@ -23,7 +23,7 @@
 
 ## License
 
-Copyright ©
+Copyright © delay-11, kidikidi
 
 본 프로젝트의 권리는 제작자와 회사에 있습니다.  
 무단 배포 및 재사용을 금지합니다.
