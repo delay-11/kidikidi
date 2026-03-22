@@ -1,0 +1,139 @@
+/* =========================================================
+   공용 반응형
+========================================================= */
+
+
+/* =========================================================
+   1024 이하
+========================================================= */
+@media (max-width: 1024px) {
+    .wrap {
+        padding: 20px;
+    }
+
+    .card {
+        padding: 20px;
+    }
+
+    .footerInner {
+        gap: 16px;
+    }
+}
+
+
+/* =========================================================
+   768 이하
+========================================================= */
+@media (max-width: 768px) {
+    .wrap {
+        padding: 16px;
+    }
+
+    .card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+    }
+
+    /* 공용 툴팁 */
+    .helpTooltip {
+        left: 0 !important;
+        right: auto !important;
+    }
+
+    .headerInner {
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .orderInner {
+        flex-direction: column;
+        gap: 6px;
+        text-align: center;
+    }
+
+    .footerInner {
+        flex-direction: column;
+        text-align: center;
+        gap: 6px;
+    }
+
+    .footerRight {
+        text-align: center;
+    }
+
+    .confirmModalDialog {
+        width: calc(100vw - 24px);
+        padding: 18px 18px 16px;
+        border-radius: 18px;
+    }
+
+    .confirmModalTitle {
+        font-size: 18px;
+    }
+
+    .confirmModalBody {
+        font-size: 13px;
+        line-height: 1.65;
+        padding: 14px 2px;
+    }
+
+    .confirmModalActions {
+        gap: 8px;
+    }
+
+    .confirmModalActions .ghostBtn,
+    .confirmModalActions .confirmBtn {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+}
+
+
+/* =========================================================
+   640 이하
+========================================================= */
+@media (max-width: 640px) {
+    .pill {
+        gap: 6px;
+    }
+
+    .pill b {
+        font-size: var(--fs-12);
+    }
+}
+
+
+/* =========================================================
+   480 이하
+========================================================= */
+@media (max-width: 480px) {
+    .wrap {
+        padding: 12px;
+    }
+
+    h1 {
+        font-size: 18px;
+    }
+
+    .card {
+        padding: 14px;
+    }
+
+    .tag {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+
+    .pill {
+        gap: 4px;
+    }
+
+    .helpTooltip {
+        width: min(280px, calc(100vw - 24px));
+    }
+}
