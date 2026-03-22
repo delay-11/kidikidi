@@ -1,289 +1,355 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ko">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>키캡 견적 요청</title>
-    <link rel="icon" type="image/png" href="./image/favicon.png" />
-
-    <!-- CSS -->
-    <link rel="stylesheet" href="./css/common/base.css" />
-    <link rel="stylesheet" href="./css/common/layout.css" />
-    <link rel="stylesheet" href="./css/common/components-ui.css" />
-    <link rel="stylesheet" href="./css/common/toast.css" />
-    <link rel="stylesheet" href="./css/common/responsive-common.css" />
-
-    <!-- design system reuse -->
-    <link rel="stylesheet" href="./css/design/panel-left.css" />
-    <link rel="stylesheet" href="./css/design/panel-right.css" />
-    <link rel="stylesheet" href="./css/design/responsive-design.css" />
-
-    <!-- quote -->
-    <link rel="stylesheet" href="./css/quote/quote.css" />
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>키캡 견적 요청</title>
+<link href="./image/favicon.png" rel="icon" type="image/png"/>
+<link href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" rel="stylesheet"/>
+<link href="./css/common/base.css" rel="stylesheet"/>
+<link href="./css/common/layout.css" rel="stylesheet"/>
+<link href="./css/common/components-ui.css" rel="stylesheet"/>
+<link href="./css/common/components-tooltip.css" rel="stylesheet"/>
+<link href="./css/common/toast.css" rel="stylesheet"/>
+<link href="./css/common/responsive-common.css" rel="stylesheet"/>
+<link href="./css/design/panel-left.css" rel="stylesheet"/>
+<link href="./css/design/panel-canvas.css" rel="stylesheet"/>
+<link href="./css/design/panel-right.css" rel="stylesheet"/>
+<link href="./css/design/color-picker.css" rel="stylesheet"/>
+<link href="./css/design/responsive-design.css" rel="stylesheet"/>
+<link href="./css/quote/quote.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 </head>
+<body class="quotePage">
+<header class="siteHeader">
+<div class="headerInner">
+<div class="headerBrand">
+<img alt="KidiKidi" class="headerLogo" src="./image/favicon.png"/>
+<span class="systemName">키캡 견적 요청 시스템</span>
+</div>
+<div class="headerVersion">v1.0</div>
+</div>
+</header>
+<div class="quoteOrderBar orderBar">
+<div class="orderInner">
+<div class="orderLine">
+<span class="orderLabel">현재 선택</span>
+<span id="draftProfile">OEM</span>
+<span class="draftDivider">/</span>
+<span id="draftCap">R4-1U</span>
+<span class="draftDivider">/</span>
+<span id="draftLaser">레이저 없음</span>
+</div>
+</div>
+</div>
+<div class="wrap quoteWrap">
+<div class="quoteHero">
+<h1>키캡 견적 요청</h1>
+<!-- <p class="quoteDesc">키캡과 키링을 함께 선택해서 예상 견적을 확인할 수 있습니다. 키캡 선택 시 중앙에서 바로 시안을 추가할 수 있습니다.</p> -->
+</div>
+<div class="layout2 quoteLayout2">
+<div class="leftStack quoteLeftStack"><section class="card quoteCard quoteRequesterCard quoteStickyRequester"><div class="row1"><div class="row">
+<div>
+<label>업체명 *</label>
+<input id="companyName" placeholder="업체명을 입력해주세요" type="text"/>
+</div>
+<div>
+<label>담당자명 *</label>
+<input id="name" placeholder="담당자명을 입력해주세요" type="text"/>
+</div>
+</div><div class="row">
+<div>
+<label>연락처 *</label>
+<input id="phone" placeholder="01012345678" type="text"/>
+</div>
+<div>
+<label>이메일 *</label>
+<input id="email" placeholder="customer@email.com" type="email"/>
+</div>
+</div><input id="orderNo" type="hidden"/><input id="qty" type="hidden" value="1"/><div class="isHidden" id="orderLabel"></div><div class="divider"></div><div class="quoteBlock">
+<div class="quoteBlockTitle">제품 선택</div>
+<div class="quoteCheckGrid quoteProductGrid">
+<label class="quoteCheckItem quoteSelectItem">
+<input id="useKeycap" type="checkbox"/>
+<span>키캡 주문</span>
+</label>
+<label class="quoteCheckItem quoteSelectItem">
+<input id="useKeyring" type="checkbox"/>
+<span>키링 주문</span>
+</label>
+</div>
+</div><div class="quoteBlock">
+<div class="quoteBlockTitle">사업자등록증 PDF *</div>
+<div class="quoteUploadRow">
+<button class="ghostBtn" id="bizFileBtn" type="button">PDF 첨부</button>
+<button class="dangerBtn" disabled="" id="bizFileDelBtn" type="button">삭제</button>
+<input accept="application/pdf" hidden="" id="bizFile" type="file"/>
+</div>
+<span class="fileName" id="bizFileName">선택된 파일 없음</span>
+</div></div></section><section class="card quoteCard quoteDetailCard"><div class="row1"><div class="quoteBlock" id="keyringFields">
+<div class="quoteBlockTitle">키링 옵션</div>
+<div class="row">
+<div>
+<label>재질 / 컬러 *</label>
+<select id="keyringColor">
+<option value="">선택</option>
+<option value="투명">투명</option>
+<option value="반투명블랙">블랙</option>
+<!-- <option value="화이트">화이트</option> -->
+<!-- <option value="블랙">블랙</option> -->
+<!-- <option value="솔리드">솔리드</option> -->
+</select>
+</div>
+<div>
+<label>종류 *</label>
+<select id="keyringType">
+<option value="">재질 / 컬러를 먼저 선택해주세요</option>
+</select>
+</div>
+</div>
+<div class="row">
+<div>
+<label>수량 *</label>
+<input id="keyringQty" min="1" placeholder="수량 입력" step="1" type="number"/>
+</div>
+<div>
+<label>LED 선택</label>
+<select id="keyringLed">
+<option value="없음">없음</option>
+<option value="있음">있음</option>
+</select>
+</div>
+</div>
+</div><div class="quoteBlock">
+<div class="quoteBlockTitle">납기 및 제작 옵션</div>
+<div class="row">
+<div>
+<label>희망 납기일</label>
+<input id="dueDate" type="date"/>
+</div>
+<div>
+<label>제작 속도</label>
+<select id="rushType">
+<option value="normal">일반 제작</option>
+<option value="fast">빠른제작 (+20%)</option>
+<option value="urgent">긴급제작 (+30%)</option>
+</select>
+</div>
+</div>
+<div class="optionGuideBox quoteGuideBox quoteGuideAccent">
+<div class="optionGuideDesc">빠른제작: 영업일 기준 10일 내 제작 (+20%)<br/>긴급제작: 영업일 기준 5일 내 제작 (+30%)</div>
+</div>
+</div><div class="quoteBlock">
+<div class="quoteBlockTitle">포장 요구사항</div>
+<div class="quoteCheckGrid">
+<label class="quoteCheckItem"><input id="packOpp" type="checkbox"/><span>개별 OPP 포장</span></label>
+<label class="quoteCheckItem"><input id="packBundle" type="checkbox"/><span>시안별 묶음 포장</span></label>
+<label class="quoteCheckItem"><input id="packSet" type="checkbox"/><span>세트 포장</span></label>
+<label class="quoteCheckItem"><input id="packCase" type="checkbox"/><span>케이스 제작</span></label>
+<label class="quoteCheckItem"><input id="needJig" type="checkbox"/><span>대지 유무</span></label>
+<label class="quoteCheckItem"><input id="needSticker" type="checkbox"/><span>스티커 제작 유무</span></label>
+</div>
+</div><div class="quoteBlock">
+<div class="quoteBlockTitle">기타 유의사항</div>
+<label>요청사항</label>
+<textarea id="memo" placeholder="추가 요청사항이 있다면 입력해주세요" rows="5"></textarea>
+</div></div></section></div>
+<div class="rightStack quoteRightStack"><section class="card quoteCanvasCard" id="keycapCanvasSection">
+<div class="editorWrap quoteEditorWrap">
+<div class="editorMain">
+<div class="quoteBlock" id="keycapFields">
+<div class="quoteBlockTitle">키캡 옵션</div>
+<div class="row">
+<div>
+<label class="labelWithHelp">
+                                        키캡 프로파일 *
+                                        <span class="helpWrap">
+<button aria-label="키캡 프로파일 안내" class="helpIcon" data-help="profile" type="button">?</button>
+<div class="helpTooltip" data-help-tooltip="profile"></div>
+</span>
+</label>
+<select id="profile">
+<option value="OEM">OEM</option>
+<option value="XDA">XDA</option>
+<option value="MAO">MAO</option>
+</select>
+</div>
+<div>
+<label class="labelWithHelp">
+                                        키캡 규격 *
+                                        <span class="helpWrap">
+<button aria-label="키캡 규격 안내" class="helpIcon" data-help="capType" type="button">?</button>
+<div class="helpTooltip" data-help-tooltip="capType"></div>
+</span>
+</label>
+<select id="capType"></select>
+</div>
+</div>
+<div class="row">
+<div>
+<label>레이저 각인 (OEM)</label>
+<select id="laser">
+<option value="none">없음</option>
+<option value="black">블랙 (+1,120원)</option>
+<option value="white">화이트 (+2,120원)</option>
+</select>
+</div>
+<!-- <div>
+                                    <label>시안별 수량은 중앙 시안 리스트에서 입력</label>
+                                    <div class="quoteMutedBox">여러 시안이 있으면 각 시안마다 수량을 직접 입력하면 됩니다.</div>
+                                </div> -->
+</div>
+<div class="optionGuideBox quoteGuideBox" id="optionGuideBox">
+<div class="optionGuideTitle" id="optionGuideTitle">프로파일 / 규격 안내</div>
+<div class="optionGuideDesc" id="optionGuideDesc"></div>
+</div>
+<div class="formNotice" id="formNotice"></div>
+<div class="formReadyBox quoteReadyBox" id="formReadyBox">
+<div class="formReadyTitle" id="formReadyTitle">담당자 정보 입력 후 시안 제작이 가능합니다.</div>
+<div class="formReadyDesc" id="formReadyDesc">담당자명, 연락처, 이메일을 입력하면 바로 이미지 업로드와 시안 추가가 활성화됩니다.</div>
+</div>
+</div>
+<div class="canvasFrame">
+<div class="pill">
+<span class="tag">선택 프로파일/규격</span><b id="selText">없음</b>
+<span class="tag">캔버스</span><b id="canvasText">-</b>
+<span class="tag">배경</span><b id="bgText">-</b>
+</div>
+<div class="divider"></div>
+<div class="canvasWrap" id="canvasWrap">
+<canvas height="330" id="designCanvas" width="330"></canvas>
+<div class="bbox" id="bbox">
+<div class="rotLine"></div>
+<div class="rot" id="rotHandle" title="회전"></div>
+<div class="h nw" data-h="nw"></div>
+<div class="h ne" data-h="ne"></div>
+<div class="h sw" data-h="sw"></div>
+<div class="h se" data-h="se"></div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="canvasControlRow">
+<div>
+<label>
+                                            선택한 규격에 이미지 업로드 *
+                                            <span class="helpWrap uploadHelpWrap">
+<button aria-label="이미지 업로드 안내" class="helpIcon uploadHelpIcon" type="button">!</button>
+<div class="helpTooltip uploadHelpTooltip">· PNG / JPG / WEBP 업로드 가능<br/>· 투명 배경 이미지를 권장합니다</div>
+</span>
+</label>
+<div class="uploadRow">
+<button class="ghostBtn fileBtn" disabled="" id="fileBtn" type="button">이미지 업로드</button>
+<button class="dangerBtn" disabled="" id="fileDelBtn" type="button">삭제</button>
+<input accept="image/png,image/jpeg,image/webp" disabled="" hidden="" id="file" type="file"/>
+</div>
+<span class="fileName" id="fileName">선택된 파일 없음</span>
+</div>
+<div>
+<label>배경 색상 선택
+                                            <span class="helpWrap uploadHelpWrap">
+<button aria-label="스포이드 안내" class="helpIcon uploadHelpIcon" type="button">!</button>
+<div class="helpTooltip uploadHelpTooltip">· 스포이드는 웹 / PC에서만 가능합니다</div>
+</span>
+</label>
+<div class="colorPick">
+<button class="ghostBtn" disabled="" id="bgPickBtn" type="button">배경 설정</button>
+<button aria-label="스포이드" class="iconToolBtn" disabled="" id="bgEyeBtn" type="button">🎨</button>
+<span aria-hidden="true" class="colorSwatch" id="bgColorSwatch"></span>
+<span class="colorValue" id="bgColorValue">#ffffff</span>
+<span class="pickrMount" id="bgPickMount"></span>
+</div>
+</div>
+</div>
+<div class="canvasNotice" id="canvasNotice"></div>
+<div class="divider"></div>
+<div class="hint">
+                                    - 가이드 색상: <b class="red">빨강=바깥선</b>, <b class="yellow">노랑=인쇄 안전선</b><br>
+                                    - 실제 제작은 <b>CMYK</b> 색상으로 제작됩니다.
+                                </br></div>
+<div class="divider"></div>
+<div class="pill">
+<span class="tag">조작</span><b>드래그 이동</b>
+<span> | </span>
+<span class="tag">크기</span><b>모서리 핸들</b>
+<span> | </span>
+<span class="tag">Alt</span><b>중심 확대/축소</b>
+<span> | </span>
+<span class="tag">회전</span><b>상단 핸들</b>
+</div>
+</div>
+<div class="editorActionBar">
+<button class="secondaryActionBtn actionBtn" disabled="" id="btnAddItem" type="button">시안 추가</button>
+<button class="confirmBtn actionBtn isHidden" disabled="" id="btnConfirm" type="button">시안 확정</button>
+</div>
+</div>
 
-<body>
-    <header class="siteHeader">
-        <div class="headerInner">
-            <div class="headerBrand">
-                <img src="./image/favicon.png" class="headerLogo" alt="KidiKidi">
-                <span class="systemName">키캡 견적 요청 시스템</span>
-            </div>
-            <div class="headerVersion">v1.0</div>
-        </div>
-    </header>
-
-    <div class="wrap quoteWrap">
-        <div class="quoteHero">
-            <h1>키캡 견적 요청</h1>
-            <p class="quoteDesc">
-                원하시는 옵션을 선택하면 예상 견적을 확인할 수 있습니다. 수량 할인, 제작 속도, 포장 방식에 따라 금액이 달라질 수 있습니다.
-            </p>
-        </div>
-
-        <div class="editorWrap quoteEditorWrap">
-            <main class="editorMain">
-                <section class="card quoteCard">
-                    <h2 class="quoteSectionTitle">견적 정보 입력</h2>
-
-                    <div class="row">
-                        <div>
-                            <label>업체명 *</label>
-                            <input type="text" id="companyName" placeholder="업체명을 입력해주세요" />
-                        </div>
-                        <div>
-                            <label>담당자명 *</label>
-                            <input type="text" id="managerName" placeholder="담당자명을 입력해주세요" />
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div>
-                            <label>연락처 *</label>
-                            <input type="text" id="phone" placeholder="01012345678" />
-                        </div>
-                        <div>
-                            <label>이메일 *</label>
-                            <input type="email" id="email" placeholder="customer@email.com" />
-                        </div>
-                    </div>
-
-                    <div class="divider"></div>
-
-                    <div class="quoteBlock">
-                        <div class="quoteBlockTitle">제품 선택</div>
-                        <div class="quoteTypeSwitch" id="productType">
-                            <label class="quoteTypeOption">
-                                <input type="radio" name="productType" value="keycap" checked />
-                                <span>키캡</span>
-                            </label>
-                            <label class="quoteTypeOption">
-                                <input type="radio" name="productType" value="keyring" />
-                                <span>키링</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="quoteBlock" id="keycapFields">
-                        <div class="quoteBlockTitle">키캡 옵션</div>
-                        <div class="row">
-                            <div>
-                                <label>프로파일 *</label>
-                                <select id="profile">
-                                    <option value="">선택</option>
-                                    <option value="OEM">OEM</option>
-                                    <option value="XDA">XDA</option>
-                                    <option value="MAO">MAO</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>규격 *</label>
-                                <select id="keycapSize">
-                                    <option value="">프로파일을 먼저 선택해주세요</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div>
-                                <label>수량 *</label>
-                                <input type="number" id="keycapQty" min="1" step="1" placeholder="수량 입력" />
-                            </div>
-                            <div>
-                                <label>레이저 옵션</label>
-                                <select id="laserType">
-                                    <option value="none">없음</option>
-                                    <option value="black">블랙</option>
-                                    <option value="white">화이트</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="optionGuideBox quoteGuideBox">
-                            <div class="optionGuideTitle">안내</div>
-                            <div class="optionGuideDesc">XDA / MAO 프로파일은 레이저 옵션이 없습니다.</div>
-                        </div>
-                    </div>
-
-                    <div class="quoteBlock isHidden" id="keyringFields">
-                        <div class="quoteBlockTitle">키링 옵션</div>
-                        <div class="row">
-                            <div>
-                                <label>재질 / 컬러 *</label>
-                                <select id="keyringColor">
-                                    <option value="">선택</option>
-                                    <option value="투명">투명</option>
-                                    <option value="반투명블랙">반투명블랙</option>
-                                    <option value="화이트">화이트</option>
-                                    <option value="블랙">블랙</option>
-                                    <option value="솔리드">솔리드</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label>종류 *</label>
-                                <select id="keyringType">
-                                    <option value="">재질 / 컬러를 먼저 선택해주세요</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div>
-                                <label>수량 *</label>
-                                <input type="number" id="keyringQty" min="1" step="1" placeholder="수량 입력" />
-                            </div>
-                            <div>
-                                <label>LED / 기타 옵션</label>
-                                <input type="text" id="keyringEtc" placeholder="예: LED 있음 / 4구 / 블랙" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="quoteBlock">
-                        <div class="quoteBlockTitle">납기 및 제작 옵션</div>
-                        <div class="row">
-                            <div>
-                                <label>희망 납기일</label>
-                                <input type="date" id="dueDate" />
-                            </div>
-                            <div>
-                                <label>제작 속도</label>
-                                <select id="rushType">
-                                    <option value="normal">일반 제작</option>
-                                    <option value="fast">빠른제작 (+20%)</option>
-                                    <option value="urgent">긴급제작 (+30%)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="optionGuideBox quoteGuideBox quoteGuideAccent">
-                            <div class="optionGuideDesc">빠른제작: 영업일 기준 10일 내 제작 (+20%)<br>긴급제작: 영업일 기준 5일 내 제작 (+30%)</div>
-                        </div>
-                    </div>
-
-                    <div class="quoteBlock">
-                        <div class="quoteBlockTitle">포장 요구사항</div>
-                        <div class="quoteCheckGrid">
-                            <label class="quoteCheckItem"><input type="checkbox" id="packOpp" /><span>개별 OPP 포장</span></label>
-                            <label class="quoteCheckItem"><input type="checkbox" id="packBundle" /><span>시안별 묶음 포장</span></label>
-                            <label class="quoteCheckItem"><input type="checkbox" id="packSet" /><span>세트 포장</span></label>
-                            <label class="quoteCheckItem"><input type="checkbox" id="packCase" /><span>케이스 제작</span></label>
-                            <label class="quoteCheckItem"><input type="checkbox" id="needJig" /><span>대지 유무</span></label>
-                            <label class="quoteCheckItem"><input type="checkbox" id="needSticker" /><span>스티커 제작 유무</span></label>
-                        </div>
-                    </div>
-
-                    <div class="quoteBlock">
-                        <div class="quoteBlockTitle">기타 유의사항</div>
-                        <label>요청사항</label>
-                        <textarea id="memo" rows="5" placeholder="추가 요청사항이 있다면 입력해주세요"></textarea>
-                    </div>
-
-                    <div class="btns quoteActionBtns">
-                        <button type="button" id="resetBtn" class="ghostBtn actionBtn">초기화</button>
-                        <button type="button" id="calcBtn" class="confirmBtn actionBtn">견적 계산</button>
-                    </div>
-                </section>
-            </main>
-
-            <aside class="quoteSide">
-                <section class="card quoteCard summarySection">
-                    <h2 class="quoteSectionTitle">예상 견적</h2>
-
-                    <div class="quoteSummaryGroup">
-                        <div class="quoteSummaryTitle">선택한 옵션</div>
-                        <ul class="quoteOptionList" id="selectedOptionList">
-                            <li class="quoteEmpty">선택한 옵션이 없습니다.</li>
-                        </ul>
-                    </div>
-
-                    <div class="quoteSummaryGroup">
-                        <div class="quoteSummaryTitle">금액 안내</div>
-                        <div class="quotePriceRows">
-                            <div class="quotePriceRow">
-                                <span>기본 금액</span>
-                                <strong id="basePriceText">0원</strong>
-                            </div>
-                            <div class="quotePriceRow">
-                                <span>수량 금액</span>
-                                <strong id="qtyPriceText">0원</strong>
-                            </div>
-                            <div class="quotePriceRow">
-                                <span>할인</span>
-                                <strong id="discountText">0원</strong>
-                            </div>
-                            <div class="quotePriceRow">
-                                <span>할증</span>
-                                <strong id="rushText">0원</strong>
-                            </div>
-                            <div class="quotePriceRow total">
-                                <span>최종 예상 금액</span>
-                                <strong id="finalPriceText">0원</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="quoteSummaryGroup">
-                        <div class="quoteSummaryTitle">할인 기준</div>
-                        <ul class="quoteGuideList">
-                            <li>500개 이상: 10% 할인</li>
-                            <li>1000개 이상: 15% 할인</li>
-                            <li>5000개 이상: 20% 할인</li>
-                        </ul>
-                    </div>
-
-                    <div class="quoteSummaryGroup">
-                        <div class="quoteSummaryTitle">안내</div>
-                        <ul class="quoteGuideList">
-                            <li>본 금액은 예상 견적이며 최종 제작 조건에 따라 변동될 수 있습니다.</li>
-                            <li>포장 방식, 부자재, 별도 후가공은 추가 비용이 발생할 수 있습니다.</li>
-                            <li>대량 주문 및 특수 사양은 별도 협의가 필요합니다.</li>
-                        </ul>
-                    </div>
-
-                    <div class="editorActionBar quoteSubmitBar">
-                        <button type="button" id="submitQuoteBtn" class="confirmBtn">견적 요청 보내기</button>
-                    </div>
-                </section>
-            </aside>
-        </div>
-    </div>
-
-    <footer class="footer">
-        <div class="footerInner">
-            <div>키캡 견적 요청 시스템</div>
-            <div class="footerRight">견적 금액은 예상 금액이며 최종 제작 조건에 따라 달라질 수 있습니다.</div>
-        </div>
-    </footer>
-
-    <div class="toastStack" id="toastStack" aria-live="polite" aria-atomic="true"></div>
-
-    <script src="./js/common/constants.js"></script>
-    <script src="./js/common/utils.js"></script>
-    <script src="./js/common/toast.js"></script>
-    <script src="./js/common/quote-utils.js"></script>
-    <script src="./js/quote/quote.js"></script>
+</div>
+</section><aside class="quoteSummarySticky">
+<section class="canvasFrame quoteCartFrame">
+<div class="cartList" id="cartList"></div>
+<div class="divider"></div>
+<div class="pill">
+<span class="tag">시안 리스트</span><b id="cartCount">0</b>개
+                                </div>
+</section>
+<section class="card quoteCard quoteSummaryCard">
+<h2 class="quoteSectionTitle">예상 견적</h2>
+<div class="quoteSummaryGroup">
+<div class="quoteSummaryTitle">선택한 옵션</div>
+<ul class="quoteOptionList" id="selectedOptionList">
+<li class="quoteEmpty">선택한 옵션이 없습니다.</li>
+</ul>
+</div>
+<div class="quoteSummaryGroup">
+<div class="quoteSummaryTitle">금액 안내</div>
+<div class="quotePriceRows">
+<div class="quotePriceRow" id="rowKeycapPrice"><span>키캡 금액</span><strong id="keycapPriceText">0원</strong></div>
+<div class="quotePriceRow" id="rowKeyringPrice"><span>키링 금액</span><strong id="keyringPriceText">0원</strong></div>
+<div class="quotePriceRow" id="rowDiscountPrice"><span>할인 금액</span><strong id="discountText">0원</strong></div>
+<div class="quotePriceRow" id="rowRushPrice"><span>할증 금액</span><strong id="rushText">0원</strong></div>
+<div class="quotePriceRow total"><span>총 금액</span><strong id="finalPriceText">0원</strong></div>
+</div>
+</div>
+<div class="quoteSummaryGroup">
+<div class="quoteSummaryTitle">할인 기준</div>
+<ul class="quoteGuideList">
+<li>500개 이상: 10% 할인</li>
+<li>1000개 이상: 15% 할인</li>
+<li>5000개 이상: 20% 할인</li>
+</ul>
+</div>
+<div class="btns quoteActionBtns">
+<button class="ghostBtn actionBtn" id="resetBtn" type="button">초기화</button>
+<button class="confirmBtn actionBtn" id="submitQuoteBtn" type="button">견적 요청 보내기</button>
+</div></section>
+</aside></div>
+</div>
+</div>
+<div class="quoteMobileBar" id="quoteMobileBar">
+<div class="quoteMobileBarInner"><div class="quoteMobileBarMeta" id="mobileSelectedText">선택 없음</div>
+<span>총 금액</span>
+<strong id="mobileFinalPriceText">0원</strong>
+</div>
+</div>
+<footer class="footer">
+<div class="footerInner">
+<div>© 2026 KidiKidi. All rights reserved.</div>
+<div class="footerRight">본 견적 요청 시스템 및 견적 툴은 KidiKidi의 자산입니다.<br/>무단 복제, 배포, 재사용을 금지합니다.</div>
+</div>
+</footer>
+<div aria-atomic="true" aria-live="polite" class="toastStack" id="toastStack"></div>
+<script src="./js/common/constants.js"></script>
+<script src="./js/common/utils.js"></script>
+<script src="./js/common/toast.js"></script>
+<script src="./js/common/tooltip.js"></script>
+<script src="./js/common/quote-utils.js"></script>
+<script src="./js/design/design-dom.js"></script>
+<script src="./js/design/design-state.js"></script>
+<script src="./js/design/design-validation.js"></script>
+<script src="./js/design/panel-left.js"></script>
+<script src="./js/design/panel-canvas.js"></script>
+<script src="./js/design/panel-right.js"></script>
+<script src="./js/quote/quote.js"></script>
 </body>
-
 </html>

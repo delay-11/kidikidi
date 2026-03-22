@@ -4,19 +4,12 @@
 
 .quoteWrap {
     padding-top: 22px;
+    padding-bottom: 90px;
 }
 
 .quoteHero {
     margin-bottom: 18px;
     padding: 4px 2px;
-}
-
-.quoteEyebrow {
-    margin: 0 0 8px;
-    color: var(--muted);
-    font-size: var(--fs-12);
-    font-weight: 800;
-    letter-spacing: 0.08em;
 }
 
 .quoteDesc {
@@ -27,25 +20,21 @@
     line-height: 1.65;
 }
 
-.quoteEditorWrap {
-    grid-template-columns: minmax(0, 1fr) 360px;
+.quoteLayout2 {
+    grid-template-columns: 460px minmax(0, 1fr);
+    gap: 20px;
 }
 
-.quoteSide {
-    display: grid;
-    align-content: start;
-    gap: 16px;
+.quoteFormCard {
+    position: relative;
 }
 
 .quoteCard {
     padding: 24px;
 }
 
-.quoteSectionTitle {
-    margin: 0 0 16px;
-    font-size: 18px;
-    font-weight: 800;
-    line-height: 1.25;
+.quoteCanvasCard {
+    overflow: visible;
 }
 
 .quoteBlock {
@@ -58,50 +47,16 @@
     background: #fff;
 }
 
-.quoteBlockTitle {
-    font-size: var(--fs-14);
+.quoteBlockTitle,
+.quoteSectionTitle,
+.quoteSummaryTitle {
     font-weight: 800;
-    line-height: 1.3;
 }
 
-.quoteTypeSwitch {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-}
-
-.quoteTypeOption {
-    position: relative;
-    display: block;
-    margin: 0;
-    cursor: pointer;
-}
-
-.quoteTypeOption input {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.quoteTypeOption span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 46px;
-    padding: 12px 14px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: #fff;
-    color: var(--txt);
-    font-size: var(--fs-14);
-    font-weight: 700;
-    transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.quoteTypeOption input:checked + span {
-    border-color: #efc24f;
-    background: #fff8e8;
+.quoteSectionTitle {
+    margin: 0 0 16px;
+    font-size: 18px;
+    line-height: 1.25;
 }
 
 .quoteGuideBox {
@@ -113,10 +68,25 @@
     background: #fff8e8;
 }
 
+.quoteMutedBox {
+    min-height: 44px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #f8fafc;
+    color: var(--muted);
+    font-size: var(--fs-12);
+    line-height: 1.55;
+}
+
 .quoteCheckGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+}
+
+.quoteProductGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .quoteCheckItem {
@@ -134,6 +104,10 @@
     cursor: pointer;
 }
 
+.quoteSelectItem {
+    justify-content: center;
+}
+
 .quoteCheckItem input {
     width: 16px;
     height: 16px;
@@ -141,13 +115,41 @@
     accent-color: #111827;
 }
 
-.isHidden {
-    display: none !important;
+.quoteUploadRow {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.quoteReadyBox {
+    margin-top: 2px;
+}
+
+.quoteEditorWrap {
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 18px;
+    align-items: start;
+}
+
+.quoteSummaryAside {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    position: sticky;
+    top: 16px;
+    align-self: start;
+}
+
+.quoteSummaryCard {
+    padding: 24px;
+}
+
+.quoteCartFrame {
+    overflow: visible;
 }
 
 .summarySection {
-    position: sticky;
-    top: 16px;
+    align-self: start;
 }
 
 .quoteSummaryGroup {
@@ -161,12 +163,6 @@
 
 .quoteSummaryGroup + .quoteSummaryGroup {
     margin-top: 12px;
-}
-
-.quoteSummaryTitle {
-    font-size: var(--fs-14);
-    font-weight: 800;
-    line-height: 1.3;
 }
 
 .quoteOptionList,
@@ -243,34 +239,228 @@
 }
 
 .quoteActionBtns {
-    margin-top: 16px;
+    margin-top: 18px;
 }
 
-.quoteActionBtns button {
-    min-width: 0;
+.quoteMobileBar {
+    display: none;
 }
 
-.quoteSubmitBar {
-    margin-top: 14px;
+.quoteQtyInput {
+    width: 92px;
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 700;
 }
 
-.quoteOrderBar .orderNumber {
-    color: var(--txt);
+.quoteQtyWrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.quoteQtyLabel {
+    color: var(--muted);
+    font-size: var(--fs-12);
+}
+
+.helpTooltip {
+    max-width: min(300px, calc(100vw - 32px));
+    white-space: normal;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+.quotePage .helpWrap,
+.quotePage .quoteCanvasCard,
+.quotePage .canvasFrame,
+.quotePage .card {
+    overflow: visible;
+}
+
+@media (max-width: 1400px) {
+    .quoteLayout2 {
+        grid-template-columns: 420px minmax(0, 1fr);
+    }
+
+    .quoteEditorWrap {
+        grid-template-columns: minmax(0, 1fr) 320px;
+    }
+}
+
+@media (max-width: 1180px) {
+    .quoteLayout2 {
+        grid-template-columns: 1fr;
+    }
+
+    .summarySection {
+        position: static;
+    }
 }
 
 @media (max-width: 1024px) {
     .quoteEditorWrap {
         grid-template-columns: 1fr;
     }
+}
 
-    .summarySection {
+@media (max-width: 768px) {
+    .quoteWrap {
+        padding-bottom: 84px;
+    }
+
+    .quoteCheckGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .quoteMobileBar {
+        display: block;
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 9999;
+        padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+        background: rgba(246, 247, 251, 0.96);
+        backdrop-filter: blur(8px);
+        border-top: 1px solid var(--line);
+    }
+
+    .quoteMobileBarInner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: var(--shadow);
+    }
+
+    .quoteMobileBarInner strong {
+        font-size: 18px;
+    }
+
+    .helpTooltip {
+        left: 0 !important;
+        right: auto !important;
+        transform: none !important;
+        max-width: calc(100vw - 24px);
+    }
+}
+
+
+.quotePage #keycapFields {
+    margin-top: 0;
+}
+
+.quotePage .quoteFormCard #keycapFieldsPlaceholder {
+    display: none;
+}
+
+
+/* =========================================================
+   최종 레이아웃 보정
+========================================================= */
+.quoteLayout2 {
+    grid-template-columns: 420px minmax(0, 1fr);
+    align-items: start;
+}
+
+.quoteLeftStack,
+.quoteRightStack,
+.quoteLayout2 {
+    overflow: visible;
+}
+
+.quoteStickyRequester {
+    position: sticky;
+    top: 16px;
+    z-index: 5;
+}
+
+.quoteDetailCard {
+    overflow: visible;
+}
+
+.quoteSummarySticky {
+    position: sticky;
+    top: 16px;
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    align-self: start;
+}
+
+.quoteCanvasCard {
+    overflow: visible;
+}
+
+.quoteActionBtns {
+    display: grid;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+#keyringFields,
+#keycapCanvasSection {
+    margin-top: 0;
+}
+
+.quotePriceRow.isHidden {
+    display: none;
+}
+
+.quotePriceRow.discountRow strong {
+    color: var(--ok);
+}
+
+.quotePriceRow.rushRow strong {
+    color: var(--bad);
+}
+
+.quotePriceRow.total strong {
+    color: var(--acc-strong);
+}
+
+.quoteMobileBarMeta {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 700;
+}
+
+@media (max-width: 1180px) {
+    .quoteStickyRequester,
+    .quoteSummarySticky {
         position: static;
-        top: auto;
+    }
+
+    .quoteLayout2 {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 768px) {
-    .quoteCheckGrid {
-        grid-template-columns: 1fr;
+    .quoteStickyRequester {
+        position: static;
+    }
+
+    .quoteSummarySticky {
+        position: static;
+    }
+
+    .quoteMobileBarInner {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        row-gap: 4px;
+    }
+
+    .quoteMobileBarMeta {
+        grid-column: 1 / -1;
     }
 }
