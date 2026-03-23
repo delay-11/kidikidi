@@ -117,11 +117,14 @@
   const designFileDelBtnEl = $("designFileDelBtn");
   const designFileNameEl = $("designFileName");
   const designFileGuideEl = $("designFileGuide");
+  const addKeycapItemBtnEl = $("addKeycapItemBtn");
+  const addKeyringItemBtnEl = $("addKeyringItemBtn");
   const submitBtnEl = $("submitQuoteBtn");
   const resetBtnEl = $("resetBtn");
 
   let selectedBizFile = null;
   let selectedDesignFiles = [];
+  let quoteItems = [];
 
   function getDiscountRate(qty) {
     if (qty >= 5000) return 0.2;
@@ -312,6 +315,157 @@
     return { qty, base, final: base };
   }
 
+  function getKeycapDraftData() {
+    const profile = safeTrim(profileEl.value);
+    const capType = safeTrim(capTypeEl.value);
+    const qty = Number(keycapQtyEl.value) || 0;
+    const unitBase = KEYCAP_PRICE?.[profile]?.[capType] || 0;
+    const laserPrice = getLaserPrice();
+    const unit = unitBase + laserPrice;
+    const base = unit * qty;
+    const discountRate = getDiscountRate(qty);
+    const discount = base * discountRate;
+    const final = base - discount;
+
+    return {
+      kind: "keycap",
+      profile,
+      capType,
+      laser: laserEl.disabled ? "none" : safeTrim(laserEl.value) || "none",
+      laserLabel: laserEl.disabled
+        ? "레이저 없음"
+        : laserEl.options[laserEl.selectedIndex]?.textContent || "없음",
+      qty,
+      unit,
+      base,
+      discountRate,
+      discount,
+      final,
+      memo: safeTrim($("keycapMemo").value),
+      designFiles: [...selectedDesignFiles],
+    };
+  }
+
+  function getKeyringDraftData() {
+    const color = safeTrim(keyringColorEl.value);
+    const type = safeTrim(keyringTypeEl.value);
+    const qty = Number(keyringQtyEl.value) || 0;
+    const unit = KEYRING_PRICE?.[color]?.[type] || 0;
+    const base = unit * qty;
+
+    return {
+      kind: "keyring",
+      color,
+      type,
+      led: safeTrim(keyringLedEl.value) || "없음",
+      qty,
+      unit,
+      base,
+      discountRate: 0,
+      discount: 0,
+      final: base,
+      memo: safeTrim($("keyringMemo").value),
+    };
+  }
+
+  function getQuoteSummaryData() {
+    const keycapTotal = quoteItems
+      .filter((item) => item.kind === "keycap")
+      .reduce((sum, item) => sum + item.final, 0);
+    const keyringTotal = quoteItems
+      .filter((item) => item.kind === "keyring")
+      .reduce((sum, item) => sum + item.final, 0);
+    const discountTotal = quoteItems.reduce((sum, item) => sum + (item.discount || 0), 0);
+    const subtotal = keycapTotal + keyringTotal;
+    const rushAmount = subtotal * getRushRate();
+    const total = subtotal + rushAmount;
+
+    return { keycapTotal, keyringTotal, discountTotal, subtotal, rushAmount, total };
+  }
+
+  function getQuoteItemLabel(item) {
+    if (item.kind === "keycap") {
+      const fileLabel = item.designFiles?.length
+        ? `이미지 ${item.designFiles.length}개 첨부`
+        : "이미지 미첨부";
+      return `키캡 · ${item.profile || "-"} / ${item.capType || "-"} / ${item.laserLabel || "레이저 없음"} / ${item.qty.toLocaleString("ko-KR")}개 / ${fileLabel}`;
+    }
+
+    return `키링 · ${item.color || "-"} / ${item.type || "-"} / LED ${item.led || "없음"} / ${item.qty.toLocaleString("ko-KR")}개`;
+  }
+
+  function clearKeycapInputs() {
+    profileEl.value = "";
+    capTypeEl.innerHTML = '<option value="">프로파일을 먼저 선택해주세요</option>';
+    laserEl.value = "none";
+    laserEl.disabled = false;
+    keycapQtyEl.value = "";
+    $("keycapMemo").value = "";
+    selectedDesignFiles = [];
+    designFilesInputEl.value = "";
+    updateDesignFileInfo();
+    updateOptionGuideBox();
+  }
+
+  function clearKeyringInputs() {
+    keyringColorEl.value = "";
+    keyringTypeEl.innerHTML = '<option value="">키링 색상을 먼저 선택해주세요</option>';
+    keyringLedEl.value = "없음";
+    keyringQtyEl.value = "";
+    $("keyringMemo").value = "";
+  }
+
+  function addQuoteItem(item) {
+    quoteItems.push({
+      id: `${item.kind}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      ...item,
+    });
+    updateQuote();
+  }
+
+  function removeQuoteItem(id) {
+    quoteItems = quoteItems.filter((item) => item.id !== id);
+    updateQuote();
+  }
+
+  function validateKeycapDraft() {
+    if (!safeTrim(profileEl.value)) {
+      showToast("키캡 프로파일을 선택해주세요.", "warn");
+      profileEl.focus();
+      return false;
+    }
+    if (!safeTrim(capTypeEl.value)) {
+      showToast("키캡 규격을 선택해주세요.", "warn");
+      capTypeEl.focus();
+      return false;
+    }
+    if ((Number(keycapQtyEl.value) || 0) <= 0) {
+      showToast("키캡 수량을 입력해주세요.", "warn");
+      keycapQtyEl.focus();
+      return false;
+    }
+    return true;
+  }
+
+  function validateKeyringDraft() {
+    if (!safeTrim(keyringColorEl.value)) {
+      showToast("키링 재질 / 컬러를 선택해주세요.", "warn");
+      keyringColorEl.focus();
+      return false;
+    }
+    if (!safeTrim(keyringTypeEl.value)) {
+      showToast("키링 종류를 선택해주세요.", "warn");
+      keyringTypeEl.focus();
+      return false;
+    }
+    if ((Number(keyringQtyEl.value) || 0) <= 0) {
+      showToast("키링 수량을 입력해주세요.", "warn");
+      keyringQtyEl.focus();
+      return false;
+    }
+    return true;
+  }
+
   function buildSelectedOptions(keycapData, keyringData) {
     const items = [];
 
@@ -345,14 +499,27 @@
     if (!items.length) {
       const li = document.createElement("li");
       li.className = "quoteEmptyText";
-      li.textContent = "제품을 선택하면 옵션이 표시됩니다.";
+      li.textContent = "아직 추가된 견적 항목이 없습니다.";
       selectedOptionListEl.appendChild(li);
       return;
     }
 
-    items.forEach((text) => {
+    items.forEach((item) => {
       const li = document.createElement("li");
-      li.textContent = text;
+      li.className = "quoteItemRow";
+
+      const text = document.createElement("span");
+      text.className = "quoteItemText";
+      text.textContent = getQuoteItemLabel(item);
+
+      const delBtn = document.createElement("button");
+      delBtn.type = "button";
+      delBtn.className = "dangerBtn quoteItemDeleteBtn";
+      delBtn.textContent = "삭제";
+      delBtn.addEventListener("click", () => removeQuoteItem(item.id));
+
+      li.appendChild(text);
+      li.appendChild(delBtn);
       selectedOptionListEl.appendChild(li);
     });
   }
@@ -365,26 +532,28 @@
     mobileQuoteDetailEl.innerHTML = getSummaryHtml();
   }
 
+  function setSummaryRowVisible(el, isVisible) {
+    if (!el) return;
+    el.hidden = !isVisible;
+    el.style.display = isVisible ? "flex" : "none";
+  }
+
   function updateQuote() {
-    const keycap = getKeycapPriceData();
-    const keyring = getKeyringPriceData();
-    const subtotal = keycap.final + keyring.final;
-    const rushAmount = subtotal * getRushRate();
-    const total = subtotal + rushAmount;
+    const summary = getQuoteSummaryData();
 
-    keycapPriceRowEl.hidden = !useKeycap.checked;
-    keyringPriceRowEl.hidden = !useKeyring.checked;
-    discountPriceRowEl.hidden = !(useKeycap.checked && keycap.discount > 0);
-    rushPriceRowEl.hidden = !(rushAmount > 0);
+    setSummaryRowVisible(keycapPriceRowEl, summary.keycapTotal > 0);
+    setSummaryRowVisible(keyringPriceRowEl, summary.keyringTotal > 0);
+    setSummaryRowVisible(discountPriceRowEl, summary.discountTotal > 0);
+    setSummaryRowVisible(rushPriceRowEl, summary.rushAmount > 0);
 
-    keycapPriceTextEl.textContent = formatPrice(keycap.final);
-    keyringPriceTextEl.textContent = formatPrice(keyring.final);
-    discountTextEl.textContent = `-${formatPrice(keycap.discount)}`;
-    rushTextEl.textContent = `+${formatPrice(rushAmount)}`;
-    finalPriceTextEl.textContent = formatPrice(total);
-    mobileBarTotalEl.textContent = formatPrice(total);
+    keycapPriceTextEl.textContent = formatPrice(summary.keycapTotal);
+    keyringPriceTextEl.textContent = formatPrice(summary.keyringTotal);
+    discountTextEl.textContent = `-${formatPrice(summary.discountTotal)}`;
+    rushTextEl.textContent = `+${formatPrice(summary.rushAmount)}`;
+    finalPriceTextEl.textContent = formatPrice(summary.total);
+    mobileBarTotalEl.textContent = formatPrice(summary.total);
 
-    updateSelectedOptionList(buildSelectedOptions(keycap, keyring));
+    updateSelectedOptionList(quoteItems);
     updateMobileDetail();
   }
 
@@ -425,6 +594,7 @@
 
     selectedBizFile = null;
     selectedDesignFiles = [];
+    quoteItems = [];
     bizFileInputEl.value = "";
     designFilesInputEl.value = "";
 
@@ -465,45 +635,9 @@
       return false;
     }
 
-    if (!useKeycap.checked && !useKeyring.checked) {
-      showToast("키캡 또는 키링을 선택해주세요.", "warn");
+    if (!quoteItems.length) {
+      showToast("견적 항목을 먼저 추가해주세요.", "warn");
       return false;
-    }
-
-    if (useKeycap.checked) {
-      if (!safeTrim(profileEl.value)) {
-        showToast("키캡 프로파일을 선택해주세요.", "warn");
-        profileEl.focus();
-        return false;
-      }
-      if (!safeTrim(capTypeEl.value)) {
-        showToast("키캡 규격을 선택해주세요.", "warn");
-        capTypeEl.focus();
-        return false;
-      }
-      if ((Number(keycapQtyEl.value) || 0) <= 0) {
-        showToast("키캡 수량을 입력해주세요.", "warn");
-        keycapQtyEl.focus();
-        return false;
-      }
-    }
-
-    if (useKeyring.checked) {
-      if (!safeTrim(keyringColorEl.value)) {
-        showToast("키링 재질 / 컬러를 선택해주세요.", "warn");
-        keyringColorEl.focus();
-        return false;
-      }
-      if (!safeTrim(keyringTypeEl.value)) {
-        showToast("키링 종류를 선택해주세요.", "warn");
-        keyringTypeEl.focus();
-        return false;
-      }
-      if ((Number(keyringQtyEl.value) || 0) <= 0) {
-        showToast("키링 수량을 입력해주세요.", "warn");
-        keyringQtyEl.focus();
-        return false;
-      }
     }
 
     return true;
@@ -524,6 +658,24 @@
     keyringLedEl.addEventListener("change", updateQuote);
     keyringQtyEl.addEventListener("input", updateQuote);
     rushTypeEl.addEventListener("change", updateQuote);
+
+    addKeycapItemBtnEl.addEventListener("click", () => {
+      if (!validateKeycapDraft()) return;
+      addQuoteItem(getKeycapDraftData());
+      clearKeycapInputs();
+      useKeycap.checked = false;
+      updateAccordionState();
+      showToast("키캡 견적 항목을 추가했습니다.", "ok");
+    });
+
+    addKeyringItemBtnEl.addEventListener("click", () => {
+      if (!validateKeyringDraft()) return;
+      addQuoteItem(getKeyringDraftData());
+      clearKeyringInputs();
+      useKeyring.checked = false;
+      updateAccordionState();
+      showToast("키링 견적 항목을 추가했습니다.", "ok");
+    });
 
     bizFileBtnEl.addEventListener("click", () => bizFileInputEl.click());
     bizFileInputEl.addEventListener("change", () => {

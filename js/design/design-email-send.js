@@ -28,19 +28,22 @@ function getTotalQty(items) {
  * 회사 발송용 메일 파라미터
 ========================================================= */
 async function buildDesignCompanyEmailParams() {
-  const orderNo = safeTrim(orderEl?.value) || "";
+  const orderNo = safeTrim(orderEl?.value) || "-";
   const attachment = await buildDesignAttachmentParams();
 
   return {
     to_email: COMPANY_EMAIL,
-    customer_name: safeTrim(nameEl?.value),
+    customer_name: safeTrim(nameEl?.value) || "고객",
     customer_order_no: orderNo,
-    customer_email: safeTrim(emailEl?.value),
+    customer_email: safeTrim(emailEl?.value) || "-",
+    reply_to: safeTrim(emailEl?.value) || COMPANY_EMAIL,
+
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
     attachment_summary_html:
       attachment?.attachment_summary_html || "<div>-</div>",
+
     ...attachment,
   };
 }
@@ -53,14 +56,17 @@ async function buildDesignCustomerEmailParams() {
   const attachment = await buildDesignAttachmentParams();
 
   return {
-    to_email: safeTrim(emailEl?.value),
-    customer_name: safeTrim(nameEl?.value),
+    to_email: safeTrim(emailEl?.value) || "",
+    customer_name: safeTrim(nameEl?.value) || "고객",
     customer_order_no: orderNo,
+    reply_to: COMPANY_EMAIL,
+
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
     attachment_summary_html:
       attachment?.attachment_summary_html || "<div>-</div>",
+
     ...attachment,
   };
 }
