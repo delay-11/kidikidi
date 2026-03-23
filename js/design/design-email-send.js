@@ -77,7 +77,6 @@ async function buildDesignCustomerEmailParams() {
 async function sendDesignToCompany() {
   ensureEmailJsInit();
   const params = await buildDesignCompanyEmailParams();
-  console.log("[회사 메일 params raw]", JSON.stringify(params, null, 2));
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
@@ -100,7 +99,6 @@ async function sendDesignToCustomer() {
 
   ensureEmailJsInit();
   const params = await buildDesignCustomerEmailParams();
-  console.log("[고객 메일 params raw]", JSON.stringify(params, null, 2));
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
