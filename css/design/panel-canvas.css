@@ -36,6 +36,7 @@ canvas {
 
     background: transparent;
     pointer-events: auto;
+    transform-origin: center center;
 }
 
 .bbox .h {
@@ -62,6 +63,13 @@ canvas {
     cursor: nesw-resize;
 }
 
+.bbox .h.n {
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
 .bbox .h.sw {
     bottom: -8px;
     left: -8px;
@@ -72,6 +80,27 @@ canvas {
     right: -8px;
     bottom: -8px;
     cursor: nwse-resize;
+}
+
+.bbox .h.e {
+    top: 50%;
+    right: -8px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.bbox .h.s {
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.bbox .h.w {
+    top: 50%;
+    left: -8px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
 }
 
 /* =========================================================

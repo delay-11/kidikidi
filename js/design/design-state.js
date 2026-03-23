@@ -20,7 +20,8 @@ let selectedItemId = null;
 let userImg = null;
 let imgCX = 0;
 let imgCY = 0;
-let imgScale = 1;
+let imgScaleX = 1;
+let imgScaleY = 1;
 let imgRot = 0;
 
 /* =========================================================

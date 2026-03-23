@@ -427,7 +427,8 @@ function saveCanvasToItem(it) {
   it.design.imgDataUrl = userImg ? userImg.src : null;
   it.design.cx = imgCX;
   it.design.cy = imgCY;
-  it.design.scale = imgScale;
+  it.design.scaleX = imgScaleX;
+  it.design.scaleY = imgScaleY;
   it.design.rot = imgRot;
   it.design.bgSet = !!draftBgSet;
   it.bgColor = draftBgColor || "#ffffff";
@@ -437,7 +438,8 @@ async function loadItemToCanvas(it) {
   userImg = null;
   imgCX = it.design?.cx ?? canvas.width / 2;
   imgCY = it.design?.cy ?? canvas.height / 2;
-  imgScale = it.design?.scale ?? 1;
+  imgScaleX = it.design?.scaleX ?? it.design?.scale ?? 1;
+  imgScaleY = it.design?.scaleY ?? it.design?.scale ?? 1;
   imgRot = it.design?.rot ?? 0;
 
   draftBgColor = it.bgColor || "#ffffff";
@@ -470,7 +472,8 @@ function clearEditor() {
   userImg = null;
   imgCX = canvas.width / 2;
   imgCY = canvas.height / 2;
-  imgScale = 1;
+  imgScaleX = 1;
+  imgScaleY = 1;
   imgRot = 0;
 
   draftBgColor = "#ffffff";
@@ -589,8 +592,8 @@ function drawGuide() {
 function drawImageTransformed() {
   if (!userImg) return;
 
-  const w = userImg.width * imgScale;
-  const h = userImg.height * imgScale;
+  const w = userImg.width * imgScaleX;
+  const h = userImg.height * imgScaleY;
 
   ctx.save();
   ctx.translate(imgCX, imgCY);
@@ -599,26 +602,48 @@ function drawImageTransformed() {
   ctx.restore();
 }
 
-function getImageAABB() {
-  if (!userImg) return null;
 
-  const w = userImg.width * imgScale;
-  const h = userImg.height * imgScale;
-  const hw = w / 2;
-  const hh = h / 2;
-
+function getImageAxes() {
   const cos = Math.cos(imgRot);
   const sin = Math.sin(imgRot);
 
+  return {
+    ux: cos,
+    uy: sin,
+    vx: -sin,
+    vy: cos,
+  };
+}
+
+function getImageHalfSize() {
+  if (!userImg) return null;
+
+  return {
+    halfW: (userImg.width * imgScaleX) / 2,
+    halfH: (userImg.height * imgScaleY) / 2,
+  };
+}
+
+function localToWorldPoint(x, y) {
+  const axes = getImageAxes();
+  return {
+    x: imgCX + x * axes.ux + y * axes.vx,
+    y: imgCY + x * axes.uy + y * axes.vy,
+  };
+}
+
+function getImageAABB() {
+  if (!userImg) return null;
+
+  const size = getImageHalfSize();
+  if (!size) return null;
+
   const corners = [
-    { x: -hw, y: -hh },
-    { x: hw, y: -hh },
-    { x: hw, y: hh },
-    { x: -hw, y: hh },
-  ].map((p) => ({
-    x: imgCX + (p.x * cos - p.y * sin),
-    y: imgCY + (p.x * sin + p.y * cos),
-  }));
+    localToWorldPoint(-size.halfW, -size.halfH),
+    localToWorldPoint(size.halfW, -size.halfH),
+    localToWorldPoint(size.halfW, size.halfH),
+    localToWorldPoint(-size.halfW, size.halfH),
+  ];
 
   let minX = Infinity;
   let minY = Infinity;
@@ -635,16 +660,23 @@ function getImageAABB() {
   return { minX, minY, maxX, maxY, w: maxX - minX, h: maxY - minY };
 }
 
-function cornerPoint(aabb, corner) {
-  if (corner === "nw") return { x: aabb.minX, y: aabb.minY };
-  if (corner === "ne") return { x: aabb.maxX, y: aabb.minY };
-  if (corner === "sw") return { x: aabb.minX, y: aabb.maxY };
-  return { x: aabb.maxX, y: aabb.maxY };
+function getHandleSpec(handle) {
+  const map = {
+    e: { anchorLocal: { x: -1, y: 0 }, signX: 1, signY: 0 },
+    w: { anchorLocal: { x: 1, y: 0 }, signX: -1, signY: 0 },
+    s: { anchorLocal: { x: 0, y: -1 }, signX: 0, signY: 1 },
+    n: { anchorLocal: { x: 0, y: 1 }, signX: 0, signY: -1 },
+    se: { anchorLocal: { x: -1, y: -1 }, signX: 1, signY: 1 },
+    sw: { anchorLocal: { x: 1, y: -1 }, signX: -1, signY: 1 },
+    ne: { anchorLocal: { x: -1, y: 1 }, signX: 1, signY: -1 },
+    nw: { anchorLocal: { x: 1, y: 1 }, signX: -1, signY: -1 },
+  };
+
+  return map[handle] || null;
 }
 
 function updateBBox() {
-  const aabb = getImageAABB();
-  if (!aabb) {
+  if (!userImg) {
     bboxEl.style.display = "none";
     return;
   }
@@ -657,11 +689,15 @@ function updateBBox() {
   const offsetX = cr.left - wr.left;
   const offsetY = cr.top - wr.top;
 
+  const w = userImg.width * imgScaleX;
+  const h = userImg.height * imgScaleY;
+
   bboxEl.style.display = "block";
-  bboxEl.style.left = `${offsetX + aabb.minX * sx}px`;
-  bboxEl.style.top = `${offsetY + aabb.minY * sy}px`;
-  bboxEl.style.width = `${aabb.w * sx}px`;
-  bboxEl.style.height = `${aabb.h * sy}px`;
+  bboxEl.style.left = `${offsetX + (imgCX - w / 2) * sx}px`;
+  bboxEl.style.top = `${offsetY + (imgCY - h / 2) * sy}px`;
+  bboxEl.style.width = `${w * sx}px`;
+  bboxEl.style.height = `${h * sy}px`;
+  bboxEl.style.transform = `rotate(${imgRot}rad)`;
 }
 
 function redraw() {
@@ -697,8 +733,8 @@ function isPointOnImage(px, py) {
   const lx = dx * cos - dy * sin;
   const ly = dx * sin + dy * cos;
 
-  const halfW = (userImg.width * imgScale) / 2;
-  const halfH = (userImg.height * imgScale) / 2;
+  const halfW = (userImg.width * imgScaleX) / 2;
+  const halfH = (userImg.height * imgScaleY) / 2;
 
   return lx >= -halfW && lx <= halfW && ly >= -halfH && ly <= halfH;
 }
@@ -741,6 +777,7 @@ canvasWrapEl?.addEventListener("pointerdown", onMainPointerDown, {
 
 bboxEl?.addEventListener("pointerdown", onMainPointerDown);
 
+
 bboxEl?.querySelectorAll(".h").forEach((h) => {
   h.addEventListener("pointerdown", (e) => {
     if (uiLocked || !userImg) return;
@@ -753,28 +790,26 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
     draggingMove = false;
 
     const handle = h.dataset.h;
-    const aabb = getImageAABB();
-    if (!aabb) return;
+    const spec = getHandleSpec(handle);
+    const size = getImageHalfSize();
 
-    const p = screenToCanvasPoint(e);
+    if (!spec || !size) return;
 
-    const opposite =
-      handle === "nw"
-        ? "se"
-        : handle === "ne"
-          ? "sw"
-          : handle === "sw"
-            ? "ne"
-            : "nw";
-
-    const anchor = cornerPoint(aabb, opposite);
+    const anchor = localToWorldPoint(
+      size.halfW * spec.anchorLocal.x,
+      size.halfH * spec.anchorLocal.y,
+    );
 
     handleDrag = {
+      handle,
+      signX: spec.signX,
+      signY: spec.signY,
       anchorX: anchor.x,
       anchorY: anchor.y,
-      anchorCorner: opposite,
-      startDist: Math.hypot(p.x - anchor.x, p.y - anchor.y),
-      startScale: imgScale,
+      startHalfW: size.halfW,
+      startHalfH: size.halfH,
+      startCX: imgCX,
+      startCY: imgCY,
     };
   });
 });
@@ -799,6 +834,7 @@ rotHandleEl?.addEventListener("pointerdown", (e) => {
   };
 });
 
+
 document.addEventListener("pointermove", (e) => {
   if (uiLocked) return;
 
@@ -812,33 +848,54 @@ document.addEventListener("pointermove", (e) => {
   }
 
   if (handleDrag) {
-    const alt = e.altKey;
-    const ax = handleDrag.anchorX;
-    const ay = handleDrag.anchorY;
+    const axes = getImageAxes();
+    const isAlt = e.altKey;
+    const minHalf = 10;
+    let halfW = handleDrag.startHalfW;
+    let halfH = handleDrag.startHalfH;
 
-    const distNow = Math.hypot(p.x - ax, p.y - ay);
-    const distStart = handleDrag.startDist;
-    if (distStart < 1) return;
+    if (isAlt) {
+      const dx = p.x - handleDrag.startCX;
+      const dy = p.y - handleDrag.startCY;
 
-    let nextScale = handleDrag.startScale * (distNow / distStart);
-    nextScale = clamp(nextScale, 0.1, 10);
+      if (handleDrag.signX) {
+        const projX = dx * axes.ux + dy * axes.uy;
+        halfW = Math.max(minHalf, handleDrag.signX * projX);
+      }
 
-    if (alt) {
-      imgScale = nextScale;
-      redraw();
-      return;
+      if (handleDrag.signY) {
+        const projY = dx * axes.vx + dy * axes.vy;
+        halfH = Math.max(minHalf, handleDrag.signY * projY);
+      }
+
+      imgCX = handleDrag.startCX;
+      imgCY = handleDrag.startCY;
+    } else {
+      const dx = p.x - handleDrag.anchorX;
+      const dy = p.y - handleDrag.anchorY;
+
+      if (handleDrag.signX) {
+        const projX = dx * axes.ux + dy * axes.uy;
+        halfW = Math.max(minHalf, (handleDrag.signX * projX) / 2);
+      }
+
+      if (handleDrag.signY) {
+        const projY = dx * axes.vx + dy * axes.vy;
+        halfH = Math.max(minHalf, (handleDrag.signY * projY) / 2);
+      }
+
+      imgCX =
+        handleDrag.anchorX +
+        axes.ux * (handleDrag.signX * halfW) +
+        axes.vx * (handleDrag.signY * halfH);
+      imgCY =
+        handleDrag.anchorY +
+        axes.uy * (handleDrag.signX * halfW) +
+        axes.vy * (handleDrag.signY * halfH);
     }
 
-    const before = getImageAABB();
-    imgScale = nextScale;
-    const after = getImageAABB();
-
-    if (before && after) {
-      const targetCorner = handleDrag.anchorCorner;
-      const afterCorner = cornerPoint(after, targetCorner);
-      imgCX += ax - afterCorner.x;
-      imgCY += ay - afterCorner.y;
-    }
+    imgScaleX = clamp((halfW * 2) / userImg.width, 0.05, 10);
+    imgScaleY = clamp((halfH * 2) / userImg.height, 0.05, 10);
 
     redraw();
     return;
@@ -957,7 +1014,9 @@ function warnLowResolutionImage(img) {
 }
 
 function fitImageToCanvas(img) {
-  imgScale = Math.max(canvas.width / img.width, canvas.height / img.height);
+  const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+  imgScaleX = scale;
+  imgScaleY = scale;
   imgRot = 0;
   imgCX = canvas.width / 2;
   imgCY = canvas.height / 2;
@@ -1052,15 +1111,10 @@ fileEl?.addEventListener("change", async () => {
     updateDraftInfo();
     updateActionLocks();
 
-    const warned = warnLowResolutionImage(userImg);
+    warnLowResolutionImage(userImg);
 
-    if (!warned) {
-      clearCanvasNotice();
-      showToast("이미지가 업로드되었습니다.", "ok");
-    } else {
-      clearCanvasNotice();
-      showToast("이미지가 업로드되었습니다. 해상도를 확인해주세요.", "warn");
-    }
+    clearCanvasNotice();
+    showToast("이미지가 업로드되었습니다.", "ok");
   } catch (e) {
     console.error("이미지 업로드 실패:", e);
     setCanvasNotice(
@@ -1085,7 +1139,8 @@ fileDelBtn?.addEventListener(
     if (await applyConfirmedLockIfNeeded(true)) return;
 
     userImg = null;
-    imgScale = 1;
+    imgScaleX = 1;
+    imgScaleY = 1;
     imgRot = 0;
     imgCX = canvas.width / 2;
     imgCY = canvas.height / 2;
