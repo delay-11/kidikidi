@@ -33,17 +33,14 @@ async function buildDesignCompanyEmailParams() {
 
   return {
     to_email: COMPANY_EMAIL,
-
     customer_name: safeTrim(nameEl?.value),
     customer_order_no: orderNo,
     customer_email: safeTrim(emailEl?.value),
-
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
     attachment_summary_html:
       attachment?.attachment_summary_html || "<div>-</div>",
-
     ...attachment,
   };
 }
@@ -59,13 +56,11 @@ async function buildDesignCustomerEmailParams() {
     to_email: safeTrim(emailEl?.value),
     customer_name: safeTrim(nameEl?.value),
     customer_order_no: orderNo,
-
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
     attachment_summary_html:
       attachment?.attachment_summary_html || "<div>-</div>",
-
     ...attachment,
   };
 }
@@ -115,12 +110,27 @@ async function sendDesignToCustomer() {
  * 시안 접수 메일 발송 통합
 ========================================================= */
 async function sendOrderEmails() {
+  let companyOk = false;
+  let customerOk = false;
+
   try {
     await sendDesignToCompany();
-    await sendDesignToCustomer();
-    return true;
+    companyOk = true;
   } catch (err) {
-    console.error("[시안 접수 메일 발송 실패]", err);
+    console.error("[회사 메일 발송 실패]", err);
+  }
+
+  try {
+    await sendDesignToCustomer();
+    customerOk = true;
+  } catch (err) {
+    console.error("[고객 메일 발송 실패]", err);
+  }
+
+  if (!companyOk && !customerOk) {
+    console.error("[시안 접수 메일 발송 실패] 회사/고객 메일 모두 실패");
     return false;
   }
+
+  return true;
 }

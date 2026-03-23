@@ -3,6 +3,29 @@
 ========================================================= */
 let bgPickr = null;
 
+let isAltResizePressed = false;
+
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Alt") isAltResizePressed = true;
+});
+
+window.addEventListener("keyup", (e) => {
+  if (e.key === "Alt") isAltResizePressed = false;
+});
+
+window.addEventListener("blur", () => {
+  isAltResizePressed = false;
+});
+let activeResizePointerId = null;
+
+function isAltPressed(ev) {
+  return !!(ev?.altKey || ev?.getModifierState?.("Alt") || isAltResizePressed);
+}
+
+function syncAltPressed(ev) {
+  isAltResizePressed = isAltPressed(ev);
+}
+
 function getPickrPanel() {
   return bgPickr?.getRoot?.()?.app || null;
 }
@@ -250,7 +273,6 @@ function initPickr() {
   setBgUI("#ffffff");
 }
 
-
 /* =========================================================
  * 캔버스 크기 / 기본 표시 / MAO 가이드 / 상태 반영
 ========================================================= */
@@ -355,7 +377,8 @@ function updateMaoGuide() {
 function syncDraftBgFromLaser(profile, laser) {
   if (selectedItemId) return;
 
-  const isLaserFixed = profile === "OEM" && (laser === "black" || laser === "white");
+  const isLaserFixed =
+    profile === "OEM" && (laser === "black" || laser === "white");
 
   if (isLaserFixed) {
     draftBgColor = "#ffffff";
@@ -491,7 +514,6 @@ function clearEditor() {
   updateActionLocks();
 }
 
-
 /* =========================================================
  * 캔버스 드로잉
 ========================================================= */
@@ -602,7 +624,6 @@ function drawImageTransformed() {
   ctx.restore();
 }
 
-
 function getImageAxes() {
   const cos = Math.cos(imgRot);
   const sin = Math.sin(imgRot);
@@ -709,7 +730,6 @@ function redraw() {
   updateBBox();
 }
 
-
 /* =========================================================
  * 이동 / 리사이즈 / 회전
 ========================================================= */
@@ -777,7 +797,6 @@ canvasWrapEl?.addEventListener("pointerdown", onMainPointerDown, {
 
 bboxEl?.addEventListener("pointerdown", onMainPointerDown);
 
-
 bboxEl?.querySelectorAll(".h").forEach((h) => {
   h.addEventListener("pointerdown", (e) => {
     if (uiLocked || !userImg) return;
@@ -792,6 +811,7 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
     const handle = h.dataset.h;
     const spec = getHandleSpec(handle);
     const size = getImageHalfSize();
+    const p = screenToCanvasPoint(e);
 
     if (!spec || !size) return;
 
@@ -810,7 +830,12 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
       startHalfH: size.halfH,
       startCX: imgCX,
       startCY: imgCY,
+      startPointerX: p.x,
+      startPointerY: p.y,
+      startedWithAlt: isAltPressed(e),
     };
+    activeResizePointerId = e.pointerId;
+    syncAltPressed(e);
   });
 });
 
@@ -834,9 +859,54 @@ rotHandleEl?.addEventListener("pointerdown", (e) => {
   };
 });
 
+document.addEventListener("keydown", (e) => {
+  if (
+    e.key === "Alt" ||
+    e.code === "AltLeft" ||
+    e.code === "AltRight" ||
+    e.altKey
+  ) {
+    isAltResizePressed = true;
+  }
+});
+
+window.addEventListener("keydown", (e) => {
+  if (
+    e.key === "Alt" ||
+    e.code === "AltLeft" ||
+    e.code === "AltRight" ||
+    e.altKey
+  ) {
+    isAltResizePressed = true;
+  }
+});
+
+document.addEventListener("keyup", (e) => {
+  if (e.key === "Alt" || e.code === "AltLeft" || e.code === "AltRight") {
+    isAltResizePressed = false;
+  }
+});
+
+window.addEventListener("keyup", (e) => {
+  if (e.key === "Alt" || e.code === "AltLeft" || e.code === "AltRight") {
+    isAltResizePressed = false;
+  }
+});
+
+window.addEventListener("blur", () => {
+  isAltResizePressed = false;
+});
 
 document.addEventListener("pointermove", (e) => {
   if (uiLocked) return;
+
+  if (
+    handleDrag &&
+    activeResizePointerId !== null &&
+    e.pointerId === activeResizePointerId
+  ) {
+    syncAltPressed(e);
+  }
 
   const p = screenToCanvasPoint(e);
 
@@ -849,37 +919,49 @@ document.addEventListener("pointermove", (e) => {
 
   if (handleDrag) {
     const axes = getImageAxes();
-    const isAlt = e.altKey;
+    const isAlt = isAltPressed(e) || handleDrag.startedWithAlt;
     const minHalf = 10;
+
     let halfW = handleDrag.startHalfW;
     let halfH = handleDrag.startHalfH;
 
     if (isAlt) {
-      const dx = p.x - handleDrag.startCX;
-      const dy = p.y - handleDrag.startCY;
+      // 중심 기준 확대/축소
+      // "현재 포인터 절대 위치"가 아니라
+      // "드래그 시작 지점 대비 이동량"으로 계산해야 자연스럽게 됨
+      const moveX = p.x - handleDrag.startPointerX;
+      const moveY = p.y - handleDrag.startPointerY;
 
-      if (handleDrag.signX) {
-        const projX = dx * axes.ux + dy * axes.uy;
-        halfW = Math.max(minHalf, handleDrag.signX * projX);
+      const localDx = moveX * axes.ux + moveY * axes.uy;
+      const localDy = moveX * axes.vx + moveY * axes.vy;
+
+      if (handleDrag.signX !== 0) {
+        halfW = Math.max(
+          minHalf,
+          handleDrag.startHalfW + handleDrag.signX * localDx,
+        );
       }
 
-      if (handleDrag.signY) {
-        const projY = dx * axes.vx + dy * axes.vy;
-        halfH = Math.max(minHalf, handleDrag.signY * projY);
+      if (handleDrag.signY !== 0) {
+        halfH = Math.max(
+          minHalf,
+          handleDrag.startHalfH + handleDrag.signY * localDy,
+        );
       }
 
       imgCX = handleDrag.startCX;
       imgCY = handleDrag.startCY;
     } else {
+      // 일반 리사이즈
       const dx = p.x - handleDrag.anchorX;
       const dy = p.y - handleDrag.anchorY;
 
-      if (handleDrag.signX) {
+      if (handleDrag.signX !== 0) {
         const projX = dx * axes.ux + dy * axes.uy;
         halfW = Math.max(minHalf, (handleDrag.signX * projX) / 2);
       }
 
-      if (handleDrag.signY) {
+      if (handleDrag.signY !== 0) {
         const projY = dx * axes.vx + dy * axes.vy;
         halfH = Math.max(minHalf, (handleDrag.signY * projY) / 2);
       }
@@ -888,6 +970,7 @@ document.addEventListener("pointermove", (e) => {
         handleDrag.anchorX +
         axes.ux * (handleDrag.signX * halfW) +
         axes.vx * (handleDrag.signY * halfH);
+
       imgCY =
         handleDrag.anchorY +
         axes.uy * (handleDrag.signX * halfW) +
@@ -913,6 +996,8 @@ function endPointerInteraction() {
     draggingMove = false;
     handleDrag = null;
     rotateDrag = null;
+    activeResizePointerId = null;
+    isAltResizePressed = false;
     redraw();
     updateActionLocks();
   }
@@ -929,7 +1014,6 @@ document.addEventListener("pointercancel", () => {
 });
 
 canvas.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
-
 
 /* =========================================================
  * 이미지 업로드 / 삭제
@@ -982,7 +1066,7 @@ async function loadImageFromFile(file) {
   tempCtx.clearRect(0, 0, targetWidth, targetHeight);
   tempCtx.drawImage(originalImg, 0, 0, targetWidth, targetHeight);
 
-  /* 
+  /*
    * PNG 투명 배경이 꼭 필요한 경우까지 전부 JPEG로 바꾸면
    * 투명이 날아갈 수 있음.
    * 그래서 PNG/WEBP는 원본 포맷을 최대한 유지하고,
@@ -995,7 +1079,8 @@ async function loadImageFromFile(file) {
         ? "image/webp"
         : "image/jpeg";
 
-  const quality = mimeType === "image/jpeg" || mimeType === "image/webp" ? 0.85 : undefined;
+  const quality =
+    mimeType === "image/jpeg" || mimeType === "image/webp" ? 0.85 : undefined;
   const optimizedDataUrl =
     quality !== undefined
       ? tempCanvas.toDataURL(mimeType, quality)
@@ -1048,7 +1133,6 @@ fileBtn?.addEventListener(
       return;
     }
 
-
     if (fileEl.disabled) {
       setCanvasNotice(
         "현재 업로드할 수 없는 상태입니다. 주문자 정보와 옵션을 먼저 확인해주세요.",
@@ -1079,7 +1163,6 @@ fileEl?.addEventListener("change", async () => {
     updateActionLocks();
     return;
   }
-
 
   const f = fileEl.files && fileEl.files[0];
 

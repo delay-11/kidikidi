@@ -1,7 +1,7 @@
 /* =========================================================
  * 시안 첨부용 렌더링 / 첨부 파라미터 생성
- * - 1~9개  : PNG 개별 첨부
- * - 10개 이상 : ZIP 첨부
+ * - 1~9개   : PNG 개별 첨부
+ * - 10개 이상: ZIP 첨부
 ========================================================= */
 
 function loadImageFromDataUrl(dataUrl) {
@@ -59,14 +59,27 @@ async function renderItemToPngDataUrl(item) {
   return off.toDataURL("image/png");
 }
 
-function buildAttachmentSummaryHtml(attachments) {
-  if (!Array.isArray(attachments) || !attachments.length) {
+function buildAttachmentSummaryHtml(files) {
+  if (!Array.isArray(files) || !files.length) {
     return "<div>-</div>";
   }
 
-  return attachments
-    .map((file) => `<div>${file.filename}</div>`)
-    .join("");
+  return files.map((file) => `<div>${file.filename}</div>`).join("");
+}
+
+function createEmptyAttachmentParams() {
+  const params = {
+    attachment_summary_html: "<div>-</div>",
+    zip_filename: "",
+    zip_file: "",
+  };
+
+  for (let i = 1; i <= 9; i += 1) {
+    params[`design_${i}_filename`] = "";
+    params[`design_${i}_file`] = "";
+  }
+
+  return params;
 }
 
 async function buildAttachments(orderNo = "order") {
@@ -92,16 +105,12 @@ async function buildAttachments(orderNo = "order") {
   }
 
   if (!files.length) {
-    return {
-      attachment_summary_html: "<div>-</div>",
-    };
+    return createEmptyAttachmentParams();
   }
 
-  // 1~9개: 개별 첨부
   if (files.length <= 9) {
-    const params = {
-      attachment_summary_html: buildAttachmentSummaryHtml(files),
-    };
+    const params = createEmptyAttachmentParams();
+    params.attachment_summary_html = buildAttachmentSummaryHtml(files);
 
     files.forEach((file, index) => {
       const no = index + 1;
@@ -112,7 +121,6 @@ async function buildAttachments(orderNo = "order") {
     return params;
   }
 
-  // 10개 이상: ZIP 첨부
   const zip = new JSZip();
   const folder = zip.folder(`${safeFilePart(orderNo)}_designs`);
 
@@ -130,9 +138,9 @@ async function buildAttachments(orderNo = "order") {
     reader.readAsDataURL(zipBlob);
   });
 
-  return {
-    attachment_summary_html: `<div>${safeFilePart(orderNo)}_designs.zip</div>`,
-    zip_filename: `${safeFilePart(orderNo)}_designs.zip`,
-    zip_file: zipBase64,
-  };
+  const params = createEmptyAttachmentParams();
+  params.attachment_summary_html = `<div>${safeFilePart(orderNo)}_designs.zip</div>`;
+  params.zip_filename = `${safeFilePart(orderNo)}_designs.zip`;
+  params.zip_file = zipBase64;
+  return params;
 }

@@ -8,7 +8,7 @@ let __emailJsInitialized = false;
 ========================================================= */
 function ensureEmailJsInit() {
   if (__emailJsInitialized) return;
-  emailjs.init({ publicKey: rzyGqBY1HaHCNyQCK });
+  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   __emailJsInitialized = true;
 }
 
