@@ -7,6 +7,17 @@ async function buildDesignAttachmentParams() {
 }
 
 /* =========================================================
+ * 첨부 파일 요약 HTML
+========================================================= */
+function buildAttachmentSummaryHtml(attachment) {
+  if (!attachment?.zip_filename) {
+    return "<div>-</div>";
+  }
+
+  return `<div>${attachment.zip_filename}</div>`;
+}
+
+/* =========================================================
  * 시안 종류 수
 ========================================================= */
 function getDesignTypeCount(items) {
@@ -41,6 +52,7 @@ async function buildDesignCompanyEmailParams() {
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
+    attachment_summary_html: buildAttachmentSummaryHtml(attachment),
 
     ...attachment,
   };
@@ -71,6 +83,7 @@ async function buildDesignCustomerEmailParams() {
 ========================================================= */
 async function sendDesignToCompany() {
   const params = await buildDesignCompanyEmailParams();
+  console.log("[회사 메일 params]", params);
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
@@ -92,6 +105,7 @@ async function sendDesignToCustomer() {
   if (!customerEmail) return true;
 
   const params = await buildDesignCustomerEmailParams();
+  console.log("[고객 메일 params]", params);
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
