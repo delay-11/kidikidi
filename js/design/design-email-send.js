@@ -29,7 +29,6 @@ function getTotalQty(items) {
 ========================================================= */
 async function buildDesignCompanyEmailParams() {
   const orderNo = safeTrim(orderEl?.value) || "-";
-  const attachment = await buildDesignAttachmentParams();
 
   return {
     to_email: COMPANY_EMAIL,
@@ -41,10 +40,7 @@ async function buildDesignCompanyEmailParams() {
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
-    attachment_summary_html:
-      attachment?.attachment_summary_html || "<div>-</div>",
-
-    ...attachment,
+    attachment_summary_html: "<div>첨부 테스트 제외</div>",
   };
 }
 
@@ -53,7 +49,6 @@ async function buildDesignCompanyEmailParams() {
 ========================================================= */
 async function buildDesignCustomerEmailParams() {
   const orderNo = safeTrim(orderEl?.value) || "-";
-  const attachment = await buildDesignAttachmentParams();
 
   return {
     to_email: safeTrim(emailEl?.value) || "",
@@ -64,10 +59,7 @@ async function buildDesignCustomerEmailParams() {
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
-    attachment_summary_html:
-      attachment?.attachment_summary_html || "<div>-</div>",
-
-    ...attachment,
+    attachment_summary_html: "<div>첨부 테스트 제외</div>",
   };
 }
 
