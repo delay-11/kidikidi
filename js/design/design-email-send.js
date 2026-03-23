@@ -29,6 +29,7 @@ function getTotalQty(items) {
 ========================================================= */
 async function buildDesignCompanyEmailParams() {
   const orderNo = safeTrim(orderEl?.value) || "-";
+  const attachment = await buildDesignAttachmentParams();
 
   return {
     to_email: COMPANY_EMAIL,
@@ -40,7 +41,10 @@ async function buildDesignCompanyEmailParams() {
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
-    attachment_summary_html: "<div>첨부 테스트 제외</div>",
+    attachment_summary_html:
+      attachment?.attachment_summary_html || "<div>-</div>",
+
+    ...attachment,
   };
 }
 
@@ -49,6 +53,7 @@ async function buildDesignCompanyEmailParams() {
 ========================================================= */
 async function buildDesignCustomerEmailParams() {
   const orderNo = safeTrim(orderEl?.value) || "-";
+  const attachment = await buildDesignAttachmentParams();
 
   return {
     to_email: safeTrim(emailEl?.value) || "",
@@ -59,7 +64,10 @@ async function buildDesignCustomerEmailParams() {
     design_type_count: String(getDesignTypeCount(cartItems)),
     total_qty: String(getTotalQty(cartItems)),
     items_summary_html: buildItemsSummaryHtml(cartItems),
-    attachment_summary_html: "<div>첨부 테스트 제외</div>",
+    attachment_summary_html:
+      attachment?.attachment_summary_html || "<div>-</div>",
+
+    ...attachment,
   };
 }
 
@@ -69,7 +77,7 @@ async function buildDesignCustomerEmailParams() {
 async function sendDesignToCompany() {
   ensureEmailJsInit();
   const params = await buildDesignCompanyEmailParams();
-  console.log("[회사 메일 params]", params);
+  console.log("[회사 메일 params raw]", JSON.stringify(params, null, 2));
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
@@ -92,7 +100,7 @@ async function sendDesignToCustomer() {
 
   ensureEmailJsInit();
   const params = await buildDesignCustomerEmailParams();
-  console.log("[고객 메일 params]", params);
+  console.log("[고객 메일 params raw]", JSON.stringify(params, null, 2));
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
