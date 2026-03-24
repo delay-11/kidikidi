@@ -91,14 +91,20 @@ function validateDesignUserInfo(showMessage = false) {
   if (!PHONE_RE.test(phone)) {
     ok = false;
     if (showMessage) {
-      setFieldError("phone", "핸드폰 번호 형식이 올바르지 않습니다. (예: 01012345678)");
+      setFieldError(
+        "phone",
+        "핸드폰 번호 형식이 올바르지 않습니다. (예: 01012345678)",
+      );
     }
   }
 
   if (!/^[0-9]{16}$/.test(orderNo)) {
     ok = false;
     if (showMessage) {
-      setFieldError("order", "주문번호 형식이 올바르지 않습니다. (숫자 16자리)");
+      setFieldError(
+        "order",
+        "주문번호 형식이 올바르지 않습니다. (숫자 16자리)",
+      );
     }
   }
 
@@ -148,7 +154,10 @@ function validateCanConfirm(showMessage = false) {
 
   if (!cartItems.some((it) => hasDesign(it))) {
     if (showMessage) {
-      showToast?.("최소 1개 이상 이미지 또는 배경색이 포함된 시안이 필요합니다.", "warn");
+      showToast?.(
+        "최소 1개 이상 이미지 또는 배경색이 포함된 시안이 필요합니다.",
+        "warn",
+      );
     }
     return false;
   }
@@ -252,9 +261,17 @@ async function applyConfirmedLockIfNeeded(showPopup = false) {
     didConfirmedPopup = true;
 
     if (typeof openNoticeModal === "function") {
-      await openNoticeModal("이미 시안이 접수된 주문번호입니다.", "접수 완료 주문");
+      await openNoticeModal(
+        `시안 접수가 완료되었습니다.
+
+이메일을 확인하시면 확정 안내 메일과
+접수된 시안을 확인하실 수 있습니다.`,
+        "접수 완료 주문",
+      );
     } else {
-      alert("이미 시안이 접수된 주문번호입니다.");
+      alert(
+        "시안 접수가 완료되었습니다. 이메일을 확인하시면 확정 안내 메일과 접수된 시안을 확인하실 수 있습니다.",
+      );
     }
   }
 
@@ -267,7 +284,8 @@ async function applyConfirmedLockIfNeeded(showPopup = false) {
 function updateActionLocks() {
   const hasUserInfo = validateUserInfo(false);
   const hasCanvasDesign = !!userImg || !!draftBgSet;
-  const hasAnyDesign = Array.isArray(cartItems) && cartItems.some((it) => hasDesign(it));
+  const hasAnyDesign =
+    Array.isArray(cartItems) && cartItems.some((it) => hasDesign(it));
 
   if (uiLocked) {
     if (fileBtn) fileBtn.disabled = true;
