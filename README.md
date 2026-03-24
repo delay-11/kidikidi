@@ -1,60 +1,31 @@
-# Keycap Draft Tool
+# Keycap Draft & Quote Tool
 
-키캡 시안 제작을 위한 웹 기반 내부 툴.
+키캡 시안 제작 및 견적 요청을 위한 웹 기반 내부 툴.
 
-주문 정보를 기반으로 시안을 제작하고 장바구니 관리 및 이메일 전송을 수행한다.
+옵션 선택, 이미지 업로드, 예상 금액 확인, 이메일 접수를 지원한다.
 
 ---
 
 ## Access
 
-서비스 URL   
-🌐 https://custom.keycapdesign.co.kr
+🌐 https://custom.keycapdesign.co.kr/  
+🌐 https://custom.keycapdesign.co.kr/quote.html
 
 ---
 
 ## Features
 
-* 주문자 정보 입력
-* 키캡 규격 선택 (OEM / XDA / MAO)
-* 캔버스 기반 시안 편집
-* 제작 가이드라인 표시
-* 장바구니 관리
-* 견적 요청 옵션
+* 키캡 / 키링 옵션 선택
+* 프로파일 및 규격 선택 (OEM / XDA / MAO)
+* 이미지 업로드 및 요청사항 입력
+* 예상 견적 실시간 계산
 * EmailJS 기반 메일 전송
-* 시안 파일 첨부 (10개 이상 ZIP)
-
----
-
-## Structure
-
-```
-css/
-js/
-image/
-```
-
----
-
-## Usage
-
-주문 고객에게 전달된 링크를 통해 접속하여  
-시안을 제작하고 최종 확정 시 회사로 접수 메일이 발송된다.
-
----
-
-## Mail Flow
-
-* 시안 확정 시 회사 접수 메일이 발송된다.
-* 제작 시안 이미지는 PNG 파일로 첨부된다.
-* 시안이 10개 이상일 경우 ZIP 파일로 압축되어 전송된다.
-* 견적 요청이 활성화된 경우 고객에게 견적 안내 메일이 함께 발송된다.
 
 ---
 
 ## License
 
-Internal Use Only
+Copyright ©
 
-This project is developed for internal company use.  
-Unauthorized distribution or reuse is not permitted.
+본 프로젝트의 권리는 제작자와 회사에 있습니다.  
+무단 배포 및 재사용을 금지합니다.
