@@ -58,7 +58,7 @@ function getCapTypeGuideData(profile, capType) {
 
   return {
     title: `현재 선택 규격: ${selected}`,
-    desc: `· <b>${profile}</b>는 현재 단일 규격만 제공되어 별도 규격 선택이 거의 필요 없습니다.`,
+    desc: `· <b>${profile}</b>는 현재 단일 규격만 제공되어 별도 규격 선택이 필요 없습니다.`,
   };
 }
 
