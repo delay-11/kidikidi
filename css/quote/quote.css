@@ -25,13 +25,6 @@
     min-width: 0;
 }
 
-.quoteSummarySticky {
-    position: sticky;
-    top: 16px;
-    display: grid;
-    gap: 16px;
-}
-
 .quoteSectionHead {
     display: grid;
     gap: 6px;
@@ -60,6 +53,12 @@
     grid-template-columns: 1fr 1fr;
 }
 
+
+
+/* =========================================================
+   좌측 섹션
+========================================================= */
+
 .quoteFileBlock {
     display: grid;
     gap: 8px;
@@ -69,6 +68,16 @@
     display: block;
     color: var(--muted);
     font-size: 12px;
+}
+
+.quoteFileBlock .uploadRow {
+    flex-wrap: wrap;
+}
+
+.quoteFileBlock .uploadRow button {
+    width: auto;
+    min-width: 0;
+    flex: 0 0 auto;
 }
 
 .fileGuideBox {
@@ -86,6 +95,12 @@
     background: #fff8e8;
     border-color: #f2d27a;
 }
+
+
+
+/* =========================================================
+   중앙 섹션
+========================================================= */
 
 .quoteAccordion {
     display: grid;
@@ -147,13 +162,13 @@
     transform: rotate(45deg);
 }
 
-.quoteAccToggle input:checked + .quoteAccCheck,
+.quoteAccToggle input:checked+.quoteAccCheck,
 .quoteAccItem.isActive .quoteAccCheck {
     background: var(--acc);
     border-color: #efc24f;
 }
 
-.quoteAccToggle input:checked + .quoteAccCheck::after,
+.quoteAccToggle input:checked+.quoteAccCheck::after,
 .quoteAccItem.isActive .quoteAccCheck::after {
     border-color: #6a4600;
 }
@@ -189,46 +204,6 @@
     margin-top: 4px;
 }
 
-.quoteAddAction {
-    margin-top: 12px;
-}
-
-.quoteAddAction button {
-    width: auto;
-    min-width: 0;
-    padding-left: 18px;
-    padding-right: 18px;
-}
-
-.quoteSelectedList li.quoteItemRow {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 10px;
-    align-items: start;
-    padding: 12px 12px 12px 14px;
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    background: #fff;
-}
-
-.quoteSelectedList li.quoteItemRow::before {
-    top: 12px;
-    left: 12px;
-}
-
-.quoteItemText {
-    display: block;
-    padding-left: 14px;
-}
-
-.quoteItemDeleteBtn {
-    width: auto !important;
-    min-height: 36px;
-    padding: 8px 12px;
-    font-size: 12px;
-    flex: 0 0 auto;
-}
-
 .optionGuideBox {
     padding: 18px;
     border: 1px solid var(--line);
@@ -261,6 +236,56 @@
 
 .quoteHelpTooltip {
     width: min(340px, calc(100vw - 40px));
+}
+
+.quoteAddAction {
+    margin-top: 12px;
+}
+
+.quoteAddAction button {
+    width: auto;
+    min-width: 0;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+.quoteGuideGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.quoteGuideCard {
+    min-height: 132px;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fbfcff;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.quoteGuideCard strong {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--txt);
+    font-size: 14px;
+    font-weight: 800;
+}
+
+
+
+/* =========================================================
+   우측 섹션
+========================================================= */
+
+.quoteSummarySticky {
+    position: sticky;
+    top: 16px;
+    display: grid;
+    gap: 16px;
 }
 
 .quoteSummaryHead {
@@ -309,6 +334,35 @@
     left: 0;
     top: 0;
     color: var(--muted);
+}
+
+.quoteSelectedList li.quoteItemRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: start;
+    padding: 12px 12px 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+}
+
+.quoteSelectedList li.quoteItemRow::before {
+    top: 12px;
+    left: 12px;
+}
+
+.quoteItemText {
+    display: block;
+    padding-left: 14px;
+}
+
+.quoteItemDeleteBtn {
+    width: auto !important;
+    min-height: 36px;
+    padding: 8px 12px;
+    font-size: 12px;
+    flex: 0 0 auto;
 }
 
 .quoteEmptyText {
@@ -362,6 +416,21 @@
     display: grid;
     gap: 10px;
 }
+
+.telLink {
+    color: #111;
+    text-decoration: none;
+}
+
+.telLink:hover {
+    opacity: 0.7;
+}
+
+
+
+/* =========================================================
+   모바일 견적 시트
+========================================================= */
 
 .quoteMobileBar,
 .quoteMobileSheet {
@@ -445,6 +514,63 @@
     background: transparent;
 }
 
+
+
+/* =========================================================
+   기타
+========================================================= */
+
+.quoteNoticeWrap {
+    padding-top: 18px;
+    padding-bottom: 0;
+}
+
+.quoteNoticeCard {
+    padding: 24px;
+}
+
+.quoteNoticeHead {
+    margin-bottom: 14px;
+}
+
+.quoteNoticeBox {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.quoteNoticeGroup {
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fbfcff;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+.quoteNoticeGroup strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--txt);
+    font-size: 14px;
+}
+
+.quoteNoticeContact {
+    background: #fff8e8;
+    border-color: #f2d27a;
+}
+
+.quotePage input[type="checkbox"] {
+    accent-color: #111;
+}
+
+
+
+/* =========================================================
+   반응형
+========================================================= */
+
 @media (max-width: 1280px) {
     .quoteLayout {
         grid-template-columns: minmax(280px, 320px) minmax(0, 1fr) minmax(280px, 320px);
@@ -459,6 +585,12 @@
 
     .quoteSummarySticky {
         position: static;
+    }
+}
+
+@media (max-width: 900px) {
+    .quoteNoticeBox {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -507,18 +639,8 @@
     .quoteRow2 {
         grid-template-columns: 1fr;
     }
-}
 
-.quoteFileBlock .uploadRow {
-    flex-wrap: wrap;
-}
-
-.quoteFileBlock .uploadRow button {
-    width: auto;
-    min-width: 0;
-    flex: 0 0 auto;
-}
-
-.quotePage input[type="checkbox"] {
-    accent-color: #111;
+    .quoteGuideGrid {
+        grid-template-columns: 1fr;
+    }
 }

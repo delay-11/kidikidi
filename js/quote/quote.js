@@ -1,8 +1,15 @@
 (function () {
+  /* =========================================================
+   유틸
+========================================================= */
   const $ = (id) => document.getElementById(id);
   const safeTrim = (v) => String(v || "").trim();
-  const formatPrice = (v) => `${Math.round(Number(v) || 0).toLocaleString("ko-KR")}원`;
+  const formatPrice = (v) =>
+    `${Math.round(Number(v) || 0).toLocaleString("ko-KR")}원`;
 
+  /* =========================================================
+   가격표 / 안내 데이터
+========================================================= */
   const KEYCAP_PRICE = {
     OEM: {
       "R1-1U": 1280,
@@ -28,7 +35,7 @@
       "키링 2구": 2500,
       "키링 3구": 3000,
       "키링 4구": 3800,
-      "키링 5구": 5980,
+      // "키링 5구": 5980,
     },
     반투명블랙: {
       "키링 1구": 1380,
@@ -76,66 +83,95 @@
     },
   };
 
+  /* =========================================================
+   DOM 참조
+========================================================= */
   const keycapItem = $("keycapItem");
   const keyringItem = $("keyringItem");
+
   const useKeycap = $("useKeycap");
   const useKeyring = $("useKeyring");
+
   const profileEl = $("profile");
   const capTypeEl = $("capType");
   const laserEl = $("laser");
   const keycapQtyEl = $("keycapQty");
+
   const keyringColorEl = $("keyringColor");
   const keyringTypeEl = $("keyringType");
   const keyringLedEl = $("keyringLed");
   const keyringQtyEl = $("keyringQty");
+
   const rushTypeEl = $("rushType");
-  const selectedOptionListEl = $("selectedOptionList");
+
   const optionGuideTitleEl = $("optionGuideTitle");
   const optionGuideDescEl = $("optionGuideDesc");
+
+  const bizFileInputEl = $("bizFile");
+  const bizFileBtnEl = $("bizFileBtn");
+  const bizFileDelBtnEl = $("bizFileDelBtn");
+  const bizFileNameEl = $("bizFileName");
+  const bizFileGuideEl = $("bizFileGuide");
+
+  const designFilesInputEl = $("designFiles");
+  const designFileBtnEl = $("designFileBtn");
+  const designFileDelBtnEl = $("designFileDelBtn");
+  const designFileNameEl = $("designFileName");
+  const designFileGuideEl = $("designFileGuide");
+
+  const addKeycapItemBtnEl = $("addKeycapItemBtn");
+  const addKeyringItemBtnEl = $("addKeyringItemBtn");
+
+  const selectedOptionListEl = $("selectedOptionList");
+
   const keycapPriceRowEl = $("keycapPriceRow");
   const keyringPriceRowEl = $("keyringPriceRow");
   const discountPriceRowEl = $("discountPriceRow");
   const rushPriceRowEl = $("rushPriceRow");
+
   const keycapPriceTextEl = $("keycapPriceText");
   const keyringPriceTextEl = $("keyringPriceText");
   const discountTextEl = $("discountText");
   const rushTextEl = $("rushText");
   const finalPriceTextEl = $("finalPriceText");
+
   const mobileBarTotalEl = $("mobileBarTotal");
   const mobileQuoteBarEl = $("mobileQuoteBar");
   const mobileQuoteSheetEl = $("mobileQuoteSheet");
   const mobileQuoteSheetDimEl = $("mobileQuoteSheetDim");
   const mobileQuoteCloseEl = $("mobileQuoteClose");
   const mobileQuoteDetailEl = $("mobileQuoteDetail");
-  const bizFileInputEl = $("bizFile");
-  const bizFileBtnEl = $("bizFileBtn");
-  const bizFileDelBtnEl = $("bizFileDelBtn");
-  const bizFileNameEl = $("bizFileName");
-  const bizFileGuideEl = $("bizFileGuide");
-  const designFilesInputEl = $("designFiles");
-  const designFileBtnEl = $("designFileBtn");
-  const designFileDelBtnEl = $("designFileDelBtn");
-  const designFileNameEl = $("designFileName");
-  const designFileGuideEl = $("designFileGuide");
-  const addKeycapItemBtnEl = $("addKeycapItemBtn");
-  const addKeyringItemBtnEl = $("addKeyringItemBtn");
+
   const submitBtnEl = $("submitQuoteBtn");
   const resetBtnEl = $("resetBtn");
 
+  /* =========================================================
+   상태
+========================================================= */
   let selectedBizFile = null;
   let selectedDesignFiles = [];
   let quoteItems = [];
 
-  function getDiscountRate(qty) {
+  /* =========================================================
+   공통 계산
+========================================================= */
+  function getKeycapDiscountRate(qty) {
     if (qty >= 5000) return 0.2;
     if (qty >= 1000) return 0.15;
     if (qty >= 500) return 0.1;
     return 0;
   }
 
+  function getKeyringDiscountRate(qty) {
+    if (qty >= 5000) return 0.15;
+    if (qty >= 1000) return 0.1;
+    if (qty >= 500) return 0.05;
+    return 0;
+  }
+
   function getRushRate() {
-    if (rushTypeEl.value === "fast") return 0.2;
-    if (rushTypeEl.value === "urgent") return 0.3;
+    if (rushTypeEl.value === "fast") return 0.1;
+    if (rushTypeEl.value === "urgent") return 0.2;
     return 0;
   }
 
@@ -145,13 +181,46 @@
     return 0;
   }
 
+  /* =========================================================
+   좌측 영역
+========================================================= */
+  function updateBizFileInfo() {
+    if (selectedBizFile) {
+      bizFileNameEl.textContent = selectedBizFile.name;
+      bizFileGuideEl.textContent = `첨부 완료: ${selectedBizFile.name}`;
+      return;
+    }
+
+    bizFileNameEl.textContent = "선택된 파일 없음";
+    bizFileGuideEl.textContent = "첨부된 파일이 없습니다.";
+  }
+
+  function updateDesignFileInfo() {
+    if (selectedDesignFiles.length) {
+      designFileNameEl.textContent = `${selectedDesignFiles.length}개 파일 선택됨`;
+      designFileGuideEl.textContent = selectedDesignFiles
+        .map((file) => file.name)
+        .join(", ");
+      return;
+    }
+
+    designFileNameEl.textContent = "선택된 파일 없음";
+    designFileGuideEl.textContent =
+      "PNG / JPG / JPEG 파일을 여러 개 첨부할 수 있습니다.";
+  }
+
+  /* =========================================================
+   중앙 영역 - 키캡 / 키링 UI
+========================================================= */
   function populateCapTypes() {
     const profile = safeTrim(profileEl.value);
     const options = CAP_OPTIONS?.[profile] || [];
+
     capTypeEl.innerHTML = "";
 
     if (!profile || !options.length) {
-      capTypeEl.innerHTML = '<option value="">프로파일을 먼저 선택해주세요</option>';
+      capTypeEl.innerHTML =
+        '<option value="">프로파일을 먼저 선택해주세요</option>';
       updateOptionGuideBox();
       updateQuote();
       return;
@@ -166,7 +235,10 @@
 
     const isLaserAllowed = profile === "OEM";
     laserEl.disabled = !isLaserAllowed;
-    if (!isLaserAllowed) laserEl.value = "none";
+
+    if (!isLaserAllowed) {
+      laserEl.value = "none";
+    }
 
     updateOptionGuideBox();
     updateQuote();
@@ -175,10 +247,12 @@
   function populateKeyringTypes() {
     const color = safeTrim(keyringColorEl.value);
     const map = KEYRING_PRICE[color] || null;
+
     keyringTypeEl.innerHTML = "";
 
     if (!color || !map) {
-      keyringTypeEl.innerHTML = '<option value="">재질 / 컬러를 먼저 선택해주세요</option>';
+      keyringTypeEl.innerHTML =
+        '<option value="">재질 / 컬러를 먼저 선택해주세요</option>';
       updateQuote();
       return;
     }
@@ -218,8 +292,12 @@
     const profile = safeTrim(profileEl.value) || "OEM";
     const capType = safeTrim(capTypeEl.value) || "-";
     const profileData = profileGuideMap[profile] || profileGuideMap.OEM;
+
     optionGuideTitleEl.textContent = `${profileData.title} · 현재 선택 규격: ${capType}`;
-    optionGuideDescEl.innerHTML = `${profileData.desc}<div class="guideSplit"></div>${getCapTypeGuide(profile, capType)}`;
+    optionGuideDescEl.innerHTML = `${profileData.desc}<div class="guideSplit"></div>${getCapTypeGuide(
+      profile,
+      capType
+    )}`;
   }
 
   function updateHelpTooltip(type) {
@@ -235,12 +313,17 @@
 
     const profile = safeTrim(profileEl.value) || "OEM";
     const capType = safeTrim(capTypeEl.value) || "-";
-    tooltip.innerHTML = `<b>현재 선택 규격: ${capType}</b><div class="hr"></div>${getCapTypeGuide(profile, capType)}`;
+    tooltip.innerHTML = `<b>현재 선택 규격: ${capType}</b><div class="hr"></div>${getCapTypeGuide(
+      profile,
+      capType
+    )}`;
   }
 
   function closeAllQuoteTooltips(exceptEl) {
     document.querySelectorAll(".quoteHelpTooltip").forEach((el) => {
-      if (el !== exceptEl) el.classList.remove("show");
+      if (el !== exceptEl) {
+        el.classList.remove("show");
+      }
     });
   }
 
@@ -249,10 +332,13 @@
       btn.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
+
         const type = btn.dataset.quoteHelp;
         const tooltip = document.querySelector(`[data-quote-tooltip="${type}"]`);
         if (!tooltip) return;
+
         updateHelpTooltip(type);
+
         const willOpen = !tooltip.classList.contains("show");
         closeAllQuoteTooltips(tooltip);
         tooltip.classList.toggle("show", willOpen);
@@ -261,31 +347,16 @@
 
     document.addEventListener("click", () => closeAllQuoteTooltips(null));
     window.addEventListener("resize", () => closeAllQuoteTooltips(null));
-    window.addEventListener("scroll", () => closeAllQuoteTooltips(null), { passive: true });
+    window.addEventListener(
+      "scroll",
+      () => closeAllQuoteTooltips(null),
+      { passive: true }
+    );
   }
 
-  function updateBizFileInfo() {
-    if (selectedBizFile) {
-      bizFileNameEl.textContent = selectedBizFile.name;
-      bizFileGuideEl.textContent = `첨부 완료: ${selectedBizFile.name}`;
-      return;
-    }
-
-    bizFileNameEl.textContent = "선택된 파일 없음";
-    bizFileGuideEl.textContent = "첨부된 파일이 없습니다.";
-  }
-
-  function updateDesignFileInfo() {
-    if (selectedDesignFiles.length) {
-      designFileNameEl.textContent = `${selectedDesignFiles.length}개 파일 선택됨`;
-      designFileGuideEl.textContent = selectedDesignFiles.map((file) => file.name).join(", ");
-      return;
-    }
-
-    designFileNameEl.textContent = "선택된 파일 없음";
-    designFileGuideEl.textContent = "PNG / JPG / JPEG 파일을 여러 개 첨부할 수 있습니다.";
-  }
-
+  /* =========================================================
+   중앙 영역 - 가격 데이터
+========================================================= */
   function getKeycapPriceData() {
     if (!useKeycap.checked) {
       return { qty: 0, base: 0, discount: 0, final: 0 };
@@ -297,14 +368,15 @@
     const unitBase = KEYCAP_PRICE?.[profile]?.[capType] || 0;
     const unit = unitBase + getLaserPrice();
     const base = unit * qty;
-    const discount = base * getDiscountRate(qty);
+    const discount = base * getKeycapDiscountRate(qty);
     const final = base - discount;
+
     return { qty, base, discount, final };
   }
 
   function getKeyringPriceData() {
     if (!useKeyring.checked) {
-      return { qty: 0, base: 0, final: 0 };
+      return { qty: 0, base: 0, discount: 0, final: 0 };
     }
 
     const color = safeTrim(keyringColorEl.value);
@@ -312,7 +384,10 @@
     const qty = Number(keyringQtyEl.value) || 0;
     const unit = KEYRING_PRICE?.[color]?.[type] || 0;
     const base = unit * qty;
-    return { qty, base, final: base };
+    const discount = base * getKeyringDiscountRate(qty);
+    const final = base - discount;
+
+    return { qty, base, discount, final };
   }
 
   function getKeycapDraftData() {
@@ -323,7 +398,7 @@
     const laserPrice = getLaserPrice();
     const unit = unitBase + laserPrice;
     const base = unit * qty;
-    const discountRate = getDiscountRate(qty);
+    const discountRate = getKeycapDiscountRate(qty);
     const discount = base * discountRate;
     const final = base - discount;
 
@@ -352,6 +427,9 @@
     const qty = Number(keyringQtyEl.value) || 0;
     const unit = KEYRING_PRICE?.[color]?.[type] || 0;
     const base = unit * qty;
+    const discountRate = getKeyringDiscountRate(qty);
+    const discount = base * discountRate;
+    const final = base - discount;
 
     return {
       kind: "keyring",
@@ -361,37 +439,11 @@
       qty,
       unit,
       base,
-      discountRate: 0,
-      discount: 0,
-      final: base,
+      discountRate,
+      discount,
+      final,
       memo: safeTrim($("keyringMemo").value),
     };
-  }
-
-  function getQuoteSummaryData() {
-    const keycapTotal = quoteItems
-      .filter((item) => item.kind === "keycap")
-      .reduce((sum, item) => sum + item.final, 0);
-    const keyringTotal = quoteItems
-      .filter((item) => item.kind === "keyring")
-      .reduce((sum, item) => sum + item.final, 0);
-    const discountTotal = quoteItems.reduce((sum, item) => sum + (item.discount || 0), 0);
-    const subtotal = keycapTotal + keyringTotal;
-    const rushAmount = subtotal * getRushRate();
-    const total = subtotal + rushAmount;
-
-    return { keycapTotal, keyringTotal, discountTotal, subtotal, rushAmount, total };
-  }
-
-  function getQuoteItemLabel(item) {
-    if (item.kind === "keycap") {
-      const fileLabel = item.designFiles?.length
-        ? `이미지 ${item.designFiles.length}개 첨부`
-        : "이미지 미첨부";
-      return `키캡 · ${item.profile || "-"} / ${item.capType || "-"} / ${item.laserLabel || "레이저 없음"} / ${item.qty.toLocaleString("ko-KR")}개 / ${fileLabel}`;
-    }
-
-    return `키링 · ${item.color || "-"} / ${item.type || "-"} / LED ${item.led || "없음"} / ${item.qty.toLocaleString("ko-KR")}개`;
   }
 
   function clearKeycapInputs() {
@@ -403,29 +455,18 @@
     $("keycapMemo").value = "";
     selectedDesignFiles = [];
     designFilesInputEl.value = "";
+
     updateDesignFileInfo();
     updateOptionGuideBox();
   }
 
   function clearKeyringInputs() {
     keyringColorEl.value = "";
-    keyringTypeEl.innerHTML = '<option value="">키링 색상을 먼저 선택해주세요</option>';
+    keyringTypeEl.innerHTML =
+      '<option value="">키링 색상을 먼저 선택해주세요</option>';
     keyringLedEl.value = "없음";
     keyringQtyEl.value = "";
     $("keyringMemo").value = "";
-  }
-
-  function addQuoteItem(item) {
-    quoteItems.push({
-      id: `${item.kind}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      ...item,
-    });
-    updateQuote();
-  }
-
-  function removeQuoteItem(id) {
-    quoteItems = quoteItems.filter((item) => item.id !== id);
-    updateQuote();
   }
 
   function validateKeycapDraft() {
@@ -434,16 +475,19 @@
       profileEl.focus();
       return false;
     }
+
     if (!safeTrim(capTypeEl.value)) {
       showToast("키캡 규격을 선택해주세요.", "warn");
       capTypeEl.focus();
       return false;
     }
+
     if ((Number(keycapQtyEl.value) || 0) <= 0) {
       showToast("키캡 수량을 입력해주세요.", "warn");
       keycapQtyEl.focus();
       return false;
     }
+
     return true;
   }
 
@@ -453,17 +497,65 @@
       keyringColorEl.focus();
       return false;
     }
+
     if (!safeTrim(keyringTypeEl.value)) {
       showToast("키링 종류를 선택해주세요.", "warn");
       keyringTypeEl.focus();
       return false;
     }
+
     if ((Number(keyringQtyEl.value) || 0) <= 0) {
       showToast("키링 수량을 입력해주세요.", "warn");
       keyringQtyEl.focus();
       return false;
     }
+
     return true;
+  }
+
+  /* =========================================================
+   우측 영역 - 견적 요약
+========================================================= */
+  function getQuoteSummaryData() {
+    const keycapTotal = quoteItems
+      .filter((item) => item.kind === "keycap")
+      .reduce((sum, item) => sum + item.final, 0);
+
+    const keyringTotal = quoteItems
+      .filter((item) => item.kind === "keyring")
+      .reduce((sum, item) => sum + item.final, 0);
+
+    const discountTotal = quoteItems.reduce(
+      (sum, item) => sum + (item.discount || 0),
+      0
+    );
+
+    const subtotal = keycapTotal + keyringTotal;
+    const rushAmount = subtotal * getRushRate();
+    const total = subtotal + rushAmount;
+
+    return {
+      keycapTotal,
+      keyringTotal,
+      discountTotal,
+      subtotal,
+      rushAmount,
+      total,
+    };
+  }
+
+  function getQuoteItemLabel(item) {
+    if (item.kind === "keycap") {
+      const fileLabel = item.designFiles?.length
+        ? `이미지 ${item.designFiles.length}개 첨부`
+        : "이미지 미첨부";
+
+      return `키캡 · ${item.profile || "-"} / ${item.capType || "-"} / ${item.laserLabel || "레이저 없음"
+        } / ${item.qty.toLocaleString("ko-KR")}개 / ${fileLabel}`;
+    }
+
+    return `키링 · ${item.color || "-"} / ${item.type || "-"} / LED ${item.led || "없음"
+      } / ${item.qty.toLocaleString("ko-KR")}개`;
   }
 
   function buildSelectedOptions(keycapData, keyringData) {
@@ -475,22 +567,46 @@
       const laserLabel = laserEl.disabled
         ? "레이저 없음"
         : laserEl.options[laserEl.selectedIndex]?.textContent || "없음";
-      const qtyLabel = keycapData.qty ? `${keycapData.qty.toLocaleString("ko-KR")}개` : "수량 미입력";
+      const qtyLabel = keycapData.qty
+        ? `${keycapData.qty.toLocaleString("ko-KR")}개`
+        : "수량 미입력";
       const fileLabel = selectedDesignFiles.length
         ? `이미지 ${selectedDesignFiles.length}개 첨부`
         : "이미지 미첨부";
-      items.push(`키캡 · ${profile} / ${capType} / ${laserLabel} / ${qtyLabel} / ${fileLabel}`);
+
+      items.push(
+        `키캡 · ${profile} / ${capType} / ${laserLabel} / ${qtyLabel} / ${fileLabel}`
+      );
     }
 
     if (useKeyring.checked) {
       const color = safeTrim(keyringColorEl.value) || "-";
       const type = safeTrim(keyringTypeEl.value) || "-";
       const led = safeTrim(keyringLedEl.value) || "없음";
-      const qtyLabel = keyringData.qty ? `${keyringData.qty.toLocaleString("ko-KR")}개` : "수량 미입력";
+      const qtyLabel = keyringData.qty
+        ? `${keyringData.qty.toLocaleString("ko-KR")}개`
+        : "수량 미입력";
+
       items.push(`키링 · ${color} / ${type} / LED ${led} / ${qtyLabel}`);
     }
 
     return items;
+  }
+
+  function addQuoteItem(item) {
+    quoteItems.push({
+      id: `${item.kind}_${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 8)}`,
+      ...item,
+    });
+
+    updateQuote();
+  }
+
+  function removeQuoteItem(id) {
+    quoteItems = quoteItems.filter((item) => item.id !== id);
+    updateQuote();
   }
 
   function updateSelectedOptionList(items) {
@@ -524,16 +640,9 @@
     });
   }
 
-  function getSummaryHtml() {
-    return document.querySelector(".quoteSummaryPanel")?.outerHTML || "";
-  }
-
-  function updateMobileDetail() {
-    mobileQuoteDetailEl.innerHTML = getSummaryHtml();
-  }
-
   function setSummaryRowVisible(el, isVisible) {
     if (!el) return;
+
     el.hidden = !isVisible;
     el.style.display = isVisible ? "flex" : "none";
   }
@@ -557,6 +666,17 @@
     updateMobileDetail();
   }
 
+  /* =========================================================
+   모바일 견적 시트
+========================================================= */
+  function getSummaryHtml() {
+    return document.querySelector(".quoteSummaryPanel")?.outerHTML || "";
+  }
+
+  function updateMobileDetail() {
+    mobileQuoteDetailEl.innerHTML = getSummaryHtml();
+  }
+
   function openMobileSheet() {
     mobileQuoteSheetEl.hidden = false;
     mobileQuoteBarEl.setAttribute("aria-expanded", "true");
@@ -569,6 +689,9 @@
     document.body.style.overflow = "";
   }
 
+  /* =========================================================
+   전체 검증 / 초기화
+========================================================= */
   function resetForm() {
     $("companyName").value = "";
     $("managerName").value = "";
@@ -579,6 +702,7 @@
 
     useKeycap.checked = false;
     useKeyring.checked = false;
+
     profileEl.value = "";
     capTypeEl.innerHTML = '<option value="">프로파일을 먼저 선택해주세요</option>';
     laserEl.value = "none";
@@ -587,7 +711,8 @@
     $("keycapMemo").value = "";
 
     keyringColorEl.value = "";
-    keyringTypeEl.innerHTML = '<option value="">재질 / 컬러를 먼저 선택해주세요</option>';
+    keyringTypeEl.innerHTML =
+      '<option value="">재질 / 컬러를 먼저 선택해주세요</option>';
     keyringLedEl.value = "없음";
     keyringQtyEl.value = "";
     $("keyringMemo").value = "";
@@ -595,6 +720,7 @@
     selectedBizFile = null;
     selectedDesignFiles = [];
     quoteItems = [];
+
     bizFileInputEl.value = "";
     designFilesInputEl.value = "";
 
@@ -602,6 +728,7 @@
     updateDesignFileInfo();
     updateAccordionState();
     updateOptionGuideBox();
+
     showToast("입력 내용을 초기화했습니다.", "info");
   }
 
@@ -643,9 +770,13 @@
     return true;
   }
 
+  /* =========================================================
+   이벤트 바인딩
+========================================================= */
   function bindEvents() {
     useKeycap.addEventListener("change", updateAccordionState);
     useKeyring.addEventListener("change", updateAccordionState);
+
     profileEl.addEventListener("change", populateCapTypes);
     capTypeEl.addEventListener("change", () => {
       updateOptionGuideBox();
@@ -653,27 +784,33 @@
     });
     laserEl.addEventListener("change", updateQuote);
     keycapQtyEl.addEventListener("input", updateQuote);
+
     keyringColorEl.addEventListener("change", populateKeyringTypes);
     keyringTypeEl.addEventListener("change", updateQuote);
     keyringLedEl.addEventListener("change", updateQuote);
     keyringQtyEl.addEventListener("input", updateQuote);
+
     rushTypeEl.addEventListener("change", updateQuote);
 
     addKeycapItemBtnEl.addEventListener("click", () => {
       if (!validateKeycapDraft()) return;
+
       addQuoteItem(getKeycapDraftData());
       clearKeycapInputs();
       useKeycap.checked = false;
       updateAccordionState();
+
       showToast("키캡 견적 항목을 추가했습니다.", "ok");
     });
 
     addKeyringItemBtnEl.addEventListener("click", () => {
       if (!validateKeyringDraft()) return;
+
       addQuoteItem(getKeyringDraftData());
       clearKeyringInputs();
       useKeyring.checked = false;
       updateAccordionState();
+
       showToast("키링 견적 항목을 추가했습니다.", "ok");
     });
 
@@ -712,6 +849,9 @@
     });
   }
 
+  /* =========================================================
+   초기화
+========================================================= */
   function init() {
     populateCapTypes();
     updateBizFileInfo();

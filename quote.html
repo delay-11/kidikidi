@@ -18,6 +18,9 @@
 </head>
 
 <body class="quotePage">
+    <!-- =========================================================
+         헤더
+    ========================================================= -->
     <header class="siteHeader">
         <div class="headerInner">
             <div class="headerBrand">
@@ -32,6 +35,9 @@
         </div>
     </header>
 
+    <!-- =========================================================
+         상단 안내
+    ========================================================= -->
     <div class="orderBar quoteIntroBar">
         <div class="orderInner">
             <div class="orderLine">
@@ -41,8 +47,14 @@
         </div>
     </div>
 
+    <!-- =========================================================
+         본문
+    ========================================================= -->
     <div class="wrap quoteWrap">
         <div class="quoteLayout">
+            <!-- =====================================================
+                 견적 요청자 정보
+            ====================================================== -->
             <section class="card quoteRequesterCard">
                 <div class="quoteSectionHead">
                     <h2>견적 요청자 정보</h2>
@@ -54,6 +66,7 @@
                         <label>업체명 *</label>
                         <input id="companyName" placeholder="업체명을 입력해주세요" />
                     </div>
+
                     <div>
                         <label>담당자명 *</label>
                         <input id="managerName" placeholder="담당자명을 입력해주세요" />
@@ -65,6 +78,7 @@
                         <label>연락처 *</label>
                         <input id="phone" placeholder="숫자만 입력해주세요" />
                     </div>
+
                     <div>
                         <label>이메일 *</label>
                         <input id="email" placeholder="이메일을 입력해주세요" />
@@ -75,11 +89,13 @@
 
                 <div class="quoteFileBlock">
                     <label>사업자등록증 PDF 첨부 *</label>
+
                     <div class="uploadRow">
                         <button type="button" id="bizFileBtn" class="ghostBtn fileBtn">파일 선택</button>
                         <button type="button" id="bizFileDelBtn" class="dangerBtn">삭제</button>
                         <input type="file" id="bizFile" accept="application/pdf" hidden />
                     </div>
+
                     <span id="bizFileName" class="fileName">선택된 파일 없음</span>
                     <div class="fileGuideBox" id="bizFileGuide">첨부된 파일이 없습니다.</div>
                 </div>
@@ -91,25 +107,29 @@
                         <label>희망 납기일</label>
                         <input id="dueDate" type="date" />
                     </div>
-                </div>
 
-                <div class="row quoteRow1">
                     <div>
                         <label>제작 속도</label>
                         <select id="rushType">
                             <option value="normal">일반 제작</option>
-                            <option value="fast">빠른제작 (+20%)</option>
-                            <option value="urgent">긴급제작 (+30%)</option>
+                            <option value="fast">빠른제작</option>
+                            <option value="urgent">긴급제작</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="formReadyBox quoteRushBox">
                     <div class="formReadyTitle">납기 안내</div>
-                    <div class="formReadyDesc">빠른제작: 영업일 기준 10일 내 제작 (+20%)<br>긴급제작: 영업일 기준 5일 내 제작 (+30%)</div>
+                    <div class="formReadyDesc">
+                        빠른제작: 영업일 기준 10일 내 수령 출고 (+10% 할증)<br>
+                        긴급제작: 영업일 기준 5일 내 수령 출고 (+20% 할증)
+                    </div>
                 </div>
             </section>
 
+            <!-- =====================================================
+                 제품 선택
+            ====================================================== -->
             <section class="card quoteMainCard">
                 <div class="quoteSectionHead">
                     <h2>제품 선택</h2>
@@ -117,6 +137,9 @@
                 </div>
 
                 <div class="quoteAccordion" id="quoteAccordion">
+                    <!-- =================================================
+                         키캡 견적 요청
+                    ================================================== -->
                     <article class="quoteAccItem" id="keycapItem">
                         <label class="quoteAccToggle">
                             <span class="quoteAccCheckWrap">
@@ -133,10 +156,15 @@
                                     <label class="labelWithHelp">
                                         프로파일
                                         <span class="helpWrap quoteHelpWrap">
-                                            <button type="button" class="helpIcon quoteHelpIcon" data-quote-help="profile" aria-label="프로파일 안내">?</button>
-                                            <div class="helpTooltip quoteHelpTooltip" data-quote-tooltip="profile"></div>
+                                            <button type="button" class="helpIcon quoteHelpIcon"
+                                                data-quote-help="profile" aria-label="프로파일 안내">
+                                                ?
+                                            </button>
+                                            <div class="helpTooltip quoteHelpTooltip" data-quote-tooltip="profile">
+                                            </div>
                                         </span>
                                     </label>
+
                                     <select id="profile">
                                         <option value="">선택</option>
                                         <option value="OEM">OEM</option>
@@ -149,10 +177,15 @@
                                     <label class="labelWithHelp">
                                         규격
                                         <span class="helpWrap quoteHelpWrap">
-                                            <button type="button" class="helpIcon quoteHelpIcon" data-quote-help="capType" aria-label="규격 안내">?</button>
-                                            <div class="helpTooltip quoteHelpTooltip" data-quote-tooltip="capType"></div>
+                                            <button type="button" class="helpIcon quoteHelpIcon"
+                                                data-quote-help="capType" aria-label="규격 안내">
+                                                ?
+                                            </button>
+                                            <div class="helpTooltip quoteHelpTooltip" data-quote-tooltip="capType">
+                                            </div>
                                         </span>
                                     </label>
+
                                     <select id="capType">
                                         <option value="">프로파일을 먼저 선택해주세요</option>
                                     </select>
@@ -164,8 +197,8 @@
                                     <label>레이저 옵션</label>
                                     <select id="laser">
                                         <option value="none">없음</option>
-                                        <option value="black">블랙 (+1,120원)</option>
-                                        <option value="white">화이트 (+2,120원)</option>
+                                        <option value="black">블랙</option>
+                                        <option value="white">화이트</option>
                                     </select>
                                 </div>
 
@@ -184,19 +217,24 @@
 
                             <div class="quoteFileBlock">
                                 <label>시안 제작 예정 이미지 업로드</label>
+
                                 <div class="uploadRow">
                                     <button type="button" id="designFileBtn" class="ghostBtn fileBtn">파일 선택</button>
                                     <button type="button" id="designFileDelBtn" class="dangerBtn">전체 삭제</button>
                                     <input type="file" id="designFiles" accept="image/png,image/jpeg" multiple hidden />
                                 </div>
+
                                 <span id="designFileName" class="fileName">선택된 파일 없음</span>
-                                <div class="fileGuideBox" id="designFileGuide">PNG / JPG / JPEG 파일을 여러 개 첨부할 수 있습니다.</div>
+                                <div class="fileGuideBox" id="designFileGuide">
+                                    PNG / JPG / JPEG 파일을 여러 개 첨부할 수 있습니다.
+                                </div>
                             </div>
 
                             <div class="row quoteRow1">
                                 <div>
                                     <label>키캡 요청사항</label>
-                                    <textarea id="keycapMemo" rows="5" placeholder="원하는 디자인, 색상, 배치, 참고사항을 입력해주세요"></textarea>
+                                    <textarea id="keycapMemo" rows="5"
+                                        placeholder="요청사항을 입력해주세요."></textarea>
                                 </div>
                             </div>
 
@@ -206,6 +244,9 @@
                         </div>
                     </article>
 
+                    <!-- =================================================
+                         키링 견적 요청
+                    ================================================== -->
                     <article class="quoteAccItem" id="keyringItem">
                         <label class="quoteAccToggle">
                             <span class="quoteAccCheckWrap">
@@ -256,7 +297,8 @@
                             <div class="row quoteRow1">
                                 <div>
                                     <label>키링 요청사항</label>
-                                    <textarea id="keyringMemo" rows="4" placeholder="원하는 구성, 포장, 참고사항을 입력해주세요"></textarea>
+                                    <textarea id="keyringMemo" rows="4"
+                                        placeholder="원하는 구성, 포장, 참고사항을 입력해주세요"></textarea>
                                 </div>
                             </div>
 
@@ -266,8 +308,28 @@
                         </div>
                     </article>
                 </div>
+
+                <div class="quoteGuideGrid">
+                    <div class="quoteGuideCard">
+                        <strong>키캡 할인</strong>
+                        · 500개 이상 10% 할인<br>
+                        · 1000개 이상 15% 할인<br>
+                        · 5000개 이상 20% 할인
+                    </div>
+
+                    <div class="quoteGuideCard">
+                        <strong>키링 할인</strong>
+                        · 500개 이상 5% 할인<br>
+                        · 1000개 이상 10% 할인<br>
+                        · 5000개 이상 15% 할인<br>
+                        · 투명, 블랙 외의 키링은 별도 문의
+                    </div>
+                </div>
             </section>
 
+            <!-- =====================================================
+                 예상 견적
+            ====================================================== -->
             <aside class="card quoteSummaryCard">
                 <div class="quoteSummarySticky">
                     <div class="quoteSectionHead quoteSummaryHead">
@@ -288,20 +350,24 @@
                                 <span>키캡 금액</span>
                                 <strong id="keycapPriceText">0원</strong>
                             </div>
+
                             <div class="quotePriceRow" id="keyringPriceRow" hidden>
                                 <span>키링 금액</span>
                                 <strong id="keyringPriceText">0원</strong>
                             </div>
+
                             <div class="quotePriceRow discountRow" id="discountPriceRow" hidden>
                                 <span>할인 금액</span>
                                 <strong id="discountText">-0원</strong>
                             </div>
+
                             <div class="quotePriceRow rushRow" id="rushPriceRow" hidden>
                                 <span>할증 금액</span>
                                 <strong id="rushText">+0원</strong>
                             </div>
+
                             <div class="quoteTotalRow">
-                                <span>총 금액</span>
+                                <span>총 금액 <small>(VAT 별도)</small></span>
                                 <strong id="finalPriceText">0원</strong>
                             </div>
                         </div>
@@ -311,11 +377,24 @@
                         <button type="button" id="resetBtn" class="ghostBtn">초기화</button>
                         <button type="button" id="submitQuoteBtn" class="confirmBtn">견적 요청 보내기</button>
                     </div>
+
+                    <div class="formReadyBox quoteRushBox">
+                        <div class="formReadyTitle">추가 안내</div>
+                        <div class="formReadyDesc">
+                            · 포장 요구사항 별도 협의<br>
+                            · 입력하신 정보는 견적 확인 용도로만 사용됩니다.<br>
+                            · 추가 문의는 아래 번호로 연락 부탁드립니다<br>
+                            <a href="tel:01071247487" class="telLink">📞 010-7124-7487</a>
+                        </div>
+                    </div>
                 </div>
             </aside>
         </div>
     </div>
 
+    <!-- =========================================================
+         모바일 예상 견적 바
+    ========================================================= -->
     <button type="button" class="quoteMobileBar" id="mobileQuoteBar" aria-expanded="false">
         <div class="quoteMobileBarLabel">예상 견적 보기</div>
         <div class="quoteMobileBarPrice" id="mobileBarTotal">0원</div>
@@ -323,17 +402,27 @@
 
     <div class="quoteMobileSheet" id="mobileQuoteSheet" hidden>
         <div class="quoteMobileSheetDim" id="mobileQuoteSheetDim"></div>
+
         <div class="quoteMobileSheetPanel">
             <div class="quoteMobileSheetHead">
                 <h3>상세 견적</h3>
-                <button type="button" class="quoteMobileClose" id="mobileQuoteClose" aria-label="닫기">×</button>
+                <button type="button" class="quoteMobileClose" id="mobileQuoteClose" aria-label="닫기">
+                    ×
+                </button>
             </div>
+
             <div class="quoteMobileDetail" id="mobileQuoteDetail"></div>
         </div>
     </div>
 
+    <!-- =========================================================
+         토스트
+    ========================================================= -->
     <div id="toastStack" class="toastStack" aria-live="polite" aria-atomic="true"></div>
 
+    <!-- =========================================================
+         푸터
+    ========================================================= -->
     <footer class="footer">
         <div class="footerInner">
             <div class="footerLeft">
@@ -341,12 +430,15 @@
             </div>
 
             <div class="footerRight">
-                본 견적 요청 시스템 및 입력 정보는 KidiKidi의 업무 처리용입니다.<br>
+                본 견적 요청 시스템 및 입력 정보는 KidiKidi의 견적 요청 페이지입니다.<br>
                 무단 복제, 배포, 재사용을 금지합니다.
             </div>
         </div>
     </footer>
 
+    <!-- =========================================================
+         스크립트
+    ========================================================= -->
     <script src="./js/common/constants.js"></script>
     <script src="./js/common/toast.js"></script>
     <script src="./js/quote/quote.js"></script>
