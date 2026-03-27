@@ -733,6 +733,9 @@ function redraw() {
 /* =========================================================
  * 이동 / 리사이즈 / 회전
 ========================================================= */
+/* =========================================================
+ * 이동 / 리사이즈 / 회전
+========================================================= */
 function screenToCanvasPoint(e) {
   const rect = canvas.getBoundingClientRect();
   return {
@@ -757,6 +760,18 @@ function isPointOnImage(px, py) {
   const halfH = (userImg.height * imgScaleY) / 2;
 
   return lx >= -halfW && lx <= halfW && ly >= -halfH && ly <= halfH;
+}
+
+function isAltPressed(ev) {
+  return !!(ev?.altKey || ev?.getModifierState?.("Alt") || isAltResizePressed);
+}
+
+function isShiftPressed(ev) {
+  return !!(ev?.shiftKey || ev?.getModifierState?.("Shift"));
+}
+
+function syncModifierPressed(ev) {
+  isAltResizePressed = isAltPressed(ev);
 }
 
 function startMoveDrag(e) {
@@ -833,9 +848,11 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
       startPointerX: p.x,
       startPointerY: p.y,
       startedWithAlt: isAltPressed(e),
+      startedWithShift: isShiftPressed(e),
     };
+
     activeResizePointerId = e.pointerId;
-    syncAltPressed(e);
+    syncModifierPressed(e);
   });
 });
 
@@ -859,35 +876,17 @@ rotHandleEl?.addEventListener("pointerdown", (e) => {
   };
 });
 
+/* =========================================================
+ * ALT 상태 추적
+ * 중복 리스너 제거: document 기준으로만 관리
+========================================================= */
 document.addEventListener("keydown", (e) => {
-  if (
-    e.key === "Alt" ||
-    e.code === "AltLeft" ||
-    e.code === "AltRight" ||
-    e.altKey
-  ) {
-    isAltResizePressed = true;
-  }
-});
-
-window.addEventListener("keydown", (e) => {
-  if (
-    e.key === "Alt" ||
-    e.code === "AltLeft" ||
-    e.code === "AltRight" ||
-    e.altKey
-  ) {
+  if (e.key === "Alt" || e.code === "AltLeft" || e.code === "AltRight") {
     isAltResizePressed = true;
   }
 });
 
 document.addEventListener("keyup", (e) => {
-  if (e.key === "Alt" || e.code === "AltLeft" || e.code === "AltRight") {
-    isAltResizePressed = false;
-  }
-});
-
-window.addEventListener("keyup", (e) => {
   if (e.key === "Alt" || e.code === "AltLeft" || e.code === "AltRight") {
     isAltResizePressed = false;
   }
@@ -905,7 +904,7 @@ document.addEventListener("pointermove", (e) => {
     activeResizePointerId !== null &&
     e.pointerId === activeResizePointerId
   ) {
-    syncAltPressed(e);
+    syncModifierPressed(e);
   }
 
   const p = screenToCanvasPoint(e);
@@ -920,15 +919,17 @@ document.addEventListener("pointermove", (e) => {
   if (handleDrag) {
     const axes = getImageAxes();
     const isAlt = isAltPressed(e) || handleDrag.startedWithAlt;
+    const isShift = isShiftPressed(e) || handleDrag.startedWithShift;
+    const keepRatio = isAlt || isShift;
     const minHalf = 10;
 
     let halfW = handleDrag.startHalfW;
     let halfH = handleDrag.startHalfH;
 
     if (isAlt) {
-      // 중심 기준 확대/축소
-      // "현재 포인터 절대 위치"가 아니라
-      // "드래그 시작 지점 대비 이동량"으로 계산해야 자연스럽게 됨
+      /* =========================================================
+       * ALT: 중심 기준 확대/축소
+      ========================================================= */
       const moveX = p.x - handleDrag.startPointerX;
       const moveY = p.y - handleDrag.startPointerY;
 
@@ -952,7 +953,9 @@ document.addEventListener("pointermove", (e) => {
       imgCX = handleDrag.startCX;
       imgCY = handleDrag.startCY;
     } else {
-      // 일반 리사이즈
+      /* =========================================================
+       * 일반 리사이즈
+      ========================================================= */
       const dx = p.x - handleDrag.anchorX;
       const dy = p.y - handleDrag.anchorY;
 
@@ -965,16 +968,63 @@ document.addEventListener("pointermove", (e) => {
         const projY = dx * axes.vx + dy * axes.vy;
         halfH = Math.max(minHalf, (handleDrag.signY * projY) / 2);
       }
+    }
 
-      imgCX =
-        handleDrag.anchorX +
-        axes.ux * (handleDrag.signX * halfW) +
-        axes.vx * (handleDrag.signY * halfH);
+    /* =========================================================
+     * 비율 고정
+     * ALT = 중심 기준 + 비율 고정
+     * SHIFT = 비율 고정
+    ========================================================= */
+    if (keepRatio) {
+      const startHalfW = handleDrag.startHalfW;
+      const startHalfH = handleDrag.startHalfH;
 
-      imgCY =
-        handleDrag.anchorY +
-        axes.uy * (handleDrag.signX * halfW) +
-        axes.vy * (handleDrag.signY * halfH);
+      let ratioScale = 1;
+
+      if (handleDrag.signX !== 0 && handleDrag.signY !== 0) {
+        const scaleX = halfW / startHalfW;
+        const scaleY = halfH / startHalfH;
+
+        ratioScale =
+          Math.abs(scaleX - 1) >= Math.abs(scaleY - 1) ? scaleX : scaleY;
+      } else if (handleDrag.signX !== 0) {
+        ratioScale = halfW / startHalfW;
+      } else if (handleDrag.signY !== 0) {
+        ratioScale = halfH / startHalfH;
+      }
+
+      if (!Number.isFinite(ratioScale) || ratioScale <= 0) {
+        ratioScale = 1;
+      }
+
+      halfW = Math.max(minHalf, startHalfW * ratioScale);
+      halfH = Math.max(minHalf, startHalfH * ratioScale);
+    }
+
+    /* =========================================================
+     * 중심 재계산
+    ========================================================= */
+    if (isAlt) {
+      imgCX = handleDrag.startCX;
+      imgCY = handleDrag.startCY;
+    } else {
+      if (handleDrag.signX !== 0 && handleDrag.signY !== 0) {
+        imgCX =
+          handleDrag.anchorX +
+          axes.ux * (handleDrag.signX * halfW) +
+          axes.vx * (handleDrag.signY * halfH);
+
+        imgCY =
+          handleDrag.anchorY +
+          axes.uy * (handleDrag.signX * halfW) +
+          axes.vy * (handleDrag.signY * halfH);
+      } else if (handleDrag.signX !== 0) {
+        imgCX = handleDrag.anchorX + axes.ux * (handleDrag.signX * halfW);
+        imgCY = handleDrag.anchorY + axes.uy * (handleDrag.signX * halfW);
+      } else if (handleDrag.signY !== 0) {
+        imgCX = handleDrag.anchorX + axes.vx * (handleDrag.signY * halfH);
+        imgCY = handleDrag.anchorY + axes.vy * (handleDrag.signY * halfH);
+      }
     }
 
     imgScaleX = clamp((halfW * 2) / userImg.width, 0.05, 10);
