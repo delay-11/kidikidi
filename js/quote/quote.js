@@ -35,7 +35,6 @@
       "키링 2구": 2500,
       "키링 3구": 3000,
       "키링 4구": 3800,
-      // "키링 5구": 5980,
     },
     반투명블랙: {
       "키링 1구": 1380,
@@ -151,6 +150,30 @@
   let selectedBizFile = null;
   let selectedDesignFiles = [];
   let quoteItems = [];
+  let mobileSheetOpen = false;
+  let lockedScrollY = 0;
+
+  /* =========================================================
+   견적 페이지 API 동기화
+========================================================= */
+  function syncQuotePageApi() {
+    window.quotePageApi = {
+      getSelectedBizFile: () => selectedBizFile,
+      getSelectedDesignFiles: () => [...selectedDesignFiles],
+      getQuoteItems: () => quoteItems.map((item) => ({ ...item })),
+      getQuoteSummaryData,
+      getQuoteItemLabel,
+      getRequesterInfo: () => ({
+        companyName: safeTrim($("companyName")?.value),
+        customerName: safeTrim($("managerName")?.value),
+        customerPhone: safeTrim($("phone")?.value),
+        customerEmail: safeTrim($("email")?.value),
+        dueDate: safeTrim($("dueDate")?.value),
+        rushTypeLabel:
+          rushTypeEl?.options?.[rushTypeEl.selectedIndex]?.textContent || "",
+      }),
+    };
+  }
 
   /* =========================================================
    공통 계산
@@ -192,7 +215,8 @@
     }
 
     bizFileNameEl.textContent = "선택된 파일 없음";
-    bizFileGuideEl.textContent = "첨부된 파일이 없습니다.";
+    bizFileGuideEl.textContent =
+      "PDF 파일만 첨부 가능합니다. (사업자등록증 필수)";
   }
 
   function updateDesignFileInfo() {
@@ -206,7 +230,7 @@
 
     designFileNameEl.textContent = "선택된 파일 없음";
     designFileGuideEl.textContent =
-      "PNG / JPG / JPEG 파일을 여러 개 첨부할 수 있습니다.";
+      "PNG / JPG / JPEG / WEBP 파일을 여러 개 첨부할 수 있습니다.";
   }
 
   /* =========================================================
@@ -296,7 +320,7 @@
     optionGuideTitleEl.textContent = `${profileData.title} · 현재 선택 규격: ${capType}`;
     optionGuideDescEl.innerHTML = `${profileData.desc}<div class="guideSplit"></div>${getCapTypeGuide(
       profile,
-      capType
+      capType,
     )}`;
   }
 
@@ -315,7 +339,7 @@
     const capType = safeTrim(capTypeEl.value) || "-";
     tooltip.innerHTML = `<b>현재 선택 규격: ${capType}</b><div class="hr"></div>${getCapTypeGuide(
       profile,
-      capType
+      capType,
     )}`;
   }
 
@@ -334,7 +358,9 @@
         e.stopPropagation();
 
         const type = btn.dataset.quoteHelp;
-        const tooltip = document.querySelector(`[data-quote-tooltip="${type}"]`);
+        const tooltip = document.querySelector(
+          `[data-quote-tooltip="${type}"]`,
+        );
         if (!tooltip) return;
 
         updateHelpTooltip(type);
@@ -347,11 +373,9 @@
 
     document.addEventListener("click", () => closeAllQuoteTooltips(null));
     window.addEventListener("resize", () => closeAllQuoteTooltips(null));
-    window.addEventListener(
-      "scroll",
-      () => closeAllQuoteTooltips(null),
-      { passive: true }
-    );
+    window.addEventListener("scroll", () => closeAllQuoteTooltips(null), {
+      passive: true,
+    });
   }
 
   /* =========================================================
@@ -448,7 +472,8 @@
 
   function clearKeycapInputs() {
     profileEl.value = "";
-    capTypeEl.innerHTML = '<option value="">프로파일을 먼저 선택해주세요</option>';
+    capTypeEl.innerHTML =
+      '<option value="">프로파일을 먼저 선택해주세요</option>';
     laserEl.value = "none";
     laserEl.disabled = false;
     keycapQtyEl.value = "";
@@ -458,6 +483,7 @@
 
     updateDesignFileInfo();
     updateOptionGuideBox();
+    syncQuotePageApi();
   }
 
   function clearKeyringInputs() {
@@ -527,7 +553,7 @@
 
     const discountTotal = quoteItems.reduce(
       (sum, item) => sum + (item.discount || 0),
-      0
+      0,
     );
 
     const subtotal = keycapTotal + keyringTotal;
@@ -550,47 +576,14 @@
         ? `이미지 ${item.designFiles.length}개 첨부`
         : "이미지 미첨부";
 
-      return `키캡 · ${item.profile || "-"} / ${item.capType || "-"} / ${item.laserLabel || "레이저 없음"
-        } / ${item.qty.toLocaleString("ko-KR")}개 / ${fileLabel}`;
+      return `키캡 · ${item.profile || "-"} / ${item.capType || "-"} / ${
+        item.laserLabel || "레이저 없음"
+      } / ${item.qty.toLocaleString("ko-KR")}개 / ${fileLabel}`;
     }
 
-    return `키링 · ${item.color || "-"} / ${item.type || "-"} / LED ${item.led || "없음"
-      } / ${item.qty.toLocaleString("ko-KR")}개`;
-  }
-
-  function buildSelectedOptions(keycapData, keyringData) {
-    const items = [];
-
-    if (useKeycap.checked) {
-      const profile = safeTrim(profileEl.value) || "-";
-      const capType = capTypeEl.options[capTypeEl.selectedIndex]?.textContent || "-";
-      const laserLabel = laserEl.disabled
-        ? "레이저 없음"
-        : laserEl.options[laserEl.selectedIndex]?.textContent || "없음";
-      const qtyLabel = keycapData.qty
-        ? `${keycapData.qty.toLocaleString("ko-KR")}개`
-        : "수량 미입력";
-      const fileLabel = selectedDesignFiles.length
-        ? `이미지 ${selectedDesignFiles.length}개 첨부`
-        : "이미지 미첨부";
-
-      items.push(
-        `키캡 · ${profile} / ${capType} / ${laserLabel} / ${qtyLabel} / ${fileLabel}`
-      );
-    }
-
-    if (useKeyring.checked) {
-      const color = safeTrim(keyringColorEl.value) || "-";
-      const type = safeTrim(keyringTypeEl.value) || "-";
-      const led = safeTrim(keyringLedEl.value) || "없음";
-      const qtyLabel = keyringData.qty
-        ? `${keyringData.qty.toLocaleString("ko-KR")}개`
-        : "수량 미입력";
-
-      items.push(`키링 · ${color} / ${type} / LED ${led} / ${qtyLabel}`);
-    }
-
-    return items;
+    return `키링 · ${item.color || "-"} / ${item.type || "-"} / LED ${
+      item.led || "없음"
+    } / ${item.qty.toLocaleString("ko-KR")}개`;
   }
 
   function addQuoteItem(item) {
@@ -601,11 +594,13 @@
       ...item,
     });
 
+    syncQuotePageApi();
     updateQuote();
   }
 
   function removeQuoteItem(id) {
     quoteItems = quoteItems.filter((item) => item.id !== id);
+    syncQuotePageApi();
     updateQuote();
   }
 
@@ -664,6 +659,7 @@
 
     updateSelectedOptionList(quoteItems);
     updateMobileDetail();
+    syncMobileSheetState();
   }
 
   /* =========================================================
@@ -677,16 +673,52 @@
     mobileQuoteDetailEl.innerHTML = getSummaryHtml();
   }
 
-  function openMobileSheet() {
-    mobileQuoteSheetEl.hidden = false;
-    mobileQuoteBarEl.setAttribute("aria-expanded", "true");
+  function lockBodyScroll() {
+    lockedScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${lockedScrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
     document.body.style.overflow = "hidden";
   }
 
+  function unlockBodyScroll() {
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.left = "";
+    document.body.style.right = "";
+    document.body.style.width = "";
+    document.body.style.overflow = "";
+    window.scrollTo(0, lockedScrollY || 0);
+  }
+
+  function openMobileSheet() {
+    if (window.innerWidth > 768) return;
+
+    mobileSheetOpen = true;
+    mobileQuoteSheetEl.hidden = false;
+    mobileQuoteBarEl.setAttribute("aria-expanded", "true");
+    lockBodyScroll();
+  }
+
   function closeMobileSheet() {
+    mobileSheetOpen = false;
     mobileQuoteSheetEl.hidden = true;
     mobileQuoteBarEl.setAttribute("aria-expanded", "false");
-    document.body.style.overflow = "";
+    unlockBodyScroll();
+  }
+
+  function syncMobileSheetState() {
+    if (window.innerWidth > 768) {
+      if (mobileSheetOpen) {
+        closeMobileSheet();
+        return;
+      }
+
+      mobileQuoteSheetEl.hidden = true;
+      mobileQuoteBarEl.setAttribute("aria-expanded", "false");
+    }
   }
 
   /* =========================================================
@@ -704,7 +736,8 @@
     useKeyring.checked = false;
 
     profileEl.value = "";
-    capTypeEl.innerHTML = '<option value="">프로파일을 먼저 선택해주세요</option>';
+    capTypeEl.innerHTML =
+      '<option value="">프로파일을 먼저 선택해주세요</option>';
     laserEl.value = "none";
     laserEl.disabled = false;
     keycapQtyEl.value = "";
@@ -728,6 +761,7 @@
     updateDesignFileInfo();
     updateAccordionState();
     updateOptionGuideBox();
+    syncQuotePageApi();
 
     showToast("입력 내용을 초기화했습니다.", "info");
   }
@@ -790,7 +824,10 @@
     keyringLedEl.addEventListener("change", updateQuote);
     keyringQtyEl.addEventListener("input", updateQuote);
 
-    rushTypeEl.addEventListener("change", updateQuote);
+    rushTypeEl.addEventListener("change", () => {
+      syncQuotePageApi();
+      updateQuote();
+    });
 
     addKeycapItemBtnEl.addEventListener("click", () => {
       if (!validateKeycapDraft()) return;
@@ -818,34 +855,60 @@
     bizFileInputEl.addEventListener("change", () => {
       selectedBizFile = bizFileInputEl.files?.[0] || null;
       updateBizFileInfo();
+      syncQuotePageApi();
     });
     bizFileDelBtnEl.addEventListener("click", () => {
       selectedBizFile = null;
       bizFileInputEl.value = "";
       updateBizFileInfo();
+      syncQuotePageApi();
     });
 
     designFileBtnEl.addEventListener("click", () => designFilesInputEl.click());
     designFilesInputEl.addEventListener("change", () => {
       selectedDesignFiles = Array.from(designFilesInputEl.files || []);
       updateDesignFileInfo();
+      syncQuotePageApi();
       updateQuote();
     });
     designFileDelBtnEl.addEventListener("click", () => {
       selectedDesignFiles = [];
       designFilesInputEl.value = "";
       updateDesignFileInfo();
+      syncQuotePageApi();
       updateQuote();
     });
 
     mobileQuoteBarEl.addEventListener("click", openMobileSheet);
     mobileQuoteSheetDimEl.addEventListener("click", closeMobileSheet);
     mobileQuoteCloseEl.addEventListener("click", closeMobileSheet);
+    window.addEventListener("resize", syncMobileSheetState, { passive: true });
 
-    resetBtnEl.addEventListener("click", resetForm);
-    submitBtnEl.addEventListener("click", () => {
+    resetBtnEl.addEventListener("click", () => {
+      closeMobileSheet();
+      resetForm();
+    });
+
+    submitBtnEl.addEventListener("click", async () => {
       if (!validateForm()) return;
-      showToast("견적 요청 준비가 완료되었습니다. 메일 연결만 남았습니다.", "ok");
+
+      const originalText = submitBtnEl.textContent;
+
+      try {
+        submitBtnEl.disabled = true;
+        submitBtnEl.textContent = "전송 중...";
+
+        syncQuotePageApi();
+        await sendQuoteEmails();
+
+        showToast("견적 요청이 정상적으로 접수되었습니다.", "ok");
+      } catch (error) {
+        console.error(error);
+        showToast("메일 발송 중 오류가 발생했습니다.", "error");
+      } finally {
+        submitBtnEl.disabled = false;
+        submitBtnEl.textContent = originalText;
+      }
     });
   }
 
@@ -860,6 +923,7 @@
     updateAccordionState();
     initTooltips();
     bindEvents();
+    syncQuotePageApi();
     updateQuote();
   }
 

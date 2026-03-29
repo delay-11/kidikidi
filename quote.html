@@ -97,7 +97,9 @@
                     </div>
 
                     <span id="bizFileName" class="fileName">선택된 파일 없음</span>
-                    <div class="fileGuideBox" id="bizFileGuide">첨부된 파일이 없습니다.</div>
+                    <div class="fileGuideBox" id="bizFileGuide">
+                        PDF 파일만 첨부 가능합니다. (사업자등록증 필수)
+                    </div>
                 </div>
 
                 <div class="divider"></div>
@@ -221,7 +223,8 @@
                                 <div class="uploadRow">
                                     <button type="button" id="designFileBtn" class="ghostBtn fileBtn">파일 선택</button>
                                     <button type="button" id="designFileDelBtn" class="dangerBtn">전체 삭제</button>
-                                    <input type="file" id="designFiles" accept="image/png,image/jpeg" multiple hidden />
+                                    <input type="file" id="designFiles" accept="image/png,image/jpeg,image/webp"
+                                        multiple hidden />
                                 </div>
 
                                 <span id="designFileName" class="fileName">선택된 파일 없음</span>
@@ -233,8 +236,7 @@
                             <div class="row quoteRow1">
                                 <div>
                                     <label>키캡 요청사항</label>
-                                    <textarea id="keycapMemo" rows="5"
-                                        placeholder="요청사항을 입력해주세요."></textarea>
+                                    <textarea id="keycapMemo" rows="5" placeholder="요청사항을 입력해주세요."></textarea>
                                 </div>
                             </div>
 
@@ -322,7 +324,7 @@
                         · 500개 이상 5% 할인<br>
                         · 1000개 이상 10% 할인<br>
                         · 5000개 이상 15% 할인<br>
-                        · 투명, 블랙 외의 키링은 별도 문의
+                        · 옵션 외의 키링은 별도 문의
                     </div>
                 </div>
             </section>
@@ -367,8 +369,11 @@
                             </div>
 
                             <div class="quoteTotalRow">
-                                <span>총 금액 <small>(VAT 별도)</small></span>
-                                <strong id="finalPriceText">0원</strong>
+                                <div class="quoteTotalLeft">
+                                    <strong>총 금액</strong>
+                                    <span class="vat">VAT 별도</span>
+                                </div>
+                                <strong id="finalPriceText" class="quoteTotalPrice">0원</strong>
                             </div>
                         </div>
                     </div>
@@ -382,7 +387,7 @@
                         <div class="formReadyTitle">추가 안내</div>
                         <div class="formReadyDesc">
                             · 포장 요구사항 별도 협의<br>
-                            · 입력하신 정보는 견적 확인 용도로만 사용됩니다.<br>
+                            · 입력하신 정보는 견적 확인 용도로만 사용됩니다<br>
                             · 추가 문의는 아래 번호로 연락 부탁드립니다<br>
                             <a href="tel:01071247487" class="telLink">📞 010-7124-7487</a>
                         </div>
@@ -437,11 +442,15 @@
     </footer>
 
     <!-- =========================================================
-         스크립트
-    ========================================================= -->
+     스크립트
+========================================================= -->
     <script src="./js/common/constants.js"></script>
     <script src="./js/common/toast.js"></script>
+    <script src="./js/common/email-core.js"></script>
+
     <script src="./js/quote/quote.js"></script>
+    <script src="./js/quote/quote-email-summary.js"></script>
+    <script src="./js/quote/quote-email-send.js"></script>
 </body>
 
 </html>

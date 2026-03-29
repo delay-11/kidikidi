@@ -5,7 +5,7 @@ function getItemDisplayName(item, index = 0, items = cartItems) {
   const orderNo = safeTrim(orderEl?.value) || "order";
   const profile = safeFilePart(item?.profile || "-");
   const capType = safeFilePart(
-    item?.capType || safeTrim(capTypeEl?.value) || "-"
+    item?.capType || safeTrim(capTypeEl?.value) || "-",
   );
 
   let seq = 1;
@@ -14,10 +14,8 @@ function getItemDisplayName(item, index = 0, items = cartItems) {
     let sameGroupCount = 0;
 
     for (const it of items) {
-      const sameProfile =
-        safeFilePart(it?.profile || "-") === profile;
-      const sameCapType =
-        safeFilePart(it?.capType || "-") === capType;
+      const sameProfile = safeFilePart(it?.profile || "-") === profile;
+      const sameCapType = safeFilePart(it?.capType || "-") === capType;
 
       if (!sameProfile || !sameCapType) continue;
 
@@ -32,8 +30,18 @@ function getItemDisplayName(item, index = 0, items = cartItems) {
 
   return `${safeFilePart(orderNo)}_${profile}_${capType}_${String(seq).padStart(
     2,
-    "0"
+    "0",
   )}.png`;
+}
+
+/* =========================================================
+ * 레이저 옵션 텍스트
+========================================================= */
+function getLaserText(profile, laser) {
+  if (profile !== "OEM") return "레이저 없음";
+  if (laser === "black") return "레이저 블랙";
+  if (laser === "white") return "레이저 화이트";
+  return "레이저 없음";
 }
 
 /* =========================================================
@@ -63,7 +71,7 @@ function buildItemsSummaryText(items = cartItems) {
   }
 
   const blocks = items.map((item, index) =>
-    buildItemSummaryText(item, index, items)
+    buildItemSummaryText(item, index, items),
   );
 
   return [...blocks, "", `총 시안 수: ${items.length}개`].join("\n\n");

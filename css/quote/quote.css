@@ -399,17 +399,37 @@
 }
 
 .quoteTotalRow {
-    margin-top: 8px;
-    padding-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 16px;
     border-top: 1px solid var(--line);
-    color: #a66a00;
-    font-size: 18px;
-    font-weight: 800;
 }
 
-.quoteTotalRow strong {
-    font-size: 30px;
-    line-height: 1;
+.quoteTotalLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.quoteTotalLeft strong {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1b2330;
+}
+
+.quoteTotalLeft .vat {
+    font-size: 12px;
+    color: #98a2b3;
+    font-weight: 600;
+}
+
+.quoteTotalPrice {
+    font-size: 26px;
+    font-weight: 900;
+    color: #1b2330;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
 }
 
 .quoteSummaryButtons {
@@ -455,6 +475,10 @@
     position: fixed;
     inset: 0;
     z-index: 1000;
+}
+
+.quoteMobileSheet[hidden] {
+    display: none !important;
 }
 
 .quoteMobileSheetDim {
@@ -624,14 +648,22 @@
         box-shadow: 0 14px 28px rgba(16, 24, 40, 0.18);
     }
 
+    .quoteMobileSheet:not([hidden]) {
+        display: block;
+    }
+
     .quoteHelpTooltip {
         width: min(300px, calc(100vw - 24px));
         left: 0 !important;
         transform: none !important;
     }
 
+    .quoteMobileDetail .quoteTotalRow {
+        font-size: 15px;
+    }
+
     .quoteMobileDetail .quoteTotalRow strong {
-        font-size: 28px;
+        font-size: 20px;
     }
 }
 
