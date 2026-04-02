@@ -18,6 +18,7 @@ let selectedItemId = null;
  * 현재 편집 중인 이미지 상태
 ========================================================= */
 let userImg = null;
+let userImgFile = null;
 let imgCX = 0;
 let imgCY = 0;
 let imgScaleX = 1;

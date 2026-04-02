@@ -493,6 +493,7 @@ async function loadItemToCanvas(it) {
 
 function clearEditor() {
   userImg = null;
+  userImgFile = null;
   imgCX = canvas.width / 2;
   imgCY = canvas.height / 2;
   imgScaleX = 1;
@@ -1222,6 +1223,8 @@ fileEl?.addEventListener("change", async () => {
 
   if (!f) return;
 
+  userImgFile = f || null;
+
   /* 너무 큰 파일은 먼저 경고 */
   if (f.size > 15 * 1024 * 1024) {
     setCanvasNotice(
@@ -1272,6 +1275,7 @@ fileDelBtn?.addEventListener(
     if (await applyConfirmedLockIfNeeded(true)) return;
 
     userImg = null;
+    userImgFile = null;
     imgScaleX = 1;
     imgScaleY = 1;
     imgRot = 0;
