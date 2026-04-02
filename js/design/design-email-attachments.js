@@ -2,6 +2,7 @@
  * 시안 첨부용 렌더링 / 첨부 파라미터 생성
  * - 1~9개   : PNG 개별 첨부
  * - 10개 이상: ZIP 첨부
+ * - OEM + 레이저 선택 시: 업로드 원본파일도 함께 첨부
 ========================================================= */
 
 function loadImageFromDataUrl(dataUrl) {
@@ -15,6 +16,29 @@ function loadImageFromDataUrl(dataUrl) {
     img.onload = () => resolve(img);
     img.onerror = reject;
     img.src = dataUrl;
+  });
+}
+
+function isLaserOriginalAttachTarget(item) {
+  return (
+    safeTrim(item?.profile) === "OEM" &&
+    safeTrim(item?.laser) !== "" &&
+    safeTrim(item?.laser) !== "none"
+  );
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve("");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () =>
+      resolve(String(reader.result || "").split(",")[1] || "");
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
 }
 
@@ -96,12 +120,32 @@ async function buildAttachments(orderNo = "order") {
     const dataUrl = await renderItemToPngDataUrl(item);
     const base64 = dataUrlToBase64(dataUrl);
 
-    if (!base64) continue;
+    if (base64) {
+      files.push({
+        filename,
+        file: base64,
+      });
+    }
 
-    files.push({
-      filename,
-      file: base64,
-    });
+    if (isLaserOriginalAttachTarget(item) && item?.originalFile) {
+      const ext = (() => {
+        const rawName = String(item.originalFile.name || "");
+        const dotIndex = rawName.lastIndexOf(".");
+        return dotIndex >= 0 ? rawName.slice(dotIndex).toLowerCase() : "";
+      })();
+
+      const originalFilename =
+        `${safeFilePart(orderNo)}_${safeFilePart(item.profile)}_${safeFilePart(item.capType)}_${String(i + 1).padStart(2, "0")}_original${ext || ".png"}`;
+
+      const originalBase64 = await fileToBase64(item.originalFile);
+
+      if (originalBase64) {
+        files.push({
+          filename: originalFilename,
+          file: originalBase64,
+        });
+      }
+    }
   }
 
   if (!files.length) {

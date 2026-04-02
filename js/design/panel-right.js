@@ -97,23 +97,24 @@ function addCurrentItemToCart() {
   const qty = Math.max(1, toInt(qtyEl?.value, 1));
   const id = "it_" + Math.random().toString(36).slice(2, 10);
 
-  const item = {
-    id,
-    profile: p,
-    capType: cap,
-    laser,
-    qty,
-    bgColor: draftBgColor || "#ffffff",
-    design: {
-      imgDataUrl: null,
-      cx: imgCX,
-      cy: imgCY,
-      scaleX: imgScaleX,
-      scaleY: imgScaleY,
-      rot: imgRot,
-      bgSet: !!draftBgSet,
-    },
-  };
+const item = {
+  id,
+  profile: p,
+  capType: cap,
+  laser,
+  qty,
+  bgColor: draftBgColor || "#ffffff",
+  originalFile: userImgFile || null, // 레이저 원본파일
+  design: {
+    imgDataUrl: null,
+    cx: imgCX,
+    cy: imgCY,
+    scaleX: imgScaleX,
+    scaleY: imgScaleY,
+    rot: imgRot,
+    bgSet: !!draftBgSet,
+  },
+};
 
   saveCanvasToItem(item);
   cartItems.unshift(item);
