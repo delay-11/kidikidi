@@ -131,10 +131,10 @@ async function sendOrderEmails() {
     console.error("[고객 메일 발송 실패]", err);
   }
 
-  if (!companyOk && !customerOk) {
-    console.error("[시안 접수 메일 발송 실패] 회사/고객 메일 모두 실패");
-    return false;
+  if (!companyOk) {
+    console.error("[시안 접수 실패] 회사 메일 발송 실패");
+    return { ok: false, companyOk, customerOk };
   }
 
-  return true;
+  return { ok: true, companyOk, customerOk };
 }

@@ -177,11 +177,12 @@ async function confirmOrder() {
   if (btnConfirmEl) btnConfirmEl.disabled = true;
   if (confirmModalOkEl) confirmModalOkEl.disabled = true;
 
-  showToast?.("시안을 접수 중입니다. 잠시만 기다려주세요.", "info", 1800);
+  showToast?.("시안을 접수 중입니다.", "info", 1800);
 
   try {
-    const ok = await sendOrderEmails();
-    if (!ok) {
+    const result = await sendOrderEmails();
+
+    if (!result?.ok) {
       showToast?.(
         "시안 접수에 실패했습니다. 다시 시도해주세요.",
         "error",
@@ -194,8 +195,6 @@ async function confirmOrder() {
     if (typeof markOrderConfirmed === "function") {
       markOrderConfirmed(orderNo);
     }
-
-    showToast?.("시안이 정상적으로 접수되었습니다.", "ok", 2600);
 
     if (typeof closeConfirmModal === "function") {
       closeConfirmModal();

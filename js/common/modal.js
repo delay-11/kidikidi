@@ -51,7 +51,7 @@ function openConfirmModal() {
 }
 
 /* =========================================================
- * 접수 완료 주문 안내 모달 열기
+ * 시안 접수 완료 주문 안내 모달 열기
 ========================================================= */
 function openNoticeModal(
   message = `
@@ -60,7 +60,7 @@ function openNoticeModal(
 이메일을 확인하시면 확정 안내 메일과
 함께 접수된 시안을 확인하실 수 있습니다.
 `,
-  title = "접수 완료 주문",
+  title = "시안 접수 완료",
 ) {
   if (!confirmModalEl || !confirmModalBodyEl) return;
 
