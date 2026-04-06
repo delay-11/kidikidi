@@ -40,6 +40,10 @@ const CAP_OPTIONS = {
 
     { value: "R3-1U", label: "R3-1U" },
     { value: "R3-1.5U", label: "R3-1.5U (Tab/₩)" },
+
+    { value: "NUM_0", label: "넘버패드 0" },
+    { value: "NUM_PLUS", label: "넘버패드 +" },
+    { value: "NUM_ENTER", label: "넘버패드 Enter" },
   ],
   XDA: [{ value: "XDA", label: "XDA" }],
   MAO: [{ value: "MAO", label: "MAO" }],
@@ -74,6 +78,10 @@ const CANVAS_SIZE_MAP = {
   "R1-2.75U": { w: 752, h: 365 },
   "R1-6.25U": { w: 1559, h: 368 },
 
+  "NUM_0": { w: 629, h: 324 },
+  "NUM_PLUS": { w: 364, h: 629 },
+  "NUM_ENTER": { w: 364, h: 629 },
+
   XDA: { w: 330, h: 330 },
   MAO: { w: 330, h: 330 },
   STD: { w: 330, h: 330 },
@@ -100,6 +108,10 @@ const GUIDE_SIZE_MAP = {
   "R1-2.25U": { safe: { w: 407, h: 144 }, outer: { w: 455, h: 175 } },
   "R1-2.75U": { safe: { w: 514, h: 144 }, outer: { w: 564, h: 174 } },
   "R1-6.25U": { safe: { w: 1282, h: 140 }, outer: { w: 1336, h: 177 } },
+
+  "NUM_0": { safe: { w: 345, h: 142 }, outer: { w: 396, h: 173 } },
+  "NUM_PLUS": { safe: { w: 132, h: 366 }, outer: { w: 175, h: 397 } },
+  "NUM_ENTER": { safe: { w: 132, h: 365 }, outer: { w: 176, h: 395 } },
 
   XDA: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },
   MAO: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },

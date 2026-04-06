@@ -24,6 +24,9 @@
       "R3-1.5U": 1580,
       "R4-1U": 1280,
       "R4-2U": 1780,
+      "NUM_0": 1980,
+      "NUM_PLUS": 1980,
+      "NUM_ENTER": 1980,
     },
     XDA: { XDA: 1680 },
     MAO: { MAO: 1780 },
@@ -576,14 +579,12 @@
         ? `이미지 ${item.designFiles.length}개 첨부`
         : "이미지 미첨부";
 
-      return `키캡 · ${item.profile || "-"} / ${item.capType || "-"} / ${
-        item.laserLabel || "레이저 없음"
-      } / ${item.qty.toLocaleString("ko-KR")}개 / ${fileLabel}`;
+      return `키캡 · ${item.profile || "-"} / ${item.capType || "-"} / ${item.laserLabel || "레이저 없음"
+        } / ${item.qty.toLocaleString("ko-KR")}개 / ${fileLabel}`;
     }
 
-    return `키링 · ${item.color || "-"} / ${item.type || "-"} / LED ${
-      item.led || "없음"
-    } / ${item.qty.toLocaleString("ko-KR")}개`;
+    return `키링 · ${item.color || "-"} / ${item.type || "-"} / LED ${item.led || "없음"
+      } / ${item.qty.toLocaleString("ko-KR")}개`;
   }
 
   function addQuoteItem(item) {
