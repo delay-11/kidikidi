@@ -184,9 +184,9 @@ async function confirmOrder() {
 
     if (!result?.ok) {
       showToast?.(
-        "시안 접수에 실패했습니다. 다시 시도해주세요.",
+        result?.message || "시안 접수에 실패했습니다. 다시 시도해주세요.", // 수정 이유: sendOrderEmails()에서 넘긴 상세 실패 문구를 우선 표시
         "error",
-        2600,
+        3200, // 수정 이유: 문구가 길어질 수 있어서 기존보다 표시 시간을 조금 늘림
       );
       return false;
     }
@@ -202,6 +202,14 @@ async function confirmOrder() {
 
     if (typeof applyConfirmedLockIfNeeded === "function") {
       await applyConfirmedLockIfNeeded(true);
+    }
+
+    if (result?.customerWarning) {
+      showToast?.(
+        result.customerWarning,
+        "warn",
+        2600, // 수정 이유: 회사 메일은 성공했지만 고객 메일만 실패한 경우 별도 안내
+      );
     }
 
     confirmed = true;
