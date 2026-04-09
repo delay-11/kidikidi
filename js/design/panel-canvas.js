@@ -455,10 +455,13 @@ function saveCanvasToItem(it) {
   it.design.rot = imgRot;
   it.design.bgSet = !!draftBgSet;
   it.bgColor = draftBgColor || "#ffffff";
+  it.originalFile = userImgFile || it.originalFile || null;
 }
 
 async function loadItemToCanvas(it) {
   userImg = null;
+  userImgFile = it.originalFile || null;
+
   imgCX = it.design?.cx ?? canvas.width / 2;
   imgCY = it.design?.cy ?? canvas.height / 2;
   imgScaleX = it.design?.scaleX ?? it.design?.scale ?? 1;
@@ -479,9 +482,11 @@ async function loadItemToCanvas(it) {
   }
 
   if (fileNameEl) {
-    fileNameEl.textContent = it.design?.imgDataUrl
-      ? "저장된 이미지 불러옴"
-      : "선택된 파일 없음";
+    fileNameEl.textContent = it.originalFile?.name
+      ? it.originalFile.name
+      : it.design?.imgDataUrl
+        ? "저장된 이미지 불러옴"
+        : "선택된 파일 없음";
   }
 
   updateSelectedInfoText();
