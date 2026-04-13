@@ -35,6 +35,7 @@ const CAP_OPTIONS = {
     { value: "R1-6.25U", label: "R1-6.25U (스페이스바)" },
 
     { value: "R2-1U", label: "R2-1U" },
+    { value: "R2-1U", label: "R2-1U 돌기" },
     { value: "R2-1.75U", label: "R2-1.75U (Caps Lock)" },
     { value: "R2-2.25U", label: "R2-2.25U (Enter)" },
 
