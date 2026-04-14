@@ -5,6 +5,12 @@
  * - OEM + 레이저 선택 시: 업로드 원본파일도 함께 첨부
 ========================================================= */
 
+function getCapTypeFileText(capType) {
+  if (!capType) return "-";
+  if (capType === "R2-1U_HOMING") return "R2-1U-돌기";
+  return capType;
+}
+
 function loadImageFromDataUrl(dataUrl) {
   return new Promise((resolve, reject) => {
     if (!dataUrl) {
@@ -135,7 +141,7 @@ async function buildAttachments(orderNo = "order") {
       })();
 
       const originalFilename =
-        `${safeFilePart(orderNo)}_${safeFilePart(item.profile)}_${safeFilePart(item.capType)}_${String(i + 1).padStart(2, "0")}_original${ext || ".png"}`;
+        `${safeFilePart(orderNo)}_${safeFilePart(item.profile)}_${safeFilePart(getCapTypeFileText(item.capType))}_${String(i + 1).padStart(2, "0")}_original${ext || ".png"}`;
 
       const originalBase64 = await fileToBase64(item.originalFile);
 

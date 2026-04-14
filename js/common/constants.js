@@ -35,7 +35,7 @@ const CAP_OPTIONS = {
     { value: "R1-6.25U", label: "R1-6.25U (스페이스바)" },
 
     { value: "R2-1U", label: "R2-1U" },
-    { value: "R2-1U", label: "R2-1U 돌기" },
+    { value: "R2-1U_HOMING", label: "R2-1U 돌기" },
     { value: "R2-1.75U", label: "R2-1.75U (Caps Lock)" },
     { value: "R2-2.25U", label: "R2-2.25U (Enter)" },
 
@@ -70,6 +70,7 @@ const CANVAS_SIZE_MAP = {
   "R3-1.5U": { w: 500, h: 355 },
 
   "R2-1U": { w: 330, h: 330 },
+  "R2-1U_HOMING": { w: 330, h: 330 },
   "R2-1.75U": { w: 520, h: 332 },
   "R2-2.25U": { w: 640, h: 330 },
 
@@ -101,6 +102,7 @@ const GUIDE_SIZE_MAP = {
   "R3-1.5U": { safe: { w: 242, h: 144 }, outer: { w: 288, h: 174 } },
 
   "R2-1U": { safe: { w: 130, h: 147 }, outer: { w: 178, h: 175 } },
+  "R2-1U_HOMING": { safe: { w: 130, h: 147 }, outer: { w: 178, h: 175 } },
   "R2-1.75U": { safe: { w: 297, h: 147 }, outer: { w: 343, h: 173 } },
   "R2-2.25U": { safe: { w: 409, h: 145 }, outer: { w: 453, h: 175 } },
 

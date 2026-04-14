@@ -71,7 +71,9 @@ async function selectItem(id) {
 
   await loadItemToCanvas(it);
 
-  if (selTextEl) selTextEl.textContent = `${it.profile} / ${it.capType}`;
+  if (selTextEl) {
+    selTextEl.textContent = `${it.profile} / ${getCapTypeDisplayName(it.capType)}`;
+  }
   if (bgTextEl) bgTextEl.textContent = getItemBgColor(it);
 
   updateBgLockUI(it.profile, it.laser);
@@ -97,24 +99,24 @@ function addCurrentItemToCart() {
   const qty = Math.max(1, toInt(qtyEl?.value, 1));
   const id = "it_" + Math.random().toString(36).slice(2, 10);
 
-const item = {
-  id,
-  profile: p,
-  capType: cap,
-  laser,
-  qty,
-  bgColor: draftBgColor || "#ffffff",
-  originalFile: userImgFile || null, // 레이저 원본파일
-  design: {
-    imgDataUrl: null,
-    cx: imgCX,
-    cy: imgCY,
-    scaleX: imgScaleX,
-    scaleY: imgScaleY,
-    rot: imgRot,
-    bgSet: !!draftBgSet,
-  },
-};
+  const item = {
+    id,
+    profile: p,
+    capType: cap,
+    laser,
+    qty,
+    bgColor: draftBgColor || "#ffffff",
+    originalFile: userImgFile || null, // 레이저 원본파일
+    design: {
+      imgDataUrl: null,
+      cx: imgCX,
+      cy: imgCY,
+      scaleX: imgScaleX,
+      scaleY: imgScaleY,
+      rot: imgRot,
+      bgSet: !!draftBgSet,
+    },
+  };
 
   saveCanvasToItem(item);
   cartItems.unshift(item);
@@ -128,7 +130,6 @@ const item = {
   return true;
 }
 
-
 /* =========================================================
  * HTML 이스케이프
 ========================================================= */
@@ -139,6 +140,15 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+/* =========================================================
+ * 수량 정리
+========================================================= */
+function normalizeQty(value) {
+  const qty = parseInt(value, 10);
+  if (Number.isNaN(qty) || qty < 1) return 1;
+  return qty;
 }
 
 /* =========================================================
@@ -168,10 +178,9 @@ function makeCartThumb(item) {
 ========================================================= */
 function buildCartItemHtml(item) {
   const activeClass = selectedItemId === item.id ? " selected" : "";
-  const title = `${safeTrim(item.profile) || "-"} / ${safeTrim(item.capType) || "-"}`;
+  const title = `${safeTrim(item.profile) || "-"} / ${getCapTypeDisplayName(item.capType)}`;
   const laserText = labelLaser(item);
-  const qtyNum = Math.max(1, toInt(item.qty ?? 1, 1));
-  const qtyText = `${qtyNum}개`;
+  const qtyNum = normalizeQty(item.qty ?? 1);
   const bg = getItemBgColor(item);
   const designText = hasDesign(item) ? "디자인 있음" : "디자인 없음";
 
@@ -198,7 +207,16 @@ function buildCartItemHtml(item) {
               aria-label="수량 감소"
             >-</button>
 
-            <span class="cartQtyValue">${escapeHtml(qtyText)}</span>
+            <input
+              type="number"
+              class="cartQtyInput"
+              data-id="${escapeHtml(item.id)}"
+              value="${qtyNum}"
+              min="1"
+              step="1"
+              inputmode="numeric"
+              aria-label="수량 입력"
+            />
 
             <button
               type="button"
@@ -273,8 +291,9 @@ function findCartItemById(id) {
 ========================================================= */
 cartListEl?.addEventListener("click", async (e) => {
   const actionBtn = e.target.closest("[data-action]");
+  const qtyInput = e.target.closest(".cartQtyInput");
   const card = e.target.closest(".cartItem[data-id]");
-  const id = actionBtn?.dataset.id || card?.dataset.id;
+  const id = actionBtn?.dataset.id || qtyInput?.dataset.id || card?.dataset.id;
 
   if (!id) return;
 
@@ -294,19 +313,74 @@ cartListEl?.addEventListener("click", async (e) => {
     }
 
     if (action === "minus") {
-      item.qty = Math.max(1, toInt(item.qty ?? 1, 1) - 1);
+      item.qty = Math.max(1, normalizeQty(item.qty ?? 1) - 1);
+
+      if (selectedItemId === id && qtyEl) {
+        qtyEl.value = String(item.qty);
+      }
+
       renderCart();
       showToast(`수량을 ${item.qty}개로 변경했습니다.`, "info", 1600);
       return;
     }
 
     if (action === "plus") {
-      item.qty = Math.max(1, toInt(item.qty ?? 1, 1) + 1);
+      item.qty = Math.max(1, normalizeQty(item.qty ?? 1) + 1);
+
+      if (selectedItemId === id && qtyEl) {
+        qtyEl.value = String(item.qty);
+      }
+
       renderCart();
       showToast(`수량을 ${item.qty}개로 변경했습니다.`, "info", 1600);
       return;
     }
   }
 
+  if (qtyInput) {
+    e.stopPropagation();
+    return;
+  }
+
   await selectItem(id);
+});
+
+/* =========================================================
+ * 장바구니 수량 직접 입력
+========================================================= */
+cartListEl?.addEventListener("input", (e) => {
+  const input = e.target.closest(".cartQtyInput");
+  if (!input) return;
+
+  const id = input.dataset.id;
+  const item = findCartItemById(id);
+  if (!item) return;
+
+  item.qty = normalizeQty(input.value);
+
+  if (selectedItemId === id && qtyEl) {
+    qtyEl.value = String(item.qty);
+  }
+});
+
+/* =========================================================
+ * 장바구니 수량 입력값 보정
+========================================================= */
+cartListEl?.addEventListener("change", (e) => {
+  const input = e.target.closest(".cartQtyInput");
+  if (!input) return;
+
+  const id = input.dataset.id;
+  const item = findCartItemById(id);
+  if (!item) return;
+
+  item.qty = normalizeQty(input.value);
+  input.value = String(item.qty);
+
+  if (selectedItemId === id && qtyEl) {
+    qtyEl.value = String(item.qty);
+  }
+
+  renderCart();
+  showToast(`수량을 ${item.qty}개로 변경했습니다.`, "info", 1600);
 });

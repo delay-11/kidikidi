@@ -3,7 +3,7 @@
 ========================================================= */
 function updateDraftInfo() {
   const profile = safeTrim(profileEl?.value) || "-";
-  const capType = safeTrim(capTypeEl?.value) || "-";
+  const capType = getCapTypeDisplayName(capTypeEl?.value);
   const laserValue = safeTrim(laserEl?.value) || "none";
   const laserLabel =
     profile === "OEM"

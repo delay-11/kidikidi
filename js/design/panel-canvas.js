@@ -58,6 +58,20 @@ function isLaserFixedBg() {
 }
 
 /* =========================================================
+ * 규격 표시명 반환
+========================================================= */
+function getCapTypeDisplayName(capType) {
+  if (!capType) return "-";
+  if (capType === "R2-1U_HOMING") return "R2-1U 돌기";
+
+  const profile = safeTrim(profileEl?.value || "");
+  const options = CAP_OPTIONS?.[profile] || [];
+  const found = options.find((opt) => opt.value === capType);
+
+  return found?.label || capType;
+}
+
+/* =========================================================
  * 배경색 UI 반영
 ========================================================= */
 function setBgUI(hex) {
@@ -306,7 +320,7 @@ function resizeCanvasKeepView(w, h) {
 
 function updateSelectedInfoText() {
   const profile = safeTrim(profileEl?.value || "") || "-";
-  const cap = safeTrim(capTypeEl?.value || "") || "-";
+  const cap = getCapTypeDisplayName(capTypeEl?.value);
 
   if (selTextEl) {
     selTextEl.textContent = `${profile} / ${cap}`;
@@ -1119,6 +1133,10 @@ async function loadImageFromFile(file) {
   tempCanvas.height = targetHeight;
 
   const tempCtx = tempCanvas.getContext("2d", { alpha: true });
+  if (!tempCtx) {
+    throw new Error("2D 캔버스를 생성할 수 없습니다.");
+  }
+
   tempCtx.clearRect(0, 0, targetWidth, targetHeight);
   tempCtx.drawImage(originalImg, 0, 0, targetWidth, targetHeight);
 

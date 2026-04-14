@@ -1,11 +1,29 @@
 /* =========================================================
+ * 규격 표시명
+========================================================= */
+function getCapTypeText(capType) {
+  if (!capType) return "-";
+  if (capType === "R2-1U_HOMING") return "R2-1U 돌기";
+  return capType;
+}
+
+/* =========================================================
+ * 규격 파일명용 텍스트
+========================================================= */
+function getCapTypeFileText(capType) {
+  if (!capType) return "-";
+  if (capType === "R2-1U_HOMING") return "R2-1U-돌기";
+  return capType;
+}
+
+/* =========================================================
  * 시안 1개 표시명
 ========================================================= */
 function getItemDisplayName(item, index = 0, items = cartItems) {
   const orderNo = safeTrim(orderEl?.value) || "order";
   const profile = safeFilePart(item?.profile || "-");
   const capType = safeFilePart(
-    item?.capType || safeTrim(capTypeEl?.value) || "-",
+    getCapTypeFileText(item?.capType || safeTrim(capTypeEl?.value) || "-"),
   );
 
   let seq = 1;
@@ -15,7 +33,10 @@ function getItemDisplayName(item, index = 0, items = cartItems) {
 
     for (const it of items) {
       const sameProfile = safeFilePart(it?.profile || "-") === profile;
-      const sameCapType = safeFilePart(it?.capType || "-") === capType;
+      const sameCapType =
+        safeFilePart(
+          getCapTypeFileText(it?.capType || "-"),
+        ) === capType;
 
       if (!sameProfile || !sameCapType) continue;
 
@@ -55,6 +76,7 @@ function buildItemSummaryText(item, index, items = cartItems) {
   const lines = [
     `[시안 ${index + 1}]`,
     `파일명: ${getItemDisplayName(item, index, items)}`,
+    `규격: ${getCapTypeText(item?.capType)}`,
     `수량: ${numberWithCommas(qty)}개`,
     `레이저: ${getLaserText(item?.profile, item?.laser)}`,
   ];
@@ -96,6 +118,10 @@ function buildItemSummaryHtml(item, index, items = cartItems) {
           <td style="padding:4px 0;">${esc(getItemDisplayName(item, index, items))}</td>
         </tr>
         <tr>
+          <td style="padding:4px 0;font-weight:700;">규격</td>
+          <td style="padding:4px 0;">${esc(getCapTypeText(item?.capType))}</td>
+        </tr>
+        <tr>
           <td style="padding:4px 0;font-weight:700;">수량</td>
           <td style="padding:4px 0;">${esc(numberWithCommas(qty))}개</td>
         </tr>
@@ -107,6 +133,7 @@ function buildItemSummaryHtml(item, index, items = cartItems) {
     </div>
   `;
 }
+
 /* =========================================================
  * 전체 시안 요약 HTML
 ========================================================= */
