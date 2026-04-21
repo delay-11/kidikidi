@@ -8,6 +8,25 @@ const fieldErr = {
   email: null,
 };
 
+/* =========================================================
+ * URL 주문번호 고정값
+========================================================= */
+let fixedOrderNo = "";
+
+/* =========================================================
+ * 주문번호 잠금 키
+========================================================= */
+function getOrderFromUrl() {
+  try {
+    const sp = new URLSearchParams(location.search);
+    return safeTrim(sp.get("order") || "");
+  } catch {
+    return "";
+  }
+}
+
+fixedOrderNo = getOrderFromUrl();
+
 function ensureFieldErrorBox(inputEl, key) {
   if (!inputEl) return null;
 
@@ -73,7 +92,7 @@ function clearFieldErrors() {
 function validateDesignUserInfo(showMessage = false) {
   const name = safeTrim(nameEl?.value);
   const phone = safeTrim(phoneEl?.value);
-  const orderNo = safeTrim(orderEl?.value);
+  const orderNo = safeTrim(fixedOrderNo || orderEl?.value);
   const email = safeTrim(emailEl?.value);
 
   if (showMessage) {
@@ -98,13 +117,10 @@ function validateDesignUserInfo(showMessage = false) {
     }
   }
 
-  if (!/^[0-9]{16}$/.test(orderNo)) {
+  if (!orderNo) {
     ok = false;
     if (showMessage) {
-      setFieldError(
-        "order",
-        "주문번호 형식이 올바르지 않습니다. (숫자 16자리)",
-      );
+      setFieldError("order", "주문번호를 입력해주세요.");
     }
   }
 
@@ -128,10 +144,11 @@ function validateUserInfo(showMessage = false) {
 }
 
 /* =========================================================
- * 주문번호 입력 제한
+ * 주문번호 입력
 ========================================================= */
 orderEl?.addEventListener("input", () => {
-  orderEl.value = orderEl.value.replace(/[^0-9]/g, "").slice(0, 16);
+  if (orderEl.readOnly) return;
+  orderEl.value = orderEl.value.replace(/[^0-9]/g, "");
 });
 
 /* =========================================================
@@ -163,18 +180,6 @@ function validateCanConfirm(showMessage = false) {
   }
 
   return true;
-}
-
-/* =========================================================
- * 주문번호 잠금 키
-========================================================= */
-function getOrderFromUrl() {
-  try {
-    const sp = new URLSearchParams(location.search);
-    return safeTrim(sp.get("order") || "");
-  } catch {
-    return "";
-  }
 }
 
 function confirmKey(orderNo) {
@@ -245,7 +250,7 @@ function setAllLocked(locked) {
  * 주문번호 확정 잠금 적용
 ========================================================= */
 async function applyConfirmedLockIfNeeded(showPopup = false) {
-  const orderNo = safeTrim(orderEl?.value || "");
+  const orderNo = safeTrim(fixedOrderNo || orderEl?.value || "");
   const locked = isOrderConfirmed(orderNo);
 
   if (!locked) {

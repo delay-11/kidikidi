@@ -25,7 +25,7 @@ const EMAILJS_QUOTE_CUSTOMER_TEMPLATE_ID = "template_b94uml3";
 ========================================================= */
 const CAP_OPTIONS = {
   OEM: [
-    { value: "R4-1U", label: "R4-1U (베스트)" },
+    { value: "R4-1U", label: "R4-1U" },
     { value: "R4-2U", label: "R4-2U (Backspace)" },
 
     { value: "R1-1U", label: "R1-1U" },

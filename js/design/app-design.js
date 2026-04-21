@@ -42,28 +42,30 @@ function bindCustomerFieldEvents() {
   [nameEl, phoneEl, orderEl, emailEl].forEach((el) => {
     if (!el) return;
 
-    el.addEventListener("input", async () => {
+    el.addEventListener("input", () => {
+      if (el === orderEl && orderEl.readOnly) return;
       if (uiLocked && el !== orderEl) return;
 
-      clearFieldErrors?.();
-      clearFormNotice?.();
-      setMsg?.("");
-      setOk?.("");
-
-      updateFormReadyState();
-      updateDraftInfo?.();
-      updateActionLocks?.();
+      updateCanvasLock?.();
+      updateConfirmButtonState?.();
 
       if (el === orderEl) {
-        await applyConfirmedLockIfNeeded?.(false);
+        syncOrderConfirmState?.();
       }
+
+      updateFormReadyState?.();
     });
 
     el.addEventListener("blur", async () => {
+      if (el === orderEl && orderEl.readOnly) return;
       if (uiLocked && el !== orderEl) return;
 
+      if (el === orderEl) {
+        syncOrderConfirmState?.();
+      }
+
       validateUserInfo?.(true);
-      updateFormReadyState();
+      updateFormReadyState?.();
       updateDraftInfo?.();
       updateActionLocks?.();
 
@@ -72,24 +74,24 @@ function bindCustomerFieldEvents() {
       }
     });
   });
-
-  [profileEl, capTypeEl, laserEl, qtyEl].forEach((el) => {
-    if (!el) return;
-
-    const eventName = el.tagName === "SELECT" ? "change" : "input";
-
-    el.addEventListener(eventName, () => {
-      if (uiLocked) return;
-
-      clearFormNotice?.();
-      setMsg?.("");
-      setOk?.("");
-
-      updateDraftInfo?.();
-      updateActionLocks?.();
-    });
-  });
 }
+
+[profileEl, capTypeEl, laserEl, qtyEl].forEach((el) => {
+  if (!el) return;
+
+  const eventName = el.tagName === "SELECT" ? "change" : "input";
+
+  el.addEventListener(eventName, () => {
+    if (uiLocked) return;
+
+    clearFormNotice?.();
+    setMsg?.("");
+    setOk?.("");
+
+    updateDraftInfo?.();
+    updateActionLocks?.();
+  });
+});
 
 /* =========================================================
  * 시안 액션 이벤트 바인딩
@@ -184,14 +186,19 @@ async function confirmOrder() {
 
     if (!result?.ok) {
       showToast?.(
-        result?.message || "시안 접수에 실패했습니다. 다시 시도해주세요.", // 수정 이유: sendOrderEmails()에서 넘긴 상세 실패 문구를 우선 표시
+        result?.message || "시안 접수에 실패했습니다. 다시 시도해주세요.",
         "error",
-        3200, // 수정 이유: 문구가 길어질 수 있어서 기존보다 표시 시간을 조금 늘림
+        3200,
       );
       return false;
     }
 
-    const orderNo = safeTrim(orderEl?.value || "");
+    const orderNo = safeTrim(
+      (typeof fixedOrderNo !== "undefined" && fixedOrderNo) ||
+        orderEl?.value ||
+        "",
+    );
+
     if (typeof markOrderConfirmed === "function") {
       markOrderConfirmed(orderNo);
     }
@@ -205,11 +212,7 @@ async function confirmOrder() {
     }
 
     if (result?.customerWarning) {
-      showToast?.(
-        result.customerWarning,
-        "warn",
-        2600, // 수정 이유: 회사 메일은 성공했지만 고객 메일만 실패한 경우 별도 안내
-      );
+      showToast?.(result.customerWarning, "warn", 2600);
     }
 
     confirmed = true;
@@ -239,7 +242,9 @@ async function initDesignPage() {
     typeof getOrderFromUrl === "function" ? getOrderFromUrl() : "";
 
   if (orderEl && orderFromUrl) {
-    orderEl.value = orderFromUrl.replace(/[^0-9]/g, "").slice(0, 16);
+    orderEl.value = orderFromUrl.replace(/[^0-9]/g, "");
+    orderEl.readOnly = true;
+    orderEl.classList.add("isLockedOrder");
   }
 
   bindCustomerFieldEvents();

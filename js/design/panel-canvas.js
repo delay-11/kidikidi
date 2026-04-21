@@ -18,6 +18,62 @@ window.addEventListener("blur", () => {
 });
 let activeResizePointerId = null;
 
+/* =========================================================
+ * 모바일 스포이드
+========================================================= */
+let mobileEyedropperMode = false;
+
+function isTouchDevice() {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+}
+
+function setMobileEyedropperMode(active) {
+  mobileEyedropperMode = !!active;
+  canvasWrapEl?.classList.toggle("isEyedropperMode", mobileEyedropperMode);
+}
+
+function rgbToHex(r, g, b) {
+  return (
+    "#" +
+    [r, g, b]
+      .map((v) => Number(v).toString(16).padStart(2, "0"))
+      .join("")
+      .toLowerCase()
+  );
+}
+
+function pickCanvasColorAtClientPoint(clientX, clientY) {
+  if (!canvas) return null;
+
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return null;
+
+  const x = Math.floor(((clientX - rect.left) / rect.width) * canvas.width);
+  const y = Math.floor(((clientY - rect.top) / rect.height) * canvas.height);
+
+  if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) {
+    return null;
+  }
+
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+
+  const pixel = ctx.getImageData(x, y, 1, 1).data;
+  if (!pixel || pixel.length < 4) return null;
+
+  if (pixel[3] < 10) {
+    return {
+      ok: false,
+      reason: "transparent",
+    };
+  }
+
+  return {
+    ok: true,
+    hex: rgbToHex(pixel[0], pixel[1], pixel[2]),
+  };
+}
+
 function isAltPressed(ev) {
   return !!(ev?.altKey || ev?.getModifierState?.("Alt") || isAltResizePressed);
 }
@@ -198,12 +254,26 @@ async function openEyeDropper() {
     return;
   }
 
+  /* =========================================================
+   * 모바일 / 터치 환경: 캔버스 터치 추출 모드
+  ========================================================= */
+  if (isTouchDevice()) {
+    setMobileEyedropperMode(true);
+    clearCanvasNotice();
+    setCanvasNotice("캔버스에서 원하는 색상을 터치해 주세요.", "ok");
+    showToast("캔버스에서 원하는 색상을 터치해 주세요.", "info");
+    return;
+  }
+
+  /* =========================================================
+   * PC + 브라우저 지원 시 기존 EyeDropper 사용
+  ========================================================= */
   if (!window.EyeDropper) {
     setCanvasNotice(
       "현재 브라우저에서는 스포이드 기능이 지원되지 않습니다.",
       "error",
     );
-    showToast("스포이드는 웹 / PC 환경에서만 사용할 수 있습니다.", "warn");
+    showToast("현재 브라우저에서는 스포이드를 사용할 수 없습니다.", "warn");
     return;
   }
 
@@ -260,6 +330,7 @@ function initPickr() {
       return;
     }
 
+    setMobileEyedropperMode(false);
     bgPickr?.show();
     requestAnimationFrame(positionPickrPanel);
   });
@@ -522,6 +593,7 @@ function clearEditor() {
   draftBgColor = "#ffffff";
   draftBgSet = false;
   selectedItemId = null;
+  setMobileEyedropperMode(false);
 
   if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
   if (bgTextEl) bgTextEl.textContent = "-";
@@ -810,6 +882,39 @@ function startMoveDrag(e) {
 
 function onMainPointerDown(e) {
   if (uiLocked) return;
+
+  /* =========================================================
+ * 모바일 스포이드 모드
+========================================================= */
+  if (mobileEyedropperMode) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const picked = pickCanvasColorAtClientPoint(e.clientX, e.clientY);
+
+    if (!picked) {
+      showToast("색상을 읽을 수 없습니다. 다시 시도해 주세요.", "error");
+      return;
+    }
+
+    if (!picked.ok && picked.reason === "transparent") {
+      showToast("투명한 영역은 선택할 수 없습니다.", "warn");
+      return;
+    }
+
+    if (!picked.ok || !picked.hex) {
+      showToast("색상을 읽을 수 없습니다. 다시 시도해 주세요.", "error");
+      return;
+    }
+
+    applyBgColor(picked.hex);
+    setMobileEyedropperMode(false);
+    showToast("배경색을 적용했습니다.", "ok");
+    return;
+  }
+
   if (!userImg) return;
   if (e.pointerType === "mouse" && e.button !== 0) return;
 
@@ -1188,6 +1293,7 @@ fileBtn?.addEventListener(
     e.stopPropagation();
 
     clearCanvasNotice();
+    setMobileEyedropperMode(false);
 
     if (!fileEl) {
       console.error("[upload] fileEl이 없습니다.");
@@ -1223,6 +1329,7 @@ fileBtn?.addEventListener(
 
 fileEl?.addEventListener("change", async () => {
   clearCanvasNotice();
+  setMobileEyedropperMode(false);
 
   console.log("[upload] file change");
   console.log("[upload] selected files:", fileEl.files);
@@ -1294,6 +1401,7 @@ fileDelBtn?.addEventListener(
     e.stopPropagation();
 
     clearCanvasNotice();
+    setMobileEyedropperMode(false);
 
     if (await applyConfirmedLockIfNeeded(true)) return;
 

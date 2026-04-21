@@ -1,5 +1,5 @@
 /* =========================================================
-   공용 반응형
+   반응형
 ========================================================= */
 
 
@@ -135,5 +135,24 @@
 
     .helpTooltip {
         width: min(280px, calc(100vw - 24px));
+    }
+
+    .uploadHelpTooltip {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+
+        width: max-content;
+        min-width: 0;
+        max-width: calc(100vw - 32px);
+
+        white-space: normal;
+        word-break: keep-all;
+    }
+
+    .uploadHelpTooltip::before {
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) rotate(45deg) !important;
     }
 }
