@@ -15,11 +15,6 @@ const EMAILJS_DESIGN_COMPANY_TEMPLATE_ID = "template_ndnu8z3";
 // 고객용 (시안 접수 확인)
 const EMAILJS_DESIGN_CUSTOMER_TEMPLATE_ID = "template_1mv0p2j";
 
-// 회사용 (견적 요청 접수)
-const EMAILJS_QUOTE_COMPANY_TEMPLATE_ID = "template_eb3xcbg";
-// 고객용 (견적 요청 확인)
-const EMAILJS_QUOTE_CUSTOMER_TEMPLATE_ID = "template_b94uml3";
-
 /* =========================================================
  * 프로파일별 규격 옵션
 ========================================================= */
