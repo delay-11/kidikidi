@@ -1043,8 +1043,14 @@ document.addEventListener("pointermove", (e) => {
 
   if (handleDrag) {
     const axes = getImageAxes();
-    const isAlt = isAltPressed(e) || handleDrag.startedWithAlt;
-    const isShift = isShiftPressed(e) || handleDrag.startedWithShift;
+    const isTouch = e.pointerType === "touch";
+
+    const isAlt =
+      isTouch || isAltPressed(e) || handleDrag.startedWithAlt;
+
+    const isShift =
+      isTouch || isShiftPressed(e) || handleDrag.startedWithShift;
+
     const keepRatio = isAlt || isShift;
     const minHalf = 10;
 
