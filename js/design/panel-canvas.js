@@ -415,16 +415,16 @@ function ensureMaoGuide() {
   wrap.style.zIndex = "2";
   wrap.style.display = "none";
 
-  const outline = document.createElement("img");
-  outline.id = "maoGuideOutline";
-  outline.src = "./image/guides/mao-outline.svg";
-  outline.alt = "";
-  outline.draggable = false;
-  outline.style.position = "absolute";
-  outline.style.inset = "0";
-  outline.style.width = "100%";
-  outline.style.height = "100%";
-  outline.style.pointerEvents = "none";
+  // const outline = document.createElement("img");
+  // outline.id = "maoGuideOutline";
+  // outline.src = "./image/guides/mao-outline.svg";
+  // outline.alt = "";
+  // outline.draggable = false;
+  // outline.style.position = "absolute";
+  // outline.style.inset = "0";
+  // outline.style.width = "100%";
+  // outline.style.height = "100%";
+  // outline.style.pointerEvents = "none";
 
   const inner = document.createElement("img");
   inner.id = "maoGuideInner";
@@ -437,7 +437,7 @@ function ensureMaoGuide() {
   inner.style.height = "100%";
   inner.style.pointerEvents = "none";
 
-  wrap.appendChild(outline);
+  // wrap.appendChild(outline);
   wrap.appendChild(inner);
 
   if (bboxEl && bboxEl.parentNode === canvasWrapEl) {
@@ -675,28 +675,31 @@ function drawGuide() {
   const guide = GUIDE_SIZE_MAP[key] || GUIDE_SIZE_MAP.STD;
   if (!guide) return;
 
-  const outerW = guide.outer.w;
-  const outerH = guide.outer.h;
-  const safeW = guide.safe.w;
-  const safeH = guide.safe.h;
+  // const outerW = guide.outer.w;
+  // const outerH = guide.outer.h;
 
-  const outerX = (canvas.width - outerW) / 2;
-  const outerY = (canvas.height - outerH) / 2;
+  const SAFE_GUIDE_INSET = 2.5; // ← 이 값으로 안쪽 이동
+
+  const safeW = guide.safe.w - SAFE_GUIDE_INSET * 2;
+  const safeH = guide.safe.h - SAFE_GUIDE_INSET * 2;
+
+  // const outerX = (canvas.width - outerW) / 2;
+  // const outerY = (canvas.height - outerH) / 2;
 
   const safeX = (canvas.width - safeW) / 2;
   const safeY = (canvas.height - safeH) / 2;
 
   ctx.save();
 
+  // ctx.strokeStyle = "rgba(217,45,32,0.95)";
+  // ctx.lineWidth = 2;
+  // ctx.setLineDash([]);
+  // roundRectPath(ctx, outerX, outerY, outerW, outerH, 18);
+  // ctx.stroke();
+
   ctx.strokeStyle = "rgba(217,45,32,0.95)";
   ctx.lineWidth = 2;
-  ctx.setLineDash([]);
-  roundRectPath(ctx, outerX, outerY, outerW, outerH, 18);
-  ctx.stroke();
-
-  ctx.strokeStyle = "rgba(253,176,34,0.95)";
-  ctx.lineWidth = 2;
-  ctx.setLineDash([8, 6]);
+  ctx.setLineDash([8, 8]);
   roundRectPath(ctx, safeX, safeY, safeW, safeH, 14);
   ctx.stroke();
 
@@ -822,9 +825,6 @@ function redraw() {
   updateBBox();
 }
 
-/* =========================================================
- * 이동 / 리사이즈 / 회전
-========================================================= */
 /* =========================================================
  * 이동 / 리사이즈 / 회전
 ========================================================= */
@@ -1045,11 +1045,9 @@ document.addEventListener("pointermove", (e) => {
     const axes = getImageAxes();
     const isTouch = e.pointerType === "touch";
 
-    const isAlt =
-      isTouch || isAltPressed(e) || handleDrag.startedWithAlt;
+    const isAlt = isTouch || isAltPressed(e) || handleDrag.startedWithAlt;
 
-    const isShift =
-      isTouch || isShiftPressed(e) || handleDrag.startedWithShift;
+    const isShift = isTouch || isShiftPressed(e) || handleDrag.startedWithShift;
 
     const keepRatio = isAlt || isShift;
     const minHalf = 10;

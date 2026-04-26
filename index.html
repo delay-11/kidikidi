@@ -97,7 +97,7 @@
                         <div class="row">
                             <div>
                                 <label id="orderLabel">주문번호 *</label>
-                                <input id="orderNo" placeholder="주문번호 16자리" />
+                                <input id="orderNo" placeholder="주문번호" />
                             </div>
                             <div>
                                 <label>이메일 *</label>
@@ -111,11 +111,11 @@
                             <div>
                                 <label class="labelWithHelp">
                                     키캡 프로파일 *
-                                    <span class="helpWrap">
+                                    <!-- <span class="helpWrap">
                                         <button type="button" class="helpIcon" data-help="profile"
                                             aria-label="키캡 프로파일 안내">?</button>
                                         <div class="helpTooltip" data-help-tooltip="profile"></div>
-                                    </span>
+                                    </span> -->
                                 </label>
                                 <select id="profile">
                                     <option value="OEM">OEM</option>
@@ -124,14 +124,14 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="labelWithHelp">
+                                <!-- <label class="labelWithHelp">
                                     키캡 규격 *
                                     <span class="helpWrap">
                                         <button type="button" class="helpIcon" data-help="capType"
                                             aria-label="키캡 규격 안내">?</button>
                                         <div class="helpTooltip" data-help-tooltip="capType"></div>
                                     </span>
-                                </label>
+                                </label> -->
                                 <select id="capType"></select>
                             </div>
                         </div>
@@ -151,12 +151,12 @@
                             </div>
                         </div>
 
-                        <div id="optionGuideBox" class="optionGuideBox">
+                        <!-- <div id="optionGuideBox" class="optionGuideBox">
                             <div id="optionGuideTitle" class="optionGuideTitle">프로파일 / 규격 안내</div>
                             <div id="optionGuideDesc" class="optionGuideDesc"></div>
                         </div>
 
-                        <div id="formNotice" class="formNotice"></div>
+                        <div id="formNotice" class="formNotice"></div> -->
 
                         <div id="formReadyBox" class="formReadyBox">
                             <div id="formReadyTitle" class="formReadyTitle">주문자 정보 입력이 필요합니다.</div>
@@ -272,7 +272,7 @@
                                 <div class="divider"></div>
 
                                 <div class="hint">
-                                    - 가이드 색상: <b class="red">빨강=외곽선</b>, <b class="yellow">노랑=인쇄 안전선</b><br />
+                                    - 가이드 안내: <b class="red">빨강=인쇄 안전선</b><br />
                                     - 실제 제작은 <b>CMYK</b> 색상 기준으로 진행됩니다.<br />
                                     - 배경이 있는 경우 캔버스를 빈 공간 없이 꽉 채워주세요.<br />
                                     - 측면으로 넘어가는 것을 방지하기 위해 <b>가장자리에는 여백을 두고 배치</b>해 주세요.
