@@ -678,7 +678,7 @@ function drawGuide() {
   // const outerW = guide.outer.w;
   // const outerH = guide.outer.h;
 
-  const SAFE_GUIDE_INSET = 2.5; // ← 이 값으로 안쪽 이동
+  const SAFE_GUIDE_INSET = 0; // ← 이 값으로 안쪽 이동
 
   const safeW = guide.safe.w - SAFE_GUIDE_INSET * 2;
   const safeH = guide.safe.h - SAFE_GUIDE_INSET * 2;
