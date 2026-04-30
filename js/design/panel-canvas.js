@@ -504,10 +504,17 @@ function applyCanvasSizeFromForm() {
   const capType = capTypeEl?.value || "-";
   const size = getCanvasSize(profile, capType);
 
+  // 캔버스 리사이즈
   if (canvas.width !== size.w || canvas.height !== size.h) {
     resizeCanvas(size.w, size.h);
   }
 
+  // 수정: 사이즈 텍스트는 무조건 갱신
+  if (canvasTextEl) {
+    canvasTextEl.textContent = `${size.w}×${size.h}`;
+  }
+
+  // 이미지 위치 보정
   if (!userImg) {
     imgCX = canvas.width / 2;
     imgCY = canvas.height / 2;
@@ -516,12 +523,6 @@ function applyCanvasSizeFromForm() {
     imgCY = clamp(imgCY, 0, canvas.height);
   }
 
-  syncCanvasMetaFromForm();
-  redraw();
-  updateActionLocks();
-}
-
-function applyLaserOptionFromForm() {
   syncCanvasMetaFromForm();
   redraw();
   updateActionLocks();
