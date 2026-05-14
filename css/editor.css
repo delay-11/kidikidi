@@ -1,0 +1,2199 @@
+/* ===== css/design/panel-canvas.css ===== */
+/* =========================================================
+   캔버스 영역
+========================================================= */
+
+.canvasWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    margin: 0 auto;
+}
+
+canvas {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
+
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+}
+
+/* =========================================================
+   선택 박스 / 리사이즈 핸들
+========================================================= */
+
+.bbox {
+    position: absolute;
+    display: none;
+
+    width: 0;
+    height: 0;
+    border: 2px solid rgba(43, 108, 255, 0.95);
+    border-radius: var(--radius-sm);
+
+    background: transparent;
+    pointer-events: auto;
+    transform-origin: center center;
+}
+
+.bbox .h {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+
+    border: 2px solid rgba(43, 108, 255, 0.95);
+    border-radius: 3px;
+    background: #ffffff;
+
+    pointer-events: auto;
+}
+
+.bbox .h.nw {
+    top: -8px;
+    left: -8px;
+    cursor: nwse-resize;
+}
+
+.bbox .h.ne {
+    top: -8px;
+    right: -8px;
+    cursor: nesw-resize;
+}
+
+.bbox .h.n {
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.bbox .h.sw {
+    bottom: -8px;
+    left: -8px;
+    cursor: nesw-resize;
+}
+
+.bbox .h.se {
+    right: -8px;
+    bottom: -8px;
+    cursor: nwse-resize;
+}
+
+.bbox .h.e {
+    top: 50%;
+    right: -8px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.bbox .h.s {
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.bbox .h.w {
+    top: 50%;
+    left: -8px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+/* =========================================================
+   회전 핸들
+========================================================= */
+
+.bbox .rotLine {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+
+    width: 2px;
+    height: 14px;
+
+    transform: translateX(-50%);
+    background: rgba(43, 108, 255, 0.55);
+    pointer-events: none;
+}
+
+.bbox .rot {
+    position: absolute;
+    top: -34px;
+    left: 50%;
+
+    width: 22px;
+    height: 22px;
+    border: 1px solid rgba(43, 108, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
+
+    transform: translateX(-50%);
+    background-color: #ffffff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M4.5 12a7.5 7.5 0 0 1 12.9-5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M18 4v4h-4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M19.5 12a7.5 7.5 0 0 1-12.9 5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M6 20v-4h4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+    cursor: grab;
+}
+
+.bbox .rot:active {
+    cursor: grabbing;
+}
+
+/* =========================================================
+   터치 / 텍스트 선택 방지
+========================================================= */
+
+#canvasWrap,
+#designCanvas,
+#bbox,
+#bbox .h,
+#rotHandle {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================================
+   파일 업로드 영역
+========================================================= */
+
+.uploadRow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    margin-top: 6px;
+}
+
+.fileBtn {
+    width: auto;
+    min-width: 120px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.fileName {
+    overflow: hidden;
+    max-width: 240px;
+
+    color: #667085;
+    font-size: var(--fs-13);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.uploadGuide {
+    flex: 1;
+    color: var(--muted);
+    font-size: var(--fs-12);
+    line-height: 1.55;
+}
+
+.uploadGuide div {
+    display: block;
+}
+
+/* =========================================================
+   캔버스 제어 영역 내부 레이아웃
+========================================================= */
+
+.canvasControlRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 16px;
+}
+
+/* =========================================================
+   캔버스 내부 안내문구
+========================================================= */
+.canvasNotice {
+    /* min-height: 22px; */
+    /* margin: 10px 0 14px; */
+    font-size: 13px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    /* line-height: 1.5; */
+    color: #5f6b7a;
+}
+
+.canvasNotice.isOk {
+    color: #039855;
+}
+
+.canvasNotice.isError {
+    color: #d92d20;
+}
+
+/* =========================================================
+   제작 도구 탭 / 배경 옵션
+========================================================= */
+.editorToolBox {
+    display: grid;
+    gap: 12px;
+}
+
+.toolTabRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #f9fafb;
+}
+
+.toolTab {
+    min-height: 38px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.toolTab.is-active {
+    background: var(--acc);
+    color: #111827;
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.10);
+}
+
+.toolPanel {
+    display: none;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+}
+
+.toolPanel.is-active {
+    display: grid;
+    gap: 14px;
+}
+
+.toolPanelHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.toolPanelHead b {
+    display: block;
+    color: var(--txt);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.toolPanelHead p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.toolBadge {
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #fff8e8;
+    color: #9a6700;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.toolBadge.muted {
+    background: #f2f4f7;
+    color: var(--muted);
+}
+
+.bgModeRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.solidColorRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.solidPickBtn {
+    min-width: 190px;
+}
+
+.bgModeBtn,
+.gradientDirBtn {
+    min-height: 38px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    color: var(--muted);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.bgModeBtn.is-active,
+.gradientDirBtn.is-active {
+    border-color: #efc24f;
+    background: #fff8e8;
+    color: #111827;
+}
+
+.bgSolidPanel {
+    display: grid;
+    gap: 8px;
+}
+
+.gradientPanel {
+    display: grid;
+    gap: 12px;
+}
+
+.gradientPanel[hidden] {
+    display: none !important;
+}
+
+.gradientColorGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.gradientColorGrid label {
+    display: grid;
+    gap: 8px;
+}
+
+.gradientColorGrid input[type="color"] {
+    width: 100%;
+    height: 42px;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    cursor: pointer;
+}
+
+.gradientDirectionRow {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+/* =========================================================
+   제작 도구 웹 폭 정리 / 그라데이션 컬러칩 개선
+========================================================= */
+
+
+.gradientColorGrid {
+    align-items: stretch;
+}
+
+.gradientColorGrid label {
+    min-height: 60px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #ffffff;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.gradientColorGrid input[type="color"] {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    overflow: hidden;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.gradientColorGrid input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 3px;
+}
+
+.gradientColorGrid input[type="color"]::-webkit-color-swatch {
+    border: 0;
+    border-radius: 999px;
+}
+
+.gradientColorGrid input[type="color"]::-moz-color-swatch {
+    border: 0;
+    border-radius: 999px;
+}
+
+.gradientDirectionRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.gradientDirBtn {
+    min-width: 56px;
+    min-height: 36px;
+    padding: 0 16px;
+}
+
+
+
+
+/* =========================================================
+   배경 도구 컴팩트 정리
+   - 그라데이션 시작/끝 색상은 배경 설정 옆으로 붙이고
+   - 방향 버튼은 웹/모바일 모두 작게 한 줄 정렬
+========================================================= */
+.toolTabRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+#toolBg.toolPanel.is-active {
+    gap: 12px;
+}
+
+.bgModeRow {
+    max-width: 420px;
+}
+
+#gradientPanel {
+    gap: 10px;
+}
+
+.gradientColorGrid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.gradientColorGrid label {
+    width: auto;
+    min-width: 118px;
+    min-height: 44px;
+    grid-template-columns: auto auto;
+    gap: 8px;
+    padding: 8px 10px 8px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.gradientColorGrid input[type="color"] {
+    width: 28px;
+    height: 28px;
+}
+
+.gradientDirectionRow {
+    display: grid;
+    grid-template-columns: repeat(4, 46px);
+    justify-content: start;
+    gap: 8px;
+}
+
+.gradientDirBtn {
+    width: 46px;
+    min-width: 46px;
+    min-height: 34px;
+    padding: 0;
+    border-radius: 999px;
+    font-size: 15px;
+}
+
+
+
+
+
+/* =========================================================
+   캔버스 핵심 안내 / 조작 툴팁 / 내부 가이드
+========================================================= */
+.canvasCoreNotice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    color: #344054;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.canvasCoreNotice span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fffdf5;
+    white-space: nowrap;
+}
+
+.canvasCoreNotice span::before {
+    content: "!";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    border-radius: 999px;
+    background: var(--acc);
+    color: #111827;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.canvasGuideOverlay {
+    position: absolute;
+    left: 50%;
+    top: 12px;
+    z-index: 3;
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+.canvasGuideOverlay span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 4px 10px;
+    border: 1px solid rgba(217, 45, 32, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    color: #b42318;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+.canvasHelpTip {
+    display: none;
+    width: fit-content;
+    max-width: 100%;
+    margin: 10px auto 0;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+    box-shadow: 0 8px 18px rgba(16, 24, 40, 0.18);
+}
+
+.canvasHelpTip.is-show {
+    display: block;
+}
+
+/* =========================================================
+   배경 설정 2섹션 구조
+========================================================= */
+#toolBg.toolPanel.is-active {
+    gap: 14px;
+}
+
+.bgToolGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: stretch;
+}
+
+.bgToolSection {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.bgToolSectionTitle {
+    color: var(--txt);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.bgModeRow {
+    max-width: none !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.bgModeBtn {
+    min-height: 34px;
+    border-radius: 999px;
+    font-size: 12px;
+}
+
+.bgSolidPanel {
+    gap: 8px;
+}
+
+.colorPick {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.bgToolSectionGradient.is-disabled {
+    opacity: 1;
+}
+
+.bgToolSectionGradient.is-disabled .gradientPanel {
+    pointer-events: auto;
+}
+
+#gradientPanel,
+#gradientPanel[hidden] {
+    display: grid !important;
+    gap: 10px;
+}
+
+.gradientColorGrid {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.gradientColorGrid label {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    grid-template-columns: auto auto !important;
+    justify-content: space-between;
+    gap: 8px !important;
+    padding: 8px 10px !important;
+    border-radius: 14px !important;
+    font-size: 12px !important;
+}
+
+.gradientColorGrid input[type="color"] {
+    width: 28px !important;
+    height: 28px !important;
+}
+
+.gradientDirectionRow {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+}
+
+.gradientDirBtn {
+    width: auto !important;
+    min-width: 0 !important;
+    min-height: 32px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    font-size: 14px;
+}
+
+
+
+
+
+
+
+/* =========================================================
+   상단 현재 규격 pill을 빠른 변경 버튼으로 사용
+========================================================= */
+.pillActionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    padding: 4px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #ffffff;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.pillActionBtn span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pillActionBtn b {
+    color: #101828;
+    font-weight: 900;
+}
+
+.pillActionBtn:hover {
+    border-color: #efc24f;
+    background: #fffdf5;
+}
+
+/* =========================================================
+   제작 화면 옵션 빠른 변경 모달
+========================================================= */
+.optionQuickModal {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.optionQuickModal.is-open {
+    display: flex;
+}
+
+.optionQuickDim {
+    position: absolute;
+    inset: 0;
+    background: rgba(16, 24, 40, 0.34);
+}
+
+.optionQuickDialog {
+    position: relative;
+    z-index: 1;
+    width: min(520px, 100%);
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 18px 60px rgba(16, 24, 40, 0.18);
+}
+
+.optionQuickHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.optionQuickBadge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: #fff8e8;
+    color: #9a6700;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.optionQuickHeader h3 {
+    margin: 8px 0 0;
+    font-size: 18px;
+    line-height: 1.35;
+}
+
+.optionQuickHeader p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.optionQuickClose {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #ffffff;
+    color: #667085;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.optionQuickGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.optionQuickGrid label {
+    display: grid;
+    gap: 7px;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.optionQuickGrid label:last-child {
+    grid-column: 1 / -1;
+}
+
+.optionQuickGrid select {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    color: #101828;
+    font-weight: 800;
+}
+
+.optionQuickNotice {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid #fedf89;
+    border-radius: 14px;
+    background: #fffbeb;
+    color: #7a4d00;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.optionQuickActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+/* =========================================================
+   모바일 안내칩 중앙 정렬 / 도구 탭 3개 한 줄 유지
+========================================================= */
+
+
+
+
+/* =========================================================
+   이번 정리: 이미지 2섹션 / 상단 pill 유지 / 캔버스 외곽선 강화
+========================================================= */
+canvas {
+    border-color: #98a2b3 !important;
+    border-width: 1.5px !important;
+    box-shadow: 0 0 0 1px rgba(152, 162, 179, 0.18);
+}
+
+.pill {
+    align-items: center;
+}
+
+.pillActionBtn {
+    width: auto !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    gap: 4px !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.pillActionBtn b {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    color: #101828;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.pillActionBtn .pillCaret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #fff8e8;
+    color: #9a6700;
+    font-size: 10px;
+    font-weight: 900;
+    transform: translateY(1px);
+}
+
+.pillActionBtn:hover b,
+.pillActionBtn:focus-visible b {
+    color: #9a6700;
+}
+
+.pillActionBtn:hover .pillCaret,
+.pillActionBtn:focus-visible .pillCaret {
+    background: var(--acc);
+    color: #111827;
+}
+
+.quickOptionHint {
+    color: #98a2b3;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.imageToolPanel.is-active {
+    gap: 12px;
+}
+
+.imageToolGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.75fr);
+    gap: 12px;
+    align-items: stretch;
+}
+
+.imageToolSection {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.toolPanelHead.compact {
+    align-items: flex-start;
+}
+
+.imageHelpLine {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.imageHelpLine span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #f9fafb;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.imageToolActions .uploadRow {
+    margin-top: 0;
+    gap: 8px;
+}
+
+.imageToolActions #fileBtn,
+.imageToolActions #fileDelBtn {
+    flex: 1 1 0;
+    min-width: 0 !important;
+    height: 42px;
+}
+
+.imageToolActions .fileName {
+    max-width: 100%;
+}
+
+
+
+
+
+/* =========================================================
+   최종 정리: 상단 규격 변경 / 좌우 섹션 / HEX 그라데이션 UI
+========================================================= */
+.pillActionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px 6px 12px;
+    border: 1px solid #ffc64d;
+    border-radius: 999px;
+    background: #fdcc63;
+    color: #111827;
+    cursor: pointer;
+    font-weight: 900;
+    box-shadow: 0 4px 10px rgba(253, 204, 99, 0.22);
+}
+
+.pillActionBtn b {
+    color: #111827;
+}
+
+.pillActionBtn:hover,
+.pillActionBtn:focus-visible {
+    background: #fdcc63;
+    border-color: #f5b82e;
+    transform: translateY(-1px);
+}
+
+.pillCaret,
+.pillActionBtn:hover .pillCaret,
+.pillActionBtn:focus-visible .pillCaret {
+    display: inline-grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1;
+}
+
+.quickOptionHint {
+    color: #9a6700;
+}
+
+.imageToolSection,
+.bgToolSection {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.imageToolSection {
+    padding: 4px !important;
+}
+
+.bgToolGrid {
+    align-items: start;
+}
+
+.bgHelpLine {
+    margin: 8px 0 10px;
+}
+
+.gradientColorGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.gradientHexField {
+    display: grid !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.gradientHexControl {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+}
+
+.gradientSwatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    flex: 0 0 auto;
+    box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+.gradientHexControl input[type="text"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    border: 0 !important;
+    outline: 0 !important;
+    background: transparent !important;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: lowercase;
+}
+
+.gradientHexControl:focus-within {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22);
+}
+
+.gradientDirectionRow {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px !important;
+}
+
+.gradientDirBtn {
+    min-width: 0 !important;
+    height: 38px !important;
+    padding: 0 !important;
+}
+
+
+
+/* =========================================================
+   최종 보정: 그라데이션 컬러 UI / 규격 변경 버튼
+========================================================= */
+.pillActionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 0 0 2px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    box-shadow: none;
+    color: #9a6700;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.pillActionBtn b,
+.pillActionBtn:hover b,
+.pillActionBtn:focus-visible b {
+    color: #9a6700;
+}
+
+.pillActionBtn:hover,
+.pillActionBtn:focus-visible {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    transform: none;
+    color: #9a6700;
+}
+
+.pillCaret,
+.pillActionBtn:hover .pillCaret,
+.pillActionBtn:focus-visible .pillCaret {
+    display: inline-grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 1px solid #ffc64d;
+    background: #fdcc63;
+    color: #111827;
+    font-size: 12px;
+    line-height: 1;
+    box-shadow: 0 3px 8px rgba(253, 204, 99, 0.22);
+}
+
+.pillActionBtn:hover .pillCaret,
+.pillActionBtn:focus-visible .pillCaret {
+    background: #fdcc63;
+    color: #111827;
+}
+
+.gradientColorGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 16px 22px;
+    align-items: end;
+}
+
+.gradientColorItem {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.gradientColorLabel {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.gradientPickBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    width: auto;
+    max-width: 150px;
+    padding: 7px 10px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    color: #344054;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.gradientPickBtn:hover,
+.gradientPickBtn:focus-visible {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22);
+    outline: 0;
+}
+
+.gradientPickBtn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    box-shadow: none;
+}
+
+.gradientPickBtn .colorValue {
+    min-width: 64px;
+    text-align: left;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: lowercase;
+}
+
+.gradientSwatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    flex: 0 0 auto;
+    box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+.gradientHexField,
+.gradientHexControl,
+.gradientHexControl input[type="text"] {
+    all: unset;
+}
+
+
+
+
+/* =========================================================
+   2026 UI 보정: 규격 변경 / 배경 툴팁 / 그라데이션 복원
+========================================================= */
+.pillActionBtn,
+.pillActionBtn:hover,
+.pillActionBtn:focus-visible {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    transform: none !important;
+    color: #101828 !important;
+    cursor: pointer !important;
+}
+
+.pillActionBtn b,
+.pillActionBtn:hover b,
+.pillActionBtn:focus-visible b {
+    color: #101828 !important;
+    font-size: 13px !important;
+    font-weight: 900 !important;
+}
+
+.pillActionBtn .pillCaret,
+.pillActionBtn:hover .pillCaret,
+.pillActionBtn:focus-visible .pillCaret {
+    display: inline-grid !important;
+    place-items: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    border: 1px solid #ffc64d !important;
+    border-radius: 999px !important;
+    background: #fdcc63 !important;
+    color: #111827 !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+    line-height: 1 !important;
+    box-shadow: 0 3px 8px rgba(253, 204, 99, 0.22) !important;
+}
+
+.quickOptionHint,
+.pill .quickOptionHint {
+    color: #667085 !important;
+    font-size: 11px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+}
+
+.bgSolidPanel>label {
+    display: none !important;
+}
+
+.bgHelpLine {
+    margin: 0 0 10px !important;
+}
+
+.bgHelpLine span {
+    background: #f9fafb !important;
+    color: #667085 !important;
+}
+
+.gradientColorGrid {
+    grid-template-columns: repeat(2, minmax(0, max-content)) !important;
+    align-items: end !important;
+}
+
+.gradientPickBtn,
+.gradientPickBtn:hover,
+.gradientPickBtn:focus-visible {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+    min-width: 120px !important;
+    max-width: 150px !important;
+    min-height: 42px !important;
+    padding: 7px 10px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    color: #344054 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+    cursor: pointer !important;
+}
+
+.gradientPickBtn:hover,
+.gradientPickBtn:focus-visible {
+    border-color: var(--acc) !important;
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22) !important;
+    outline: 0 !important;
+}
+
+.gradientPickBtn .colorValue {
+    min-width: 64px !important;
+    color: #344054 !important;
+    text-align: left !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    text-transform: lowercase !important;
+}
+
+.gradientSwatch {
+    width: 26px !important;
+    height: 26px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 999px !important;
+    background: #ffffff;
+    flex: 0 0 auto !important;
+    box-shadow: inset 0 0 0 2px #ffffff !important;
+}
+
+
+
+/* =========================================================
+   최종 정리: 빠른 규격 변경 / 배경 도구 활성 모드 / 모달 닫기
+========================================================= */
+.optionQuickClose {
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+.pillActionBtn,
+.pillActionBtn:hover,
+.pillActionBtn:focus-visible {
+    color: #111827 !important;
+}
+
+.pillCaret,
+.pillActionBtn:hover .pillCaret,
+.pillActionBtn:focus-visible .pillCaret {
+    background: var(--acc, #fdcc63) !important;
+    color: #111827 !important;
+}
+
+.quickOptionHint {
+    color: #98a2b3 !important;
+    font-weight: 700;
+}
+
+/* 배경 탭은 왼쪽=단색 배경, 오른쪽=그라데이션으로 항상 노출 */
+#toolBg .bgToolSectionSolid,
+#toolBg .bgToolSectionGradient {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+
+/* =========================================================
+   최종 플로우 정리: 주문정보만 / 배경 좌우 분리
+========================================================= */
+.hiddenOptionFields {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+}
+
+.stepIntro .stepEyebrow {
+    display: none !important;
+}
+
+#toolBg .bgToolGrid {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 18px !important;
+    align-items: start !important;
+}
+
+#toolBg .bgToolSectionSolid,
+#toolBg .bgToolSectionGradient {
+    display: grid !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    align-content: start !important;
+}
+
+#toolBg .bgToolSectionTitle {
+    font-size: 14px !important;
+    margin-bottom: 2px !important;
+}
+
+#toolBg #gradientPanel,
+#toolBg #gradientPanel[hidden] {
+    display: grid !important;
+}
+
+#toolBg .gradientColorGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+#toolBg .gradientDirectionRow {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+
+
+/* =========================================================
+   최종 제작 화면 polish: 웹 폭 확장 + 캔버스 내부 안내
+========================================================= */
+.canvasInnerNotice {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.canvasInnerNotice span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 4px 9px;
+    border: 1px solid rgba(253, 204, 99, 0.55);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.88);
+    color: #8a5a00;
+    font-size: 10px;
+    font-weight: 900;
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+.canvasWrap .canvasHelpTip {
+    position: absolute;
+    left: 50%;
+    top: 42px;
+    z-index: 5;
+    transform: translateX(-50%);
+    margin: 0;
+    pointer-events: none;
+}
+
+
+
+
+
+/* 도구 탭은 이미지/배경/텍스트 3개 기준 */
+.toolTabRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+
+/* =========================================================
+   2026-05 최종 정리 반영
+   - 이미지/배경 섹션 좌우 구분선
+   - 배경 설명 제거 후 단색/그라데이션 바로 노출
+   - 모바일 상단 정보바 한 줄 유지
+   - 모달 안내문 박스 제거
+========================================================= */
+
+/* 이미지/배경 2분할: 외곽 박스 없이 중앙 세로선만 */
+.imageToolGrid,
+#toolBg .bgToolGrid {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 24px !important;
+}
+
+.imageToolGrid::before,
+#toolBg .bgToolGrid::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: #eaecf0;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.imageToolSection,
+.bgToolSection,
+#toolBg .bgToolSectionSolid,
+#toolBg .bgToolSectionGradient {
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+#toolBg .toolPanelHead {
+    display: none !important;
+}
+
+#toolBg .bgHelpLine,
+#toolBg .bgHelpLine span {
+    display: none !important;
+}
+
+#toolBg .bgToolSectionTitle {
+    margin: 0 0 12px !important;
+    color: #101828 !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+}
+
+#bgPickBtn,
+.gradientAddBtn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    border-radius: 14px;
+    font-weight: 900;
+}
+
+#toolBg .colorPick {
+    display: grid !important;
+    grid-template-columns: minmax(150px, auto) auto auto auto;
+    align-items: center;
+    justify-content: start;
+    gap: 10px !important;
+}
+
+#toolBg .gradientPanel {
+    gap: 12px !important;
+}
+
+#toolBg .gradientAddBtn {
+    margin-bottom: 2px;
+}
+
+/* 캔버스 내부 안내: 검정 계열 + 문구 명확화 */
+.canvasInnerNotice span {
+    border-color: rgba(16, 24, 40, 0.12) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #101828 !important;
+}
+
+/* 규격 변경 모달 안내문: 박스 제거, 빨간색 계열 텍스트만 */
+.optionQuickNotice {
+    margin: 12px 0 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #b42318 !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    line-height: 1.5 !important;
+}
+
+/* 모바일에서도 상단 프로파일/규격 줄바꿈 방지 */
+.pill {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.pill::-webkit-scrollbar {
+    display: none;
+}
+
+.pill>* {
+    flex: 0 0 auto;
+}
+
+.pillActionBtn,
+.quickOptionHint,
+.pill .tag,
+.pill b {
+    white-space: nowrap !important;
+}
+
+
+
+
+
+
+/* =========================================================
+   2026-05-마지막 보정
+   1) 눌러서 변경 우측 여백
+   2) 캔버스 내부 안내 pill 우측 정렬
+   3) 모바일 단색 컬러 UI: 스포이드 옆 컬러+HEX
+   4) 모바일 그라데이션 시작/끝 같은 라인 유지
+   5) 그라데이션 추가 버튼 숨김
+========================================================= */
+.quickOptionHint,
+.pill .quickOptionHint {
+    margin-right: 18px !important;
+}
+
+.canvasInnerNotice {
+    justify-content: flex-end !important;
+}
+
+#toolBg .gradientAddBtn {
+    display: none !important;
+}
+
+
+
+
+
+/* =========================================================
+   텍스트 도구
+   - 웹: 1줄 4분할
+   - 모바일: 2 × 2
+========================================================= */
+.textToolGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(0, 0.95fr) minmax(0, 0.85fr);
+    gap: 0;
+    align-items: stretch;
+}
+
+.textToolSection {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    min-width: 0;
+    padding: 0 18px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.textToolSection+.textToolSection {
+    border-left: 0;
+}
+
+/* 텍스트 탭은 입력/폰트, 색상/정렬을 각각 한 그룹으로 보고 가운데 구분선만 유지 */
+.textToolSection:nth-child(3) {
+    border-left: 1px solid #eaecf0;
+}
+
+.textToolSection:first-child {
+    padding-left: 0;
+}
+
+.textToolSection:last-child {
+    padding-right: 0;
+}
+
+.textInput {
+    width: 100%;
+    min-height: 78px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    color: #101828;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+    resize: vertical;
+    outline: 0;
+}
+
+.textInput:focus {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22);
+}
+
+.textActionRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.textActionRow button {
+    min-height: 40px;
+    border-radius: 14px;
+    font-weight: 900;
+}
+
+.textControlGroup {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.textControlLabel {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.textFontRow,
+.textAlignRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.textFontBtn,
+.textIconBtn {
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    color: #344054;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.textFontBtn.is-active,
+.textIconBtn.is-active {
+    border-color: #fdcc63;
+    background: #fff8e8;
+    color: #111827;
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.18);
+}
+
+.textIconBtn {
+    display: inline-grid;
+    place-items: center;
+    width: 38px;
+    padding: 0;
+}
+
+.textIconBtn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+}
+
+.textColorBtn {
+    width: fit-content !important;
+    min-width: 130px !important;
+}
+
+.textFontPreviewBasic,
+.textFontPreviewBold,
+.textFontPreviewRound,
+.textFontPreviewHand,
+.textFontPreviewPixel,
+.textFontPreviewCalli {
+    font-family: system-ui, -apple-system, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, sans-serif;
+}
+
+.textFontPreviewBasic {
+    font-weight: 800;
+}
+
+.textFontPreviewBold {
+    font-weight: 950;
+}
+
+.textFontPreviewRound {
+    font-weight: 900;
+    border-radius: 999px;
+}
+
+.textFontPreviewHand {
+    font-weight: 700;
+    font-style: italic;
+}
+
+.textFontPreviewPixel {
+    font-weight: 900;
+    letter-spacing: 0.04em;
+}
+
+.textFontPreviewCalli {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+
+
+
+
+/* 캔버스 내부 안내 pill: 우측 세로 정렬 */
+.canvasInnerNotice {
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+}
+
+.canvasInnerNotice span {
+    width: fit-content !important;
+}
+
+
+/* =========================================================
+   텍스트 탭 최종 보정
+   - 이미지/텍스트 액션 버튼 1열 2개
+   - 폰트 6종 컨셉명 적용
+   - 폰트 파일은 추후 연결 가능하도록 font-family 이름만 지정
+========================================================= */
+.imageToolActions .uploadRow,
+.textActionRow {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+.imageToolActions #fileBtn,
+.imageToolActions #fileDelBtn,
+#textApplyBtn,
+#textClearBtn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 10px !important;
+    border-radius: 13px !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+}
+
+.textFontRow {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+}
+
+.textFontBtn {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 8px !important;
+    letter-spacing: -0.02em;
+}
+
+.textFontPreviewBasic {
+    font-family: "Pretendard", "프리텐다드", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.textFontPreviewBold {
+    font-family: "Paperlogy", "페이퍼로지", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 900 !important;
+}
+
+.textFontPreviewRound {
+    font-family: "Jua", "주아체", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 400 !important;
+}
+
+.textFontPreviewHand {
+    font-family: "SejongGeulggot", "세종글꽃체", "Apple SD Gothic Neo", "Noto Sans KR", cursive !important;
+    font-weight: 700 !important;
+}
+
+.textFontPreviewPixel {
+    font-family: "MaruMina", "마루미냐 한글", "D2Coding", "Courier New", monospace !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+}
+
+.textFontPreviewCalli {
+    font-family: "Ownglyph BaDatBaRam", "온글잎 바닷바람", "Apple SD Gothic Neo", "Noto Sans KR", cursive !important;
+    font-weight: 700 !important;
+}
+
+
+
+
+/* =========================================================
+   FINAL PATCH: quick option hover + real text font wiring
+========================================================= */
+@font-face {
+    font-family: 'SejongGeulggot';
+    src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Sejong/SejongGeulggot.woff2') format('woff2');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'x12y12pxMaruMinyaHangul';
+    src: url('https://cdn.jsdelivr.net/gh/quiple/x12y12pxMaruMinyaHangul@main/fonts/x12y12pxMaruMinyaHangul.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'OngleIpSeaBreeze';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2510-1@1.0/Ownglyph_the_sea_breeze-Rg.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* 프로파일/규격 빠른 변경 버튼은 hover/focus 시 크기 변화 없음 */
+.pillActionBtn,
+.pillActionBtn:hover,
+.pillActionBtn:focus-visible,
+.pillActionBtn:active {
+    transform: none !important;
+    scale: 1 !important;
+    font-size: inherit !important;
+    color: #101828 !important;
+}
+
+.pillActionBtn b,
+.pillActionBtn:hover b,
+.pillActionBtn:focus-visible b,
+.pillActionBtn:active b {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    color: #101828 !important;
+    transform: none !important;
+    scale: 1 !important;
+}
+
+.pillActionBtn .pillCaret,
+.pillActionBtn:hover .pillCaret,
+.pillActionBtn:focus-visible .pillCaret,
+.pillActionBtn:active .pillCaret {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    background: #fdcc63 !important;
+    color: #111827 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    transform: none !important;
+    scale: 1 !important;
+}
+
+.textFontPreviewBasic,
+.textFontBtn[data-text-font="basic"] {
+    font-family: 'Pretendard', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.textFontPreviewBold,
+.textFontBtn[data-text-font="bold"] {
+    font-family: 'Paperlogy', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 900 !important;
+}
+
+.textFontPreviewRound,
+.textFontBtn[data-text-font="round"] {
+    font-family: 'Jua', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 400 !important;
+}
+
+.textFontPreviewHand,
+.textFontBtn[data-text-font="hand"] {
+    font-family: 'SejongGeulggot', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', cursive !important;
+    font-weight: 400 !important;
+}
+
+.textFontPreviewPixel,
+.textFontBtn[data-text-font="pixel"] {
+    font-family: 'x12y12pxMaruMinyaHangul', 'D2Coding', 'Courier New', monospace !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+}
+
+.textFontPreviewCalli,
+.textFontBtn[data-text-font="calli"] {
+    font-family: 'OngleIpSeaBreeze', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', cursive !important;
+    font-weight: 400 !important;
+}
+
+
+/* ===== css/design/color-picker.css ===== */
+/* =========================================================
+   컬러 피커 (배경색 UI)
+========================================================= */
+
+.colorPick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+#bgPickBtn.ghostBtn {
+    width: auto;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+}
+
+.colorSwatch {
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+}
+
+.colorValue {
+    color: var(--muted);
+    font-size: var(--fs-13);
+    font-family:
+        ui-monospace,
+        SFMono-Regular,
+        Menlo,
+        Monaco,
+        Consolas,
+        monospace;
+}
+
+.pickrMount {
+    position: relative;
+    display: inline-block;
+    width: 0;
+    height: 0;
+}
+
+/* =========================================================
+   Pickr 기본 버튼 제어
+========================================================= */
+
+/* Pickr 버튼 클릭 영역 무력화 */
+.pcr-button,
+.pcr-button::after {
+    pointer-events: none !important;
+}
+
+/* =========================================================
+   잠금 상태
+========================================================= */
+
+/* OEM 레이저 고정일 때 배경 선택 잠금 */
+.colorPick.isLocked {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+/* =========================================================
+   아이콘 도구 버튼
+========================================================= */
+
+.iconToolBtn {
+    all: unset;
+    box-sizing: border-box;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 40px !important;
+
+    width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+
+    border: 1px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+
+    background: #ffffff !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.iconToolBtn:hover {
+    border-color: #d0d5dd !important;
+    background: #f9fafb !important;
+}
+
+.iconToolBtn iconify-icon {
+    display: block;
+    color: var(--txt);
+}
+
+/* =========================================================
+   스포이드 아이콘 (SVG)
+========================================================= */
+
+.bgEyeBtn svg {
+    width: 18px;
+    height: 18px;
+
+    stroke: #8a5a00;
+    /* UI 톤 맞춤 */
+    stroke-width: 1.8;
+
+    display: block;
+    pointer-events: none;
+    /* 클릭 방해 방지 */
+    transition: transform 0.2s ease;
+}
+
+.bgEyeBtn:hover svg {
+    transform: rotate(-6deg) translateY(1px);
+}
+
+.icon-eye {
+    width: 16px;
+    height: 16px;
+}
