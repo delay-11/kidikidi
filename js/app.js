@@ -335,7 +335,11 @@ function setDesignStep(step) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 
   if (nextStep === "editor") {
-    window.setTimeout(openEditorOnboarding, 260);
+    // 주문정보 입력 완료 후 시안 제작 화면에 진입했을 때만 인쇄 가이드 팝업을 표시합니다.
+    window.setTimeout(() => {
+      window.openPrintGuideModal?.();
+      openEditorOnboarding?.();
+    }, 260);
   }
 
   updateStepButtons?.();

@@ -730,3 +730,163 @@ button:disabled {
     min-width: 0;
     word-break: keep-all;
 }
+
+/* =========================================================
+   인쇄 가이드 팝업 / 버튼
+   - index.html 인라인 스타일에서 CSS 파일로 분리
+   - 상단 pill 안의 "인쇄 가이드 보기" 버튼은 글자 길이만큼만 표시
+========================================================= */
+.print-guide-modal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(3px);
+    z-index: 99999;
+}
+
+.print-guide-modal.hidden {
+    display: none;
+}
+
+.print-guide-modal-content {
+    position: relative;
+
+    width: min(92vw, 960px);
+    max-height: 90vh;
+    overflow: auto;
+
+    padding: 18px;
+    border-radius: 28px;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+}
+
+.print-guide-image {
+    display: block;
+    width: 100%;
+    border-radius: 20px;
+}
+
+.print-guide-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.print-guide-action-btn {
+    width: 100%;
+    height: 44px;
+    border-radius: 999px;
+
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.print-guide-hide {
+    border: 1px solid #e4e7ec;
+    background: #fff;
+    color: #475467;
+}
+
+.print-guide-hide:hover {
+    background: #f9fafb;
+    border-color: #d0d5dd;
+}
+
+.print-guide-confirm {
+    border: 1px solid #fdcc63;
+    background: #fdcc63;
+    color: #101828;
+}
+
+.print-guide-confirm:hover {
+    filter: brightness(0.98);
+}
+
+.print-guide-close {
+    position: absolute;
+    top: 14px;
+    right: 16px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 34px;
+    min-height: 34px;
+    height: 34px;
+    padding: 0;
+
+    border: 0;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #344054;
+
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* 상단 옵션 라인 우측 끝 버튼 */
+.print-guide-open-btn {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: max-content !important;
+    min-height: 30px !important;
+    height: 30px !important;
+    padding: 0 13px !important;
+
+    border: 1px solid #e4e7ec !important;
+    border-radius: 999px !important;
+    background: #fff !important;
+    box-shadow: none !important;
+
+    color: #344054 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.print-guide-open-btn:hover {
+    background: #f9fafb !important;
+    border-color: #d0d5dd !important;
+}
+
+.pill-guide-btn {
+    margin-left: auto !important;
+    align-self: center;
+}
+
+@media (max-width: 768px) {
+    .print-guide-modal {
+        padding: 16px;
+    }
+
+    .print-guide-modal-content {
+        padding: 12px;
+        border-radius: 20px;
+    }
+
+    .print-guide-actions {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .print-guide-action-btn {
+        height: 42px;
+        font-size: 13px;
+    }
+}
+

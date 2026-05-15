@@ -87,32 +87,33 @@ const CANVAS_SIZE_MAP = {
 
 /* =========================================================
  * 가이드 크기
- * safe  = 인쇄 안전선
  * outer = 바깥 가이드선
+ * inner = 안쪽 가이드선
+ * safe  = 인쇄 안전선
 ========================================================= */
 const GUIDE_SIZE_MAP = {
-  "R4-1U": { safe: { w: 130, h: 140 }, outer: { w: 177, h: 175 } },
-  "R4-2U": { safe: { w: 348, h: 140 }, outer: { w: 400, h: 175 } },
+  "R4-1U": { outer: { w: 177, h: 175 }, inner: { w: 130, h: 140 }, safe: { w: 115, h: 125 } },
+  "R4-2U": { outer: { w: 400, h: 175 }, inner: { w: 348, h: 140 }, safe: { w: 333, h: 125 } },
 
-  "R3-1U": { safe: { w: 133, h: 145 }, outer: { w: 177, h: 175 } },
-  "R3-1.5U": { safe: { w: 242, h: 144 }, outer: { w: 288, h: 174 } },
+  "R3-1U": { outer: { w: 177, h: 175 }, inner: { w: 133, h: 145 }, safe: { w: 118, h: 130 } },
+  "R3-1.5U": { outer: { w: 288, h: 174 }, inner: { w: 242, h: 144 }, safe: { w: 227, h: 129 } },
 
-  "R2-1U": { safe: { w: 130, h: 147 }, outer: { w: 178, h: 175 } },
-  "R2-1U_HOMING": { safe: { w: 130, h: 147 }, outer: { w: 178, h: 175 } },
-  "R2-1.75U": { safe: { w: 297, h: 147 }, outer: { w: 343, h: 173 } },
-  "R2-2.25U": { safe: { w: 409, h: 145 }, outer: { w: 453, h: 175 } },
+  "R2-1U": { outer: { w: 178, h: 175 }, inner: { w: 130, h: 147 }, safe: { w: 115, h: 132 } },
+  "R2-1U_HOMING": { outer: { w: 178, h: 175 }, inner: { w: 130, h: 147 }, safe: { w: 115, h: 132 } },
+  "R2-1.75U": { outer: { w: 343, h: 173 }, inner: { w: 297, h: 147 }, safe: { w: 282, h: 132 } },
+  "R2-2.25U": { outer: { w: 453, h: 175 }, inner: { w: 409, h: 145 }, safe: { w: 394, h: 130 } },
 
-  "R1-1U": { safe: { w: 130, h: 145 }, outer: { w: 176, h: 172 } },
-  "R1-1.25U": { safe: { w: 187, h: 143 }, outer: { w: 232, h: 173 } },
-  "R1-2.25U": { safe: { w: 407, h: 144 }, outer: { w: 455, h: 175 } },
-  "R1-2.75U": { safe: { w: 514, h: 144 }, outer: { w: 564, h: 174 } },
-  "R1-6.25U": { safe: { w: 1282, h: 140 }, outer: { w: 1336, h: 177 } },
+  "R1-1U": { outer: { w: 176, h: 172 }, inner: { w: 130, h: 145 }, safe: { w: 115, h: 130 } },
+  "R1-1.25U": { outer: { w: 232, h: 173 }, inner: { w: 187, h: 143 }, safe: { w: 172, h: 128 } },
+  "R1-2.25U": { outer: { w: 455, h: 175 }, inner: { w: 407, h: 144 }, safe: { w: 392, h: 129 } },
+  "R1-2.75U": { outer: { w: 564, h: 174 }, inner: { w: 514, h: 144 }, safe: { w: 499, h: 129 } },
+  "R1-6.25U": { outer: { w: 1336, h: 177 }, inner: { w: 1282, h: 140 }, safe: { w: 1267, h: 125 } },
 
-  "NUM_0": { safe: { w: 345, h: 142 }, outer: { w: 396, h: 173 } },
-  "NUM_PLUS": { safe: { w: 132, h: 366 }, outer: { w: 175, h: 397 } },
-  "NUM_ENTER": { safe: { w: 132, h: 365 }, outer: { w: 176, h: 395 } },
+  "NUM_0": { outer: { w: 396, h: 173 }, inner: { w: 345, h: 142 }, safe: { w: 330, h: 127 } },
+  "NUM_PLUS": { outer: { w: 175, h: 397 }, inner: { w: 132, h: 366 }, safe: { w: 117, h: 351 } },
+  "NUM_ENTER": { outer: { w: 176, h: 395 }, inner: { w: 132, h: 365 }, safe: { w: 117, h: 350 } },
 
-  XDA: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },
-  MAO: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },
-  STD: { safe: { w: 150, h: 150 }, outer: { w: 180, h: 180 } },
+  XDA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 135, h: 135 } },
+  MAO: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
+  STD: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
 };

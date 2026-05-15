@@ -35,6 +35,9 @@
 
     <!-- JSZip -->
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+
+
 </head>
 
 <body data-step="info">
@@ -165,6 +168,7 @@
                                     <span class="quickOptionHint">눌러서 변경</span>
                                     <span class="tag">캔버스</span><b id="canvasText">-</b>
                                     <span class="tag">배경</span><b id="bgText">-</b>
+                                    <button type="button" id="openPrintGuideBtn" class="print-guide-open-btn pill-guide-btn">인쇄 가이드 보기</button>
                                 </div>
 
                                 <div class="divider"></div>
@@ -541,6 +545,77 @@
     <script src="./js/email-summary.js"></script>
     <script src="./js/email-send.js"></script>
     <script src="./js/app.js"></script>
+
+
+    <!-- Print Guide Modal -->
+    <div id="printGuideModal" class="print-guide-modal hidden">
+        <div class="print-guide-modal-content">
+            <button id="closePrintGuideBtn" class="print-guide-close" aria-label="닫기">×</button>
+
+            <img src="./image/guides/print_guide.png" alt="인쇄 가이드" class="print-guide-image">
+
+            <div class="print-guide-actions">
+                <button type="button" id="hidePrintGuideBtn" class="print-guide-action-btn print-guide-hide">
+                    다시 보지 않기
+                </button>
+
+                <button type="button" id="confirmPrintGuideBtn" class="print-guide-action-btn print-guide-confirm">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+window.addEventListener("load", () => {
+    const modal = document.getElementById("printGuideModal");
+    const closeBtn = document.getElementById("closePrintGuideBtn");
+    const confirmBtn = document.getElementById("confirmPrintGuideBtn");
+    const hideBtn = document.getElementById("hidePrintGuideBtn");
+    const openBtn = document.getElementById("openPrintGuideBtn");
+
+    if (!modal || !closeBtn || !confirmBtn || !hideBtn) return;
+
+    const closeModal = () => {
+        modal.classList.add("hidden");
+    };
+
+    const hideAndCloseModal = () => {
+        localStorage.setItem("hide_print_guide", "true");
+        closeModal();
+    };
+
+    // 주문정보 화면에서는 띄우지 않고, 시안 제작 화면 진입 시 app.js에서 호출합니다.
+    window.openPrintGuideModal = (options = {}) => {
+        const force = options.force === true;
+
+        // 자동 팝업은 다시 보지 않기/세션 1회 조건을 따르고,
+        // 수동으로 여는 경우에는 언제든 다시 볼 수 있게 합니다.
+        if (!force && localStorage.getItem("hide_print_guide") === "true") return;
+        if (!force && sessionStorage.getItem("print_guide_seen_session") === "true") return;
+
+        modal.classList.remove("hidden");
+
+        if (!force) {
+            sessionStorage.setItem("print_guide_seen_session", "true");
+        }
+    };
+
+    closeBtn.addEventListener("click", closeModal);
+    confirmBtn.addEventListener("click", closeModal);
+    hideBtn.addEventListener("click", hideAndCloseModal);
+
+    openBtn?.addEventListener("click", () => {
+        window.openPrintGuideModal?.({ force: true });
+    });
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+});
+</script>
 
 </body>
 

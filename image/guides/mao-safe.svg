@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 330 330">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+        stroke: #d92d20;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2px;
+      }
+
+      .cls-2 {
+        stroke-dasharray: 8 8;
+      }
+    </style>
+  </defs>
+  <!-- Generator: Adobe Illustrator 28.6.0, SVG Export Plug-In . SVG Version: 1.2.0 Build 709)  -->
+  <g>
+    <g id="Layer_1">
+      <g id="Layer_1-2" data-name="Layer_1">
+        <g id="_레이어_1">
+          <g>
+            <path class="cls-1" d="M167.3,232.7h-7.9"/>
+            <path class="cls-2" d="M151.3,232.6c-9.3-.2-18.4-.7-27.3-1.4l-5.5-.8c-10.2-1.4-18.1-9.1-19.8-19.2l-1.7-10.1c-1.1-14.7-1.6-29.4-1.4-43.6.2-23.9,3.6-42.4,10.8-58.2.6-1.4,2.1-2.4,3.7-2.4h.5l20.4,3.6h.4c11,1.6,22.3,2.4,33.6,2.4s22.3-.8,33.6-2.3h.4l20-3.6h1c1.3,0,2.5.6,3.2,1.6l.3.7c7.2,15.4,10.6,33.4,10.8,56.6.1,15.7-.4,30.7-1.4,44.7l-1.7,10.3c-1.6,10.2-9.5,17.9-19.7,19.3l-5.6.8c-12.1.9-23.7,1.4-34.7,1.5"/>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

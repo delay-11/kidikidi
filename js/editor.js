@@ -939,30 +939,27 @@ function ensureMaoGuide() {
   wrap.style.zIndex = "2";
   wrap.style.display = "none";
 
-  // const outline = document.createElement("img");
-  // outline.id = "maoGuideOutline";
-  // outline.src = "./image/guides/mao-outline.svg";
-  // outline.alt = "";
-  // outline.draggable = false;
-  // outline.style.position = "absolute";
-  // outline.style.inset = "0";
-  // outline.style.width = "100%";
-  // outline.style.height = "100%";
-  // outline.style.pointerEvents = "none";
+  // MAO는 SVG 파일 3개를 겹쳐서 표시한다.
+  // outer/inner/safe를 모두 별도 이미지로 올려야 OEM/XDA와 동일하게 3중 가이드가 보인다.
+  const maoGuides = [
+    { id: "maoGuideOutline", src: "./image/guides/mao-outline.svg" },
+    { id: "maoGuideInner", src: "./image/guides/mao-inner.svg" },
+    { id: "maoGuideSafe", src: "./image/guides/mao-safe.svg" },
+  ];
 
-  const inner = document.createElement("img");
-  inner.id = "maoGuideInner";
-  inner.src = "./image/guides/mao-inner.svg";
-  inner.alt = "";
-  inner.draggable = false;
-  inner.style.position = "absolute";
-  inner.style.inset = "0";
-  inner.style.width = "100%";
-  inner.style.height = "100%";
-  inner.style.pointerEvents = "none";
-
-  // wrap.appendChild(outline);
-  wrap.appendChild(inner);
+  maoGuides.forEach((guide) => {
+    const img = document.createElement("img");
+    img.id = guide.id;
+    img.src = guide.src;
+    img.alt = "";
+    img.draggable = false;
+    img.style.position = "absolute";
+    img.style.inset = "0";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.pointerEvents = "none";
+    wrap.appendChild(img);
+  });
 
   if (bboxEl && bboxEl.parentNode === canvasWrapEl) {
     canvasWrapEl.insertBefore(wrap, bboxEl);
@@ -1363,29 +1360,39 @@ function drawGuide() {
   const guide = GUIDE_SIZE_MAP[key] || GUIDE_SIZE_MAP.STD;
   if (!guide) return;
 
-  // const outerW = guide.outer.w;
-  // const outerH = guide.outer.h;
+  const outerW = guide.outer.w;
+  const outerH = guide.outer.h;
 
-  const SAFE_GUIDE_INSET = 0; // ← 이 값으로 안쪽 이동
+  const innerW = guide.inner.w;
+  const innerH = guide.inner.h;
 
-  const safeW = guide.safe.w - SAFE_GUIDE_INSET * 2;
-  const safeH = guide.safe.h - SAFE_GUIDE_INSET * 2;
+  const safeW = guide.safe.w;
+  const safeH = guide.safe.h;
 
-  // const outerX = (canvas.width - outerW) / 2;
-  // const outerY = (canvas.height - outerH) / 2;
+  const outerX = (canvas.width - outerW) / 2;
+  const outerY = (canvas.height - outerH) / 2;
+
+  const innerX = (canvas.width - innerW) / 2;
+  const innerY = (canvas.height - innerH) / 2;
 
   const safeX = (canvas.width - safeW) / 2;
   const safeY = (canvas.height - safeH) / 2;
 
   ctx.save();
 
-  // ctx.strokeStyle = "rgba(217,45,32,0.95)";
-  // ctx.lineWidth = 2;
-  // ctx.setLineDash([]);
-  // roundRectPath(ctx, outerX, outerY, outerW, outerH, 18);
-  // ctx.stroke();
+  ctx.strokeStyle = "#d2d2d2";
+  ctx.lineWidth = 0.8;
+  ctx.setLineDash([]);
+  roundRectPath(ctx, outerX, outerY, outerW, outerH, 18);
+  ctx.stroke();
 
-  ctx.strokeStyle = "rgba(217,45,32,0.95)";
+  ctx.strokeStyle = "#b8b8b8";
+  ctx.lineWidth = 0.8;
+  ctx.setLineDash([]);
+  roundRectPath(ctx, innerX, innerY, innerW, innerH, 16);
+  ctx.stroke();
+
+  ctx.strokeStyle = "#d92d20";
   ctx.lineWidth = 2;
   ctx.setLineDash([8, 8]);
   roundRectPath(ctx, safeX, safeY, safeW, safeH, 14);

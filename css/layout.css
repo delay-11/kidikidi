@@ -284,6 +284,17 @@ body[data-step="info"] .leftStack {
     margin: 0 auto;
 }
 
+/* 주문정보 입력 화면: 주문자명/핸드폰번호/주문번호/이메일만 세로 정렬 */
+body[data-step="info"] .stepIntroCard {
+    max-width: 560px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+body[data-step="info"] .stepIntroCard .row {
+    grid-template-columns: 1fr;
+}
+
 body[data-step="confirm"] .editorMain,
 body[data-step="confirm"] .stepTopBar {
     display: none;
@@ -597,6 +608,17 @@ body[data-step="info"] .leftStack {
     margin: 0 auto;
 }
 
+/* 주문정보 입력 화면: 주문자명/핸드폰번호/주문번호/이메일만 세로 정렬 */
+body[data-step="info"] .stepIntroCard {
+    max-width: 560px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+body[data-step="info"] .stepIntroCard .row {
+    grid-template-columns: 1fr;
+}
+
 body[data-step="confirm"] .stepHeaderConfirm,
 body[data-step="confirm"] .editorStepCard {
     max-width: 760px;
@@ -683,4 +705,17 @@ body[data-step="confirm"] .rightStack {
 
 body[data-step="confirm"] .cartStepFrame {
     padding: 18px;
+}
+
+
+/* 주문정보 입력 화면 최종 정렬: 입력칸 4개만 세로 배치 */
+body[data-step="info"] .stepIntroCard {
+    max-width: 560px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+body[data-step="info"] .stepIntroCard .row {
+    grid-template-columns: 1fr;
 }
