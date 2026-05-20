@@ -374,6 +374,7 @@ function updateActionLocks() {
 
   if (btnAddItemEl) {
     btnAddItemEl.disabled = !hasCanvasDesign;
+    btnAddItemEl.textContent = selectedItemId ? "시안 수정 완료" : "시안 추가";
   }
 
   if (btnConfirmEl) {

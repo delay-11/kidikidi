@@ -21,6 +21,11 @@ window.addEventListener("blur", () => {
 });
 let activeResizePointerId = null;
 
+// 시안 리스트에서 저장된 시안을 불러오는 동안
+// 캔버스 상태가 잠깐 비어 있는 값을 원본 시안에 덮어쓰지 않도록 막습니다.
+let isLoadingItemToCanvas = false;
+let canvasLoadToken = 0;
+
 /* =========================================================
  * 모바일 스포이드
 ========================================================= */
@@ -1072,16 +1077,23 @@ function renderItemPreviewDataUrl(it) {
   if (it.design?.imgDataUrl) {
     const previewImg = new Image();
     previewImg.src = it.design.imgDataUrl;
-    if (previewImg.complete && previewImg.naturalWidth) {
-      offCtx.save();
-      offCtx.translate(it.design?.cx ?? off.width / 2, it.design?.cy ?? off.height / 2);
-      offCtx.rotate(it.design?.rot ?? 0);
-      const sx = it.design?.scaleX ?? it.design?.scale ?? 1;
-      const sy = it.design?.scaleY ?? it.design?.scale ?? 1;
-      offCtx.scale(sx, sy);
-      offCtx.drawImage(previewImg, -previewImg.width / 2, -previewImg.height / 2);
-      offCtx.restore();
+
+    // dataURL 이미지도 브라우저 상황에 따라 즉시 decode 되지 않을 수 있습니다.
+    // 이때 배경만 그린 previewDataUrl을 저장해버리면, 특히 그라데이션 시안이
+    // 리스트에서 "배경만 있는 시안"처럼 보입니다. 이미지가 아직 준비 전이면
+    // 빈 값을 반환해서 makeCartThumb()가 원본 이미지 fallback을 쓰게 합니다.
+    if (!previewImg.complete || !previewImg.naturalWidth) {
+      return "";
     }
+
+    offCtx.save();
+    offCtx.translate(it.design?.cx ?? off.width / 2, it.design?.cy ?? off.height / 2);
+    offCtx.rotate(it.design?.rot ?? 0);
+    const sx = it.design?.scaleX ?? it.design?.scale ?? 1;
+    const sy = it.design?.scaleY ?? it.design?.scale ?? 1;
+    offCtx.scale(sx, sy);
+    offCtx.drawImage(previewImg, -previewImg.width / 2, -previewImg.height / 2);
+    offCtx.restore();
   } else if (userImg) {
     offCtx.save();
     offCtx.translate(it.design?.cx ?? off.width / 2, it.design?.cy ?? off.height / 2);
@@ -1105,7 +1117,15 @@ function renderItemPreviewDataUrl(it) {
 
 function saveCanvasToItem(it) {
   it.design = it.design || {};
-  it.design.imgDataUrl = userImg ? userImg.src : null;
+
+  // 시안 불러오기 중에는 resetEditorStateBeforeLoad() 때문에 userImg가
+  // 잠깐 null이 됩니다. 그 순간 저장 로직이 끼어들면 기존 이미지 데이터가
+  // null로 덮여서, 더블클릭/빠른 클릭 후 이미지가 사라질 수 있습니다.
+  if (userImg) {
+    it.design.imgDataUrl = userImg.src;
+  } else if (!isLoadingItemToCanvas) {
+    it.design.imgDataUrl = null;
+  }
   it.design.cx = imgCX;
   it.design.cy = imgCY;
   it.design.scaleX = imgScaleX;
@@ -1165,6 +1185,9 @@ function resetEditorStateBeforeLoad() {
 }
 
 async function loadItemToCanvas(it) {
+  const loadToken = ++canvasLoadToken;
+  isLoadingItemToCanvas = true;
+
   resetEditorStateBeforeLoad();
 
   userImgFile = it.originalFile || null;
@@ -1222,13 +1245,28 @@ async function loadItemToCanvas(it) {
 
   if (it.design?.imgDataUrl) {
     const img = new Image();
-    await new Promise((res, rej) => {
-      img.onload = res;
-      img.onerror = rej;
-      img.src = it.design.imgDataUrl;
-    });
-    userImg = img;
+    try {
+      await new Promise((res, rej) => {
+        img.onload = res;
+        img.onerror = rej;
+        img.src = it.design.imgDataUrl;
+      });
+
+      // 더 늦게 시작된 불러오기가 있으면 이전 결과는 버립니다.
+      if (loadToken !== canvasLoadToken) return;
+
+      userImg = img;
+      activeObjectType = "image";
+    } catch (e) {
+      console.warn("저장된 시안 이미지 불러오기 실패:", e);
+      if (loadToken !== canvasLoadToken) return;
+      userImg = null;
+      if (activeObjectType === "image") activeObjectType = hasTextObject() ? "text" : null;
+    }
   }
+
+  if (loadToken !== canvasLoadToken) return;
+  isLoadingItemToCanvas = false;
 
   if (fileNameEl) {
     fileNameEl.textContent = it.originalFile?.name
@@ -1641,6 +1679,8 @@ function isPointOnText(px, py) {
 }
 
 function syncActiveItemDesign() {
+  if (isLoadingItemToCanvas) return;
+
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (!it) return;
   saveCanvasToItem(it);

@@ -59,7 +59,9 @@ function cloneItemForEditorLoad(item) {
 async function selectItem(id) {
   if (uiLocked) return;
 
-  if (selectedItemId && selectedItemId !== id) {
+  // 다른 시안으로 넘어가기 전 현재 편집 상태를 저장합니다.
+  // 단, 시안 불러오기 중에는 userImg가 잠깐 null이므로 저장하면 기존 이미지가 날아갑니다.
+  if (selectedItemId && selectedItemId !== id && !(typeof isLoadingItemToCanvas !== "undefined" && isLoadingItemToCanvas)) {
     const prev = cartItems.find((x) => x.id === selectedItemId);
     if (prev && typeof saveCanvasToItem === "function") {
       saveCanvasToItem(prev);
@@ -150,14 +152,24 @@ function addCurrentItemToCart() {
   };
 
   saveCanvasToItem(item);
-  cartItems.unshift(item);
+
+  // 시안 리스트에서 기존 시안을 선택한 상태라면 새로 추가하지 않고 해당 시안을 수정 저장합니다.
+  // 기존 코드처럼 무조건 unshift 하면 "시안 수정" 후 같은 시안이 하나 더 생깁니다.
+  const editIdx = selectedItemId ? cartItems.findIndex((x) => x.id === selectedItemId) : -1;
+  if (editIdx >= 0) {
+    item.id = selectedItemId;
+    cartItems[editIdx] = item;
+    showToast("시안이 수정되었습니다.", "ok");
+  } else {
+    cartItems.unshift(item);
+    showToast("시안이 추가되었습니다.", "ok");
+  }
 
   clearEditor();
   renderCart();
   updateDraftInfo();
   updateActionLocks();
 
-  showToast("시안이 추가되었습니다.", "ok");
   return true;
 }
 
