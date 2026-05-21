@@ -1,7 +1,4 @@
-/* ===== css/common/layout.css ===== */
-/* =========================================================
-   기본 레이아웃
-========================================================= */
+/* ===== layout.css ===== */
 
 .wrap {
     max-width: 1920px;
@@ -16,16 +13,11 @@
     align-items: start;
 }
 
-.leftStack,
-.rightStack {
+.leftStack, .rightStack {
     display: grid;
     gap: 16px;
     align-content: start;
 }
-
-/* =========================================================
-   헤더
-========================================================= */
 
 .siteHeader {
     background: var(--card);
@@ -36,7 +28,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     max-width: 1920px;
     margin: 0 auto;
     padding: 16px 30px;
@@ -69,15 +60,10 @@
     color: var(--muted);
 }
 
-/* =========================================================
-   시스템 상태
-========================================================= */
-
 .systemStatus {
     display: flex;
     align-items: center;
     gap: 6px;
-
     font-size: 12px;
     color: var(--muted);
 }
@@ -88,10 +74,6 @@
     background: #22c55e;
     border-radius: 50%;
 }
-
-/* =========================================================
-   주문 정보 바
-========================================================= */
 
 .orderBar {
     background: var(--card);
@@ -108,7 +90,6 @@
     display: flex;
     align-items: center;
     gap: 6px;
-
     font-size: 13px;
     color: var(--muted);
 }
@@ -130,10 +111,6 @@
 .draftDivider {
     color: var(--muted);
 }
-
-/* =========================================================
-   편집기 레이아웃
-========================================================= */
 
 .editorWrap {
     display: grid;
@@ -166,10 +143,6 @@
     padding: 15px;
 }
 
-/* =========================================================
-   그리드 행 / 구분선
-========================================================= */
-
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -188,10 +161,6 @@
     background: var(--line);
 }
 
-/* =========================================================
-   푸터
-========================================================= */
-
 .footer {
     padding: 20px;
     border-top: 1px solid var(--line);
@@ -200,10 +169,8 @@
 .footerInner {
     display: flex;
     justify-content: space-between;
-
     max-width: 1920px;
     margin: 0 auto;
-
     font-size: 12px;
     color: var(--muted);
 }
@@ -211,12 +178,11 @@
 .footerRight {
     text-align: right;
 }
-/* =========================================================
-   단계형 제작 플로우
-========================================================= */
+
 .stepProgress {
     background: var(--card);
     border-bottom: 1px solid var(--line);
+    display: none !important;
 }
 
 .stepProgressInner {
@@ -266,15 +232,11 @@
     color: #111;
 }
 
-body[data-step="info"] .rightStack,
-body[data-step="editor"] .leftStack,
-body[data-step="confirm"] .leftStack {
+body[data-step="info"] .rightStack, body[data-step="editor"] .leftStack, body[data-step="confirm"] .leftStack {
     display: none;
 }
 
-body[data-step="info"] .layout2,
-body[data-step="editor"] .layout2,
-body[data-step="confirm"] .layout2 {
+body[data-step="info"] .layout2, body[data-step="editor"] .layout2, body[data-step="confirm"] .layout2 {
     grid-template-columns: 1fr;
 }
 
@@ -284,35 +246,32 @@ body[data-step="info"] .leftStack {
     margin: 0 auto;
 }
 
-/* 주문정보 입력 화면: 주문자명/핸드폰번호/주문번호/이메일만 세로 정렬 */
 body[data-step="info"] .stepIntroCard {
     max-width: 560px;
     width: 100%;
     margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 body[data-step="info"] .stepIntroCard .row {
     grid-template-columns: 1fr;
 }
 
-body[data-step="confirm"] .editorMain,
-body[data-step="confirm"] .stepTopBar {
+body[data-step="confirm"] .editorMain, body[data-step="confirm"] .stepTopBar {
     display: none;
 }
 
 body[data-step="confirm"] .editorWrap {
-    grid-template-columns: minmax(0, 760px);
+    grid-template-columns: minmax(0, 1fr) !important;
     justify-content: center;
 }
 
-body[data-step="editor"] .confirmStepHeader,
-body[data-step="editor"] .confirmStepActions #btnBackEditor {
+body[data-step="editor"] .confirmStepHeader, body[data-step="editor"] .confirmStepActions #btnBackEditor {
     display: none;
 }
 
-.stepIntro,
-.stepTitleBlock,
-.confirmStepHeader {
+.stepIntro, .stepTitleBlock, .confirmStepHeader {
     display: grid;
     gap: 4px;
 }
@@ -328,9 +287,7 @@ body[data-step="editor"] .confirmStepActions #btnBackEditor {
     letter-spacing: 0.08em;
 }
 
-.stepIntro h2,
-.stepTitleBlock h2,
-.confirmStepHeader h2 {
+.stepIntro h2, .stepTitleBlock h2, .confirmStepHeader h2 {
     margin: 0;
     color: var(--txt);
     font-size: 20px;
@@ -338,9 +295,7 @@ body[data-step="editor"] .confirmStepActions #btnBackEditor {
     letter-spacing: -0.03em;
 }
 
-.stepIntro p,
-.stepTitleBlock p,
-.confirmStepHeader p {
+.stepIntro p, .stepTitleBlock p, .confirmStepHeader p {
     margin: 0;
     color: var(--muted);
     font-size: 13px;
@@ -379,23 +334,15 @@ body[data-step="editor"] .confirmStepActions {
     display: none;
 }
 
-/* =========================================================
-   큰 STEP 진행바 제거 후 내부 step만 유지
-========================================================= */
-.stepProgress {
-    display: none !important;
+.optionSelectLine {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+    gap: 8px;
 }
 
-.stepTitleBlock .stepEyebrow,
-.confirmStepHeader .stepEyebrow {
+.stepTitleBlock .stepEyebrow, .confirmStepHeader .stepEyebrow {
     display: none !important;
 }
-
-
-/* ===== css/design/panel-left.css ===== */
-/* =========================================================
-   기본 폼 요소
-========================================================= */
 
 label {
     display: block;
@@ -404,29 +351,23 @@ label {
     color: var(--muted);
 }
 
-input,
-select,
-textarea {
+input, select, textarea {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     outline: none;
-
     background: #ffffff;
     color: var(--txt);
     font: inherit;
     font-size: var(--fs-14);
 }
 
-input::placeholder,
-textarea::placeholder {
+input::placeholder, textarea::placeholder {
     color: #98a2b3;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+input:focus, select:focus, textarea:focus {
     border-color: var(--acc);
     box-shadow: var(--focus-ring);
     transition: all 0.2s ease;
@@ -436,13 +377,7 @@ textarea {
     resize: vertical;
 }
 
-/* =========================================================
-   타입별 예외 처리
-========================================================= */
-
-/* number 스피너 제거 */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
     margin: 0;
     -webkit-appearance: none;
 }
@@ -451,32 +386,20 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-/* 체크박스 / 라디오 width 100% 방지 */
-input[type="checkbox"],
-input[type="radio"] {
+input[type="checkbox"], input[type="radio"] {
     width: auto !important;
     padding: 0 !important;
 }
 
-/* 체크박스 선택 색상 */
 input[type="checkbox"]:checked {
     accent-color: #111;
 }
 
-/* =========================================================
-   특정 영역 보정
-========================================================= */
-
-/* 선택된 파일 없음 여백 */
 .fileName {
     margin-left: 10px;
     font-size: 12px;
     color: var(--muted);
 }
-
-/* =========================================================
-   입력 오류 상태
-========================================================= */
 
 .fieldErr {
     display: none;
@@ -495,14 +418,10 @@ input[type="checkbox"]:checked {
 }
 
 .formNotice {
-    /* min-height: 18px; */
-    /* margin-top: 8px; */
-
     font-size: 12px;
     line-height: 1.45;
     font-weight: 500;
     letter-spacing: -0.01em;
-
     color: var(--muted);
 }
 
@@ -514,9 +433,6 @@ input[type="checkbox"]:checked {
     color: var(--bad);
 }
 
-/* =========================================================
-   프로파일 / 규격 상시 안내
-========================================================= */
 .optionGuideBox {
     margin-top: 14px;
     padding: 14px 16px;
@@ -544,18 +460,14 @@ input[type="checkbox"]:checked {
     background: var(--line);
 }
 
-/* =========================================================
-   Step Header 통일 정리
-   - 상단 이동 버튼/제목은 카드 밖에 고정
-   - 실제 내용은 기존 흰색 카드 안에 유지
-========================================================= */
 .stepPageHeader {
     display: none;
     grid-template-columns: 120px minmax(0, 1fr) 120px;
     align-items: center;
-    gap: 16px;
-    min-height: 58px;
-    margin: 0 0 16px;
+    gap: 14px;
+    min-height: 48px;
+    margin: 0 auto 12px;
+    width: min(760px, 100%);
 }
 
 .stepPageHeader .stepTitleBlock {
@@ -568,7 +480,7 @@ input[type="checkbox"]:checked {
     margin: 0;
     color: var(--txt);
     font-size: 20px;
-    line-height: 1.35;
+    line-height: 1.25;
     letter-spacing: -0.03em;
 }
 
@@ -576,51 +488,25 @@ input[type="checkbox"]:checked {
     margin: 0;
     color: var(--muted);
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.45;
 }
 
-body[data-step="info"] .stepHeaderInfo,
-body[data-step="editor"] .stepHeaderEditor,
-body[data-step="confirm"] .stepHeaderConfirm {
+body[data-step="info"] .stepHeaderInfo, body[data-step="editor"] .stepHeaderEditor, body[data-step="confirm"] .stepHeaderConfirm {
     display: grid !important;
 }
 
-body[data-step="info"] .stepHeaderEditor,
-body[data-step="info"] .stepHeaderConfirm,
-body[data-step="editor"] .stepHeaderInfo,
-body[data-step="editor"] .stepHeaderConfirm,
-body[data-step="confirm"] .stepHeaderInfo,
-body[data-step="confirm"] .stepHeaderEditor {
+body[data-step="info"] .stepHeaderEditor, body[data-step="info"] .stepHeaderConfirm, body[data-step="editor"] .stepHeaderInfo, body[data-step="editor"] .stepHeaderConfirm, body[data-step="confirm"] .stepHeaderInfo, body[data-step="confirm"] .stepHeaderEditor {
     display: none !important;
 }
 
-body[data-step="info"] .stepIntroCard,
-body[data-step="editor"] .editorStepCard,
-body[data-step="confirm"] .editorStepCard {
+body[data-step="info"] .stepIntroCard, body[data-step="editor"] .editorStepCard, body[data-step="confirm"] .editorStepCard {
     background: #fff;
     border: 1px solid var(--line);
     border-radius: 24px;
+    box-shadow: var(--shadow);
 }
 
-body[data-step="info"] .leftStack {
-    max-width: 760px;
-    width: 100%;
-    margin: 0 auto;
-}
-
-/* 주문정보 입력 화면: 주문자명/핸드폰번호/주문번호/이메일만 세로 정렬 */
-body[data-step="info"] .stepIntroCard {
-    max-width: 560px;
-    width: 100%;
-    margin: 0 auto;
-}
-
-body[data-step="info"] .stepIntroCard .row {
-    grid-template-columns: 1fr;
-}
-
-body[data-step="confirm"] .stepHeaderConfirm,
-body[data-step="confirm"] .editorStepCard {
+body[data-step="confirm"] .stepHeaderConfirm, body[data-step="confirm"] .editorStepCard {
     max-width: 760px;
     width: 100%;
     margin-left: auto;
@@ -631,31 +517,12 @@ body[data-step="confirm"] .editorMain {
     display: none !important;
 }
 
-body[data-step="confirm"] .editorWrap {
-    grid-template-columns: minmax(0, 1fr) !important;
-    justify-content: center;
-}
-
 body[data-step="confirm"] .cartStepFrame {
-    padding: 20px;
+    padding: 18px;
 }
 
-body[data-step="confirm"] .confirmStepHeader,
-body[data-step="confirm"] .confirmStepActions {
+body[data-step="confirm"] .confirmStepHeader, body[data-step="confirm"] .confirmStepActions {
     display: none !important;
-}
-
-/* =========================================================
-   Step 화면 최종 통일
-   - Step Header는 카드 밖에 두되 3단계 모두 같은 폭/간격 유지
-   - 실제 내용은 흰색 테두리 카드 안에 유지
-========================================================= */
-.stepPageHeader {
-    width: min(760px, 100%);
-    margin: 0 auto 12px;
-    grid-template-columns: 120px minmax(0, 1fr) 120px;
-    min-height: 48px;
-    gap: 14px;
 }
 
 .stepPageHeader .miniStepBtn {
@@ -665,18 +532,7 @@ body[data-step="confirm"] .confirmStepActions {
     padding: 0 16px;
 }
 
-.stepPageHeader .stepTitleBlock h2 {
-    font-size: 20px;
-    line-height: 1.25;
-}
-
-.stepPageHeader .stepTitleBlock p {
-    font-size: 13px;
-    line-height: 1.45;
-}
-
-body[data-step="info"] .stepIntroCard,
-body[data-step="confirm"] .editorStepCard {
+body[data-step="info"] .stepIntroCard, body[data-step="confirm"] .editorStepCard {
     width: min(760px, 100%);
     margin-left: auto;
     margin-right: auto;
@@ -688,34 +544,6 @@ body[data-step="editor"] .editorStepCard {
     margin-right: auto;
 }
 
-body[data-step="info"] .stepIntroCard,
-body[data-step="editor"] .editorStepCard,
-body[data-step="confirm"] .editorStepCard {
-    background: #fff;
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    box-shadow: var(--shadow);
-}
-
-body[data-step="info"] .leftStack,
-body[data-step="editor"] .rightStack,
-body[data-step="confirm"] .rightStack {
+body[data-step="info"] .leftStack, body[data-step="editor"] .rightStack, body[data-step="confirm"] .rightStack {
     gap: 12px;
-}
-
-body[data-step="confirm"] .cartStepFrame {
-    padding: 18px;
-}
-
-
-/* 주문정보 입력 화면 최종 정렬: 입력칸 4개만 세로 배치 */
-body[data-step="info"] .stepIntroCard {
-    max-width: 560px;
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-body[data-step="info"] .stepIntroCard .row {
-    grid-template-columns: 1fr;
 }

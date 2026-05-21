@@ -92,6 +92,18 @@ function getItemBgDirection(it) {
   return it?.design?.bgDirection || it?.design?.background?.direction || "to-right";
 }
 
+function getItemGradientPosition(it) {
+  return typeof normalizeGradientPosition === "function"
+    ? normalizeGradientPosition(it?.design?.bgPosition ?? it?.design?.background?.position ?? 0.5)
+    : Number(it?.design?.bgPosition ?? it?.design?.background?.position ?? 0.5);
+}
+
+function getItemGradientSoftness(it) {
+  return typeof normalizeGradientSoftness === "function"
+    ? normalizeGradientSoftness(it?.design?.bgSoftness ?? it?.design?.background?.softness ?? 1)
+    : Number(it?.design?.bgSoftness ?? it?.design?.background?.softness ?? 1);
+}
+
 function getGradientDirectionIcon(direction) {
   const dir = normalizeGradientDirection?.(direction || "to-right") || "to-right";
   const map = {
@@ -107,7 +119,7 @@ function getItemBgLabel(it) {
   if (!it?.design?.bgSet) return "-";
   const color1 = getItemBgColor(it);
   if (getItemBgType(it) === "gradient") {
-    return `${color1} ${getGradientDirectionIcon(getItemBgDirection(it))} ${getItemBgColor2(it)}`;
+    return `${color1} ${getGradientDirectionIcon(getItemBgDirection(it))} ${getItemBgColor2(it)} · 경계 ${Math.round(getItemGradientPosition(it) * 100)}%`;
   }
   return color1;
 }
@@ -123,11 +135,15 @@ function getItemBgCss(it) {
     "to-bottom": "to bottom",
   };
 
-  return `linear-gradient(${dirMap[getItemBgDirection(it)] || "to right"}, ${color1}, ${getItemBgColor2(it)})`;
+  const pos = Math.max(0, Math.min(100, Math.round(getItemGradientPosition(it) * 100)));
+  const soft = Math.max(0, Math.min(100, Math.round(getItemGradientSoftness(it) * 100)));
+  const start = Math.max(0, Math.min(pos, pos - soft / 2));
+  const end = Math.min(100, Math.max(pos, pos + soft / 2));
+  return `linear-gradient(${dirMap[getItemBgDirection(it)] || "to right"}, ${color1} 0%, ${color1} ${start}%, ${getItemBgColor2(it)} ${end}%, ${getItemBgColor2(it)} 100%)`;
 }
 
 function hasDesign(it) {
-  return !!it?.design?.imgDataUrl || !!it?.design?.bgSet || !!(it?.design?.text?.enabled && safeTrim(it?.design?.text?.value));
+  return !!it?.design?.imgDataUrl || !!(Array.isArray(it?.design?.images) && it.design.images.length) || !!it?.design?.bgSet || !!(it?.design?.text?.enabled && safeTrim(it?.design?.text?.value));
 }
 
 function labelLaser(it) {

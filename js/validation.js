@@ -219,10 +219,14 @@ function setAllLocked(locked) {
     fileDelBtn,
     bgPickBtn,
     bgEyeBtn,
+    typeof solidNativeColorEl !== "undefined" ? solidNativeColorEl : null,
+    typeof solidHexInputEl !== "undefined" ? solidHexInputEl : null,
     bgModeSolidBtn,
     bgModeGradientBtn,
     gradientColor1El,
     gradientColor2El,
+    gradientPositionRangeEl,
+    gradientSoftnessRangeEl,
     btnAddItemEl,
     btnConfirmEl,
   ];
@@ -293,7 +297,7 @@ async function applyConfirmedLockIfNeeded(showPopup = false) {
 ========================================================= */
 function updateActionLocks() {
   const hasUserInfo = validateUserInfo(false);
-  const hasCanvasDesign = !!userImg || !!draftBgSet || !!(typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue));
+  const hasCanvasDesign = !!(typeof hasImageObject === "function" ? hasImageObject() : userImg) || !!draftBgSet || !!(typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue));
   const hasAnyDesign =
     Array.isArray(cartItems) && cartItems.some((it) => hasDesign(it));
 
@@ -303,10 +307,20 @@ function updateActionLocks() {
     if (fileDelBtn) fileDelBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
-    if (bgModeSolidBtn) bgModeSolidBtn.disabled = true;
-    if (bgModeGradientBtn) bgModeGradientBtn.disabled = true;
+    if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) solidNativeColorEl.disabled = true;
+    if (typeof solidHexInputEl !== "undefined" && solidHexInputEl) solidHexInputEl.disabled = true;
+    if (bgModeSolidBtn) {
+      bgModeSolidBtn.disabled = true;
+      setSoftDisabled?.(bgModeSolidBtn, true);
+    }
+    if (bgModeGradientBtn) {
+      bgModeGradientBtn.disabled = true;
+      setSoftDisabled?.(bgModeGradientBtn, true);
+    }
     if (gradientColor1El) gradientColor1El.disabled = true;
     if (gradientColor2El) gradientColor2El.disabled = true;
+    if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = true;
+    if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = true;
     gradientDirBtnEls?.forEach((btn) => (btn.disabled = true));
     if (textApplyBtnEl) textApplyBtnEl.disabled = true;
     if (textClearBtnEl) textClearBtnEl.disabled = true;
@@ -325,10 +339,20 @@ function updateActionLocks() {
     if (fileDelBtn) fileDelBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
-    if (bgModeSolidBtn) bgModeSolidBtn.disabled = true;
-    if (bgModeGradientBtn) bgModeGradientBtn.disabled = true;
+    if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) solidNativeColorEl.disabled = true;
+    if (typeof solidHexInputEl !== "undefined" && solidHexInputEl) solidHexInputEl.disabled = true;
+    if (bgModeSolidBtn) {
+      bgModeSolidBtn.disabled = false;
+      setSoftDisabled?.(bgModeSolidBtn, true);
+    }
+    if (bgModeGradientBtn) {
+      bgModeGradientBtn.disabled = false;
+      setSoftDisabled?.(bgModeGradientBtn, true);
+    }
     if (gradientColor1El) gradientColor1El.disabled = true;
     if (gradientColor2El) gradientColor2El.disabled = true;
+    if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = true;
+    if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = true;
     gradientDirBtnEls?.forEach((btn) => (btn.disabled = true));
     if (textApplyBtnEl) textApplyBtnEl.disabled = true;
     if (textClearBtnEl) textClearBtnEl.disabled = true;
@@ -352,10 +376,20 @@ function updateActionLocks() {
   if (fileDelBtn) fileDelBtn.disabled = false;
   if (bgPickBtn) bgPickBtn.disabled = false;
   if (bgEyeBtn) bgEyeBtn.disabled = false;
-  if (bgModeSolidBtn) bgModeSolidBtn.disabled = false;
-  if (bgModeGradientBtn) bgModeGradientBtn.disabled = false;
+  if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) solidNativeColorEl.disabled = false;
+  if (typeof solidHexInputEl !== "undefined" && solidHexInputEl) solidHexInputEl.disabled = false;
+  if (bgModeSolidBtn) {
+    bgModeSolidBtn.disabled = false;
+    setSoftDisabled?.(bgModeSolidBtn, false);
+  }
+  if (bgModeGradientBtn) {
+    bgModeGradientBtn.disabled = false;
+    setSoftDisabled?.(bgModeGradientBtn, false);
+  }
   if (gradientColor1El) gradientColor1El.disabled = false;
   if (gradientColor2El) gradientColor2El.disabled = false;
+  if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = false;
+  if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = false;
   gradientDirBtnEls?.forEach((btn) => (btn.disabled = false));
   if (textApplyBtnEl) textApplyBtnEl.disabled = false;
   if (textColorBtnEl) textColorBtnEl.disabled = false;
@@ -368,7 +402,7 @@ function updateActionLocks() {
     updateBgLockUI(profileEl?.value, laserEl?.value);
   }
 
-  if (fileDelBtn && !userImg) {
+  if (fileDelBtn && !(typeof hasImageObject === "function" ? hasImageObject() : userImg)) {
     fileDelBtn.disabled = true;
   }
 

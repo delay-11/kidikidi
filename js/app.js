@@ -47,15 +47,15 @@ function bindCustomerFieldEvents() {
       if (el === orderEl && orderEl.readOnly) return;
       if (uiLocked && el !== orderEl) return;
 
-      updateCanvasLock?.();
-      updateConfirmButtonState?.();
+      if (typeof updateActionLocks === "function") updateActionLocks();
+      if (typeof updateConfirmButtonState === "function") updateConfirmButtonState();
 
       if (el === orderEl) {
-        syncOrderConfirmState?.();
+        if (typeof syncOrderConfirmState === "function") syncOrderConfirmState();
       }
 
-      updateFormReadyState?.();
-      updateStepButtons?.();
+      if (typeof updateFormReadyState === "function") updateFormReadyState();
+      if (typeof updateStepButtons === "function") updateStepButtons();
     });
 
     el.addEventListener("blur", async () => {
@@ -63,17 +63,17 @@ function bindCustomerFieldEvents() {
       if (uiLocked && el !== orderEl) return;
 
       if (el === orderEl) {
-        syncOrderConfirmState?.();
+        if (typeof syncOrderConfirmState === "function") syncOrderConfirmState();
       }
 
-      validateUserInfo?.(true);
-      updateFormReadyState?.();
-      updateDraftInfo?.();
-      updateActionLocks?.();
-      updateStepButtons?.();
+      (typeof validateUserInfo === "function" ? validateUserInfo(true) : true);
+      if (typeof updateFormReadyState === "function") updateFormReadyState();
+      if (typeof updateDraftInfo === "function") updateDraftInfo();
+      if (typeof updateActionLocks === "function") updateActionLocks();
+      if (typeof updateStepButtons === "function") updateStepButtons();
 
       if (el === orderEl) {
-        await applyConfirmedLockIfNeeded?.(true);
+        await (typeof applyConfirmedLockIfNeeded === "function" ? applyConfirmedLockIfNeeded(true) : false);
       }
     });
   });
@@ -91,8 +91,8 @@ function bindCustomerFieldEvents() {
     setMsg?.("");
     setOk?.("");
 
-    updateDraftInfo?.();
-    updateActionLocks?.();
+    if (typeof updateDraftInfo === "function") updateDraftInfo();
+    if (typeof updateActionLocks === "function") updateActionLocks();
   });
 });
 
@@ -107,7 +107,7 @@ function bindDesignActionEvents() {
     setMsg?.("");
     setOk?.("");
 
-    if (!validateUserInfo?.(true)) return;
+    if (!(typeof validateUserInfo === "function" ? validateUserInfo(true) : true)) return;
 
     if (typeof addCurrentItemToCart === "function") {
       addCurrentItemToCart();
@@ -230,7 +230,7 @@ async function confirmOrder() {
       uiLocked = false;
       if (btnConfirmEl) btnConfirmEl.disabled = false;
       if (confirmModalOkEl) confirmModalOkEl.disabled = false;
-      updateActionLocks?.();
+      if (typeof updateActionLocks === "function") updateActionLocks();
     }
   }
 }
@@ -260,11 +260,11 @@ async function initDesignPage() {
   if (typeof redraw === "function") redraw();
 
   updateFormReadyState();
-  updateDraftInfo?.();
-  updateActionLocks?.();
+  if (typeof updateDraftInfo === "function") updateDraftInfo();
+  if (typeof updateActionLocks === "function") updateActionLocks();
   setDesignStep?.("info");
 
-  await applyConfirmedLockIfNeeded?.(true);
+  await (typeof applyConfirmedLockIfNeeded === "function" ? applyConfirmedLockIfNeeded(true) : false);
 }
 
 /* =========================================================
@@ -337,16 +337,18 @@ function setDesignStep(step) {
   if (nextStep === "editor") {
     // 주문정보 입력 완료 후 시안 제작 화면에 진입했을 때만 인쇄 가이드 팝업을 표시합니다.
     window.setTimeout(() => {
-      window.openPrintGuideModal?.();
+      // 주문정보 입력 후 시안 제작 화면에 들어오면 인쇄 가이드는 반드시 노출합니다.
+      // 기존 테스트 중 저장된 localStorage 값 때문에 자동 팝업이 막히는 상황을 방지합니다.
+      window.openPrintGuideModal?.({ force: true });
       openEditorOnboarding?.();
-    }, 260);
+    }, 180);
   }
 
-  updateStepButtons?.();
+  if (typeof updateStepButtons === "function") updateStepButtons();
 }
 
 function updateStepButtons() {
-  const hasUserInfo = validateUserInfo?.(false) || false;
+  const hasUserInfo = (typeof validateUserInfo === "function" ? validateUserInfo(false) : false) || false;
   const hasAnyDesign =
     Array.isArray(cartItems) && cartItems.some((it) => hasDesign?.(it));
 
@@ -357,7 +359,7 @@ function updateStepButtons() {
 function bindStepEvents() {
   btnGoEditorEl?.addEventListener("click", () => {
     if (uiLocked) return;
-    if (!validateUserInfo?.(true)) return;
+    if (!(typeof validateUserInfo === "function" ? validateUserInfo(true) : true)) return;
     setDesignStep("editor");
   });
 
@@ -397,7 +399,7 @@ function bindStepEvents() {
       }
 
       if (step === "editor") {
-        if (!validateUserInfo?.(true)) return;
+        if (!(typeof validateUserInfo === "function" ? validateUserInfo(true) : true)) return;
         setDesignStep("editor");
         return;
       }
@@ -508,8 +510,8 @@ function applyQuickOptionChange() {
   }
 
   updateSelectedInfoText?.();
-  updateDraftInfo?.();
-  updateActionLocks?.();
+  if (typeof updateDraftInfo === "function") updateDraftInfo();
+  if (typeof updateActionLocks === "function") updateActionLocks();
 
   if (selectedItem && typeof saveCanvasToItem === "function") {
     saveCanvasToItem(selectedItem);

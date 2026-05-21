@@ -61,6 +61,11 @@ const bgEyeBtn = $("bgEyeBtn");
 const bgColorSwatchEl = $("bgColorSwatch");
 const bgColorValueEl = $("bgColorValue");
 const bgPickMountEl = $("bgPickMount");
+const solidNativeColorEl = $("solidNativeColor");
+const solidHexInputEl = $("solidHexInput");
+const solidInlinePickrMountEl = $("solidInlinePickrMount");
+const solidColorBoardEl = $("solidColorBoard");
+const solidColorBoardMarkerEl = $("solidColorBoardMarker");
 
 /* =========================================================
  * 제작 도구 / 그라데이션 배경
@@ -77,6 +82,11 @@ const gradientColor2SwatchEl = $("gradientColor2Swatch");
 const gradientColor1ValueEl = $("gradientColor1Value");
 const gradientColor2ValueEl = $("gradientColor2Value");
 const gradientDirBtnEls = Array.from(document.querySelectorAll("[data-gradient-dir]"));
+const gradientPositionRangeEl = $("gradientPositionRange");
+const gradientPositionValueEl = $("gradientPositionValue");
+const gradientSoftnessRangeEl = $("gradientSoftnessRange");
+const gradientSoftnessValueEl = $("gradientSoftnessValue");
+const gradientResetBtnEl = $("gradientResetBtn");
 
 /* =========================================================
  * 텍스트 도구

@@ -106,6 +106,16 @@ async function renderItemToPngDataUrl(item) {
     item?.design?.background?.direction ||
     "to-right";
 
+  const position =
+    typeof getGradientPositionFromItem === "function"
+      ? getGradientPositionFromItem(item)
+      : item?.design?.bgPosition ?? item?.design?.background?.position ?? 0.5;
+
+  const softness =
+    typeof getGradientSoftnessFromItem === "function"
+      ? getGradientSoftnessFromItem(item)
+      : item?.design?.bgSoftness ?? item?.design?.background?.softness ?? 1;
+
   offCtx.fillStyle =
     createBackgroundFill?.(
       offCtx,
@@ -115,23 +125,35 @@ async function renderItemToPngDataUrl(item) {
       color1,
       color2,
       direction,
+      position,
+      softness,
     ) || color1;
 
   offCtx.fillRect(0, 0, off.width, off.height);
 
-  if (item?.design?.imgDataUrl) {
-    const img = await loadImageFromDataUrl(item.design.imgDataUrl);
+  const imageStates = Array.isArray(item?.design?.images) && item.design.images.length
+    ? item.design.images
+    : item?.design?.imgDataUrl
+      ? [{
+          imgDataUrl: item.design.imgDataUrl,
+          cx: item?.design?.cx,
+          cy: item?.design?.cy,
+          scaleX: item?.design?.scaleX ?? item?.design?.scale,
+          scaleY: item?.design?.scaleY ?? item?.design?.scale,
+          rot: item?.design?.rot,
+        }]
+      : [];
+
+  for (const imageState of imageStates) {
+    if (!imageState?.imgDataUrl) continue;
+    const img = await loadImageFromDataUrl(imageState.imgDataUrl);
 
     if (img) {
-      const scaleX = Number(item?.design?.scaleX ?? item?.design?.scale ?? 1);
-
-      const scaleY = Number(item?.design?.scaleY ?? item?.design?.scale ?? 1);
-
-      const rot = Number(item?.design?.rot ?? 0);
-
-      const cx = Number(item?.design?.cx ?? off.width / 2);
-
-      const cy = Number(item?.design?.cy ?? off.height / 2);
+      const scaleX = Number(imageState?.scaleX ?? imageState?.scale ?? 1);
+      const scaleY = Number(imageState?.scaleY ?? imageState?.scale ?? 1);
+      const rot = Number(imageState?.rot ?? 0);
+      const cx = Number(imageState?.cx ?? off.width / 2);
+      const cy = Number(imageState?.cy ?? off.height / 2);
 
       const w = img.width * scaleX;
       const h = img.height * scaleY;

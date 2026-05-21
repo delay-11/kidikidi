@@ -1,0 +1,638 @@
+/* =========================================================
+   컬러피커 / 배경 설정
+   - 단색, 그라데이션, Pickr 관련 스타일만 관리
+   - 미디어쿼리는 responsive.css
+========================================================= */
+
+.colorPick {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.colorPick.isLocked {
+    opacity: 0.55;
+    pointer-events: none;
+}
+
+#bgPickBtn.ghostBtn {
+    width: auto;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+}
+
+.colorSwatch {
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: #ffffff;
+}
+
+.colorValue {
+    color: var(--muted);
+    font-size: var(--fs-13);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.pickrMount {
+    position: relative;
+    display: inline-block;
+    width: 0;
+    height: 0;
+}
+
+.pcr-button, .pcr-button::after {
+    pointer-events: none !important;
+}
+
+.iconToolBtn {
+    all: unset;
+    box-sizing: border-box;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    background: #ffffff !important;
+    cursor: pointer !important;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.iconToolBtn:hover {
+    border-color: #d0d5dd !important;
+    background: #f9fafb !important;
+}
+
+.iconToolBtn:disabled {
+    background: #f9fafb !important;
+    color: #98a2b3 !important;
+    cursor: not-allowed !important;
+    opacity: .7;
+}
+
+.iconToolBtn iconify-icon {
+    display: block;
+    color: var(--txt);
+}
+
+.bgEyeBtn svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    stroke: #8a5a00;
+    stroke-width: 1.8;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+}
+
+.bgEyeBtn:hover svg {
+    transform: rotate(-6deg) translateY(1px);
+}
+
+#toolBg .bgToolStack {
+    display: grid;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+}
+
+#toolBg .bgModeToggle {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    align-items: center;
+    padding: 4px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #f9fafb;
+}
+
+#toolBg .bgModeBtn {
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+    padding: 8px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #475467;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: background .16s ease, color .16s ease, box-shadow .16s ease, opacity .16s ease;
+}
+
+#toolBg .bgModeBtn.is-active {
+    background: var(--acc);
+    color: #101828;
+    box-shadow: 0 6px 18px rgba(253, 204, 99, .22);
+}
+
+#toolBg .bgModeBtn:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+#toolBg .bgOptionPanel {
+    min-width: 0;
+    margin-top: 0;
+}
+
+#toolBg[data-bg-mode="solid"] .bgToolSectionSolid, #toolBg[data-bg-mode="gradient"] .bgToolSectionGradient {
+    display: grid;
+}
+
+#toolBg[data-bg-mode="solid"] .bgToolSectionGradient, #toolBg[data-bg-mode="gradient"] .bgToolSectionSolid {
+    display: none !important;
+}
+
+#toolBg .bgToolSectionSolid, #toolBg .bgToolSectionGradient {
+    gap: 6px;
+    min-width: 0;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    align-content: start;
+}
+
+#toolBg .bgToolSectionTitle {
+    margin: 0 0 6px !important;
+    color: #101828 !important;
+    font-size: 15px !important;
+    font-weight: 900 !important;
+}
+
+#toolBg .gradientSectionHeader {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 0 0 6px;
+}
+
+#toolBg .gradientSectionHeader .bgToolSectionTitle {
+    margin: 0 !important;
+}
+
+#toolBg .gradientResetBtn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: max-content;
+    flex: 0 0 auto !important;
+    margin-left: auto;
+    min-height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 900;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+#toolBg .gradientResetBtn:hover,
+#toolBg .gradientResetBtn:focus-visible {
+    border-color: var(--acc);
+    background: #fff8e8;
+    color: #101828;
+    outline: 0;
+}
+
+#toolBg .gradientResetBtn:disabled {
+    background: #f9fafb;
+    color: #98a2b3;
+    cursor: not-allowed;
+    opacity: .7;
+}
+
+#toolBg .toolPanelHead, #toolBg .bgHelpLine, #toolBg .bgHelpLine span {
+    display: none !important;
+}
+
+#toolBg .solidSettingHeader {
+    display: grid;
+    grid-template-columns: auto minmax(200px, 520px);
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+}
+
+#toolBg .solidSettingTitle {
+    color: #101828;
+    font-size: 15px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+#toolBg .solidColorItem {
+    display: grid;
+    gap: 4px;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+}
+
+#toolBg .solidColorItem > .gradientColorLabel, #toolBg .solidLegacyPickBtn, #toolBg .solidNativeColor, #toolBg .solidColorValueText, #toolBg .solidColorDirectPanel .colorSwatch {
+    display: none !important;
+}
+
+#toolBg .solidColorDirectPanel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 42px;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+}
+
+#toolBg .solidHexInput {
+    width: 100%;
+    height: 38px;
+    min-width: 0;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fff;
+    color: #101828;
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: .02em;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+
+#toolBg .solidHexInput:disabled {
+    background: #f9fafb;
+    cursor: not-allowed;
+    opacity: .7;
+}
+
+#toolBg .solidInlinePickerBox, #toolBg .solidInlinePickrMount {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+#toolBg .solidInlinePickrMount {
+    display: block;
+}
+
+#toolBg .solidInlinePickrApp, #toolBg .solidInlinePickrMount .pcr-app {
+    position: relative !important;
+    inset: auto !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 16px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-button, #toolBg .solidInlinePickrMount .pcr-button, #toolBg .solidInlinePickrApp .pcr-color-preview, #toolBg .solidInlinePickrMount .pcr-color-preview, #toolBg .solidInlinePickrApp .pcr-interaction, #toolBg .solidInlinePickrMount .pcr-interaction {
+    display: none !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-selection, #toolBg .solidInlinePickrMount .pcr-selection {
+    display: grid !important;
+    gap: 6px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-color-palette, #toolBg .solidInlinePickrMount .pcr-color-palette {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 170px !important;
+    min-height: 170px !important;
+    margin: 0 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-color-palette .pcr-palette, #toolBg .solidInlinePickrMount .pcr-color-palette .pcr-palette {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-color-chooser, #toolBg .solidInlinePickrMount .pcr-color-chooser {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 12px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-color-chooser .pcr-slider, #toolBg .solidInlinePickrMount .pcr-color-chooser .pcr-slider {
+    width: 100% !important;
+    height: 12px !important;
+    border-radius: 999px !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-color-chooser .pcr-picker, #toolBg .solidInlinePickrMount .pcr-color-chooser .pcr-picker {
+    display: block !important;
+}
+
+#toolBg .gradientPanel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 12px !important;
+}
+
+#toolBg .gradientAddBtn {
+    display: none !important;
+}
+
+#toolBg .gradientColorGrid, #toolBg .gradientControlGrid {
+    display: grid;
+    gap: 12px;
+}
+
+#toolBg .gradientColorGrid {
+    grid-column: 1;
+    grid-row: 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    align-self: start;
+}
+
+#toolBg .gradientControlGrid {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#toolBg .gradientColorItem {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+#toolBg .gradientColorLabel {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+#toolBg .gradientPickBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    min-height: 52px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fff;
+    color: #101828;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+#toolBg .gradientPickBtn:hover, #toolBg .gradientPickBtn:focus-visible {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22);
+    outline: 0;
+}
+
+#toolBg .gradientPickBtn:disabled {
+    background: #f9fafb;
+    color: #98a2b3;
+    cursor: not-allowed;
+    opacity: .7;
+    box-shadow: none;
+}
+
+#toolBg .gradientPickBtn .colorValue {
+    min-width: 64px;
+    text-align: left;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: lowercase;
+}
+
+#toolBg .gradientSwatch {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #ffffff;
+    flex: 0 0 auto;
+    box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+#toolBg .gradientDirectionRow {
+    display: grid;
+    grid-column: 2;
+    grid-row: 1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-self: end;
+    gap: 10px;
+}
+
+#toolBg .gradientDirectionRow::before {
+    content: "방향 조절";
+    grid-column: 1 / -1;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+#toolBg .gradientDirBtn {
+    min-height: 44px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fff;
+    color: #344054;
+    font-size: 16px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+#toolBg .gradientDirBtn.is-active {
+    border-color: var(--acc);
+    background: #fff8e8;
+    color: #101828;
+}
+
+#toolBg .gradientDirBtn:disabled {
+    background: #f9fafb;
+    color: #98a2b3;
+    cursor: not-allowed;
+    opacity: .7;
+}
+
+#toolBg .gradientRangeItem {
+    display: grid;
+    gap: 9px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: #fff;
+}
+
+#toolBg .gradientRangeTop {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+#toolBg .gradientRangeTop b {
+    color: #344054;
+    flex: 0 0 auto;
+}
+
+#toolBg .gradientRangeItem input[type="range"] {
+    width: 100%;
+    min-width: 0;
+    accent-color: var(--acc);
+}
+
+.imageToolGrid, #toolBg .bgToolGrid {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    gap: 24px !important;
+}
+
+.imageToolGrid::before, #toolBg .bgToolGrid::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: #eaecf0;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.imageToolSection, .bgToolSection, #toolBg .bgToolSectionSolid, #toolBg .bgToolSectionGradient {
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+#toolBg .bgToolSectionSolid[hidden],
+#toolBg .bgToolSectionGradient[hidden],
+#toolBg #gradientPanel[hidden] {
+    display: none !important;
+}
+
+
+/* 단색 컬러피커 압축 표시: hue 슬라이더가 잘리지 않게 하고 상단 여백을 줄입니다. */
+#toolBg .solidInlinePickrApp .pcr-selection,
+#toolBg .solidInlinePickrMount .pcr-selection {
+    margin-top: 0 !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-color-chooser,
+#toolBg .solidInlinePickrMount .pcr-color-chooser {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+}
+
+#toolBg .solidInlinePickrApp .pcr-color-chooser .pcr-slider,
+#toolBg .solidInlinePickrMount .pcr-color-chooser .pcr-slider {
+    display: block !important;
+}
+
+/* 전체 색상 보드: hue 슬라이더 없이 직사각형 안에서 색상을 고릅니다. */
+#toolBg .solidColorBoardBox {
+    position: relative;
+    width: 100%;
+    height: 170px;
+    min-height: 170px;
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #ffffff;
+    box-sizing: border-box;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+#toolBg .solidColorBoard {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+#toolBg .solidColorBoardMarker {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #ffffff;
+    border-radius: 999px;
+    box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.55), 0 2px 6px rgba(16, 24, 40, 0.28);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+#toolBg .solidColorBoardBox.is-disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
+#toolBg .solidInlinePickerBox {
+    display: none !important;
+}
+
+#toolBg .bgModeBtn.is-disabled {
+    opacity: .55;
+}

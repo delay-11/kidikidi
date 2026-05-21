@@ -1,25 +1,35 @@
-/* ===== css/common/components-ui.css ===== */
-/* =========================================================
-   버튼 기본
-========================================================= */
+/* ===== ui.css ===== */
+
+@keyframes toastPop {
+0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.96);
+    }
+
+    70% {
+        opacity: 1;
+        transform: translateY(-2px) scale(1.01);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
 
 button {
     width: 100%;
     min-height: 44px;
     padding: 10px 12px;
-
     border: 1px solid var(--line);
     border-radius: 14px;
-
     background: var(--acc);
     color: #111;
-
     font-family: inherit;
     font-size: var(--fs-14);
     font-weight: 700;
     line-height: 1.2;
     letter-spacing: -0.01em;
-
     cursor: pointer;
 }
 
@@ -27,10 +37,6 @@ button:disabled {
     opacity: 0.45;
     cursor: not-allowed;
 }
-
-/* =========================================================
-   버튼 타입
-========================================================= */
 
 .actionBtn {
     min-height: 46px;
@@ -73,23 +79,17 @@ button:disabled {
     font-size: var(--fs-12);
 }
 
-/* 업로드 버튼 묶음 */
 .uploadRow {
     display: flex;
     gap: 8px;
     align-items: center;
 }
 
-#fileBtn,
-#fileDelBtn {
+#fileBtn, #fileDelBtn {
     width: fit-content !important;
     min-width: 0;
     flex: 0 0 auto;
 }
-
-/* =========================================================
-   버튼 묶음
-========================================================= */
 
 .btns {
     display: flex;
@@ -102,31 +102,21 @@ button:disabled {
     min-width: 160px;
 }
 
-/* =========================================================
-   체크라인
-========================================================= */
-
 .inlineCheck {
     display: flex;
     align-items: center;
     gap: 8px;
-
     color: var(--txt);
     font-family: inherit;
     font-size: 13px;
     line-height: 1.4;
 }
 
-/* =========================================================
-   태그 / 상태 텍스트
-========================================================= */
-
 .pill {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 10px;
-
     color: var(--muted);
     font-family: inherit;
     font-size: var(--fs-12);
@@ -142,13 +132,10 @@ button:disabled {
     display: inline-flex;
     align-items: center;
     padding: 2px 8px;
-
     border: 1px solid var(--line);
     border-radius: 999px;
-
     background: #f2f4f7;
     color: var(--muted);
-
     font-family: inherit;
     font-size: var(--fs-11);
     line-height: 1.4;
@@ -162,11 +149,9 @@ button:disabled {
     line-height: 1.5;
 }
 
-.warn,
-.ok {
+.warn, .ok {
     margin-top: 8px;
     white-space: pre-line;
-
     font-family: inherit;
     font-size: var(--fs-12);
     line-height: 1.6;
@@ -180,24 +165,17 @@ button:disabled {
     color: var(--ok);
 }
 
-/* =========================================================
-   상태 안내 박스
-========================================================= */
-
 .formReadyBox {
     display: grid;
     gap: 4px;
     padding: 14px 16px;
-
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
     background: #fafbfc;
-
     font-family: inherit;
 }
 
-.formReadyTitle,
-.formReadyDesc {
+.formReadyTitle, .formReadyDesc {
     margin: 0;
     font-family: inherit;
     letter-spacing: 0;
@@ -217,10 +195,6 @@ button:disabled {
     line-height: 1.55;
 }
 
-/* =========================================================
-   가운데 작업 액션 영역
-========================================================= */
-
 .editorActionBar {
     display: flex;
     margin-top: 14px;
@@ -229,10 +203,6 @@ button:disabled {
 .editorActionBar button {
     width: 100%;
 }
-
-/* =========================================================
-   가이드 색상 표시
-========================================================= */
 
 .red {
     color: #e5483b;
@@ -244,20 +214,13 @@ button:disabled {
     font-weight: 700;
 }
 
-
-/* ===== css/common/components-tooltip.css ===== */
-/* =========================================================
-   도움말 라벨 / 툴팁
-========================================================= */
-
 .labelWithHelp {
     display: inline-flex;
     align-items: center;
     gap: 6px;
 }
 
-.helpWrap,
-.uploadHelpWrap {
+.helpWrap, .uploadHelpWrap {
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -267,30 +230,23 @@ button:disabled {
     overflow: visible;
 }
 
-/* helpIcon은 button 공통 스타일(width:100%, 노랑 배경) 무시 */
 .helpIcon {
     all: unset;
     box-sizing: border-box;
-
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     flex: 0 0 auto !important;
-
     width: 24px !important;
     height: 24px !important;
     padding: 0 !important;
-
     border: 1px solid var(--line) !important;
     border-radius: 999px !important;
-
     background: var(--acc) !important;
     color: var(--muted) !important;
-
     font-size: 13px !important;
     font-weight: 900 !important;
     line-height: 24px !important;
-
     cursor: pointer !important;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -303,24 +259,17 @@ button:disabled {
     color: var(--txt) !important;
 }
 
-/* 기본 도움말 툴팁 */
-
-.helpTooltip,
-.uploadHelpTooltip {
+.helpTooltip, .uploadHelpTooltip {
     position: absolute;
     left: 0;
-
     display: none;
-
     box-sizing: border-box;
     padding: 12px 14px;
     border: 1px solid var(--line);
     border-radius: 12px;
     box-shadow: var(--shadow);
-
     background: #fff;
     color: var(--txt);
-
     font-size: 13px;
     line-height: 1.55;
     white-space: normal;
@@ -336,38 +285,28 @@ button:disabled {
 
 .uploadHelpTooltip {
     top: calc(100% + 8px);
-
     width: auto;
     min-width: 180px;
     max-width: min(280px, calc(100vw - 24px));
-
     z-index: 9999;
 }
 
-.helpTooltip.show,
-.uploadHelpTooltip.show {
+.helpTooltip.show, .uploadHelpTooltip.show {
     display: block;
 }
 
-.helpTooltip::before,
-.uploadHelpTooltip::before {
+.helpTooltip::before, .uploadHelpTooltip::before {
     content: "";
     position: absolute;
     top: -6px;
     left: 10px;
-
     width: 10px;
     height: 10px;
-
     transform: rotate(45deg);
-
     border-top: 1px solid var(--line);
     border-left: 1px solid var(--line);
-
     background: #fff;
 }
-
-/* 정렬 옵션 */
 
 .uploadHelpWrap.alignRight .uploadHelpTooltip {
     left: auto;
@@ -389,20 +328,15 @@ button:disabled {
     transform: translateX(-50%) rotate(45deg);
 }
 
-/* 내부 요소 */
-
-.helpTooltip b,
-.uploadHelpTooltip b {
+.helpTooltip b, .uploadHelpTooltip b {
     font-weight: 900;
 }
 
-.helpTooltip .muted,
-.uploadHelpTooltip .muted {
+.helpTooltip .muted, .uploadHelpTooltip .muted {
     color: var(--muted);
 }
 
-.helpTooltip .hr,
-.uploadHelpTooltip .hr {
+.helpTooltip .hr, .uploadHelpTooltip .hr {
     height: 1px;
     margin: 8px 0;
     background: var(--line);
@@ -414,12 +348,6 @@ button:disabled {
     color: #8a5a00 !important;
     box-shadow: 0 2px 8px rgba(240, 193, 75, 0.18);
 }
-
-
-/* ===== css/common/modal.css ===== */
-/* =========================================================
-   시안 확정 모달
-========================================================= */
 
 .confirmModal {
     position: fixed;
@@ -442,15 +370,12 @@ button:disabled {
     position: absolute;
     top: 50%;
     left: 50%;
-
     transform: translate(-50%, -50%);
     width: min(520px, calc(100vw - 32px));
-
     background: #fff;
     border: 1px solid var(--line);
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 22px;
-
     font-family: inherit;
     box-shadow: 0 20px 50px rgba(15, 23, 42, 0.16);
 }
@@ -467,13 +392,10 @@ button:disabled {
     align-items: center;
     justify-content: center;
     width: fit-content;
-
     padding: 3px 10px;
     border-radius: 999px;
-
     background: #fff3d6;
     color: #b58105;
-
     font-size: var(--fs-11);
     font-weight: 700;
     line-height: 1.2;
@@ -481,7 +403,6 @@ button:disabled {
 
 .confirmModalTitle {
     margin: 0;
-
     color: var(--txt);
     font-size: 28px;
     font-weight: 800;
@@ -491,7 +412,6 @@ button:disabled {
 
 .confirmModalBody {
     margin-top: 14px;
-
     color: var(--txt);
     font-family: inherit;
     font-size: var(--fs-12);
@@ -519,9 +439,7 @@ button:disabled {
     flex: 0 0 auto;
     min-width: 120px;
 }
-/* =========================================================
-   제작 화면 첫 안내 모달
-========================================================= */
+
 .editorOnboarding {
     position: fixed;
     inset: 0;
@@ -596,21 +514,13 @@ button:disabled {
     width: 100%;
 }
 
-
-/* ===== css/common/toast.css ===== */
-/* =========================================================
-   토스트
-========================================================= */
-
 .toastStack {
     position: fixed;
     right: 20px;
     bottom: 20px;
     z-index: 100000;
-
     display: grid;
     gap: 10px;
-
     width: min(360px, calc(100vw - 24px));
     pointer-events: none;
 }
@@ -620,19 +530,15 @@ button:disabled {
     grid-template-columns: auto 1fr;
     gap: 10px;
     align-items: start;
-
     padding: 13px 14px;
     border: 1px solid var(--line);
     border-radius: 14px;
-
     background: rgba(255,255,255,0.97);
     box-shadow: 0 14px 34px rgba(16, 24, 40, 0.14);
     backdrop-filter: blur(8px);
-
     color: var(--txt);
     font-size: var(--fs-13);
     line-height: 1.5;
-
     opacity: 0;
     transform: translateY(14px) scale(0.98);
     transition:
@@ -654,32 +560,13 @@ button:disabled {
     transform: translateY(8px) scale(0.98);
 }
 
-@keyframes toastPop {
-    0% {
-        opacity: 0;
-        transform: translateY(14px) scale(0.96);
-    }
-
-    70% {
-        opacity: 1;
-        transform: translateY(-2px) scale(1.01);
-    }
-
-    100% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
 .toastIcon {
     width: 22px;
     height: 22px;
     border-radius: 999px;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     background: #f2f4f7;
     color: var(--txt);
     font-size: 12px;
@@ -731,18 +618,12 @@ button:disabled {
     word-break: keep-all;
 }
 
-/* =========================================================
-   인쇄 가이드 팝업 / 버튼
-   - index.html 인라인 스타일에서 CSS 파일로 분리
-   - 상단 pill 안의 "인쇄 가이드 보기" 버튼은 글자 길이만큼만 표시
-========================================================= */
 .print-guide-modal {
     position: fixed;
     inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-
     padding: 24px;
     background: rgba(15, 23, 42, 0.45);
     backdrop-filter: blur(3px);
@@ -755,13 +636,11 @@ button:disabled {
 
 .print-guide-modal-content {
     position: relative;
-
-    width: min(92vw, 960px);
-    max-height: 90vh;
+    width: min(88vw, 760px);
+    max-height: 84vh;
     overflow: auto;
-
-    padding: 18px;
-    border-radius: 28px;
+    padding: 14px;
+    border-radius: 22px;
     background: #fff;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
 }
@@ -775,15 +654,14 @@ button:disabled {
 .print-guide-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 14px;
+    gap: 8px;
+    margin-top: 10px;
 }
 
 .print-guide-action-btn {
     width: 100%;
-    height: 44px;
+    height: 40px;
     border-radius: 999px;
-
     font-size: 14px;
     font-weight: 800;
     cursor: pointer;
@@ -814,27 +692,22 @@ button:disabled {
     position: absolute;
     top: 14px;
     right: 16px;
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     width: 34px;
     min-height: 34px;
     height: 34px;
     padding: 0;
-
     border: 0;
     border-radius: 999px;
     background: #f2f4f7;
     color: #344054;
-
     font-size: 22px;
     line-height: 1;
     cursor: pointer;
 }
 
-/* 상단 옵션 라인 우측 끝 버튼 */
 .print-guide-open-btn {
     flex: 0 0 auto !important;
     width: auto !important;
@@ -843,18 +716,15 @@ button:disabled {
     min-height: 30px !important;
     height: 30px !important;
     padding: 0 13px !important;
-
     border: 1px solid #e4e7ec !important;
     border-radius: 999px !important;
     background: #fff !important;
     box-shadow: none !important;
-
     color: #344054 !important;
     font-size: 12px !important;
     font-weight: 800 !important;
     line-height: 1 !important;
     white-space: nowrap !important;
-
     cursor: pointer;
     transition: 0.2s ease;
 }
@@ -868,25 +738,3 @@ button:disabled {
     margin-left: auto !important;
     align-self: center;
 }
-
-@media (max-width: 768px) {
-    .print-guide-modal {
-        padding: 16px;
-    }
-
-    .print-guide-modal-content {
-        padding: 12px;
-        border-radius: 20px;
-    }
-
-    .print-guide-actions {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-    }
-
-    .print-guide-action-btn {
-        height: 42px;
-        font-size: 13px;
-    }
-}
-

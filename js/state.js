@@ -20,6 +20,8 @@ let selectedItemId = null;
 ========================================================= */
 let userImg = null;
 let userImgFile = null;
+let userImages = [];
+let activeImageIndex = -1;
 let imgCX = 0;
 let imgCY = 0;
 let imgScaleX = 1;
@@ -33,6 +35,9 @@ let draftBgColor = "#ffffff";
 let draftBgColor2 = "#fdcc63";
 let draftBgType = "solid";
 let draftBgDirection = "to-right";
+// 그라데이션 경계 위치(0~1) / 부드러움(0~1)
+let draftGradientPosition = 0.5;
+let draftGradientSoftness = 1;
 let draftBgSet = false;
 
 /* =========================================================

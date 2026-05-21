@@ -3,6 +3,7 @@
  * Pickr 인스턴스
 ========================================================= */
 let bgPickr = null;
+let solidInlinePickr = null;
 let activePickrTarget = "solid";
 let activePickrAnchor = null;
 
@@ -156,6 +157,42 @@ function normalizeGradientDirection(direction) {
   return ["to-left", "to-right", "to-top", "to-bottom"].includes(direction) ? direction : "to-right";
 }
 
+function clamp01(value, fallback = 0) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(0, Math.min(1, n));
+}
+
+function normalizeGradientPosition(value) {
+  return clamp01(value, 0.5);
+}
+
+function normalizeGradientSoftness(value) {
+  return clamp01(value, 1);
+}
+
+function getGradientPercentLabel(value) {
+  return `${Math.round(clamp01(value, 0) * 100)}%`;
+}
+
+function getGradientPositionFromItem(it) {
+  return normalizeGradientPosition(
+    it?.design?.bgPosition ??
+    it?.design?.gradientPosition ??
+    it?.design?.background?.position ??
+    0.5,
+  );
+}
+
+function getGradientSoftnessFromItem(it) {
+  return normalizeGradientSoftness(
+    it?.design?.bgSoftness ??
+    it?.design?.gradientSoftness ??
+    it?.design?.background?.softness ??
+    1,
+  );
+}
+
 function getGradientPoints(direction, w, h) {
   switch (normalizeGradientDirection(direction)) {
     case "to-left":
@@ -170,14 +207,22 @@ function getGradientPoints(direction, w, h) {
   }
 }
 
-function createBackgroundFill(c, w, h, bgType, color1, color2, direction) {
+function createBackgroundFill(c, w, h, bgType, color1, color2, direction, position = 0.5, softness = 1) {
   if (normalizeBgMode(bgType) !== "gradient") {
     return color1 || "#ffffff";
   }
 
   const [x0, y0, x1, y1] = getGradientPoints(direction, w, h);
   const gradient = c.createLinearGradient(x0, y0, x1, y1);
+  const pos = normalizeGradientPosition(position);
+  const soft = normalizeGradientSoftness(softness);
+  const half = soft / 2;
+  const start = Math.max(0, Math.min(pos, pos - half));
+  const end = Math.min(1, Math.max(pos, pos + half));
+
   gradient.addColorStop(0, color1 || "#ffffff");
+  gradient.addColorStop(start, color1 || "#ffffff");
+  gradient.addColorStop(end, color2 || "#fdcc63");
   gradient.addColorStop(1, color2 || "#fdcc63");
   return gradient;
 }
@@ -216,11 +261,13 @@ function syncGradientUI() {
   bgModeSolidBtn?.classList.toggle("is-active", !isGradient);
   bgModeGradientBtn?.classList.toggle("is-active", isGradient);
 
-  if (gradientPanelEl) gradientPanelEl.hidden = false;
-  const gradientSection = gradientPanelEl?.closest?.(".bgToolSectionGradient");
-  // 그라데이션은 단색 모드에서도 클릭 즉시 전환되어야 하므로
-  // 섹션 자체를 비활성화하지 않습니다.
-  gradientSection?.classList.remove("is-disabled");
+  const solidSection = document.querySelector("#toolBg .bgToolSectionSolid");
+  const gradientSection = document.querySelector("#toolBg .bgToolSectionGradient");
+
+  if (solidSection) solidSection.hidden = isGradient;
+  if (gradientSection) gradientSection.hidden = !isGradient;
+  if (gradientPanelEl) gradientPanelEl.hidden = !isGradient;
+
   const g1 = normalizeHexInput(draftBgColor, "#ffffff");
   const g2 = normalizeHexInput(draftBgColor2, "#fdcc63");
   if (gradientColor1El) gradientColor1El.dataset.color = g1;
@@ -233,15 +280,134 @@ function syncGradientUI() {
   gradientDirBtnEls?.forEach((btn) => {
     btn.classList.toggle("is-active", btn.dataset.gradientDir === draftBgDirection);
   });
+
+  const pos = normalizeGradientPosition(draftGradientPosition);
+  const soft = normalizeGradientSoftness(draftGradientSoftness);
+  if (gradientPositionRangeEl) gradientPositionRangeEl.value = String(Math.round(pos * 100));
+  if (gradientPositionValueEl) gradientPositionValueEl.textContent = getGradientPercentLabel(pos);
+  if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.value = String(Math.round(soft * 100));
+  if (gradientSoftnessValueEl) gradientSoftnessValueEl.textContent = getGradientPercentLabel(soft);
+
+  // 모드 전환 직후 HTML의 disabled 기본값이 남아 있으면
+  // 그라데이션 설정이 보이는데도 조작이 막히는 문제가 생길 수 있어 여기서 한 번 더 동기화합니다.
+  syncBgControlDisabledState?.();
+}
+
+function setSoftDisabled(el, disabled) {
+  if (!el) return;
+  el.classList.toggle("is-disabled", !!disabled);
+  el.setAttribute("aria-disabled", disabled ? "true" : "false");
+}
+
+function syncBgControlDisabledState() {
+  const hasUserInfoForBg = typeof validateUserInfo === "function" ? validateUserInfo(false) : true;
+  const laserLocked = isLaserFixedBg();
+  const canEditBg = !uiLocked && hasUserInfoForBg && !laserLocked;
+
+  // 모드 전환 버튼은 disabled로 완전히 막지 않습니다.
+  // disabled 상태가 한 번 남으면 클릭 이벤트 자체가 안 들어와서
+  // 그라데이션 탭이 먹통처럼 보이는 문제가 생기기 때문입니다.
+  if (bgModeSolidBtn) {
+    bgModeSolidBtn.disabled = !!uiLocked;
+    setSoftDisabled(bgModeSolidBtn, !hasUserInfoForBg);
+  }
+
+  if (bgModeGradientBtn) {
+    bgModeGradientBtn.disabled = !!uiLocked;
+    setSoftDisabled(bgModeGradientBtn, !hasUserInfoForBg || laserLocked);
+  }
+
+  if (bgPickBtn) bgPickBtn.disabled = !canEditBg;
+  if (bgEyeBtn) bgEyeBtn.disabled = !canEditBg;
+  if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) solidNativeColorEl.disabled = !canEditBg;
+  if (typeof solidHexInputEl !== "undefined" && solidHexInputEl) solidHexInputEl.disabled = !canEditBg;
+  if (typeof solidColorBoardEl !== "undefined" && solidColorBoardEl) solidColorBoardEl.closest(".solidColorBoardBox")?.classList.toggle("is-disabled", !canEditBg);
+
+  if (gradientColor1El) gradientColor1El.disabled = !canEditBg;
+  if (gradientColor2El) gradientColor2El.disabled = !canEditBg;
+  if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = !canEditBg;
+  if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = !canEditBg;
+  if (typeof gradientResetBtnEl !== "undefined" && gradientResetBtnEl) gradientResetBtnEl.disabled = !canEditBg;
+  gradientDirBtnEls?.forEach((btn) => (btn.disabled = !canEditBg));
 }
 
 function getNormalizedItemBgType(it) {
   return it?.design?.bgSet && it?.design?.bgType === "gradient" ? "gradient" : "solid";
 }
 
+function syncActiveImageFromLegacy() {
+  if (!Array.isArray(userImages)) userImages = [];
+  if (activeImageIndex < 0 || activeImageIndex >= userImages.length) return;
+  const obj = userImages[activeImageIndex];
+  if (!obj) return;
+  obj.img = userImg || obj.img || null;
+  obj.file = userImgFile || obj.file || null;
+  obj.cx = imgCX;
+  obj.cy = imgCY;
+  obj.scaleX = imgScaleX;
+  obj.scaleY = imgScaleY;
+  obj.rot = imgRot;
+}
+
+function setActiveImageIndex(index) {
+  if (!Array.isArray(userImages)) userImages = [];
+  if (activeImageIndex >= 0 && activeImageIndex < userImages.length) {
+    syncActiveImageFromLegacy();
+  }
+
+  activeImageIndex = Number.isFinite(index) ? index : -1;
+  if (activeImageIndex < 0 || activeImageIndex >= userImages.length) {
+    activeImageIndex = userImages.length ? userImages.length - 1 : -1;
+  }
+
+  const obj = activeImageIndex >= 0 ? userImages[activeImageIndex] : null;
+  userImg = obj?.img || null;
+  userImgFile = obj?.file || null;
+  imgCX = Number.isFinite(obj?.cx) ? obj.cx : canvas.width / 2;
+  imgCY = Number.isFinite(obj?.cy) ? obj.cy : canvas.height / 2;
+  imgScaleX = Number.isFinite(obj?.scaleX) ? obj.scaleX : 1;
+  imgScaleY = Number.isFinite(obj?.scaleY) ? obj.scaleY : 1;
+  imgRot = Number.isFinite(obj?.rot) ? obj.rot : 0;
+}
+
+function hasImageObject() {
+  return Array.isArray(userImages) && userImages.some((obj) => !!obj?.img);
+}
+
+function getActiveImageObject() {
+  if (!Array.isArray(userImages) || !userImages.length) return null;
+  if (activeImageIndex < 0 || activeImageIndex >= userImages.length) {
+    setActiveImageIndex(userImages.length - 1);
+  }
+  syncActiveImageFromLegacy();
+  return userImages[activeImageIndex] || null;
+}
+
+function serializeImageObjects() {
+  syncActiveImageFromLegacy();
+  return (Array.isArray(userImages) ? userImages : [])
+    .filter((obj) => !!obj?.img?.src)
+    .map((obj) => ({
+      imgDataUrl: obj.img.src,
+      cx: Number.isFinite(obj.cx) ? obj.cx : canvas.width / 2,
+      cy: Number.isFinite(obj.cy) ? obj.cy : canvas.height / 2,
+      scaleX: Number.isFinite(obj.scaleX) ? obj.scaleX : 1,
+      scaleY: Number.isFinite(obj.scaleY) ? obj.scaleY : 1,
+      rot: Number.isFinite(obj.rot) ? obj.rot : 0,
+      fileName: obj.file?.name || "",
+    }));
+}
+
 function syncImageCountBadge() {
-  if (!imageCountBadgeEl) return;
-  imageCountBadgeEl.textContent = userImg ? "현재 1개" : "현재 0개";
+  const count = Array.isArray(userImages) ? userImages.filter((obj) => !!obj?.img).length : (userImg ? 1 : 0);
+  if (imageCountBadgeEl) imageCountBadgeEl.textContent = `현재 ${count}개`;
+  if (fileNameEl) {
+    fileNameEl.textContent = count
+      ? count === 1
+        ? (userImgFile?.name || "이미지 1개")
+        : `이미지 ${count}개`
+      : "선택된 파일 없음";
+  }
 }
 
 function refreshCurrentItemPreview() {
@@ -268,7 +434,6 @@ function setBgTextFromCurrentItem() {
 
 function applyBgMode(mode) {
   if (uiLocked) return;
-  if (!validateUserInfo(false)) return;
 
   if (isLaserFixedBg()) {
     draftBgType = "solid";
@@ -286,6 +451,8 @@ function applyBgMode(mode) {
   draftBgColor = normalizeHexInput(draftBgColor || "#ffffff", "#ffffff");
   draftBgColor2 = normalizeHexInput(draftBgColor2 || "#fdcc63", "#fdcc63");
   draftBgDirection = normalizeGradientDirection(draftBgDirection || "to-right");
+  draftGradientPosition = normalizeGradientPosition(draftGradientPosition);
+  draftGradientSoftness = normalizeGradientSoftness(draftGradientSoftness);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (it) {
@@ -295,11 +462,15 @@ function applyBgMode(mode) {
     it.design.bgColor = draftBgColor || "#ffffff";
     it.design.bgColor2 = draftBgColor2 || "#fdcc63";
     it.design.bgDirection = normalizeGradientDirection(draftBgDirection || "to-right");
+    it.design.bgPosition = normalizeGradientPosition(draftGradientPosition);
+    it.design.bgSoftness = normalizeGradientSoftness(draftGradientSoftness);
     it.design.background = {
       type: it.design.bgType,
       color: it.design.bgColor,
       color2: it.design.bgColor2,
       direction: normalizeGradientDirection(it.design.bgDirection),
+      position: normalizeGradientPosition(draftGradientPosition),
+      softness: normalizeGradientSoftness(draftGradientSoftness),
     };
     it.bgColor = it.design.bgColor;
   }
@@ -312,7 +483,7 @@ function applyBgMode(mode) {
   updateActionLocks();
 }
 
-function applyGradientSettings({ color1, color2, direction } = {}) {
+function applyGradientSettings({ color1, color2, direction, position, softness } = {}) {
   if (uiLocked) return;
   if (!validateUserInfo(false)) return;
   if (isLaserFixedBg()) return;
@@ -322,6 +493,8 @@ function applyGradientSettings({ color1, color2, direction } = {}) {
   if (color1) draftBgColor = normalizeHexInput(color1, draftBgColor || "#ffffff");
   if (color2) draftBgColor2 = normalizeHexInput(color2, draftBgColor2 || "#fdcc63");
   if (direction) draftBgDirection = normalizeGradientDirection(direction);
+  if (position !== undefined) draftGradientPosition = normalizeGradientPosition(position);
+  if (softness !== undefined) draftGradientSoftness = normalizeGradientSoftness(softness);
 
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (it) {
@@ -332,11 +505,15 @@ function applyGradientSettings({ color1, color2, direction } = {}) {
     it.design.bgColor = it.bgColor;
     it.design.bgColor2 = draftBgColor2 || "#fdcc63";
     it.design.bgDirection = normalizeGradientDirection(draftBgDirection || "to-right");
+    it.design.bgPosition = normalizeGradientPosition(draftGradientPosition);
+    it.design.bgSoftness = normalizeGradientSoftness(draftGradientSoftness);
     it.design.background = {
       type: "gradient",
       color: it.design.bgColor,
       color2: it.design.bgColor2,
       direction: normalizeGradientDirection(it.design.bgDirection),
+      position: normalizeGradientPosition(draftGradientPosition),
+      softness: normalizeGradientSoftness(draftGradientSoftness),
     };
   }
 
@@ -364,6 +541,233 @@ function getCapTypeDisplayName(capType) {
 }
 
 /* =========================================================
+ * 단색 전체 컬러 보드
+========================================================= */
+let solidColorBoardPointerId = null;
+let solidColorBoardMarkerRatio = { x: 0, y: 0 };
+let isPickingSolidColorBoard = false;
+
+function hexToRgbValue(hex) {
+  const v = normalizeHexInput(hex, "#ffffff").slice(1);
+  return {
+    r: parseInt(v.slice(0, 2), 16),
+    g: parseInt(v.slice(2, 4), 16),
+    b: parseInt(v.slice(4, 6), 16),
+  };
+}
+
+function rgbToHsvValue(r, g, b) {
+  const rr = r / 255;
+  const gg = g / 255;
+  const bb = b / 255;
+  const max = Math.max(rr, gg, bb);
+  const min = Math.min(rr, gg, bb);
+  const d = max - min;
+  let h = 0;
+
+  if (d) {
+    if (max === rr) h = ((gg - bb) / d) % 6;
+    else if (max === gg) h = (bb - rr) / d + 2;
+    else h = (rr - gg) / d + 4;
+    h *= 60;
+    if (h < 0) h += 360;
+  }
+
+  return {
+    h,
+    s: max === 0 ? 0 : d / max,
+    v: max,
+  };
+}
+
+function hsvToRgbValue(h, s, v) {
+  const hh = (((Number(h) || 0) % 360) + 360) % 360;
+  const ss = clamp01(s, 1);
+  const vv = clamp01(v, 1);
+  const c = vv * ss;
+  const x = c * (1 - Math.abs(((hh / 60) % 2) - 1));
+  const m = vv - c;
+  let r1 = 0;
+  let g1 = 0;
+  let b1 = 0;
+
+  if (hh < 60) [r1, g1, b1] = [c, x, 0];
+  else if (hh < 120) [r1, g1, b1] = [x, c, 0];
+  else if (hh < 180) [r1, g1, b1] = [0, c, x];
+  else if (hh < 240) [r1, g1, b1] = [0, x, c];
+  else if (hh < 300) [r1, g1, b1] = [x, 0, c];
+  else [r1, g1, b1] = [c, 0, x];
+
+  return {
+    r: Math.round((r1 + m) * 255),
+    g: Math.round((g1 + m) * 255),
+    b: Math.round((b1 + m) * 255),
+  };
+}
+
+function getSolidColorBoardHexFromRatio(x, y) {
+  const rx = clamp01(x, 0);
+  const ry = clamp01(y, 0);
+  const base = hsvToRgbValue(rx * 360, 1, 1);
+
+  if (ry < 0.5) {
+    const whiteAlpha = 1 - ry / 0.5;
+    return rgbToHex(
+      Math.round(base.r * (1 - whiteAlpha) + 255 * whiteAlpha),
+      Math.round(base.g * (1 - whiteAlpha) + 255 * whiteAlpha),
+      Math.round(base.b * (1 - whiteAlpha) + 255 * whiteAlpha),
+    );
+  }
+
+  const blackAlpha = (ry - 0.5) / 0.5;
+  return rgbToHex(
+    Math.round(base.r * (1 - blackAlpha)),
+    Math.round(base.g * (1 - blackAlpha)),
+    Math.round(base.b * (1 - blackAlpha)),
+  );
+}
+
+function drawSolidColorBoard() {
+  if (typeof solidColorBoardEl === "undefined" || !solidColorBoardEl) return;
+
+  const rect = solidColorBoardEl.getBoundingClientRect();
+  const cssW = Math.max(1, Math.round(rect.width || solidColorBoardEl.clientWidth || 900));
+  const cssH = Math.max(1, Math.round(rect.height || solidColorBoardEl.clientHeight || 170));
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const pixelW = Math.round(cssW * dpr);
+  const pixelH = Math.round(cssH * dpr);
+
+  if (solidColorBoardEl.width !== pixelW) solidColorBoardEl.width = pixelW;
+  if (solidColorBoardEl.height !== pixelH) solidColorBoardEl.height = pixelH;
+
+  const ctx = solidColorBoardEl.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return;
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssW, cssH);
+
+  const hue = ctx.createLinearGradient(0, 0, cssW, 0);
+  hue.addColorStop(0, "#ff0000");
+  hue.addColorStop(1 / 6, "#ffff00");
+  hue.addColorStop(2 / 6, "#00ff00");
+  hue.addColorStop(3 / 6, "#00ffff");
+  hue.addColorStop(4 / 6, "#0000ff");
+  hue.addColorStop(5 / 6, "#ff00ff");
+  hue.addColorStop(1, "#ff0000");
+  ctx.fillStyle = hue;
+  ctx.fillRect(0, 0, cssW, cssH);
+
+  const tone = ctx.createLinearGradient(0, 0, 0, cssH);
+  tone.addColorStop(0, "rgba(255,255,255,1)");
+  tone.addColorStop(0.5, "rgba(255,255,255,0)");
+  tone.addColorStop(0.5, "rgba(0,0,0,0)");
+  tone.addColorStop(1, "rgba(0,0,0,1)");
+  ctx.fillStyle = tone;
+  ctx.fillRect(0, 0, cssW, cssH);
+}
+
+function setSolidColorBoardMarkerRatio(x, y) {
+  if (typeof solidColorBoardMarkerEl === "undefined" || !solidColorBoardMarkerEl) return;
+
+  const rx = clamp01(x, 0);
+  const ry = clamp01(y, 0);
+  solidColorBoardMarkerRatio = { x: rx, y: ry };
+  solidColorBoardMarkerEl.style.left = `${rx * 100}%`;
+  solidColorBoardMarkerEl.style.top = `${ry * 100}%`;
+}
+
+function syncSolidColorBoardMarker(hex) {
+  if (typeof solidColorBoardMarkerEl === "undefined" || !solidColorBoardMarkerEl) return;
+
+  const { r, g, b } = hexToRgbValue(hex);
+  const hsv = rgbToHsvValue(r, g, b);
+  const x = hsv.h / 360;
+  const y = hsv.v < 0.5 ? 1 - hsv.v : (1 - hsv.s) * 0.5;
+  setSolidColorBoardMarkerRatio(x, y);
+}
+
+function pickSolidColorBoardAt(clientX, clientY) {
+  if (typeof solidColorBoardEl === "undefined" || !solidColorBoardEl) return;
+  if (uiLocked) return;
+
+  if (!validateUserInfo(false)) {
+    validateUserInfo(true);
+    updateActionLocks?.();
+    return;
+  }
+
+  if (isLaserFixedBg()) {
+    setCanvasNotice("레이저 선택 시 배경색은 흰색으로 고정됩니다.", "error");
+    showToast?.("레이저 옵션에서는 배경 설정을 변경할 수 없습니다.", "warn");
+    return;
+  }
+
+  drawSolidColorBoard();
+
+  const boardBox = solidColorBoardEl.closest?.(".solidColorBoardBox") || solidColorBoardEl;
+  const rect = boardBox.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+
+  const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
+  const y = Math.max(0, Math.min(rect.height, clientY - rect.top));
+  const rx = clamp01(x / rect.width, 0);
+  const ry = clamp01(y / rect.height, 0);
+  const hex = getSolidColorBoardHexFromRatio(rx, ry);
+
+  // 컬러보드에서 직접 터치/드래그 중에는
+  // 터치 좌표와 원형 마커 좌표를 같은 박스 기준으로 맞춥니다.
+  // HEX 값을 다시 HSV로 역산하면 같은 색이어도 위치가 튀어 보일 수 있어서,
+  // 직접 고른 좌표를 마커의 최종 위치로 한 번 더 고정합니다.
+  isPickingSolidColorBoard = true;
+  try {
+    setSolidColorBoardMarkerRatio(rx, ry);
+    applyBgColor(hex);
+    setSolidColorBoardMarkerRatio(rx, ry);
+  } finally {
+    isPickingSolidColorBoard = false;
+  }
+}
+
+function initSolidColorBoard() {
+  if (typeof solidColorBoardEl === "undefined" || !solidColorBoardEl) return;
+
+  const drawAndSync = () => {
+    drawSolidColorBoard();
+    if (!isPickingSolidColorBoard && solidColorBoardPointerId === null) {
+      syncSolidColorBoardMarker(draftBgColor || "#ffffff");
+    }
+  };
+
+  requestAnimationFrame(drawAndSync);
+
+  try {
+    const ro = new ResizeObserver(drawAndSync);
+    ro.observe(solidColorBoardEl);
+  } catch {
+    window.addEventListener("resize", drawAndSync);
+  }
+
+  solidColorBoardEl.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    solidColorBoardPointerId = event.pointerId;
+    solidColorBoardEl.setPointerCapture?.(event.pointerId);
+    pickSolidColorBoardAt(event.clientX, event.clientY);
+  });
+
+  solidColorBoardEl.addEventListener("pointermove", (event) => {
+    if (solidColorBoardPointerId !== event.pointerId) return;
+    event.preventDefault();
+    pickSolidColorBoardAt(event.clientX, event.clientY);
+  });
+
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach((type) => {
+    solidColorBoardEl.addEventListener(type, () => {
+      solidColorBoardPointerId = null;
+    });
+  });
+}
+
+/* =========================================================
  * 배경색 UI 반영
 ========================================================= */
 function setBgUI(hex) {
@@ -375,6 +779,26 @@ function setBgUI(hex) {
 
   if (bgColorValueEl) {
     bgColorValueEl.textContent = v;
+  }
+
+  if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) {
+    solidNativeColorEl.value = v;
+  }
+
+  if (typeof solidHexInputEl !== "undefined" && solidHexInputEl) {
+    solidHexInputEl.value = v.toUpperCase();
+  }
+
+  if (!isPickingSolidColorBoard) {
+    syncSolidColorBoardMarker?.(v);
+  }
+
+  if (solidInlinePickr) {
+    try {
+      solidInlinePickr.setColor(v, true);
+    } catch (e) {
+      console.warn("인라인 Pickr 색상 반영 실패:", e);
+    }
   }
 
   if (bgPickr && activePickrTarget === "solid") {
@@ -583,6 +1007,8 @@ function applyBgColor(hex) {
     it.design.bgColor = v;
     it.design.bgColor2 = draftBgColor2 || "#fdcc63";
     it.design.bgDirection = normalizeGradientDirection(draftBgDirection || "to-right");
+    it.design.bgPosition = normalizeGradientPosition(draftGradientPosition);
+    it.design.bgSoftness = normalizeGradientSoftness(draftGradientSoftness);
     it.design.background = {
       type: "solid",
       color: v,
@@ -646,19 +1072,7 @@ function updateBgLockUI(profile, laser) {
     setBgTextFromCurrentItem?.();
   }
 
-  if (bgPickBtn) {
-    bgPickBtn.disabled = uiLocked || locked;
-  }
-
-  if (bgEyeBtn) {
-    bgEyeBtn.disabled = uiLocked || locked;
-  }
-
-  if (bgModeSolidBtn) bgModeSolidBtn.disabled = uiLocked || locked;
-  if (bgModeGradientBtn) bgModeGradientBtn.disabled = uiLocked || locked;
-  if (gradientColor1El) gradientColor1El.disabled = uiLocked || locked;
-  if (gradientColor2El) gradientColor2El.disabled = uiLocked || locked;
-  gradientDirBtnEls?.forEach((btn) => (btn.disabled = uiLocked || locked));
+  syncBgControlDisabledState?.();
 
   return locked;
 }
@@ -721,6 +1135,7 @@ async function openEyeDropper() {
   }
 }
 
+
 /* =========================================================
  * 제작 도구 탭 / 그라데이션 이벤트
 ========================================================= */
@@ -733,14 +1148,74 @@ function bindEditorToolEvents() {
       toolPanelEls?.forEach((panel) => {
         panel.classList.toggle("is-active", panel.id === targetId);
       });
+
+      // 배경 탭 진입 시 현재 주문정보/레이저 상태에 맞춰
+      // 단색·그라데이션 버튼 잠금을 다시 맞춥니다.
+      if (targetId === "toolBg") {
+        syncGradientUI?.();
+        syncBgControlDisabledState?.();
+        requestAnimationFrame(() => drawSolidColorBoard?.());
+      }
     });
   });
 
-  bgModeSolidBtn?.addEventListener("click", () => applyBgMode("solid"));
-  bgModeGradientBtn?.addEventListener("click", () => applyBgMode("gradient"));
+  const handleBgModeToggle = (event, nextMode) => {
+    event?.preventDefault?.();
+    if (uiLocked) return;
+
+    const hasUserInfo = typeof validateUserInfo === "function" ? validateUserInfo(false) : true;
+    const laserLocked = isLaserFixedBg();
+
+    // disabled 속성이 예전 상태로 남아 있으면 탭 클릭이 먹통처럼 보일 수 있어
+    // 실제 조건을 다시 계산해서 먼저 잠금을 정리합니다.
+    syncBgControlDisabledState?.();
+
+    if (!hasUserInfo) {
+      // 정보 입력 전에는 실제 배경 적용은 막되,
+      // 단색/그라데이션 설정 화면 전환은 보여줍니다.
+      draftBgType = normalizeBgMode(nextMode);
+      draftBgColor = normalizeHexInput(draftBgColor || "#ffffff", "#ffffff");
+      draftBgColor2 = normalizeHexInput(draftBgColor2 || "#fdcc63", "#fdcc63");
+      draftBgDirection = normalizeGradientDirection(draftBgDirection || "to-right");
+      syncGradientUI?.();
+      syncBgControlDisabledState?.();
+      validateUserInfo?.(true);
+      showToast?.("주문자 정보를 입력하면 배경을 적용할 수 있습니다.", "warn", 1600);
+      updateActionLocks?.();
+      return;
+    }
+
+    if (nextMode === "gradient" && laserLocked) {
+      showToast?.("레이저 옵션에서는 그라데이션 배경을 사용할 수 없습니다.", "warn", 1800);
+      return;
+    }
+
+    applyBgMode(nextMode);
+
+    if (nextMode === "solid") {
+      setActivePickrTarget("solid", solidColorBoardEl || bgPickBtn);
+    } else {
+      setActivePickrTarget("gradient1", gradientColor1El);
+    }
+
+    syncGradientUI?.();
+    syncBgControlDisabledState?.();
+  };
+
+  bgModeSolidBtn?.addEventListener("click", (event) => handleBgModeToggle(event, "solid"));
+  bgModeGradientBtn?.addEventListener("click", (event) => handleBgModeToggle(event, "gradient"));
+
+  bgModeSolidBtn?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") handleBgModeToggle(event, "solid");
+  });
+
+  bgModeGradientBtn?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") handleBgModeToggle(event, "gradient");
+  });
 
   gradientColor1El?.addEventListener("click", () => {
-    if (uiLocked || isLaserFixedBg()) return;
+    syncBgControlDisabledState?.();
+    if (uiLocked || isLaserFixedBg() || !validateUserInfo(false)) return;
     setMobileEyedropperMode(false);
     applyBgMode("gradient");
     setActivePickrTarget("gradient1", gradientColor1El);
@@ -749,7 +1224,8 @@ function bindEditorToolEvents() {
   });
 
   gradientColor2El?.addEventListener("click", () => {
-    if (uiLocked || isLaserFixedBg()) return;
+    syncBgControlDisabledState?.();
+    if (uiLocked || isLaserFixedBg() || !validateUserInfo(false)) return;
     setMobileEyedropperMode(false);
     applyBgMode("gradient");
     setActivePickrTarget("gradient2", gradientColor2El);
@@ -759,8 +1235,29 @@ function bindEditorToolEvents() {
 
   gradientDirBtnEls?.forEach((btn) => {
     btn.addEventListener("click", () => {
+      if (uiLocked || isLaserFixedBg() || !validateUserInfo(false)) return;
       applyGradientSettings({ direction: btn.dataset.gradientDir || "to-right" });
     });
+  });
+
+  gradientPositionRangeEl?.addEventListener("input", () => {
+    if (uiLocked || isLaserFixedBg() || !validateUserInfo(false)) return;
+    applyGradientSettings({ position: Number(gradientPositionRangeEl.value || 50) / 100 });
+  });
+
+  gradientSoftnessRangeEl?.addEventListener("input", () => {
+    if (uiLocked || isLaserFixedBg() || !validateUserInfo(false)) return;
+    applyGradientSettings({ softness: Number(gradientSoftnessRangeEl.value || 100) / 100 });
+  });
+
+  gradientResetBtnEl?.addEventListener("click", () => {
+    syncBgControlDisabledState?.();
+    if (uiLocked || isLaserFixedBg() || !validateUserInfo(false)) return;
+
+    // 경계 위치와 퍼짐 정도만 기본값으로 되돌립니다.
+    // 시작/끝 색상과 방향은 사용자가 선택한 값을 유지합니다.
+    applyGradientSettings({ position: 0.5, softness: 1 });
+    showToast?.("경계 위치와 퍼짐 정도를 초기화했습니다.", "ok", 1200);
   });
 
   textApplyBtnEl?.addEventListener("click", () => {
@@ -808,7 +1305,14 @@ function bindEditorToolEvents() {
 ========================================================= */
 function initPickr() {
   bindEditorToolEvents?.();
-  if (!bgPickMountEl || !window.Pickr || bgPickr) return;
+  initSolidColorBoard?.();
+
+  if (!bgPickMountEl || !window.Pickr || bgPickr) {
+    setBgUI("#ffffff");
+    syncGradientUI?.();
+    syncTextUI?.();
+    return;
+  }
 
   bgPickr = Pickr.create({
     el: bgPickMountEl,
@@ -828,6 +1332,9 @@ function initPickr() {
     },
   });
 
+  // 단색은 Pickr hue 슬라이더 대신 커스텀 전체 컬러 보드를 사용합니다.
+
+
   bgPickBtn?.addEventListener("click", (e) => {
     if (uiLocked) return;
 
@@ -841,13 +1348,29 @@ function initPickr() {
 
     setMobileEyedropperMode(false);
     applyBgMode("solid");
-    setActivePickrTarget("solid", bgPickBtn);
-    bgPickr?.show();
-    requestAnimationFrame(positionPickrPanel);
+    setActivePickrTarget("solid", solidColorBoardEl || bgPickBtn);
   });
 
   bgEyeBtn?.addEventListener("click", async () => {
     await openEyeDropper();
+  });
+
+  solidNativeColorEl?.addEventListener("input", () => {
+    if (uiLocked || isLaserFixedBg()) return;
+    applyBgColor(solidNativeColorEl.value || "#ffffff");
+  });
+
+  solidHexInputEl?.addEventListener("input", () => {
+    if (uiLocked || isLaserFixedBg()) return;
+    const raw = safeTrim(solidHexInputEl.value || "");
+    const value = raw.startsWith("#") ? raw : `#${raw}`;
+    if (/^#[0-9a-fA-F]{6}$/.test(value)) {
+      applyBgColor(value);
+    }
+  });
+
+  solidHexInputEl?.addEventListener("blur", () => {
+    setBgUI(normalizeHexInput(solidHexInputEl.value, draftBgColor || "#ffffff"));
   });
 
   bgPickr.on("show", () => {
@@ -1038,12 +1561,16 @@ function applyCanvasSizeFromForm() {
   }
 
   // 이미지 위치 보정
-  if (!userImg) {
+  if (!hasImageObject()) {
     imgCX = canvas.width / 2;
     imgCY = canvas.height / 2;
   } else {
-    imgCX = clamp(imgCX, 0, canvas.width);
-    imgCY = clamp(imgCY, 0, canvas.height);
+    syncActiveImageFromLegacy();
+    userImages.forEach((obj) => {
+      obj.cx = clamp(obj.cx, 0, canvas.width);
+      obj.cy = clamp(obj.cy, 0, canvas.height);
+    });
+    setActiveImageIndex(activeImageIndex);
   }
 
   syncCanvasMetaFromForm();
@@ -1068,41 +1595,59 @@ function renderItemPreviewDataUrl(it) {
   const color1 = it.design?.bgSet ? (it.design?.bgColor || it.bgColor || it.design?.background?.color || "#ffffff") : "#ffffff";
   const color2 = it.design?.bgColor2 || it.design?.background?.color2 || "#fdcc63";
   const direction = it.design?.bgDirection || it.design?.background?.direction || "to-right";
+  const position = getGradientPositionFromItem(it);
+  const softness = getGradientSoftnessFromItem(it);
 
   offCtx.save();
-  offCtx.fillStyle = createBackgroundFill(offCtx, off.width, off.height, bgType, color1, color2, direction);
+  offCtx.fillStyle = createBackgroundFill(offCtx, off.width, off.height, bgType, color1, color2, direction, position, softness);
   offCtx.fillRect(0, 0, off.width, off.height);
   offCtx.restore();
 
-  if (it.design?.imgDataUrl) {
-    const previewImg = new Image();
-    previewImg.src = it.design.imgDataUrl;
+  const previewImages = Array.isArray(it.design?.images) && it.design.images.length
+    ? it.design.images
+    : it.design?.imgDataUrl
+      ? [{
+          imgDataUrl: it.design.imgDataUrl,
+          cx: it.design?.cx,
+          cy: it.design?.cy,
+          scaleX: it.design?.scaleX ?? it.design?.scale,
+          scaleY: it.design?.scaleY ?? it.design?.scale,
+          rot: it.design?.rot,
+        }]
+      : [];
 
-    // dataURL 이미지도 브라우저 상황에 따라 즉시 decode 되지 않을 수 있습니다.
-    // 이때 배경만 그린 previewDataUrl을 저장해버리면, 특히 그라데이션 시안이
-    // 리스트에서 "배경만 있는 시안"처럼 보입니다. 이미지가 아직 준비 전이면
-    // 빈 값을 반환해서 makeCartThumb()가 원본 이미지 fallback을 쓰게 합니다.
+  for (const imageState of previewImages) {
+    if (!imageState?.imgDataUrl) continue;
+    const previewImg = new Image();
+    previewImg.src = imageState.imgDataUrl;
+
     if (!previewImg.complete || !previewImg.naturalWidth) {
       return "";
     }
 
     offCtx.save();
-    offCtx.translate(it.design?.cx ?? off.width / 2, it.design?.cy ?? off.height / 2);
-    offCtx.rotate(it.design?.rot ?? 0);
-    const sx = it.design?.scaleX ?? it.design?.scale ?? 1;
-    const sy = it.design?.scaleY ?? it.design?.scale ?? 1;
-    offCtx.scale(sx, sy);
-    offCtx.drawImage(previewImg, -previewImg.width / 2, -previewImg.height / 2);
+    offCtx.translate(imageState.cx ?? off.width / 2, imageState.cy ?? off.height / 2);
+    offCtx.rotate(imageState.rot ?? 0);
+    const sx = imageState.scaleX ?? imageState.scale ?? 1;
+    const sy = imageState.scaleY ?? imageState.scale ?? 1;
+    const w = previewImg.width * sx;
+    const h = previewImg.height * sy;
+    offCtx.drawImage(previewImg, -w / 2, -h / 2, w, h);
     offCtx.restore();
-  } else if (userImg) {
-    offCtx.save();
-    offCtx.translate(it.design?.cx ?? off.width / 2, it.design?.cy ?? off.height / 2);
-    offCtx.rotate(it.design?.rot ?? 0);
-    const sx = it.design?.scaleX ?? it.design?.scale ?? 1;
-    const sy = it.design?.scaleY ?? it.design?.scale ?? 1;
-    offCtx.scale(sx, sy);
-    offCtx.drawImage(userImg, -userImg.width / 2, -userImg.height / 2);
-    offCtx.restore();
+  }
+
+  if (!previewImages.length && userImg) {
+    syncActiveImageFromLegacy();
+    (Array.isArray(userImages) ? userImages : [{ img: userImg, cx: imgCX, cy: imgCY, scaleX: imgScaleX, scaleY: imgScaleY, rot: imgRot }]).forEach((obj) => {
+      if (!obj?.img) return;
+      offCtx.save();
+      offCtx.translate(obj.cx ?? off.width / 2, obj.cy ?? off.height / 2);
+      offCtx.rotate(obj.rot ?? 0);
+      const w = obj.img.width * (obj.scaleX ?? 1);
+      const h = obj.img.height * (obj.scaleY ?? 1);
+      offCtx.drawImage(obj.img, -w / 2, -h / 2, w, h);
+      offCtx.restore();
+    });
   }
 
   drawTextObjectToContext?.(offCtx, off.width, off.height, it.design?.text);
@@ -1121,26 +1666,39 @@ function saveCanvasToItem(it) {
   // 시안 불러오기 중에는 resetEditorStateBeforeLoad() 때문에 userImg가
   // 잠깐 null이 됩니다. 그 순간 저장 로직이 끼어들면 기존 이미지 데이터가
   // null로 덮여서, 더블클릭/빠른 클릭 후 이미지가 사라질 수 있습니다.
-  if (userImg) {
-    it.design.imgDataUrl = userImg.src;
+  if (hasImageObject()) {
+    const images = serializeImageObjects();
+    it.design.images = images;
+    const active = images[activeImageIndex] || images[images.length - 1] || images[0];
+    it.design.imgDataUrl = active?.imgDataUrl || null;
+    it.design.cx = active?.cx ?? canvas.width / 2;
+    it.design.cy = active?.cy ?? canvas.height / 2;
+    it.design.scaleX = active?.scaleX ?? 1;
+    it.design.scaleY = active?.scaleY ?? 1;
+    it.design.rot = active?.rot ?? 0;
   } else if (!isLoadingItemToCanvas) {
+    it.design.images = [];
     it.design.imgDataUrl = null;
+    it.design.cx = imgCX;
+    it.design.cy = imgCY;
+    it.design.scaleX = imgScaleX;
+    it.design.scaleY = imgScaleY;
+    it.design.rot = imgRot;
   }
-  it.design.cx = imgCX;
-  it.design.cy = imgCY;
-  it.design.scaleX = imgScaleX;
-  it.design.scaleY = imgScaleY;
-  it.design.rot = imgRot;
   it.design.bgSet = !!draftBgSet;
   it.design.bgType = draftBgSet && draftBgType === "gradient" ? "gradient" : "solid";
   it.design.bgColor = draftBgColor || "#ffffff";
   it.design.bgColor2 = draftBgColor2 || "#fdcc63";
   it.design.bgDirection = normalizeGradientDirection(draftBgDirection || "to-right");
+  it.design.bgPosition = normalizeGradientPosition(draftGradientPosition);
+  it.design.bgSoftness = normalizeGradientSoftness(draftGradientSoftness);
   it.design.background = {
     type: it.design.bgType,
     color: it.design.bgColor,
     color2: it.design.bgColor2,
     direction: normalizeGradientDirection(it.design.bgDirection),
+    position: normalizeGradientPosition(draftGradientPosition),
+    softness: normalizeGradientSoftness(draftGradientSoftness),
   };
   it.design.text = getCurrentTextState?.() || { enabled: false, value: "" };
   it.bgColor = it.design.bgColor;
@@ -1151,6 +1709,8 @@ function saveCanvasToItem(it) {
 function resetEditorStateBeforeLoad() {
   userImg = null;
   userImgFile = null;
+  userImages = [];
+  activeImageIndex = -1;
 
   imgCX = canvas.width / 2;
   imgCY = canvas.height / 2;
@@ -1163,6 +1723,8 @@ function resetEditorStateBeforeLoad() {
   draftBgColor = "#ffffff";
   draftBgColor2 = "#fdcc63";
   draftBgDirection = "to-right";
+  draftGradientPosition = 0.5;
+  draftGradientSoftness = 1;
 
   textEnabled = false;
   textValue = "";
@@ -1204,12 +1766,16 @@ async function loadItemToCanvas(it) {
   const nextBgColor = normalizeHexInput(it.design?.bgColor || it.bgColor || it.design?.background?.color || "#ffffff", "#ffffff");
   const nextBgColor2 = normalizeHexInput(it.design?.bgColor2 || it.design?.background?.color2 || "#fdcc63", "#fdcc63");
   const nextBgDirection = normalizeGradientDirection(it.design?.bgDirection || it.design?.background?.direction || "to-right");
+  const nextGradientPosition = getGradientPositionFromItem(it);
+  const nextGradientSoftness = getGradientSoftnessFromItem(it);
 
   draftBgSet = savedBgSet;
   draftBgType = nextBgType;
   draftBgColor = nextBgColor;
   draftBgColor2 = nextBgColor2;
   draftBgDirection = nextBgDirection;
+  draftGradientPosition = nextGradientPosition;
+  draftGradientSoftness = nextGradientSoftness;
 
   it.design = it.design || {};
   it.bgColor = draftBgColor;
@@ -1218,11 +1784,15 @@ async function loadItemToCanvas(it) {
   it.design.bgType = draftBgType;
   it.design.bgColor2 = draftBgColor2;
   it.design.bgDirection = draftBgDirection;
+  it.design.bgPosition = draftGradientPosition;
+  it.design.bgSoftness = draftGradientSoftness;
   it.design.background = {
     type: draftBgType,
     color: draftBgColor,
     color2: draftBgColor2,
     direction: draftBgDirection,
+    position: normalizeGradientPosition(draftGradientPosition),
+    softness: normalizeGradientSoftness(draftGradientSoftness),
   };
 
   const savedText = it.design?.text || {};
@@ -1243,38 +1813,55 @@ async function loadItemToCanvas(it) {
   setBgUI(draftBgColor);
   syncGradientUI?.();
 
-  if (it.design?.imgDataUrl) {
+  const savedImages = Array.isArray(it.design?.images) && it.design.images.length
+    ? it.design.images
+    : it.design?.imgDataUrl
+      ? [{
+          imgDataUrl: it.design.imgDataUrl,
+          cx: it.design?.cx,
+          cy: it.design?.cy,
+          scaleX: it.design?.scaleX ?? it.design?.scale,
+          scaleY: it.design?.scaleY ?? it.design?.scale,
+          rot: it.design?.rot,
+        }]
+      : [];
+
+  userImages = [];
+  for (const imageState of savedImages) {
+    if (!imageState?.imgDataUrl) continue;
     const img = new Image();
     try {
       await new Promise((res, rej) => {
         img.onload = res;
         img.onerror = rej;
-        img.src = it.design.imgDataUrl;
+        img.src = imageState.imgDataUrl;
       });
 
-      // 더 늦게 시작된 불러오기가 있으면 이전 결과는 버립니다.
       if (loadToken !== canvasLoadToken) return;
 
-      userImg = img;
-      activeObjectType = "image";
+      userImages.push({
+        img,
+        file: null,
+        cx: Number.isFinite(imageState.cx) ? imageState.cx : canvas.width / 2,
+        cy: Number.isFinite(imageState.cy) ? imageState.cy : canvas.height / 2,
+        scaleX: Number.isFinite(imageState.scaleX) ? imageState.scaleX : Number(imageState.scale ?? 1),
+        scaleY: Number.isFinite(imageState.scaleY) ? imageState.scaleY : Number(imageState.scale ?? 1),
+        rot: Number.isFinite(imageState.rot) ? imageState.rot : 0,
+      });
     } catch (e) {
       console.warn("저장된 시안 이미지 불러오기 실패:", e);
-      if (loadToken !== canvasLoadToken) return;
-      userImg = null;
-      if (activeObjectType === "image") activeObjectType = hasTextObject() ? "text" : null;
     }
   }
 
   if (loadToken !== canvasLoadToken) return;
+  setActiveImageIndex(userImages.length ? userImages.length - 1 : -1);
+  if (hasImageObject()) activeObjectType = "image";
+  else if (activeObjectType === "image") activeObjectType = hasTextObject() ? "text" : null;
+
+  if (loadToken !== canvasLoadToken) return;
   isLoadingItemToCanvas = false;
 
-  if (fileNameEl) {
-    fileNameEl.textContent = it.originalFile?.name
-      ? it.originalFile.name
-      : it.design?.imgDataUrl
-        ? "저장된 이미지 불러옴"
-        : "선택된 파일 없음";
-  }
+  syncImageCountBadge();
 
   updateSelectedInfoText();
   updateMaoGuide();
@@ -1287,6 +1874,8 @@ async function loadItemToCanvas(it) {
 function clearEditor() {
   userImg = null;
   userImgFile = null;
+  userImages = [];
+  activeImageIndex = -1;
   imgCX = canvas.width / 2;
   imgCY = canvas.height / 2;
   imgScaleX = 1;
@@ -1297,6 +1886,8 @@ function clearEditor() {
   draftBgColor2 = "#fdcc63";
   draftBgType = "solid";
   draftBgDirection = "to-right";
+  draftGradientPosition = 0.5;
+  draftGradientSoftness = 1;
   draftBgSet = false;
 
   textEnabled = false;
@@ -1316,6 +1907,7 @@ function clearEditor() {
   setMobileEyedropperMode(false);
 
   if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
+  syncImageCountBadge();
   if (bgTextEl) bgTextEl.textContent = "-";
   setBgUI("#ffffff");
   syncGradientUI?.();
@@ -1353,9 +1945,11 @@ function drawBackground() {
   const color2 = draftBgColor2 || "#fdcc63";
   const bgType = draftBgSet && draftBgType === "gradient" ? "gradient" : "solid";
   const direction = normalizeGradientDirection(draftBgDirection || "to-right");
+  const position = normalizeGradientPosition(draftGradientPosition);
+  const softness = normalizeGradientSoftness(draftGradientSoftness);
 
   ctx.save();
-  ctx.fillStyle = createBackgroundFill(ctx, canvas.width, canvas.height, bgType, color1, color2, direction);
+  ctx.fillStyle = createBackgroundFill(ctx, canvas.width, canvas.height, bgType, color1, color2, direction, position, softness);
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.restore();
 }
@@ -1440,16 +2034,20 @@ function drawGuide() {
 }
 
 function drawImageTransformed() {
-  if (!userImg) return;
+  if (!hasImageObject()) return;
+  syncActiveImageFromLegacy();
 
-  const w = userImg.width * imgScaleX;
-  const h = userImg.height * imgScaleY;
+  userImages.forEach((obj) => {
+    if (!obj?.img) return;
+    const w = obj.img.width * (obj.scaleX ?? 1);
+    const h = obj.img.height * (obj.scaleY ?? 1);
 
-  ctx.save();
-  ctx.translate(imgCX, imgCY);
-  ctx.rotate(imgRot);
-  ctx.drawImage(userImg, -w / 2, -h / 2, w, h);
-  ctx.restore();
+    ctx.save();
+    ctx.translate(obj.cx ?? canvas.width / 2, obj.cy ?? canvas.height / 2);
+    ctx.rotate(obj.rot ?? 0);
+    ctx.drawImage(obj.img, -w / 2, -h / 2, w, h);
+    ctx.restore();
+  });
 }
 
 function drawTextTransformed() {
@@ -1586,21 +2184,22 @@ function hasTextObject() {
 
 function hasActiveObject() {
   if (activeObjectType === "text") return hasTextObject();
-  if (activeObjectType === "image") return !!userImg;
-  return !!userImg || hasTextObject();
+  if (activeObjectType === "image") return hasImageObject();
+  return hasImageObject() || hasTextObject();
 }
 
 function getActiveObjectType() {
   if (activeObjectType === "text" && hasTextObject()) return "text";
-  if (activeObjectType === "image" && userImg) return "image";
+  if (activeObjectType === "image" && hasImageObject()) return "image";
   if (hasTextObject()) return "text";
-  if (userImg) return "image";
+  if (hasImageObject()) return "image";
   return null;
 }
 
 function getObjectCenter(type = getActiveObjectType()) {
   if (type === "text") return { x: textCX || canvas.width / 2, y: textCY || canvas.height / 2 };
-  return { x: imgCX, y: imgCY };
+  const obj = getActiveImageObject();
+  return { x: obj?.cx ?? imgCX, y: obj?.cy ?? imgCY };
 }
 
 function setObjectCenter(type, x, y) {
@@ -1610,16 +2209,25 @@ function setObjectCenter(type, x, y) {
   } else {
     imgCX = x;
     imgCY = y;
+    if (activeImageIndex >= 0 && userImages[activeImageIndex]) {
+      userImages[activeImageIndex].cx = x;
+      userImages[activeImageIndex].cy = y;
+    }
   }
 }
 
 function getObjectRot(type = getActiveObjectType()) {
-  return type === "text" ? (textRot || 0) : (imgRot || 0);
+  if (type === "text") return textRot || 0;
+  const obj = getActiveImageObject();
+  return obj?.rot ?? imgRot ?? 0;
 }
 
 function setObjectRot(type, rot) {
   if (type === "text") textRot = rot;
-  else imgRot = rot;
+  else {
+    imgRot = rot;
+    if (activeImageIndex >= 0 && userImages[activeImageIndex]) userImages[activeImageIndex].rot = rot;
+  }
 }
 
 function getTextHalfSize() {
@@ -1634,10 +2242,11 @@ function getTextHalfSize() {
 
 function getObjectHalfSize(type = getActiveObjectType()) {
   if (type === "text") return getTextHalfSize();
-  if (!userImg) return null;
+  const obj = getActiveImageObject();
+  if (!obj?.img) return null;
   return {
-    halfW: (userImg.width * imgScaleX) / 2,
-    halfH: (userImg.height * imgScaleY) / 2,
+    halfW: (obj.img.width * (obj.scaleX ?? imgScaleX ?? 1)) / 2,
+    halfH: (obj.img.height * (obj.scaleY ?? imgScaleY ?? 1)) / 2,
   };
 }
 
@@ -1699,22 +2308,34 @@ function screenToCanvasPoint(e) {
   };
 }
 
+function getImageIndexAtPoint(px, py) {
+  if (!hasImageObject()) return -1;
+  syncActiveImageFromLegacy();
+
+  for (let i = userImages.length - 1; i >= 0; i -= 1) {
+    const obj = userImages[i];
+    if (!obj?.img) continue;
+
+    const dx = px - (obj.cx ?? canvas.width / 2);
+    const dy = py - (obj.cy ?? canvas.height / 2);
+
+    const cos = Math.cos(-(obj.rot ?? 0));
+    const sin = Math.sin(-(obj.rot ?? 0));
+
+    const lx = dx * cos - dy * sin;
+    const ly = dx * sin + dy * cos;
+
+    const halfW = (obj.img.width * (obj.scaleX ?? 1)) / 2;
+    const halfH = (obj.img.height * (obj.scaleY ?? 1)) / 2;
+
+    if (lx >= -halfW && lx <= halfW && ly >= -halfH && ly <= halfH) return i;
+  }
+
+  return -1;
+}
+
 function isPointOnImage(px, py) {
-  if (!userImg) return false;
-
-  const dx = px - imgCX;
-  const dy = py - imgCY;
-
-  const cos = Math.cos(-imgRot);
-  const sin = Math.sin(-imgRot);
-
-  const lx = dx * cos - dy * sin;
-  const ly = dx * sin + dy * cos;
-
-  const halfW = (userImg.width * imgScaleX) / 2;
-  const halfH = (userImg.height * imgScaleY) / 2;
-
-  return lx >= -halfW && lx <= halfW && ly >= -halfH && ly <= halfH;
+  return getImageIndexAtPoint(px, py) >= 0;
 }
 
 function isAltPressed(ev) {
@@ -1780,7 +2401,7 @@ function onMainPointerDown(e) {
     return;
   }
 
-  if (!userImg && !hasTextObject()) return;
+  if (!hasImageObject() && !hasTextObject()) return;
   if (e.pointerType === "mouse" && e.button !== 0) return;
 
   if (e.target.closest(".h")) return;
@@ -1788,8 +2409,12 @@ function onMainPointerDown(e) {
 
   const p = screenToCanvasPoint(e);
   let targetType = null;
+  const hitImageIndex = getImageIndexAtPoint(p.x, p.y);
   if (isPointOnText(p.x, p.y)) targetType = "text";
-  else if (isPointOnImage(p.x, p.y)) targetType = "image";
+  else if (hitImageIndex >= 0) {
+    setActiveImageIndex(hitImageIndex);
+    targetType = "image";
+  }
   if (!targetType) return;
 
   e.preventDefault();
@@ -2040,9 +2665,14 @@ document.addEventListener("pointermove", (e) => {
       const baseH = Math.max(1, handleDrag.startHalfH);
       const scaleRatio = Math.max(halfW / baseW, halfH / baseH);
       textScale = clamp((handleDrag.startTextScale || 1) * scaleRatio, 0.25, 8);
-    } else if (userImg) {
-      imgScaleX = clamp((halfW * 2) / userImg.width, 0.05, 10);
-      imgScaleY = clamp((halfH * 2) / userImg.height, 0.05, 10);
+    } else {
+      const obj = getActiveImageObject();
+      if (obj?.img) {
+        imgScaleX = clamp((halfW * 2) / obj.img.width, 0.05, 10);
+        imgScaleY = clamp((halfH * 2) / obj.img.height, 0.05, 10);
+        obj.scaleX = imgScaleX;
+        obj.scaleY = imgScaleY;
+      }
     }
 
     redraw();
@@ -2237,20 +2867,13 @@ fileEl?.addEventListener("change", async () => {
     return;
   }
 
-  const f = fileEl.files && fileEl.files[0];
+  const files = Array.from(fileEl.files || []);
+  if (!files.length) return;
 
-  if (fileNameEl) {
-    fileNameEl.textContent = f ? f.name : "선택된 파일 없음";
-  }
-
-  if (!f) return;
-
-  userImgFile = f || null;
-
-  /* 너무 큰 파일은 먼저 경고 */
-  if (f.size > 15 * 1024 * 1024) {
+  const tooLarge = files.find((file) => file.size > 15 * 1024 * 1024);
+  if (tooLarge) {
     setCanvasNotice(
-      "이미지 용량이 너무 큽니다. 15MB 이하 파일로 다시 시도해주세요.",
+      `${tooLarge.name} 파일 용량이 너무 큽니다. 15MB 이하 파일로 다시 시도해주세요.`,
       "error",
     );
     fileEl.value = "";
@@ -2261,20 +2884,33 @@ fileEl?.addEventListener("change", async () => {
   try {
     setCanvasNotice("이미지를 불러오는 중입니다...", "ok");
 
-    userImg = await loadImageFromFile(f);
+    for (const f of files) {
+      const img = await loadImageFromFile(f);
+      const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+      userImages.push({
+        img,
+        file: f || null,
+        cx: canvas.width / 2,
+        cy: canvas.height / 2,
+        scaleX: scale,
+        scaleY: scale,
+        rot: 0,
+      });
+      warnLowResolutionImage(img);
+    }
+
+    setActiveImageIndex(userImages.length - 1);
     activeObjectType = "image";
-    fitImageToCanvas(userImg);
     syncImageCountBadge();
 
     redraw();
+    syncActiveItemDesign?.();
     updateSelectedInfoText();
     updateDraftInfo();
     updateActionLocks();
 
-    warnLowResolutionImage(userImg);
-
     clearCanvasNotice();
-    showToast("이미지가 업로드되었습니다.", "ok");
+    showToast(files.length > 1 ? `이미지 ${files.length}개가 업로드되었습니다.` : "이미지가 업로드되었습니다.", "ok");
   } catch (e) {
     console.error("이미지 업로드 실패:", e);
     setCanvasNotice(
@@ -2299,17 +2935,14 @@ fileDelBtn?.addEventListener(
 
     if (await applyConfirmedLockIfNeeded(true)) return;
 
-    userImg = null;
-    userImgFile = null;
-    if (activeObjectType === "image") activeObjectType = hasTextObject() ? "text" : null;
+    if (activeImageIndex >= 0 && Array.isArray(userImages)) {
+      userImages.splice(activeImageIndex, 1);
+    } else {
+      userImages = [];
+    }
+    setActiveImageIndex(userImages.length ? Math.min(activeImageIndex, userImages.length - 1) : -1);
+    if (activeObjectType === "image") activeObjectType = hasImageObject() ? "image" : hasTextObject() ? "text" : null;
     syncImageCountBadge();
-    imgScaleX = 1;
-    imgScaleY = 1;
-    imgRot = 0;
-    imgCX = canvas.width / 2;
-    imgCY = canvas.height / 2;
-
-    if (fileNameEl) fileNameEl.textContent = "선택된 파일 없음";
 
     redraw();
     updateSelectedInfoText();

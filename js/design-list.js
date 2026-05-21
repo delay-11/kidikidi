@@ -116,7 +116,7 @@ async function selectItem(id) {
 function addCurrentItemToCart() {
   if (!validateUserInfo(true)) return false;
 
-  const hasCanvasDesign = userImg || draftBgSet || (typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue));
+  const hasCanvasDesign = (typeof hasImageObject === "function" ? hasImageObject() : !!userImg) || draftBgSet || (typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue));
   if (!hasCanvasDesign) {
     showToast("이미지 업로드, 배경 설정 또는 텍스트 추가 후 시안을 추가해주세요.", "warn");
     return false;
@@ -138,6 +138,7 @@ function addCurrentItemToCart() {
     originalFile: userImgFile || null, // 레이저 원본파일
     design: {
       imgDataUrl: null,
+      images: typeof serializeImageObjects === "function" ? serializeImageObjects() : [],
       cx: imgCX,
       cy: imgCY,
       scaleX: imgScaleX,
@@ -147,6 +148,8 @@ function addCurrentItemToCart() {
       bgType: draftBgType,
       bgColor2: draftBgColor2 || "#fdcc63",
       bgDirection: draftBgDirection || "to-right",
+      bgPosition: typeof normalizeGradientPosition === "function" ? normalizeGradientPosition(draftGradientPosition) : 0.5,
+      bgSoftness: typeof normalizeGradientSoftness === "function" ? normalizeGradientSoftness(draftGradientSoftness) : 1,
       text: getCurrentTextState?.() || { enabled: false, value: "" },
     },
   };
@@ -200,7 +203,7 @@ function normalizeQty(value) {
 function makeCartThumb(item) {
   const bg = escapeHtml(getItemBgCss?.(item) || getItemBgColor(item));
   const previewUrl = item?.design?.previewDataUrl || "";
-  const rawImgUrl = item?.design?.imgDataUrl || "";
+  const rawImgUrl = item?.design?.imgDataUrl || item?.design?.images?.[0]?.imgDataUrl || "";
 
   if (previewUrl) {
     return `
