@@ -1,0 +1,1021 @@
+/* =========================================================
+   에디터 기본 스타일
+   - 배경/컬러피커 스타일은 color-picker.css
+   - 미디어쿼리는 responsive.css
+========================================================= */
+
+@font-face {
+font-family: 'SejongGeulggot';
+    src: url('https://cdn.jsdelivr.net/gh/fontbee/font@main/Sejong/SejongGeulggot.woff2') format('woff2');
+    font-weight: 400 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+font-family: 'x12y12pxMaruMinyaHangul';
+    src: url('https://cdn.jsdelivr.net/gh/quiple/x12y12pxMaruMinyaHangul@main/fonts/x12y12pxMaruMinyaHangul.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+font-family: 'OngleIpSeaBreeze';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/2510-1@1.0/Ownglyph_the_sea_breeze-Rg.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+.icon-eye {
+    width: 16px;
+    height: 16px;
+}
+
+.canvasWrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto;
+}
+
+canvas {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    border-color: #98a2b3 !important;
+    border-width: 1.5px !important;
+    box-shadow: 0 0 0 1px rgba(152, 162, 179, 0.18);
+}
+
+.bbox {
+    position: absolute;
+    display: none;
+    width: 0;
+    height: 0;
+    border: 2px solid rgba(43, 108, 255, 0.95);
+    border-radius: var(--radius-sm);
+    background: transparent;
+    pointer-events: auto;
+    transform-origin: center center;
+}
+
+.bbox .h {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(43, 108, 255, 0.95);
+    border-radius: 3px;
+    background: #ffffff;
+    pointer-events: auto;
+}
+
+.bbox .h.nw {
+    top: -8px;
+    left: -8px;
+    cursor: nwse-resize;
+}
+
+.bbox .h.ne {
+    top: -8px;
+    right: -8px;
+    cursor: nesw-resize;
+}
+
+.bbox .h.n {
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.bbox .h.sw {
+    bottom: -8px;
+    left: -8px;
+    cursor: nesw-resize;
+}
+
+.bbox .h.se {
+    right: -8px;
+    bottom: -8px;
+    cursor: nwse-resize;
+}
+
+.bbox .h.e {
+    top: 50%;
+    right: -8px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.bbox .h.s {
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.bbox .h.w {
+    top: 50%;
+    left: -8px;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.bbox .rotLine {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    width: 2px;
+    height: 14px;
+    transform: translateX(-50%);
+    background: rgba(43, 108, 255, 0.55);
+    pointer-events: none;
+}
+
+.bbox .rot {
+    position: absolute;
+    top: -34px;
+    left: 50%;
+    width: 22px;
+    height: 22px;
+    border: 1px solid rgba(43, 108, 255, 0.95);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
+    transform: translateX(-50%);
+    background-color: #ffffff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M4.5 12a7.5 7.5 0 0 1 12.9-5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M18 4v4h-4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M19.5 12a7.5 7.5 0 0 1-12.9 5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M6 20v-4h4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    cursor: grab;
+}
+
+.bbox .rot:active {
+    cursor: grabbing;
+}
+
+#canvasWrap, #designCanvas, #bbox, #bbox .h, #rotHandle {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.uploadRow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 6px;
+}
+
+.fileBtn {
+    width: auto;
+    min-width: 120px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.fileName {
+    overflow: hidden;
+    max-width: 240px;
+    color: #667085;
+    font-size: var(--fs-13);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.uploadGuide {
+    flex: 1;
+    color: var(--muted);
+    font-size: var(--fs-12);
+    line-height: 1.55;
+}
+
+.uploadGuide div {
+    display: block;
+}
+
+.canvasControlRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 16px;
+}
+
+.canvasNotice {
+    font-size: 13px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+    color: #5f6b7a;
+}
+
+.canvasNotice.isOk {
+    color: #039855;
+}
+
+.canvasNotice.isError {
+    color: #d92d20;
+}
+
+.editorToolBox {
+    display: grid;
+    gap: 12px;
+}
+
+.toolTabRow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #f9fafb;
+}
+
+.toolTab {
+    min-height: 38px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.toolTab.is-active {
+    background: var(--acc);
+    color: #111827;
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.10);
+}
+
+.toolPanel {
+    display: none;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+}
+
+.toolPanel.is-active {
+    display: grid;
+    gap: 14px;
+}
+
+.toolPanelHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.toolPanelHead b {
+    display: block;
+    color: var(--txt);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.toolPanelHead p {
+    margin: 3px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.toolBadge {
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #fff8e8;
+    color: #9a6700;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.toolBadge.muted {
+    background: #f2f4f7;
+    color: var(--muted);
+}
+
+.canvasCoreNotice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    color: #344054;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.canvasCoreNotice span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 5px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #fffdf5;
+    white-space: nowrap;
+}
+
+.canvasCoreNotice span::before {
+    content: "!";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    border-radius: 999px;
+    background: var(--acc);
+    color: #111827;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+.canvasGuideOverlay {
+    position: absolute;
+    left: 50%;
+    top: 12px;
+    z-index: 3;
+    transform: translateX(-50%);
+    pointer-events: none;
+    opacity: 0.9;
+}
+
+.canvasGuideOverlay span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 4px 10px;
+    border: 1px solid rgba(217, 45, 32, 0.22);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    color: #b42318;
+    font-size: 11px;
+    font-weight: 800;
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+.canvasHelpTip {
+    display: none;
+    width: fit-content;
+    max-width: 100%;
+    margin: 10px auto 0;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: #111827;
+    color: #ffffff;
+    font-size: 12px;
+    line-height: 1.4;
+    box-shadow: 0 8px 18px rgba(16, 24, 40, 0.18);
+}
+
+.canvasHelpTip.is-show {
+    display: block;
+}
+
+.pillActionBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 999px;
+    background: transparent !important;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    width: auto !important;
+    box-shadow: none !important;
+}
+
+.pillActionBtn span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 22px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #667085;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pillActionBtn b {
+    color: #101828;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.pillActionBtn:hover {
+    border-color: #efc24f;
+    background: #fffdf5;
+}
+
+.optionQuickModal {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.optionQuickModal.is-open {
+    display: flex;
+}
+
+.optionQuickDim {
+    position: absolute;
+    inset: 0;
+    background: rgba(16, 24, 40, 0.34);
+}
+
+.optionQuickDialog {
+    position: relative;
+    z-index: 1;
+    width: min(520px, 100%);
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    background: #ffffff;
+    box-shadow: 0 18px 60px rgba(16, 24, 40, 0.18);
+}
+
+.optionQuickHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.optionQuickBadge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 0 9px;
+    border-radius: 999px;
+    background: #fff8e8;
+    color: #9a6700;
+    font-size: 11px;
+    font-weight: 900;
+}
+
+.optionQuickHeader h3 {
+    margin: 8px 0 0;
+    font-size: 18px;
+    line-height: 1.35;
+}
+
+.optionQuickHeader p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.optionQuickClose {
+    width: 34px;
+    height: 34px;
+    border: 0 !important;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #667085;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: none !important;
+}
+
+.optionQuickGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.optionQuickGrid label {
+    display: grid;
+    gap: 7px;
+    color: #344054;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.optionQuickGrid label:last-child {
+    grid-column: 1 / -1;
+}
+
+.optionQuickGrid select {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    color: #101828;
+    font-weight: 800;
+}
+
+.optionQuickNotice {
+    margin-top: 12px;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #b42318 !important;
+    font-size: 12px !important;
+    line-height: 1.5 !important;
+    margin: 12px 0 0 !important;
+    font-weight: 700 !important;
+}
+
+.optionQuickActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.pill {
+    align-items: center;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.pillActionBtn .pillCaret {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #fff8e8;
+    color: #9a6700;
+    font-size: 10px;
+    font-weight: 900;
+    transform: translateY(1px);
+}
+
+.pillActionBtn:hover b, .pillActionBtn:focus-visible b {
+    color: #9a6700;
+}
+
+.pillActionBtn:hover .pillCaret, .pillActionBtn:focus-visible .pillCaret {
+    background: var(--acc);
+    color: #111827;
+}
+
+.quickOptionHint {
+    color: #98a2b3 !important;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.imageToolPanel.is-active {
+    gap: 12px;
+}
+
+.imageToolGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.75fr);
+    gap: 12px;
+    align-items: stretch;
+}
+
+.imageToolSection {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: #ffffff;
+}
+
+.toolPanelHead.compact {
+    align-items: flex-start;
+}
+
+.imageHelpLine {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.imageHelpLine span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 26px;
+    padding: 4px 8px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: #f9fafb;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.imageToolActions .uploadRow {
+    margin-top: 0;
+    gap: 8px;
+}
+
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn {
+    flex: 1 1 0;
+    min-width: 0 !important;
+    height: 42px;
+}
+
+.imageToolActions .fileName {
+    max-width: 100%;
+}
+
+.pillActionBtn, .pillActionBtn:hover, .pillActionBtn:focus-visible {
+    color: #111827 !important;
+}
+
+.pillCaret, .pillActionBtn:hover .pillCaret, .pillActionBtn:focus-visible .pillCaret {
+    background: var(--acc, #fdcc63) !important;
+    color: #111827 !important;
+}
+
+.canvasInnerNotice {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 4;
+    display: flex;
+    align-items: flex-end !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    pointer-events: none;
+    flex-direction: column !important;
+}
+
+.canvasInnerNotice span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    padding: 4px 9px;
+    border: 1px solid rgba(253, 204, 99, 0.55);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: #101828 !important;
+    font-size: 10px;
+    font-weight: 900;
+    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+    border-color: rgba(16, 24, 40, 0.12) !important;
+    width: fit-content !important;
+}
+
+.canvasWrap .canvasHelpTip {
+    position: absolute;
+    left: 50%;
+    top: 42px;
+    z-index: 5;
+    transform: translateX(-50%);
+    margin: 0;
+    pointer-events: none;
+}
+
+.pill::-webkit-scrollbar {
+    display: none;
+}
+
+.pill>* {
+    flex: 0 0 auto;
+}
+
+.pillActionBtn, .quickOptionHint, .pill .tag, .pill b {
+    white-space: nowrap !important;
+}
+
+.quickOptionHint, .pill .quickOptionHint {
+    margin-right: 18px !important;
+}
+
+.textToolGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(0, 0.95fr) minmax(0, 0.85fr);
+    gap: 0;
+    align-items: stretch;
+}
+
+.textToolSection {
+    display: grid;
+    align-content: start;
+    gap: 12px;
+    min-width: 0;
+    padding: 0 18px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.textToolSection+.textToolSection {
+    border-left: 0;
+}
+
+.textToolSection:nth-child(3) {
+    border-left: 1px solid #eaecf0;
+}
+
+.textToolSection:first-child {
+    padding-left: 0;
+}
+
+.textToolSection:last-child {
+    padding-right: 0;
+}
+
+.textInput {
+    width: 100%;
+    min-height: 78px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    color: #101828;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.45;
+    resize: vertical;
+    outline: 0;
+}
+
+.textInput:focus {
+    border-color: var(--acc);
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22);
+}
+
+.textActionRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.textActionRow button {
+    min-height: 40px;
+    border-radius: 14px;
+    font-weight: 900;
+}
+
+.textControlGroup {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+.textControlLabel {
+    color: #667085;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.textFontRow, .textAlignRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.textFontBtn, .textIconBtn {
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    color: #344054;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.textFontBtn.is-active, .textIconBtn.is-active {
+    border-color: #fdcc63;
+    background: #fff8e8;
+    color: #111827;
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.18);
+}
+
+.textIconBtn {
+    display: inline-grid;
+    place-items: center;
+    width: 38px;
+    padding: 0;
+}
+
+.textIconBtn svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.4;
+    stroke-linecap: round;
+}
+
+.textColorBtn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: fit-content !important;
+    min-width: 130px !important;
+    min-height: 42px !important;
+    padding: 8px 12px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+    color: #101828 !important;
+    font-weight: 900 !important;
+    box-shadow: none !important;
+}
+
+.textColorBtn:hover,
+.textColorBtn:focus-visible {
+    border-color: var(--acc) !important;
+    box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22) !important;
+    outline: 0 !important;
+}
+
+.textColorBtn:disabled {
+    background: #f9fafb !important;
+    color: #98a2b3 !important;
+    cursor: not-allowed !important;
+    opacity: .7;
+    box-shadow: none !important;
+}
+
+.textColorBtn .colorSwatch {
+    display: inline-block !important;
+    flex: 0 0 auto !important;
+    width: 24px !important;
+    height: 24px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: 999px !important;
+    background: #111827;
+    box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+.textColorBtn .colorValue {
+    min-width: 64px;
+    color: #344054 !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    text-align: left;
+    text-transform: lowercase;
+}
+
+.textFontPreviewBasic, .textFontPreviewBold, .textFontPreviewRound, .textFontPreviewHand, .textFontPreviewPixel, .textFontPreviewCalli {
+    font-family: system-ui, -apple-system, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, sans-serif;
+}
+
+.textFontPreviewBasic {
+    font-weight: 700 !important;
+    font-family: "Pretendard", "프리텐다드", system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+
+.textFontPreviewBold {
+    font-weight: 900 !important;
+    font-family: "Paperlogy", "페이퍼로지", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+
+.textFontPreviewRound {
+    font-weight: 400 !important;
+    border-radius: 999px;
+    font-family: "Jua", "주아체", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+
+.textFontPreviewHand {
+    font-weight: 700 !important;
+    font-style: italic;
+    font-family: "SejongGeulggot", "세종글꽃체", "Apple SD Gothic Neo", "Noto Sans KR", cursive !important;
+}
+
+.textFontPreviewPixel {
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+    font-family: "MaruMina", "마루미냐 한글", "D2Coding", "Courier New", monospace !important;
+}
+
+.textFontPreviewCalli {
+    font-weight: 700 !important;
+    letter-spacing: -0.02em;
+    font-family: "Ownglyph BaDatBaRam", "온글잎 바닷바람", "Apple SD Gothic Neo", "Noto Sans KR", cursive !important;
+}
+
+.imageToolActions .uploadRow, .textActionRow {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, #textApplyBtn, #textClearBtn {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px !important;
+    height: 38px !important;
+    padding: 0 10px !important;
+    border-radius: 13px !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
+}
+
+.textFontRow {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+}
+
+.textFontBtn {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 0 8px !important;
+    letter-spacing: -0.02em;
+}
+
+.pillActionBtn, .pillActionBtn:hover, .pillActionBtn:focus-visible, .pillActionBtn:active {
+    transform: none !important;
+    scale: 1 !important;
+    font-size: inherit !important;
+    color: #101828 !important;
+}
+
+.pillActionBtn b, .pillActionBtn:hover b, .pillActionBtn:focus-visible b, .pillActionBtn:active b {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    color: #101828 !important;
+    transform: none !important;
+    scale: 1 !important;
+}
+
+.pillActionBtn .pillCaret, .pillActionBtn:hover .pillCaret, .pillActionBtn:focus-visible .pillCaret, .pillActionBtn:active .pillCaret {
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    background: #fdcc63 !important;
+    color: #111827 !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    transform: none !important;
+    scale: 1 !important;
+}
+
+.textFontPreviewBasic, .textFontBtn[data-text-font="basic"] {
+    font-family: 'Pretendard', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.textFontPreviewBold, .textFontBtn[data-text-font="bold"] {
+    font-family: 'Paperlogy', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 900 !important;
+}
+
+.textFontPreviewRound, .textFontBtn[data-text-font="round"] {
+    font-family: 'Jua', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 400 !important;
+}
+
+.textFontPreviewHand, .textFontBtn[data-text-font="hand"] {
+    font-family: 'SejongGeulggot', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', cursive !important;
+    font-weight: 400 !important;
+}
+
+.textFontPreviewPixel, .textFontBtn[data-text-font="pixel"] {
+    font-family: 'x12y12pxMaruMinyaHangul', 'D2Coding', 'Courier New', monospace !important;
+    font-weight: 400 !important;
+    letter-spacing: 0 !important;
+}
+
+.textFontPreviewCalli, .textFontBtn[data-text-font="calli"] {
+    font-family: 'OngleIpSeaBreeze', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', cursive !important;
+    font-weight: 400 !important;
+}
