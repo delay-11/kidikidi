@@ -1531,8 +1531,21 @@ function syncDraftBgFromLaser(profile, laser) {
 
 function syncCanvasMetaFromForm() {
   const profile = profileEl?.value || "OEM";
+  const capType = capTypeEl?.value || "-";
   const laser = profile === "OEM" ? laserEl?.value || "none" : "none";
+  const qty = Math.max(1, toInt(qtyEl?.value, 1));
   const it = cartItems.find((x) => x.id === selectedItemId);
+
+  // 수정 이유:
+  // 기존 시안을 선택한 뒤 레이저 옵션만 바꾸면 화면 표시는 바뀌지만
+  // cartItems 안의 실제 item.laser 값은 그대로라서,
+  // 메일 첨부 생성 시 "레이저 없음"으로 판단되어 원본파일이 빠질 수 있었습니다.
+  if (it) {
+    it.profile = profile;
+    it.capType = capType;
+    it.laser = laser;
+    it.qty = qty;
+  }
 
   syncDraftBgFromLaser(profile, laser);
   updateBgLockUI(profile, laser);

@@ -311,6 +311,12 @@ function closeEditorOnboarding() {
 
 function saveSelectedDraftItem() {
   if (!selectedItemId || typeof saveCanvasToItem !== "function") return;
+
+  // 수정 이유:
+  // 시안 확정 직전에 선택된 시안의 옵션값까지 한 번 더 저장해서
+  // 레이저 선택값과 실제 메일 첨부 조건이 어긋나지 않게 합니다.
+  syncCanvasMetaFromForm?.();
+
   const it = cartItems.find((x) => x.id === selectedItemId);
   if (!it) return;
   saveCanvasToItem(it);

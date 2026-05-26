@@ -296,7 +296,11 @@ async function buildAttachments(orderNo = "order") {
   /* =========================================================
    * 1~9개 : PNG 개별 첨부
   ========================================================= */
-  if (items.length <= 9) {
+  // 수정 이유:
+  // 레이저 원본파일이 추가되면 시안 1개가 첨부 2개가 됩니다.
+  // 기존처럼 items.length 기준으로 판단하면 실제 첨부파일이 10개를 넘어도
+  // 개별 첨부 파라미터로 보내려 해서 EmailJS 템플릿 슬롯 밖 파일이 누락될 수 있습니다.
+  if (files.length <= 9) {
     const params = createEmptyAttachmentParams();
 
     params.attachment_summary_html = buildAttachmentSummaryHtml(items);
