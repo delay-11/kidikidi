@@ -583,6 +583,33 @@
         </div>
     </div>
 
+    <!-- Print Guide Modal -->
+    <div id="printGuideModal" class="print-guide-modal hidden" aria-hidden="true">
+        <div class="print-guide-modal-content" role="dialog" aria-modal="true" aria-label="인쇄 가이드 안내">
+            <button id="closePrintGuideBtn" class="print-guide-close" aria-label="닫기">×</button>
+
+            <img id="printGuideImage" src="./image/guides/print_guide.png" alt="인쇄 가이드" class="print-guide-image">
+
+            <div id="printGuideActions" class="print-guide-actions" data-step="0">
+                <button type="button" id="hidePrintGuideBtn" class="print-guide-action-btn print-guide-hide">
+                    다시 보지 않기
+                </button>
+
+                <button type="button" id="prevPrintGuideBtn" class="print-guide-action-btn print-guide-prev">
+                    이전
+                </button>
+
+                <button type="button" id="nextPrintGuideBtn" class="print-guide-action-btn print-guide-next">
+                    다음
+                </button>
+
+                <button type="button" id="confirmPrintGuideBtn" class="print-guide-action-btn print-guide-confirm">
+                    확인
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- JS -->
     <script src="./js/constants.js"></script>
     <script src="./js/utils.js"></script>
@@ -599,76 +626,8 @@
     <script src="./js/email-attachments.js"></script>
     <script src="./js/email-summary.js"></script>
     <script src="./js/email-send.js"></script>
+    <script src="./js/print-guide-modal.js"></script>
     <script src="./js/app.js"></script>
-
-
-    <!-- Print Guide Modal -->
-    <div id="printGuideModal" class="print-guide-modal hidden">
-        <div class="print-guide-modal-content">
-            <button id="closePrintGuideBtn" class="print-guide-close" aria-label="닫기">×</button>
-
-            <img src="./image/guides/print_guide.png" alt="인쇄 가이드" class="print-guide-image">
-
-            <div class="print-guide-actions">
-                <button type="button" id="hidePrintGuideBtn" class="print-guide-action-btn print-guide-hide">
-                    다시 보지 않기
-                </button>
-
-                <button type="button" id="confirmPrintGuideBtn" class="print-guide-action-btn print-guide-confirm">
-                    확인
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        (() => {
-            const modal = document.getElementById("printGuideModal");
-            const closeBtn = document.getElementById("closePrintGuideBtn");
-            const confirmBtn = document.getElementById("confirmPrintGuideBtn");
-            const hideBtn = document.getElementById("hidePrintGuideBtn");
-            const openBtn = document.getElementById("openPrintGuideBtn");
-
-            if (!modal || !closeBtn || !confirmBtn || !hideBtn) return;
-
-            const closeModal = () => {
-                modal.classList.add("hidden");
-            };
-
-            const hideAndCloseModal = () => {
-                localStorage.setItem("hide_print_guide", "true");
-                closeModal();
-            };
-
-            // 주문정보 화면에서는 띄우지 않고, 시안 제작 화면 진입 시 app.js에서 호출합니다.
-            // 이 함수는 이미지/영상 로딩 완료를 기다리지 않고 바로 등록해야
-            // 사용자가 빠르게 시안 제작 화면으로 넘어가도 자동 팝업이 누락되지 않습니다.
-            window.openPrintGuideModal = (options = {}) => {
-                const force = options.force === true;
-
-                // 자동 팝업은 [다시 보지 않기]를 누른 경우에만 숨기고,
-                // 주문정보 입력 후 시안 제작 화면으로 넘어갈 때마다 정상 노출합니다.
-                // 수동으로 여는 경우에는 언제든 다시 볼 수 있게 합니다.
-                if (!force && localStorage.getItem("hide_print_guide") === "true") return;
-
-                modal.classList.remove("hidden");
-            };
-
-            closeBtn.addEventListener("click", closeModal);
-            confirmBtn.addEventListener("click", closeModal);
-            hideBtn.addEventListener("click", hideAndCloseModal);
-
-            openBtn?.addEventListener("click", () => {
-                window.openPrintGuideModal?.({ force: true });
-            });
-
-            modal.addEventListener("click", (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
-            });
-        })();
-    </script>
 
 </body>
 

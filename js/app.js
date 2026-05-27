@@ -343,9 +343,9 @@ function setDesignStep(step) {
   if (nextStep === "editor") {
     // 주문정보 입력 완료 후 시안 제작 화면에 진입했을 때만 인쇄 가이드 팝업을 표시합니다.
     window.setTimeout(() => {
-      // 주문정보 입력 후 시안 제작 화면에 들어오면 인쇄 가이드는 반드시 노출합니다.
-      // 기존 테스트 중 저장된 localStorage 값 때문에 자동 팝업이 막히는 상황을 방지합니다.
-      window.openPrintGuideModal?.({ force: true });
+      // 주문정보 입력 후 시안 제작 화면에 들어오면 인쇄 가이드를 자동 노출합니다.
+      // 단, 사용자가 2페이지까지 확인 후 [다시 보지 않기]를 누른 경우에는 자동 노출하지 않습니다.
+      window.openPrintGuideModal?.();
       openEditorOnboarding?.();
     }, 180);
   }

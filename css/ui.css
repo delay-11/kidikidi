@@ -653,9 +653,13 @@ button:disabled {
 
 .print-guide-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     margin-top: 10px;
+}
+
+.print-guide-actions[data-step="0"] {
+    grid-template-columns: minmax(0, 1fr);
 }
 
 .print-guide-action-btn {
@@ -667,23 +671,31 @@ button:disabled {
     cursor: pointer;
 }
 
-.print-guide-hide {
+.print-guide-action-btn[hidden] {
+    display: none !important;
+}
+
+.print-guide-hide,
+.print-guide-prev {
     border: 1px solid #e4e7ec;
     background: #fff;
     color: #475467;
 }
 
-.print-guide-hide:hover {
+.print-guide-hide:hover,
+.print-guide-prev:hover {
     background: #f9fafb;
     border-color: #d0d5dd;
 }
 
+.print-guide-next,
 .print-guide-confirm {
     border: 1px solid #fdcc63;
     background: #fdcc63;
     color: #101828;
 }
 
+.print-guide-next:hover,
 .print-guide-confirm:hover {
     filter: brightness(0.98);
 }
