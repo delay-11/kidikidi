@@ -334,6 +334,25 @@ body[data-step="editor"] .confirmStepActions {
     display: none;
 }
 
+.optionSelectGuide {
+    margin: 4px 0 8px;
+}
+
+.optionSelectGuide label {
+    display: block;
+    margin: 0 0 4px;
+    font-size: var(--fs-12);
+    font-weight: 700;
+    color: var(--txt);
+}
+
+.optionSelectGuide p {
+    margin: 0;
+    font-size: var(--fs-12);
+    line-height: 1.45;
+    color: var(--muted);
+}
+
 .optionSelectLine {
     display: grid;
     grid-template-columns: 1fr 1.4fr 1fr;
