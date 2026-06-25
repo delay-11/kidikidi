@@ -847,6 +847,40 @@ function getTextLines(value = textValue) {
     .slice(0, 3);
 }
 
+
+function getTextFontDefaultLabel(type = "basic") {
+  const map = {
+    basic: "Aa 기본",
+    bold: "Aa 굵게",
+    round: "Aa 둥근",
+    hand: "Aa 손글씨",
+    pixel: "Aa 픽셀",
+    calli: "Aa 캘리",
+  };
+  return map[type] || map.basic;
+}
+
+
+function syncTextFontPreviewButtons() {
+  // 폰트 타입 버튼은 입력값 미리보기가 아니라, 각 폰트 이름표를 해당 폰트로 보여주는 용도입니다.
+  const labels = {
+    basic: "Aa 기본",
+    bold: "Aa 굵게",
+    round: "Aa 둥근",
+    hand: "Aa 손글씨",
+    pixel: "Aa 픽셀",
+    calli: "Aa 캘리",
+  };
+
+  textFontBtnEls?.forEach((btn) => {
+    const type = btn.dataset.textFont || "basic";
+    const label = labels[type] || labels.basic;
+    btn.textContent = label;
+    btn.title = label;
+    btn.setAttribute("aria-label", label);
+  });
+}
+
 function syncTextUI() {
   if (textInputEl) textInputEl.value = textValue || "";
   const color = normalizeHexInput(textColor, "#111827");
@@ -856,6 +890,7 @@ function syncTextUI() {
   textFontBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textFont === textFontType));
   textAlignBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textAlign === textAlign));
   textSizeBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textSize === textSize));
+  syncTextFontPreviewButtons?.();
 
   if (textClearBtnEl) textClearBtnEl.disabled = uiLocked || !textEnabled;
 }
@@ -1271,6 +1306,7 @@ function bindEditorToolEvents() {
   });
 
   textInputEl?.addEventListener("input", () => {
+    syncTextFontPreviewButtons?.();
     if (textEnabled) applyTextSettings({ value: textInputEl.value, enabled: !!safeTrim(textInputEl.value) });
   });
 

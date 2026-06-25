@@ -2,6 +2,8 @@
 /* =========================================================
  * 폼 준비 상태 텍스트 갱신
 ========================================================= */
+let lastFormReadyState = null;
+
 function updateFormReadyState() {
   if (
     !formReadyBoxEl ||
@@ -25,15 +27,19 @@ function updateFormReadyState() {
   formReadyBoxEl.classList.toggle("is-ready", ready);
 
   if (ready) {
-    formReadyTitleEl.textContent = "주문자 정보 입력이 완료되었습니다.";
+    formReadyTitleEl.textContent = "주문한 프로파일/규격을 선택하세요";
+    formReadyDescEl.textContent = "";
 
-    formReadyDescEl.textContent =
-      "프로파일 / 규격 확인 후 이미지를 업로드하거나 배경을 설정해 주세요.";
+    if (lastFormReadyState === false) {
+      showToast?.("주문한 프로파일/규격을 선택하세요", "ok", 2200);
+    }
   } else {
     formReadyTitleEl.textContent = "주문자 정보 입력이 필요합니다.";
     formReadyDescEl.textContent =
       "주문자명, 연락처, 주문번호, 이메일을 모두 입력해주세요.";
   }
+
+  lastFormReadyState = ready;
 }
 
 /* =========================================================
@@ -525,7 +531,12 @@ function applyQuickOptionChange() {
   }
 
   closeQuickOptionModal();
-  showToast?.("프로파일 / 규격을 변경했습니다.", "ok", 1800);
+
+  if (nextProfile === "OEM" && (nextLaser === "black" || nextLaser === "white")) {
+    showToast?.("레이저 옵션 선택 시 배경은 흰색으로 고정됩니다.", "warn", 2400);
+  } else {
+    showToast?.("프로파일 / 규격을 변경했습니다.", "ok", 1800);
+  }
 }
 
 function bindQuickOptionEvents() {

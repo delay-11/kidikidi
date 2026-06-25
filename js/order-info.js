@@ -198,7 +198,7 @@ laserEl?.addEventListener("change", () => {
 
   applyLaserOptionFromForm();
   if (profileEl?.value === "OEM" && (laserEl?.value === "black" || laserEl?.value === "white")) {
-    showToast("레이저 옵션 선택 시 배경은 흰색으로 고정됩니다.", "warn");
+    showToast?.("레이저 옵션 선택 시 배경은 흰색으로 고정됩니다.", "warn", 2400);
   }
   refreshOpenTooltips();
 });
