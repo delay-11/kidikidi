@@ -58,11 +58,56 @@ canvas {
     display: none;
     width: 0;
     height: 0;
-    border: 2px solid rgba(43, 108, 255, 0.95);
+    border: 2px solid rgba(43, 108, 255, 0.92);
     border-radius: var(--radius-sm);
     background: transparent;
     pointer-events: auto;
     transform-origin: center center;
+}
+
+.bbox .bboxActionGroup {
+    position: absolute;
+    top: -48px;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transform: translateX(-50%);
+    transform-origin: center center;
+    pointer-events: auto;
+}
+
+.bbox .actionBtn {
+    display: block;
+    box-sizing: border-box;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+    aspect-ratio: 1 / 1;
+    border: 1.5px solid rgba(43, 108, 255, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
+    background-color: #ffffff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 18px 18px;
+    pointer-events: auto;
+}
+
+.bbox .actionBtn.rot {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M4.5 12a7.5 7.5 0 0 1 12.9-5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M18 4v4h-4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M19.5 12a7.5 7.5 0 0 1-12.9 5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M6 20v-4h4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    cursor: grab;
+}
+
+.bbox .actionBtn.rot:active {
+    cursor: grabbing;
+}
+
+.bbox .actionBtn.del {
+    border-color: rgba(217, 45, 32, 0.95);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M6 7h12' stroke='%23d92d20' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M9 7V5.8c0-.44.36-.8.8-.8h4.4c.44 0 .8.36.8.8V7' stroke='%23d92d20' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M8 7l.7 10.1c.04.53.48.94 1.01.94h4.58c.53 0 .97-.41 1.01-.94L16 7' stroke='%23d92d20' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M10.5 10.5v4.5M13.5 10.5v4.5' stroke='%23d92d20' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    cursor: pointer;
 }
 
 .bbox .h {
@@ -70,7 +115,7 @@ canvas {
     width: 12px;
     height: 12px;
     border: 2px solid rgba(43, 108, 255, 0.95);
-    border-radius: 3px;
+    border-radius: 999px;
     background: #ffffff;
     pointer-events: auto;
 }
@@ -87,13 +132,6 @@ canvas {
     cursor: nesw-resize;
 }
 
-.bbox .h.n {
-    top: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    cursor: ns-resize;
-}
-
 .bbox .h.sw {
     bottom: -8px;
     left: -8px;
@@ -106,61 +144,7 @@ canvas {
     cursor: nwse-resize;
 }
 
-.bbox .h.e {
-    top: 50%;
-    right: -8px;
-    transform: translateY(-50%);
-    cursor: ew-resize;
-}
-
-.bbox .h.s {
-    bottom: -8px;
-    left: 50%;
-    transform: translateX(-50%);
-    cursor: ns-resize;
-}
-
-.bbox .h.w {
-    top: 50%;
-    left: -8px;
-    transform: translateY(-50%);
-    cursor: ew-resize;
-}
-
-.bbox .rotLine {
-    position: absolute;
-    top: -14px;
-    left: 50%;
-    width: 2px;
-    height: 14px;
-    transform: translateX(-50%);
-    background: rgba(43, 108, 255, 0.55);
-    pointer-events: none;
-}
-
-.bbox .rot {
-    position: absolute;
-    top: -34px;
-    left: 50%;
-    width: 22px;
-    height: 22px;
-    border: 1px solid rgba(43, 108, 255, 0.95);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
-    transform: translateX(-50%);
-    background-color: #ffffff;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 14px 14px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M4.5 12a7.5 7.5 0 0 1 12.9-5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M18 4v4h-4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M19.5 12a7.5 7.5 0 0 1-12.9 5.1' stroke='%232b6cff' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M6 20v-4h4' stroke='%232b6cff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-    cursor: grab;
-}
-
-.bbox .rot:active {
-    cursor: grabbing;
-}
-
-#canvasWrap, #designCanvas, #bbox, #bbox .h, #rotHandle {
+#canvasWrap, #designCanvas, #bbox, #bbox .h, #rotHandle, #deleteHandle {
     touch-action: none;
     -webkit-user-select: none;
     user-select: none;
@@ -644,7 +628,7 @@ canvas {
     gap: 8px;
 }
 
-.imageToolActions #fileBtn, .imageToolActions #fileDelBtn {
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #imageCenterBtn {
     flex: 1 1 0;
     min-width: 0 !important;
     height: 42px;
@@ -937,7 +921,11 @@ canvas {
     align-items: center !important;
 }
 
-.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, #textApplyBtn, #textClearBtn {
+.imageToolActions .uploadRow {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #imageCenterBtn, #textApplyBtn, #textClearBtn {
     width: 100% !important;
     min-width: 0 !important;
     min-height: 38px !important;

@@ -538,82 +538,6 @@ body.kidikidiBootstrap[data-step="confirm"] .cartList {
     max-width: 1440px;
 }
 
-@media (max-width: 1024px) {
-    .kidikidiBootstrap .editorWrap {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .kidikidiBootstrap .cartStepFrame {
-        order: 2;
-    }
-}
-
-@media (max-width: 768px) {
-    .kidikidiBootstrap .wizardSteps {
-        gap: 10px;
-        justify-content: flex-start;
-    }
-
-    .kidikidiBootstrap .wizardStep {
-        gap: 6px;
-        padding: 2px 0;
-    }
-
-    .kidikidiBootstrap .wizardStep::after {
-        width: 12px;
-        margin-left: 2px;
-    }
-
-    .kidikidiBootstrap .wizardStepNo {
-        width: 22px;
-        height: 22px;
-        font-size: 11px;
-    }
-
-    .kidikidiBootstrap .wizardStep strong {
-        font-size: 12px;
-    }
-
-    .kidikidiBootstrap .wizardStep small {
-        display: inline;
-        font-size: 11px;
-    }
-
-    .kidikidiBootstrap .stepPageHeader {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        text-align: center;
-    }
-
-    .kidikidiBootstrap .stepPageHeader .miniStepBtn {
-        min-width: 0;
-        width: 100% !important;
-    }
-
-    .kidikidiBootstrap .stepHeaderInfo .ghostBtn[disabled] {
-        display: none;
-    }
-
-    .kidikidiBootstrap .stepIntroCard,
-    .kidikidiBootstrap .editorStepCard {
-        padding: 16px;
-        border-radius: 20px;
-    }
-
-    .kidikidiBootstrap .stepIntroCard .row,
-    .kidikidiBootstrap .optionSelectLine {
-        grid-template-columns: minmax(0, 1fr) !important;
-    }
-
-    .kidikidiBootstrap .canvasFrame {
-        padding: 14px;
-        border-radius: 18px !important;
-    }
-
-    .kidikidiBootstrap .editorActionBar {
-        bottom: 10px;
-    }
-}
 
 /* =========================================================
  * 2026-06-25 UI 요청 반영
@@ -794,26 +718,6 @@ body.kidikidiBootstrap[data-step="confirm"] .cartList {
     height: 20px !important;
 }
 
-@media (max-width: 768px) {
-    .kidikidiBootstrap .wizardSteps {
-        justify-content: center !important;
-        gap: 10px !important;
-    }
-
-    .kidikidiBootstrap .wizardStep small {
-        display: none !important;
-    }
-
-    .kidikidiBootstrap .wizardStep::after {
-        width: 12px !important;
-        margin-left: 4px !important;
-    }
-
-    .kidikidiBootstrap .textToolGrid {
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 16px !important;
-    }
-}
 
 /* =========================================================
  * final polish overrides - 2026-06-25
@@ -1031,44 +935,6 @@ body.kidikidiBootstrap[data-step="confirm"] .cartList {
     border-radius: 16px !important;
 }
 
-@media (max-width: 768px) {
-    .kidikidiBootstrap .wizardSteps {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 0 10px !important;
-        width: 100% !important;
-    }
-
-    .kidikidiBootstrap .wizardStep {
-        justify-content: center !important;
-    }
-
-    .kidikidiBootstrap .wizardStep::after {
-        right: -10px !important;
-        width: 10px !important;
-    }
-
-    .kidikidiBootstrap .wizardStep strong {
-        font-size: 12px !important;
-    }
-
-    .kidikidiBootstrap .wizardStep small {
-        display: none !important;
-    }
-
-    .kidikidiBootstrap .textToolGrid {
-        grid-template-columns: minmax(0, 1fr) !important;
-        gap: 16px !important;
-    }
-
-    .kidikidiBootstrap .textToolSection {
-        padding-right: 0 !important;
-    }
-
-    .kidikidiBootstrap .textFontBtn {
-        min-width: 68px !important;
-        padding: 8px 12px !important;
-    }
-}
 
 /* =========================================================
  * fix4 overrides - tab width / text controls / laser toast
@@ -1090,15 +956,6 @@ body.kidikidiBootstrap[data-step="editor"] .editorToolBox {
     min-width: 0 !important;
 }
 
-@media (min-width: 1200px) {
-    body.kidikidiBootstrap[data-step="editor"] .rightStack {
-        max-width: 1220px !important;
-    }
-
-    body.kidikidiBootstrap[data-step="editor"] .editorWrap {
-        grid-template-columns: minmax(0, 1fr) 360px !important;
-    }
-}
 
 /* 배경/이미지/텍스트 탭 전환 시 도구 패널 폭 고정 */
 .kidikidiBootstrap .toolPanel,
@@ -1156,12 +1013,6 @@ body.kidikidiBootstrap[data-step="editor"] .editorToolBox {
     background: #0f172a !important;
     color: #fff !important;
     box-shadow: none !important;
-}
-
-@media (max-width: 768px) {
-    .kidikidiBootstrap .textFontRow {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
 }
 
 
@@ -1435,54 +1286,6 @@ body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="editor"]
     box-sizing: border-box !important;
 }
 
-@media (max-width: 900px) {
-    .kidikidiBootstrap .textToolGrid {
-        grid-template-columns: minmax(0, 1fr) !important;
-        grid-template-areas:
-            "input"
-            "font"
-            "color"
-            "align" !important;
-        gap: 18px !important;
-    }
-
-    .kidikidiBootstrap .textAlignRow {
-        max-width: 100% !important;
-    }
-}
-
-@media (max-width: 768px) {
-    .kidikidiBootstrap .wizardSteps {
-        grid-template-columns: repeat(3, 210px) !important;
-        gap: 20px !important;
-    }
-
-    body.kidikidiBootstrap[data-step="info"] .wizardSteps {
-        transform: translateX(230px) !important;
-    }
-
-    body.kidikidiBootstrap[data-step="editor"] .wizardSteps {
-        transform: translateX(0) !important;
-    }
-
-    body.kidikidiBootstrap[data-step="confirm"] .wizardSteps {
-        transform: translateX(-230px) !important;
-    }
-
-    .kidikidiBootstrap .wizardStep {
-        width: 210px !important;
-        min-width: 210px !important;
-    }
-
-    .kidikidiBootstrap .wizardStep small {
-        display: none !important;
-    }
-
-    .kidikidiBootstrap .textFontRow {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    }
-}
-
 
 /* =========================================================
  * fix6 overrides - font preview buttons show actual styles
@@ -1614,68 +1417,6 @@ body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="editor"]
  * fix9 overrides - mobile step header one-line controls
 ========================================================= */
 
-@media (max-width: 768px) {
-    /* 모바일 상단 조작줄: 이전 | 현재 단계명 | 다음 */
-    .kidikidiBootstrap .stepPageHeader,
-    .kidikidiBootstrap .stepTopBar.stepPageHeader {
-        display: grid !important;
-        grid-template-columns: minmax(72px, 0.85fr) minmax(0, 1.3fr) minmax(72px, 0.85fr) !important;
-        align-items: center !important;
-        gap: 8px !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        padding: 0 !important;
-        text-align: center !important;
-    }
-
-    .kidikidiBootstrap .stepPageHeader .stepTitleBlock {
-        min-width: 0 !important;
-        text-align: center !important;
-    }
-
-    .kidikidiBootstrap .stepPageHeader h2 {
-        margin: 0 !important;
-        font-size: 15px !important;
-        line-height: 1.2 !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
-    }
-
-    .kidikidiBootstrap .stepPageHeader p {
-        display: none !important;
-    }
-
-    .kidikidiBootstrap .stepPageHeader .miniStepBtn,
-    .kidikidiBootstrap .stepPageHeader .ghostBtn,
-    .kidikidiBootstrap .stepPageHeader .confirmBtn {
-        width: 100% !important;
-        min-width: 0 !important;
-        max-width: none !important;
-        height: 38px !important;
-        min-height: 38px !important;
-        padding: 0 10px !important;
-        border-radius: 999px !important;
-        font-size: 12px !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-    }
-
-    /* 1단계의 비활성 이전 버튼도 자리를 유지해서 가운데 정렬이 흔들리지 않게 */
-    .kidikidiBootstrap .stepHeaderInfo .ghostBtn[disabled] {
-        display: inline-flex !important;
-        visibility: hidden !important;
-    }
-
-    body.kidikidiBootstrap[data-step="confirm"] .stepHeaderEditor {
-        display: none !important;
-    }
-
-    body.kidikidiBootstrap[data-step="editor"] .stepHeaderConfirm {
-        display: none !important;
-    }
-}
-
 
 /* =========================================================
  * fix10 overrides - font buttons stay as font labels, styled by actual canvas fonts
@@ -1719,3 +1460,7 @@ body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn {
     overflow: hidden !important;
     text-overflow: ellipsis !important;
 }
+
+/* =========================================================
+ * 반응형 규칙은 css/responsive.css에서 통합 관리합니다.
+========================================================= */

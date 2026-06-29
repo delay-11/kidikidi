@@ -46,6 +46,8 @@ const bgTextEl = $("bgText");
 
 const bboxEl = $("bbox");
 const rotHandleEl = $("rotHandle");
+const deleteHandleEl = $("deleteHandle");
+const bboxActionGroupEl = bboxEl?.querySelector(".bboxActionGroup");
 
 /* =========================================================
  * 이미지 업로드 / 배경 설정
@@ -53,6 +55,7 @@ const rotHandleEl = $("rotHandle");
 const fileEl = $("file");
 const fileBtn = $("fileBtn");
 const fileDelBtn = $("fileDelBtn");
+const imageCenterBtn = $("imageCenterBtn");
 const fileNameEl = $("fileName");
 const imageCountBadgeEl = $("imageCountBadge");
 

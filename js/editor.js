@@ -7,20 +7,11 @@ let solidInlinePickr = null;
 let activePickrTarget = "solid";
 let activePickrAnchor = null;
 
-let isAltResizePressed = false;
-
-window.addEventListener("keydown", (e) => {
-  if (e.key === "Alt") isAltResizePressed = true;
-});
-
-window.addEventListener("keyup", (e) => {
-  if (e.key === "Alt") isAltResizePressed = false;
-});
-
-window.addEventListener("blur", () => {
-  isAltResizePressed = false;
-});
 let activeResizePointerId = null;
+
+// 모바일 두 손가락 핀치 확대/축소 상태
+const touchPointerMap = new Map();
+let pinchDrag = null;
 
 // 시안 리스트에서 저장된 시안을 불러오는 동안
 // 캔버스 상태가 잠깐 비어 있는 값을 원본 시안에 덮어쓰지 않도록 막습니다.
@@ -81,14 +72,6 @@ function pickCanvasColorAtClientPoint(clientX, clientY) {
     ok: true,
     hex: rgbToHex(pixel[0], pixel[1], pixel[2]),
   };
-}
-
-function isAltPressed(ev) {
-  return !!(ev?.altKey || ev?.getModifierState?.("Alt") || isAltResizePressed);
-}
-
-function syncAltPressed(ev) {
-  isAltResizePressed = isAltPressed(ev);
 }
 
 function getPickrPanel() {
@@ -917,6 +900,8 @@ function applyTextSettings(partial = {}) {
   if (uiLocked) return;
   if (!validateUserInfo(false)) return;
 
+  const shouldAlignTextToCanvas = !!partial.align;
+
   if (typeof partial.value === "string") {
     textValue = partial.value.slice(0, 80);
   }
@@ -935,6 +920,10 @@ function applyTextSettings(partial = {}) {
     textCY = canvas.height / 2;
   }
   if (textEnabled) activeObjectType = "text";
+
+  if (textEnabled && shouldAlignTextToCanvas) {
+    alignTextToCanvas(textAlign);
+  }
 
   applyTextToCurrentItem();
   syncTextUI();
@@ -1307,7 +1296,9 @@ function bindEditorToolEvents() {
 
   textInputEl?.addEventListener("input", () => {
     syncTextFontPreviewButtons?.();
-    if (textEnabled) applyTextSettings({ value: textInputEl.value, enabled: !!safeTrim(textInputEl.value) });
+
+    const value = textInputEl.value;
+    applyTextSettings({ value, enabled: !!safeTrim(value) });
   });
 
   textClearBtnEl?.addEventListener("click", () => {
@@ -1328,7 +1319,14 @@ function bindEditorToolEvents() {
   });
 
   textAlignBtnEls?.forEach((btn) => {
-    btn.addEventListener("click", () => applyTextSettings({ align: btn.dataset.textAlign || "center" }));
+    btn.addEventListener("click", () => {
+      const align = btn.dataset.textAlign || "center";
+      applyTextSettings({ align });
+      if (hasTextObject()) {
+        const label = align === "left" ? "왼쪽" : align === "right" ? "오른쪽" : "가운데";
+        showToast(`텍스트를 캔버스 ${label}에 배치했습니다.`, "ok", 1200);
+      }
+    });
   });
 
   textSizeBtnEls?.forEach((btn) => {
@@ -2183,12 +2181,19 @@ function updateBBox() {
   const w = size.halfW * 2;
   const h = size.halfH * 2;
 
+  const rot = getObjectRot(type);
+
   bboxEl.style.display = "block";
   bboxEl.style.left = `${offsetX + (center.x - w / 2) * sx}px`;
   bboxEl.style.top = `${offsetY + (center.y - h / 2) * sy}px`;
   bboxEl.style.width = `${w * sx}px`;
   bboxEl.style.height = `${h * sy}px`;
-  bboxEl.style.transform = `rotate(${getObjectRot(type)}rad)`;
+  bboxEl.style.transform = `rotate(${rot}rad)`;
+
+  // 선택 박스는 오브젝트와 같이 회전하되, 회전/삭제 버튼 아이콘은 항상 똑바로 보이게 보정합니다.
+  if (bboxActionGroupEl) {
+    bboxActionGroupEl.style.transform = `translateX(-50%) rotate(${-rot}rad)`;
+  }
 }
 
 function redraw() {
@@ -2235,6 +2240,34 @@ function hasActiveObject() {
   if (activeObjectType === "text") return hasTextObject();
   if (activeObjectType === "image") return hasImageObject();
   return hasImageObject() || hasTextObject();
+}
+
+function deleteActiveObject() {
+  const type = getActiveObjectType();
+  if (!type) return false;
+
+  if (type === "text") {
+    if (!hasTextObject()) return false;
+    applyTextSettings({ value: "", enabled: false });
+    if (activeObjectType === "text") activeObjectType = hasImageObject() ? "image" : null;
+    syncTextUI?.();
+    return true;
+  }
+
+  if (type === "image") {
+    if (!hasImageObject()) return false;
+    if (activeImageIndex >= 0 && Array.isArray(userImages)) {
+      userImages.splice(activeImageIndex, 1);
+    } else {
+      userImages = [];
+    }
+    setActiveImageIndex(userImages.length ? Math.min(activeImageIndex, userImages.length - 1) : -1);
+    if (activeObjectType === "image") activeObjectType = hasImageObject() ? "image" : hasTextObject() ? "text" : null;
+    syncImageCountBadge?.();
+    return true;
+  }
+
+  return false;
 }
 
 function getActiveObjectType() {
@@ -2297,6 +2330,40 @@ function getObjectHalfSize(type = getActiveObjectType()) {
     halfW: (obj.img.width * (obj.scaleX ?? imgScaleX ?? 1)) / 2,
     halfH: (obj.img.height * (obj.scaleY ?? imgScaleY ?? 1)) / 2,
   };
+}
+
+function getAxisAlignedHalfSize(type = getActiveObjectType()) {
+  const size = getObjectHalfSize(type);
+  if (!size) return null;
+
+  const rot = getObjectRot(type) || 0;
+  const cos = Math.abs(Math.cos(rot));
+  const sin = Math.abs(Math.sin(rot));
+
+  return {
+    halfW: size.halfW * cos + size.halfH * sin,
+    halfH: size.halfW * sin + size.halfH * cos,
+  };
+}
+
+function getCanvasAlignedX(type, align) {
+  const size = getAxisAlignedHalfSize(type);
+  if (!size) return canvas.width / 2;
+
+  const margin = 12;
+  const minX = size.halfW + margin;
+  const maxX = canvas.width - size.halfW - margin;
+
+  if (minX > maxX) return canvas.width / 2;
+  if (align === "left") return minX;
+  if (align === "right") return maxX;
+  return canvas.width / 2;
+}
+
+function alignTextToCanvas(align = textAlign || "center") {
+  if (!hasTextObject()) return;
+  textCX = getCanvasAlignedX("text", align);
+  if (!Number.isFinite(textCY) || !textCY) textCY = canvas.height / 2;
 }
 
 function getObjectAxes(type = getActiveObjectType()) {
@@ -2387,17 +2454,156 @@ function isPointOnImage(px, py) {
   return getImageIndexAtPoint(px, py) >= 0;
 }
 
-function isAltPressed(ev) {
-  return !!(ev?.altKey || ev?.getModifierState?.("Alt") || isAltResizePressed);
+function getCanvasPointFromClient(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: ((clientX - rect.left) / rect.width) * canvas.width,
+    y: ((clientY - rect.top) / rect.height) * canvas.height,
+  };
 }
 
-function isShiftPressed(ev) {
-  return !!(ev?.shiftKey || ev?.getModifierState?.("Shift"));
+function getTouchPointerPair(pointerIds = null) {
+  const ids = Array.isArray(pointerIds) ? pointerIds : Array.from(touchPointerMap.keys()).slice(0, 2);
+  if (ids.length < 2) return null;
+
+  const a = touchPointerMap.get(ids[0]);
+  const b = touchPointerMap.get(ids[1]);
+  if (!a || !b) return null;
+
+  return { ids, a, b };
 }
 
-function syncModifierPressed(ev) {
-  isAltResizePressed = isAltPressed(ev);
+function getPointerDistance(a, b) {
+  return Math.hypot((b.clientX || 0) - (a.clientX || 0), (b.clientY || 0) - (a.clientY || 0));
 }
+
+function getPointerMidpointCanvas(a, b) {
+  return getCanvasPointFromClient(
+    ((a.clientX || 0) + (b.clientX || 0)) / 2,
+    ((a.clientY || 0) + (b.clientY || 0)) / 2,
+  );
+}
+
+function beginPinchDrag() {
+  if (uiLocked || !hasImageObject()) return;
+
+  const pair = getTouchPointerPair();
+  if (!pair) return;
+
+  const midpoint = getPointerMidpointCanvas(pair.a, pair.b);
+  let targetIndex = getImageIndexAtPoint(midpoint.x, midpoint.y);
+  if (targetIndex < 0 && activeImageIndex >= 0) targetIndex = activeImageIndex;
+  if (targetIndex < 0) return;
+
+  setActiveImageIndex(targetIndex);
+  activeObjectType = "image";
+
+  const obj = getActiveImageObject();
+  if (!obj?.img) return;
+
+  draggingMove = false;
+  handleDrag = null;
+  rotateDrag = null;
+  activeResizePointerId = null;
+
+  pinchDrag = {
+    pointerIds: pair.ids,
+    startDistance: Math.max(1, getPointerDistance(pair.a, pair.b)),
+    startMidX: midpoint.x,
+    startMidY: midpoint.y,
+    startCX: Number.isFinite(obj.cx) ? obj.cx : canvas.width / 2,
+    startCY: Number.isFinite(obj.cy) ? obj.cy : canvas.height / 2,
+    startScaleX: Number.isFinite(obj.scaleX) ? obj.scaleX : 1,
+    startScaleY: Number.isFinite(obj.scaleY) ? obj.scaleY : 1,
+  };
+
+  showCanvasHelpTip("두 손가락을 벌리거나 모아 이미지 크기를 조절합니다.", 2200);
+  redraw();
+}
+
+function updatePinchDrag() {
+  if (uiLocked || !pinchDrag) return;
+
+  const pair = getTouchPointerPair(pinchDrag.pointerIds);
+  if (!pair) return;
+
+  const obj = getActiveImageObject();
+  if (!obj?.img) return;
+
+  const currentDistance = Math.max(1, getPointerDistance(pair.a, pair.b));
+  const scaleRatio = currentDistance / Math.max(1, pinchDrag.startDistance);
+  const currentMid = getPointerMidpointCanvas(pair.a, pair.b);
+
+  imgScaleX = clamp(pinchDrag.startScaleX * scaleRatio, 0.05, 10);
+  imgScaleY = clamp(pinchDrag.startScaleY * scaleRatio, 0.05, 10);
+  obj.scaleX = imgScaleX;
+  obj.scaleY = imgScaleY;
+
+  setObjectCenter(
+    "image",
+    pinchDrag.startCX + (currentMid.x - pinchDrag.startMidX),
+    pinchDrag.startCY + (currentMid.y - pinchDrag.startMidY),
+  );
+
+  redraw();
+}
+
+function endPinchDrag() {
+  if (!pinchDrag) return;
+
+  pinchDrag = null;
+  draggingMove = false;
+  handleDrag = null;
+  rotateDrag = null;
+  activeResizePointerId = null;
+
+  redraw();
+  syncActiveItemDesign?.();
+  hideCanvasHelpTip();
+  updateActionLocks();
+}
+
+function trackTouchPointerDown(e) {
+  if (uiLocked || e.pointerType !== "touch") return;
+  touchPointerMap.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+
+  if (touchPointerMap.size >= 2) {
+    e.preventDefault();
+    e.stopPropagation();
+    beginPinchDrag();
+  }
+}
+
+function trackTouchPointerMove(e) {
+  if (e.pointerType !== "touch" || !touchPointerMap.has(e.pointerId)) return false;
+
+  touchPointerMap.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
+
+  if (pinchDrag) {
+    e.preventDefault();
+    updatePinchDrag();
+    return true;
+  }
+
+  return false;
+}
+
+function trackTouchPointerEnd(e) {
+  if (e.pointerType !== "touch" || !touchPointerMap.has(e.pointerId)) return false;
+
+  touchPointerMap.delete(e.pointerId);
+
+  if (pinchDrag && touchPointerMap.size < 2) {
+    endPinchDrag();
+    return true;
+  }
+
+  return false;
+}
+
+canvasWrapEl?.addEventListener("pointerdown", trackTouchPointerDown, {
+  capture: true,
+});
 
 function startMoveDrag(e, type = getActiveObjectType()) {
   if (!type) return;
@@ -2417,6 +2623,7 @@ function startMoveDrag(e, type = getActiveObjectType()) {
 
 function onMainPointerDown(e) {
   if (uiLocked) return;
+  if (pinchDrag || (e.pointerType === "touch" && touchPointerMap.size >= 2)) return;
 
   /* =========================================================
  * 모바일 스포이드 모드
@@ -2454,7 +2661,7 @@ function onMainPointerDown(e) {
   if (e.pointerType === "mouse" && e.button !== 0) return;
 
   if (e.target.closest(".h")) return;
-  if (e.target.id === "rotHandle") return;
+  if (e.target.id === "rotHandle" || e.target.id === "deleteHandle") return;
 
   const p = screenToCanvasPoint(e);
   let targetType = null;
@@ -2504,8 +2711,11 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
       size.halfH * spec.anchorLocal.y,
     );
 
+    const activeType = getActiveObjectType() || "image";
+    const startCenter = getObjectCenter(activeType);
+
     handleDrag = {
-      type: getActiveObjectType() || "image",
+      type: activeType,
       handle,
       signX: spec.signX,
       signY: spec.signY,
@@ -2513,18 +2723,15 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
       anchorY: anchor.y,
       startHalfW: size.halfW,
       startHalfH: size.halfH,
-      startCX: imgCX,
-      startCY: imgCY,
+      startCX: startCenter.x,
+      startCY: startCenter.y,
       startPointerX: p.x,
       startPointerY: p.y,
-      startedWithAlt: isAltPressed(e),
-      startedWithShift: isShiftPressed(e),
       startTextScale: textScale || 1,
     };
 
     activeResizePointerId = e.pointerId;
-    syncModifierPressed(e);
-    showCanvasHelpTip(e.pointerType === "touch" ? "모바일은 중심 기준으로 비율 고정 확대/축소됩니다." : "Shift: 비율 고정 · Alt: 중심 기준 확대/축소", 2600);
+    showCanvasHelpTip("모서리 핸들을 드래그하면 비율을 유지한 채 크기가 조절됩니다.", 2600);
   });
 });
 
@@ -2553,36 +2760,36 @@ rotHandleEl?.addEventListener("pointerdown", (e) => {
   showCanvasHelpTip("상단 핸들을 드래그해 회전합니다.", 2000);
 });
 
-/* =========================================================
- * ALT 상태 추적
- * 중복 리스너 제거: document 기준으로만 관리
-========================================================= */
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Alt" || e.code === "AltLeft" || e.code === "AltRight") {
-    isAltResizePressed = true;
-  }
-});
 
-document.addEventListener("keyup", (e) => {
-  if (e.key === "Alt" || e.code === "AltLeft" || e.code === "AltRight") {
-    isAltResizePressed = false;
-  }
-});
+deleteHandleEl?.addEventListener("pointerdown", async (e) => {
+  if (uiLocked || !hasActiveObject()) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
 
-window.addEventListener("blur", () => {
-  isAltResizePressed = false;
+  e.preventDefault();
+  e.stopPropagation();
+
+  clearCanvasNotice?.();
+  setMobileEyedropperMode?.(false);
+
+  if (await applyConfirmedLockIfNeeded(true)) return;
+
+  const type = getActiveObjectType() || "image";
+  const deleted = deleteActiveObject();
+  if (!deleted) return;
+
+  redraw();
+  syncActiveItemDesign?.();
+  updateSelectedInfoText?.();
+  updateDraftInfo?.();
+  updateActionLocks?.();
+  hideCanvasHelpTip?.();
+  showToast(type === "text" ? "텍스트를 삭제했습니다." : "이미지를 삭제했습니다.", "ok", 1200);
 });
 
 document.addEventListener("pointermove", (e) => {
   if (uiLocked) return;
-
-  if (
-    handleDrag &&
-    activeResizePointerId !== null &&
-    e.pointerId === activeResizePointerId
-  ) {
-    syncModifierPressed(e);
-  }
+  if (trackTouchPointerMove(e)) return;
+  if (pinchDrag) return;
 
   const p = screenToCanvasPoint(e);
 
@@ -2596,123 +2803,70 @@ document.addEventListener("pointermove", (e) => {
   if (handleDrag) {
     const type = handleDrag.type || getActiveObjectType() || "image";
     const axes = getObjectAxes(type);
-    const isTouch = e.pointerType === "touch";
-
-    const isAlt = isTouch || isAltPressed(e) || handleDrag.startedWithAlt;
-
-    const isShift = isTouch || isShiftPressed(e) || handleDrag.startedWithShift;
-
-    const keepRatio = isAlt || isShift;
     const minHalf = 10;
 
     let halfW = handleDrag.startHalfW;
     let halfH = handleDrag.startHalfH;
 
-    if (isAlt) {
-      /* =========================================================
-       * ALT: 중심 기준 확대/축소
-      ========================================================= */
-      const moveX = p.x - handleDrag.startPointerX;
-      const moveY = p.y - handleDrag.startPointerY;
+    /* =========================================================
+     * 모든 리사이즈는 원본 비율 유지
+     * - Shift / Alt 같은 보조키 없이 동일하게 동작
+     * - 반대쪽 핸들을 기준점으로 두고 크기만 비율에 맞게 조절
+    ========================================================= */
+    const dx = p.x - handleDrag.anchorX;
+    const dy = p.y - handleDrag.anchorY;
 
-      const localDx = moveX * axes.ux + moveY * axes.uy;
-      const localDy = moveX * axes.vx + moveY * axes.vy;
-
-      if (handleDrag.signX !== 0) {
-        halfW = Math.max(
-          minHalf,
-          handleDrag.startHalfW + handleDrag.signX * localDx,
-        );
-      }
-
-      if (handleDrag.signY !== 0) {
-        halfH = Math.max(
-          minHalf,
-          handleDrag.startHalfH + handleDrag.signY * localDy,
-        );
-      }
-
-      setObjectCenter(type, handleDrag.startCX, handleDrag.startCY);
-    } else {
-      /* =========================================================
-       * 일반 리사이즈
-      ========================================================= */
-      const dx = p.x - handleDrag.anchorX;
-      const dy = p.y - handleDrag.anchorY;
-
-      if (handleDrag.signX !== 0) {
-        const projX = dx * axes.ux + dy * axes.uy;
-        halfW = Math.max(minHalf, (handleDrag.signX * projX) / 2);
-      }
-
-      if (handleDrag.signY !== 0) {
-        const projY = dx * axes.vx + dy * axes.vy;
-        halfH = Math.max(minHalf, (handleDrag.signY * projY) / 2);
-      }
+    if (handleDrag.signX !== 0) {
+      const projX = dx * axes.ux + dy * axes.uy;
+      halfW = Math.max(minHalf, (handleDrag.signX * projX) / 2);
     }
 
-    /* =========================================================
-     * 비율 고정
-     * ALT = 중심 기준 + 비율 고정
-     * SHIFT = 비율 고정
-    ========================================================= */
-    if (keepRatio) {
-      const startHalfW = handleDrag.startHalfW;
-      const startHalfH = handleDrag.startHalfH;
-
-      let ratioScale = 1;
-
-      if (handleDrag.signX !== 0 && handleDrag.signY !== 0) {
-        const scaleX = halfW / startHalfW;
-        const scaleY = halfH / startHalfH;
-
-        ratioScale =
-          Math.abs(scaleX - 1) >= Math.abs(scaleY - 1) ? scaleX : scaleY;
-      } else if (handleDrag.signX !== 0) {
-        ratioScale = halfW / startHalfW;
-      } else if (handleDrag.signY !== 0) {
-        ratioScale = halfH / startHalfH;
-      }
-
-      if (!Number.isFinite(ratioScale) || ratioScale <= 0) {
-        ratioScale = 1;
-      }
-
-      halfW = Math.max(minHalf, startHalfW * ratioScale);
-      halfH = Math.max(minHalf, startHalfH * ratioScale);
+    if (handleDrag.signY !== 0) {
+      const projY = dx * axes.vx + dy * axes.vy;
+      halfH = Math.max(minHalf, (handleDrag.signY * projY) / 2);
     }
 
-    /* =========================================================
-     * 중심 재계산
-    ========================================================= */
-    if (isAlt) {
-      setObjectCenter(type, handleDrag.startCX, handleDrag.startCY);
-    } else {
-      if (handleDrag.signX !== 0 && handleDrag.signY !== 0) {
-        setObjectCenter(
-          type,
-          handleDrag.anchorX + axes.ux * (handleDrag.signX * halfW) + axes.vx * (handleDrag.signY * halfH),
-          handleDrag.anchorY + axes.uy * (handleDrag.signX * halfW) + axes.vy * (handleDrag.signY * halfH),
-        );
-      } else if (handleDrag.signX !== 0) {
-        setObjectCenter(
-          type,
-          handleDrag.anchorX + axes.ux * (handleDrag.signX * halfW),
-          handleDrag.anchorY + axes.uy * (handleDrag.signX * halfW),
-        );
-      } else if (handleDrag.signY !== 0) {
-        setObjectCenter(
-          type,
-          handleDrag.anchorX + axes.vx * (handleDrag.signY * halfH),
-          handleDrag.anchorY + axes.vy * (handleDrag.signY * halfH),
-        );
-      }
+    const startHalfW = Math.max(1, handleDrag.startHalfW);
+    const startHalfH = Math.max(1, handleDrag.startHalfH);
+    let ratioScale = 1;
+
+    if (handleDrag.signX !== 0 && handleDrag.signY !== 0) {
+      const scaleX = halfW / startHalfW;
+      const scaleY = halfH / startHalfH;
+      ratioScale = Math.abs(scaleX - 1) >= Math.abs(scaleY - 1) ? scaleX : scaleY;
+    } else if (handleDrag.signX !== 0) {
+      ratioScale = halfW / startHalfW;
+    } else if (handleDrag.signY !== 0) {
+      ratioScale = halfH / startHalfH;
+    }
+
+    if (!Number.isFinite(ratioScale) || ratioScale <= 0) ratioScale = 1;
+
+    halfW = Math.max(minHalf, startHalfW * ratioScale);
+    halfH = Math.max(minHalf, startHalfH * ratioScale);
+
+    if (handleDrag.signX !== 0 && handleDrag.signY !== 0) {
+      setObjectCenter(
+        type,
+        handleDrag.anchorX + axes.ux * (handleDrag.signX * halfW) + axes.vx * (handleDrag.signY * halfH),
+        handleDrag.anchorY + axes.uy * (handleDrag.signX * halfW) + axes.vy * (handleDrag.signY * halfH),
+      );
+    } else if (handleDrag.signX !== 0) {
+      setObjectCenter(
+        type,
+        handleDrag.anchorX + axes.ux * (handleDrag.signX * halfW),
+        handleDrag.anchorY + axes.uy * (handleDrag.signX * halfW),
+      );
+    } else if (handleDrag.signY !== 0) {
+      setObjectCenter(
+        type,
+        handleDrag.anchorX + axes.vx * (handleDrag.signY * halfH),
+        handleDrag.anchorY + axes.vy * (handleDrag.signY * halfH),
+      );
     }
 
     if (type === "text") {
-      const baseW = Math.max(1, handleDrag.startHalfW);
-      const baseH = Math.max(1, handleDrag.startHalfH);
-      const scaleRatio = Math.max(halfW / baseW, halfH / baseH);
+      const scaleRatio = Math.max(halfW / startHalfW, halfH / startHalfH);
       textScale = clamp((handleDrag.startTextScale || 1) * scaleRatio, 0.25, 8);
     } else {
       const obj = getActiveImageObject();
@@ -2741,7 +2895,6 @@ function endPointerInteraction() {
     handleDrag = null;
     rotateDrag = null;
     activeResizePointerId = null;
-    isAltResizePressed = false;
     redraw();
     syncActiveItemDesign();
     hideCanvasHelpTip();
@@ -2749,13 +2902,15 @@ function endPointerInteraction() {
   }
 }
 
-document.addEventListener("pointerup", () => {
+document.addEventListener("pointerup", (e) => {
   if (uiLocked) return;
+  if (trackTouchPointerEnd(e)) return;
   endPointerInteraction();
 });
 
-document.addEventListener("pointercancel", () => {
+document.addEventListener("pointercancel", (e) => {
   if (uiLocked) return;
+  if (trackTouchPointerEnd(e)) return;
   endPointerInteraction();
 });
 
@@ -2972,6 +3127,37 @@ fileEl?.addEventListener("change", async () => {
     updateActionLocks();
   }
 });
+
+imageCenterBtn?.addEventListener(
+  "click",
+  async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    clearCanvasNotice();
+    setMobileEyedropperMode(false);
+
+    if (await applyConfirmedLockIfNeeded(true)) return;
+
+    const obj = getActiveImageObject();
+    if (!obj?.img) {
+      showToast("중앙에 배치할 이미지가 없습니다.", "warn");
+      updateActionLocks();
+      return;
+    }
+
+    activeObjectType = "image";
+    setObjectCenter("image", canvas.width / 2, canvas.height / 2);
+
+    redraw();
+    syncActiveItemDesign?.();
+    updateSelectedInfoText();
+    updateDraftInfo();
+    updateActionLocks();
+    showToast("이미지를 중앙에 배치했습니다.", "ok");
+  },
+  true,
+);
 
 fileDelBtn?.addEventListener(
   "click",

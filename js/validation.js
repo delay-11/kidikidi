@@ -217,6 +217,7 @@ function setAllLocked(locked) {
     fileEl,
     fileBtn,
     fileDelBtn,
+    imageCenterBtn,
     bgPickBtn,
     bgEyeBtn,
     typeof solidNativeColorEl !== "undefined" ? solidNativeColorEl : null,
@@ -305,6 +306,7 @@ function updateActionLocks() {
     if (fileBtn) fileBtn.disabled = true;
     if (fileEl) fileEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
+    if (imageCenterBtn) imageCenterBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
     if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) solidNativeColorEl.disabled = true;
@@ -337,6 +339,7 @@ function updateActionLocks() {
     if (fileBtn) fileBtn.disabled = true;
     if (fileEl) fileEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
+    if (imageCenterBtn) imageCenterBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
     if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) solidNativeColorEl.disabled = true;
@@ -374,6 +377,7 @@ function updateActionLocks() {
   if (fileBtn) fileBtn.disabled = false;
   if (fileEl) fileEl.disabled = false;
   if (fileDelBtn) fileDelBtn.disabled = false;
+  if (imageCenterBtn) imageCenterBtn.disabled = false;
   if (bgPickBtn) bgPickBtn.disabled = false;
   if (bgEyeBtn) bgEyeBtn.disabled = false;
   if (typeof solidNativeColorEl !== "undefined" && solidNativeColorEl) solidNativeColorEl.disabled = false;
@@ -402,8 +406,9 @@ function updateActionLocks() {
     updateBgLockUI(profileEl?.value, laserEl?.value);
   }
 
-  if (fileDelBtn && !(typeof hasImageObject === "function" ? hasImageObject() : userImg)) {
-    fileDelBtn.disabled = true;
+  if (!(typeof hasImageObject === "function" ? hasImageObject() : userImg)) {
+    if (fileDelBtn) fileDelBtn.disabled = true;
+    if (imageCenterBtn) imageCenterBtn.disabled = true;
   }
 
   if (btnAddItemEl) {
