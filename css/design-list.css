@@ -79,6 +79,7 @@
     margin-top: 8px;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .cartQtyValue {
     min-width: 36px;
     text-align: center;
@@ -86,6 +87,7 @@
     font-weight: 700;
     color: var(--txt);
 }
+*/
 
 .cartBtn {
     width: 28px;

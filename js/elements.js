@@ -97,6 +97,7 @@ const gradientResetBtnEl = $("gradientResetBtn");
 const textInputEl = $("textInput");
 const textApplyBtnEl = $("textApplyBtn");
 const textClearBtnEl = $("textClearBtn");
+const textCountBadgeEl = $("textCountBadge");
 const textColorBtnEl = $("textColorBtn");
 const textColorSwatchEl = $("textColorSwatch");
 const textColorValueEl = $("textColorValue");

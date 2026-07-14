@@ -3,19 +3,20 @@
  * - 1페이지: 기본 인쇄 안전선 안내
  * - 2페이지: 실제 배치 예시 안내
  * - [다시 보지 않기]는 2페이지에서만 노출
+ * - X 닫기 버튼 / 배경 클릭 닫기 없음: 두 페이지를 모두 확인해야만
+ *   (마지막 페이지의 [확인] 또는 [다시 보지 않기]로만) 닫을 수 있음
 ========================================================= */
 (() => {
   const modal = document.getElementById("printGuideModal");
   const imageEl = document.getElementById("printGuideImage");
   const actionsEl = document.getElementById("printGuideActions");
-  const closeBtn = document.getElementById("closePrintGuideBtn");
   const confirmBtn = document.getElementById("confirmPrintGuideBtn");
   const hideBtn = document.getElementById("hidePrintGuideBtn");
   const prevBtn = document.getElementById("prevPrintGuideBtn");
   const nextBtn = document.getElementById("nextPrintGuideBtn");
   const openBtn = document.getElementById("openPrintGuideBtn");
 
-  if (!modal || !imageEl || !actionsEl || !closeBtn || !confirmBtn || !hideBtn || !prevBtn || !nextBtn) {
+  if (!modal || !imageEl || !actionsEl || !confirmBtn || !hideBtn || !prevBtn || !nextBtn) {
     console.warn("인쇄 가이드 모달 요소를 찾지 못했습니다.");
     return;
   }
@@ -46,6 +47,7 @@
     imageEl.src = stepData.src;
     imageEl.alt = stepData.alt;
     actionsEl.dataset.step = String(currentStep);
+    modal.dataset.step = String(currentStep);
 
     // 첫 페이지에서는 [다시 보지 않기]를 숨겨서
     // 두 번째 안내까지 확인한 뒤에만 다시 보지 않기를 선택할 수 있게 합니다.
@@ -84,7 +86,6 @@
     modal.setAttribute("aria-hidden", "false");
   };
 
-  closeBtn.addEventListener("click", closeModal);
   confirmBtn.addEventListener("click", closeModal);
   hideBtn.addEventListener("click", hideAndCloseModal);
 
@@ -100,9 +101,5 @@
 
   openBtn?.addEventListener("click", () => {
     window.openPrintGuideModal?.({ force: true });
-  });
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal();
   });
 })();

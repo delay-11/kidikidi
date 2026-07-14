@@ -47,10 +47,12 @@ button:disabled {
     border: 1px solid var(--line) !important;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .softActionBtn {
     background: #fff !important;
     border: 1px solid #d0d5dd !important;
 }
+*/
 
 .secondaryActionBtn {
     background: #fff8e8 !important;
@@ -73,11 +75,13 @@ button:disabled {
     background: rgba(217, 45, 32, 0.05) !important;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .miniBtn {
     width: auto;
     padding: 6px 10px;
     font-size: var(--fs-12);
 }
+*/
 
 .uploadRow {
     display: flex;
@@ -91,6 +95,7 @@ button:disabled {
     flex: 0 0 auto;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .btns {
     display: flex;
     flex-wrap: wrap;
@@ -101,7 +106,9 @@ button:disabled {
     flex: 1;
     min-width: 160px;
 }
+*/
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .inlineCheck {
     display: flex;
     align-items: center;
@@ -111,6 +118,7 @@ button:disabled {
     font-size: 13px;
     line-height: 1.4;
 }
+*/
 
 .pill {
     display: flex;
@@ -141,6 +149,7 @@ button:disabled {
     line-height: 1.4;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .hint {
     margin: 4px 0;
     color: var(--muted);
@@ -148,6 +157,7 @@ button:disabled {
     font-size: var(--fs-12);
     line-height: 1.5;
 }
+*/
 
 .warn, .ok {
     margin-top: 8px;
@@ -204,6 +214,7 @@ button:disabled {
     width: 100%;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .red {
     color: #e5483b;
     font-weight: 700;
@@ -219,6 +230,7 @@ button:disabled {
     align-items: center;
     gap: 6px;
 }
+*/
 
 .helpWrap, .uploadHelpWrap {
     position: relative;
@@ -636,18 +648,32 @@ button:disabled {
 
 .print-guide-modal-content {
     position: relative;
+    display: flex;
+    flex-direction: column;
     width: min(88vw, 760px);
     max-height: 84vh;
-    overflow: auto;
+    overflow: hidden;
     padding: 14px;
     border-radius: 22px;
     background: #fff;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
 }
 
+/* 수정 이유: 2페이지(배치 예시)는 정보량이 많은 인포그래픽이라
+   1페이지와 같은 박스 크기로 맞추면 글씨가 너무 작아져 안 보임 -
+   이 페이지에서만 모달을 더 크게 표시 */
+.print-guide-modal[data-step="1"] .print-guide-modal-content {
+    width: min(97vw, 1240px);
+    max-height: 95vh;
+    padding: 10px;
+}
+
 .print-guide-image {
     display: block;
     width: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    object-fit: contain;
     border-radius: 20px;
 }
 
@@ -656,6 +682,7 @@ button:disabled {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
     margin-top: 10px;
+    flex: 0 0 auto;
 }
 
 .print-guide-actions[data-step="0"] {
@@ -698,26 +725,6 @@ button:disabled {
 .print-guide-next:hover,
 .print-guide-confirm:hover {
     filter: brightness(0.98);
-}
-
-.print-guide-close {
-    position: absolute;
-    top: 14px;
-    right: 16px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 34px;
-    min-height: 34px;
-    height: 34px;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: #f2f4f7;
-    color: #344054;
-    font-size: 22px;
-    line-height: 1;
-    cursor: pointer;
 }
 
 .print-guide-open-btn {

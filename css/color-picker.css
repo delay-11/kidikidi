@@ -383,9 +383,11 @@
     gap: 12px !important;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 #toolBg .gradientAddBtn {
     display: none !important;
 }
+*/
 
 #toolBg .gradientColorGrid, #toolBg .gradientControlGrid {
     display: grid;

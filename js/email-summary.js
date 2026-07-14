@@ -68,15 +68,19 @@ function getLaserText(profile, laser) {
 
 /* =========================================================
  * 시안 1개 요약 텍스트
+ * - globalIndex/allItems: 용량 초과로 메일이 여러 통에 나뉘어도
+ *   "시안 번호"와 "파일명"이 이 메일 안에서만 1번부터 다시 매겨지지
+ *   않고, 전체 주문 기준 번호를 그대로 유지하도록 함
+   (실제 첨부되는 파일명도 전체 주문 기준으로 매겨지므로 일치시킴)
 ========================================================= */
-function buildItemSummaryText(item, index, items = cartItems) {
+function buildItemSummaryText(item, globalIndex, allItems = cartItems) {
   if (!item) return "";
 
   const qty = Math.max(1, toInt(item?.qty ?? 1, 1));
 
   const lines = [
-    `[시안 ${index + 1}]`,
-    `파일명: ${getItemDisplayName(item, index, items)}`,
+    `[시안 ${globalIndex + 1}]`,
+    `파일명: ${getItemDisplayName(item, globalIndex, allItems)}`,
     `규격: ${getCapTypeText(item?.capType)}`,
     `수량: ${numberWithCommas(qty)}개`,
     `레이저: ${getLaserText(item?.profile, item?.laser)}`,
@@ -87,23 +91,32 @@ function buildItemSummaryText(item, index, items = cartItems) {
 
 /* =========================================================
  * 전체 시안 요약 텍스트
+ * - items: 이 메일에 실제로 포함되는 시안(배치)
+ * - allItems: 주문 전체 시안 목록 (번호/파일명을 전체 기준으로 맞추기 위함)
 ========================================================= */
-function buildItemsSummaryText(items = cartItems) {
+function buildItemsSummaryText(items = cartItems, allItems = items) {
   if (!Array.isArray(items) || !items.length) {
     return "추가된 시안이 없습니다.";
   }
 
-  const blocks = items.map((item, index) =>
-    buildItemSummaryText(item, index, items),
+  const blocks = items.map((item) =>
+    buildItemSummaryText(item, allItems.indexOf(item), allItems),
   );
 
-  return [...blocks, "", `총 시안 수: ${items.length}개`].join("\n\n");
+  const countLine =
+    items.length === allItems.length
+      ? `총 시안 수: ${allItems.length}개`
+      : `이 메일에 포함된 시안: ${items.length}개 (전체 주문 시안: ${allItems.length}개 중)`;
+
+  return [...blocks, "", countLine].join("\n\n");
 }
 
 /* =========================================================
  * 시안 1개 요약 HTML
+ * - globalIndex/allItems: buildItemSummaryText와 동일한 이유로
+ *   전체 주문 기준 번호/파일명을 유지
 ========================================================= */
-function buildItemSummaryHtml(item, index, items = cartItems) {
+function buildItemSummaryHtml(item, globalIndex, allItems = cartItems) {
   if (!item) return "";
 
   const esc = (v) => escapeHtml(String(v ?? "-"));
@@ -111,12 +124,12 @@ function buildItemSummaryHtml(item, index, items = cartItems) {
 
   return `
     <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:12px;">
-      <div style="font-weight:700;font-size:15px;margin-bottom:8px;">시안 ${index + 1}</div>
+      <div style="font-weight:700;font-size:15px;margin-bottom:8px;">시안 ${globalIndex + 1}</div>
 
       <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;">
         <tr>
           <td style="padding:4px 0;width:120px;font-weight:700;">파일명</td>
-          <td style="padding:4px 0;">${esc(getItemDisplayName(item, index, items))}</td>
+          <td style="padding:4px 0;">${esc(getItemDisplayName(item, globalIndex, allItems))}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">규격</td>
@@ -137,8 +150,10 @@ function buildItemSummaryHtml(item, index, items = cartItems) {
 
 /* =========================================================
  * 전체 시안 요약 HTML
+ * - items: 이 메일에 실제로 포함되는 시안(배치)
+ * - allItems: 주문 전체 시안 목록 (번호/파일명을 전체 기준으로 맞추기 위함)
 ========================================================= */
-function buildItemsSummaryHtml(items = cartItems) {
+function buildItemsSummaryHtml(items = cartItems, allItems = items) {
   const esc = (v) => escapeHtml(String(v ?? "-"));
 
   if (!Array.isArray(items) || !items.length) {
@@ -150,8 +165,13 @@ function buildItemsSummaryHtml(items = cartItems) {
   }
 
   const body = items
-    .map((item, index) => buildItemSummaryHtml(item, index, items))
+    .map((item) => buildItemSummaryHtml(item, allItems.indexOf(item), allItems))
     .join("");
+
+  const countLine =
+    items.length === allItems.length
+      ? `<b>총 시안 수</b> : ${esc(allItems.length)}개`
+      : `<b>이 메일에 포함된 시안</b> : ${esc(items.length)}개 (전체 주문 시안 ${esc(allItems.length)}개 중)`;
 
   return `
     <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.7;color:#111;">
@@ -159,7 +179,7 @@ function buildItemsSummaryHtml(items = cartItems) {
       ${body}
 
       <div style="margin-top:16px;padding:14px;border:1px solid #e5e7eb;border-radius:12px;background:#fafafa;">
-        <div><b>총 시안 수</b> : ${esc(items.length)}개</div>
+        <div>${countLine}</div>
       </div>
     </div>
   `;

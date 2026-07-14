@@ -10,8 +10,7 @@
     <link href="./image/favicon.png" rel="icon" type="image/png" />
     <!-- Korean Web Fonts for text tool -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/gh/fonts-archive/Paperlogy/Paperlogy.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Jua&amp;display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/gh/fonts-archive/Cafe24Ssurround/Cafe24Ssurround.css" rel="stylesheet" />
     <!-- Bootstrap -->
     <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4pa+loy7c8zWO5VnGz2BbPkZWZ6zfaeVfN11p/2" rel="stylesheet" />
@@ -26,7 +25,9 @@
     <link href="./css/editor.css" rel="stylesheet" />
     <link href="./css/design-list.css" rel="stylesheet" />
     <link href="./css/bootstrap-wizard.css" rel="stylesheet" />
+    <link href="./css/bootstrap-wizard-overrides.css" rel="stylesheet" />
     <link href="./css/responsive.css" rel="stylesheet" />
+    <link href="./css/responsive-editor.css" rel="stylesheet" />
 
     <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
@@ -45,7 +46,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.4.0
+                v2.6.0
             </div>
         </div>
     </header>
@@ -117,7 +118,7 @@
                                 <input class="form-control" id="phone" placeholder="01012345678" />
                             </div>
                         </div>
-                        <div class="row g-3">
+                        <div class="row g-3 rowOrderEmail">
                             <div>
                                 <label class="form-label" id="orderLabel">주문번호 *</label>
                                 <input class="form-control" id="orderNo" placeholder="주문번호" />
@@ -405,6 +406,7 @@
                                                     <button class="dangerBtn btn btn-outline-danger" disabled=""
                                                         id="textClearBtn" type="button">삭제</button>
                                                 </div>
+                                                <span class="fileName" id="textCountBadge">현재 0/3개</span>
                                             </div>
                                             <div class="textToolSection textToolFontSection">
                                                 <div class="bgToolSectionTitle">폰트 타입</div>
@@ -420,8 +422,8 @@
                                                     <button class="textFontBtn textFontPreviewHand btn btn-sm btn-light"
                                                         data-text-font="hand" type="button">Aa 손글씨</button>
                                                     <button
-                                                        class="textFontBtn textFontPreviewPixel btn btn-sm btn-light"
-                                                        data-text-font="pixel" type="button">Aa 픽셀</button>
+                                                        class="textFontBtn textFontPreviewRetro btn btn-sm btn-light"
+                                                        data-text-font="retro" type="button">Aa 레트로</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewCalli btn btn-sm btn-light"
                                                         data-text-font="calli" type="button">Aa 캘리</button>
@@ -575,7 +577,6 @@
     <!-- Print Guide Modal -->
     <div aria-hidden="true" class="print-guide-modal hidden" id="printGuideModal">
         <div aria-label="인쇄 가이드 안내" aria-modal="true" class="print-guide-modal-content" role="dialog">
-            <button aria-label="닫기" class="print-guide-close" id="closePrintGuideBtn">×</button>
             <img alt="인쇄 가이드" class="print-guide-image" id="printGuideImage" src="./image/guides/print_guide.png" />
             <div class="print-guide-actions" data-step="0" id="printGuideActions">
                 <button class="print-guide-action-btn print-guide-hide" id="hidePrintGuideBtn" type="button">
@@ -609,7 +610,13 @@
     <script src="./js/state.js"></script>
     <script src="./js/validation.js"></script>
     <script src="./js/order-info.js"></script>
-    <script src="./js/editor.js"></script>
+    <script src="./js/editor-canvas-setup.js"></script>
+    <script src="./js/editor-background.js"></script>
+    <script src="./js/editor-text.js"></script>
+    <script src="./js/editor-image.js"></script>
+    <script src="./js/editor-object-transform.js"></script>
+    <script src="./js/editor-pointer-events.js"></script>
+    <script src="./js/editor-item-io.js"></script>
     <script src="./js/design-list.js"></script>
     <script src="./js/email-attachments.js"></script>
     <script src="./js/email-summary.js"></script>

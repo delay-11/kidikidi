@@ -116,7 +116,7 @@ async function selectItem(id) {
 function addCurrentItemToCart() {
   if (!validateUserInfo(true)) return false;
 
-  const hasCanvasDesign = (typeof hasImageObject === "function" ? hasImageObject() : !!userImg) || draftBgSet || (typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue));
+  const hasCanvasDesign = (typeof hasImageObject === "function" ? hasImageObject() : !!userImg) || draftBgSet || (typeof hasTextObject === "function" && hasTextObject());
   if (!hasCanvasDesign) {
     showToast("이미지 업로드, 배경 설정 또는 텍스트 추가 후 시안을 추가해주세요.", "warn");
     return false;
@@ -237,7 +237,12 @@ function buildCartItemHtml(item) {
   const laserText = labelLaser(item);
   const qtyNum = normalizeQty(item.qty ?? 1);
   const bg = getItemBgLabel?.(item) || getItemBgColor(item);
-  const textMeta = item?.design?.text?.enabled ? "텍스트 있음" : "";
+  const textCount = Array.isArray(item?.design?.texts)
+    ? item.design.texts.filter((t) => !!safeTrim(t?.value || "")).length
+    : item?.design?.text?.enabled
+      ? 1
+      : 0;
+  const textMeta = textCount ? (textCount > 1 ? `텍스트 ${textCount}개` : "텍스트 있음") : "";
   const designText = hasDesign(item) ? ["디자인 있음", textMeta].filter(Boolean).join(" · ") : "디자인 없음";
 
   return `

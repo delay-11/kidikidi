@@ -18,9 +18,9 @@ function updateFormReadyState() {
   }
 
   const hasName = !!safeTrim(nameEl.value);
-  const hasPhone = !!safeTrim(phoneEl.value);
+  const hasPhone = PHONE_RE.test(safeTrim(phoneEl.value));
   const hasOrder = !!safeTrim(orderEl.value);
-  const hasEmail = !!safeTrim(emailEl.value);
+  const hasEmail = EMAIL_RE.test(safeTrim(emailEl.value));
 
   const ready = hasName && hasPhone && hasOrder && hasEmail;
 
@@ -478,9 +478,10 @@ function closeQuickOptionModal() {
   optionQuickModalEl.setAttribute("aria-hidden", "true");
 }
 
-function hasCurrentCanvasWork() {
-  return !!(userImg || draftBgSet || (typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue)) || selectedItemId);
-}
+// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
+// function hasCurrentCanvasWork() {
+//   return !!(userImg || draftBgSet || (typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue)) || selectedItemId);
+// }
 
 function applyQuickOptionChange() {
   if (uiLocked || !quickProfileEl || !quickCapTypeEl || !quickLaserEl) return;

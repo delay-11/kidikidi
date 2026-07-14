@@ -143,7 +143,10 @@ function getItemBgCss(it) {
 }
 
 function hasDesign(it) {
-  return !!it?.design?.imgDataUrl || !!(Array.isArray(it?.design?.images) && it.design.images.length) || !!it?.design?.bgSet || !!(it?.design?.text?.enabled && safeTrim(it?.design?.text?.value));
+  const hasTexts = Array.isArray(it?.design?.texts)
+    ? it.design.texts.some((t) => !!safeTrim(t?.value || ""))
+    : !!(it?.design?.text?.enabled && safeTrim(it?.design?.text?.value));
+  return !!it?.design?.imgDataUrl || !!(Array.isArray(it?.design?.images) && it.design.images.length) || !!it?.design?.bgSet || hasTexts;
 }
 
 function labelLaser(it) {

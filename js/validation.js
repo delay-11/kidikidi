@@ -298,7 +298,7 @@ async function applyConfirmedLockIfNeeded(showPopup = false) {
 ========================================================= */
 function updateActionLocks() {
   const hasUserInfo = validateUserInfo(false);
-  const hasCanvasDesign = !!(typeof hasImageObject === "function" ? hasImageObject() : userImg) || !!draftBgSet || !!(typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue));
+  const hasCanvasDesign = !!(typeof hasImageObject === "function" ? hasImageObject() : userImg) || !!draftBgSet || !!(typeof hasTextObject === "function" && hasTextObject());
   const hasAnyDesign =
     Array.isArray(cartItems) && cartItems.some((it) => hasDesign(it));
 

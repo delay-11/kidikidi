@@ -4,9 +4,18 @@
 ========================================================= */
 let uiLocked = false;
 
+/* =========================================================
+ * 캔버스 논리 크기 (canvas.width/height는 devicePixelRatio가
+ * 곱해진 실제 렌더링 해상도이므로, 이미지/텍스트 위치 계산이나
+ * 저장되는 좌표(design.cx/cy)는 항상 이 논리 크기를 기준으로 함
+========================================================= */
+let canvasLogicalW = 0;
+let canvasLogicalH = 0;
+
 // 툴팁 확인 상태
-let didReadProfileTooltip = false;
-let didReadUploadTooltip = false;
+// 미사용 확인 (2026-07-09) - 대입만 되고 읽는 곳 없음, 필요시 복원
+// let didReadProfileTooltip = false;
+// let didReadUploadTooltip = false;
 let didConfirmedPopup = false;
 
 /* =========================================================
@@ -55,6 +64,11 @@ let textScale = 1;
 let textRot = 0;
 let activeObjectType = null;
 
+// 여러 텍스트 객체 관리 (userImages/activeImageIndex와 동일한 패턴)
+let textObjects = [];
+let activeTextIndex = -1;
+const MAX_TEXT_COUNT = 3;
+
 /* =========================================================
  * 캔버스 드래그/리사이즈 상태
 ========================================================= */
@@ -64,3 +78,27 @@ let centerStart = { x: 0, y: 0 };
 
 let handleDrag = null;
 let rotateDrag = null;
+
+/* =========================================================
+ * Pickr 인스턴스
+========================================================= */
+let bgPickr = null;
+let solidInlinePickr = null;
+let activePickrTarget = "solid";
+let activePickrAnchor = null;
+
+let activeResizePointerId = null;
+
+// 모바일 두 손가락 핀치 확대/축소 상태
+const touchPointerMap = new Map();
+let pinchDrag = null;
+
+// 시안 리스트에서 저장된 시안을 불러오는 동안
+// 캔버스 상태가 잠깐 비어 있는 값을 원본 시안에 덮어쓰지 않도록 막습니다.
+let isLoadingItemToCanvas = false;
+let canvasLoadToken = 0;
+
+/* =========================================================
+ * 모바일 스포이드
+========================================================= */
+let mobileEyedropperMode = false;

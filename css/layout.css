@@ -45,10 +45,12 @@
     object-fit: contain;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .logo {
     font-size: 16px;
     font-weight: 700;
 }
+*/
 
 .systemName {
     font-size: 13px;
@@ -60,6 +62,7 @@
     color: var(--muted);
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .systemStatus {
     display: flex;
     align-items: center;
@@ -74,6 +77,7 @@
     background: #22c55e;
     border-radius: 50%;
 }
+*/
 
 .orderBar {
     background: var(--card);
@@ -179,6 +183,7 @@
     text-align: right;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .stepProgress {
     background: var(--card);
     border-bottom: 1px solid var(--line);
@@ -193,6 +198,7 @@
     margin: 0 auto;
     padding: 14px 30px;
 }
+*/
 
 .stepChip {
     display: flex;
@@ -255,7 +261,7 @@ body[data-step="info"] .stepIntroCard {
 }
 
 body[data-step="info"] .stepIntroCard .row {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 body[data-step="confirm"] .editorMain, body[data-step="confirm"] .stepTopBar {
@@ -317,6 +323,7 @@ body[data-step="editor"] .confirmStepHeader, body[data-step="editor"] .confirmSt
     font-size: 13px;
 }
 
+/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 .stepActions {
     display: flex;
     margin-top: 4px;
@@ -325,6 +332,7 @@ body[data-step="editor"] .confirmStepHeader, body[data-step="editor"] .confirmSt
 .stepActions button {
     width: 100%;
 }
+*/
 
 .confirmStepHeader {
     margin-bottom: 14px;

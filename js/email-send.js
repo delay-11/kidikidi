@@ -1,10 +1,15 @@
 /* moved from js/design/design-email-send.js */
 /* =========================================================
  * 시안 첨부 파라미터 생성
+ * - 수정 이유: 회사/고객 메일을 만들 때마다 PNG 렌더링 + 원본파일
+ *   인코딩을 매번 새로 하면 접수 대기 시간이 거의 2배가 됨.
+ *   sendOrderEmails()에서 한 번만 만든 fileList를 재사용한다.
 ========================================================= */
-async function buildDesignAttachmentParams() {
+async function buildDesignAttachmentParams(batch) {
   const orderNo = safeTrim(orderEl?.value) || "order";
-  return await buildAttachments(orderNo);
+  return await packAttachmentParams(orderNo, batch.items, batch.files, {
+    includeOriginals: true, // batch.files는 batchItemsByWeight()에서 이미 걸러진 상태
+  });
 }
 
 /* =========================================================
@@ -26,11 +31,46 @@ function getTotalQty(items) {
 }
 
 /* =========================================================
- * 회사 발송용 메일 파라미터
+ * 용량 초과로 여러 통에 나눠 보낼 때 붙는 라벨
+ * - 배치가 1개뿐이면(기존과 동일한 대부분의 주문) 빈 문자열
+ * - 2개 이상이면 "(1/3)" 형태
 ========================================================= */
-async function buildDesignCompanyEmailParams() {
+function getBatchLabel(batchIndex, batchTotal) {
+  return batchTotal > 1 ? `(${batchIndex}/${batchTotal})` : "";
+}
+
+/* =========================================================
+ * 여러 통으로 나뉘어 발송될 때만 보이는 안내 배너
+ * - 배치가 1개뿐이면 빈 문자열 (기존 템플릿 그대로, 아무것도 안 보임)
+ * - audience: "company" | "customer" - 문구를 다르게 함
+ *   (고객은 "메일이 여러 통 온 이유"를, 회사는 "모든 메일을 확인해야
+ *   전체 시안을 받는다"는 것을 알아야 하므로)
+========================================================= */
+function getBatchNoticeHtml(batchIndex, batchTotal, audience) {
+  if (batchTotal <= 1) return "";
+
+  const message =
+    audience === "customer"
+      ? `접수하신 시안이 많아 확인 메일이 총 <b>${batchTotal}통</b>으로 나뉘어 발송됩니다. 이 메일은 <b>${batchIndex}번째</b>이며, 순차적으로 도착하는 다른 메일도 함께 확인해주세요.`
+      : `이 주문은 시안이 많아 총 <b>${batchTotal}통</b>으로 나뉘어 발송되었습니다. 이 메일은 <b>${batchIndex}번째</b>이며, 전체 시안을 받으시려면 나머지 메일도 모두 확인해주세요.`;
+
+  return `
+    <div style="margin:0 0 14px;padding:12px 14px;border:1px solid #fdcc63;border-radius:12px;background:#fffaeb;color:#1b2330;font-size:13px;line-height:1.6;">
+      📦 ${message}
+    </div>
+  `;
+}
+
+/* =========================================================
+ * 회사 발송용 메일 파라미터
+ * - 회사는 실제 제작에 쓰이므로 레이저 원본파일까지 전부 포함
+ * - allItems: 주문 전체 시안(용량 안내용), batch: 이 메일에 실제로
+ *   첨부되는 시안 부분집합
+========================================================= */
+async function buildDesignCompanyEmailParams(batch, allItems, batchIndex, batchTotal) {
   const orderNo = safeTrim(orderEl?.value) || "-";
-  const attachment = await buildDesignAttachmentParams();
+  const attachment = await buildDesignAttachmentParams(batch);
+  const batchLabel = getBatchLabel(batchIndex, batchTotal);
 
   return {
     to_email: COMPANY_EMAIL,
@@ -39,10 +79,15 @@ async function buildDesignCompanyEmailParams() {
     customer_email: safeTrim(emailEl?.value) || "-",
     reply_to: safeTrim(emailEl?.value) || COMPANY_EMAIL,
 
-    design_type_count: String(getDesignTypeCount(cartItems)),
-    total_qty: String(getTotalQty(cartItems)),
-    items_summary_text: buildItemsSummaryText(cartItems),
-    items_summary_html: buildItemsSummaryHtml(cartItems),
+    batch_label: batchLabel,
+    batch_index: String(batchIndex),
+    batch_total: String(batchTotal),
+    batch_notice_html: getBatchNoticeHtml(batchIndex, batchTotal, "company"),
+
+    design_type_count: String(getDesignTypeCount(allItems)),
+    total_qty: String(getTotalQty(allItems)),
+    items_summary_text: buildItemsSummaryText(batch.items, allItems),
+    items_summary_html: buildItemsSummaryHtml(batch.items, allItems),
     attachment_summary_html:
       attachment?.attachment_summary_html || "<div>-</div>",
 
@@ -52,10 +97,14 @@ async function buildDesignCompanyEmailParams() {
 
 /* =========================================================
  * 고객 발송용 메일 파라미터
+ * - 수정 이유: 고객에게는 확인용 PNG만 있으면 되고 레이저 원본파일은
+ *   필요 없음 - 원본파일(최대 15MB)까지 같이 보내면 첨부 용량 제한에
+ *   걸려 접수 실패 위험이 커지므로 고객 메일에서는 제외
 ========================================================= */
-async function buildDesignCustomerEmailParams() {
+async function buildDesignCustomerEmailParams(batch, allItems, batchIndex, batchTotal) {
   const orderNo = safeTrim(orderEl?.value) || "-";
-  const attachment = await buildDesignAttachmentParams();
+  const attachment = await buildDesignAttachmentParams(batch);
+  const batchLabel = getBatchLabel(batchIndex, batchTotal);
 
   return {
     to_email: safeTrim(emailEl?.value) || "",
@@ -63,10 +112,15 @@ async function buildDesignCustomerEmailParams() {
     customer_order_no: orderNo,
     reply_to: COMPANY_EMAIL,
 
-    design_type_count: String(getDesignTypeCount(cartItems)),
-    total_qty: String(getTotalQty(cartItems)),
-    items_summary_text: buildItemsSummaryText(cartItems),
-    items_summary_html: buildItemsSummaryHtml(cartItems),
+    batch_label: batchLabel,
+    batch_index: String(batchIndex),
+    batch_total: String(batchTotal),
+    batch_notice_html: getBatchNoticeHtml(batchIndex, batchTotal, "customer"),
+
+    design_type_count: String(getDesignTypeCount(allItems)),
+    total_qty: String(getTotalQty(allItems)),
+    items_summary_text: buildItemsSummaryText(batch.items, allItems),
+    items_summary_html: buildItemsSummaryHtml(batch.items, allItems),
     attachment_summary_html:
       attachment?.attachment_summary_html || "<div>-</div>",
 
@@ -75,11 +129,11 @@ async function buildDesignCustomerEmailParams() {
 }
 
 /* =========================================================
- * 회사로 시안 접수 메일 발송
+ * 회사로 시안 접수 메일 발송 (배치 1통)
 ========================================================= */
-async function sendDesignToCompany() {
+async function sendDesignToCompany(batch, allItems, batchIndex, batchTotal) {
   ensureEmailJsInit();
-  const params = await buildDesignCompanyEmailParams();
+  const params = await buildDesignCompanyEmailParams(batch, allItems, batchIndex, batchTotal);
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
@@ -92,16 +146,16 @@ async function sendDesignToCompany() {
 }
 
 /* =========================================================
- * 고객에게 접수 확인 메일 발송
+ * 고객에게 접수 확인 메일 발송 (배치 1통)
 ========================================================= */
-async function sendDesignToCustomer() {
+async function sendDesignToCustomer(batch, allItems, batchIndex, batchTotal) {
   if (!EMAILJS_DESIGN_CUSTOMER_TEMPLATE_ID) return true;
 
   const customerEmail = safeTrim(emailEl?.value);
   if (!customerEmail) return true;
 
   ensureEmailJsInit();
-  const params = await buildDesignCustomerEmailParams();
+  const params = await buildDesignCustomerEmailParams(batch, allItems, batchIndex, batchTotal);
 
   await emailjs.send(
     EMAILJS_SERVICE_ID,
@@ -197,29 +251,71 @@ function getDesignSubmitFailMessage(err) {
 }
 
 /* =========================================================
+ * 첨부 용량 배치 기준
+ * - EmailJS 첨부 한도(2MB)보다 여유 있게 안전 마진을 둠
+ *   (템플릿 자체 HTML 용량 등도 고려)
+========================================================= */
+const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
+
+/* =========================================================
  * 시안 접수 메일 발송 통합
+ * - 수정 이유:
+ *   1) 첨부파일(PNG 렌더링 + 원본파일 인코딩)을 회사/고객 메일에
+ *      각각 새로 만들지 않고 한 번만 만들어서 재사용 (대기 시간 단축)
+ *   2) 회사/고객 메일 발송을 순차적으로 기다리지 않고 동시에 진행
+ *      (하나가 끝나야 다음이 시작되던 것 -> 병렬 처리로 대기 시간 단축)
+ *   3) 시안이 많아 첨부 용량 합계가 EmailJS 한도(2MB)를 넘으면
+ *      (1/2), (2/2)처럼 여러 통으로 나눠서 발송 (원본파일 포함 여부에
+ *      따라 회사/고객 메일의 배치 개수가 서로 다를 수 있음)
 ========================================================= */
 async function sendOrderEmails() {
-  let companyOk = false;
-  let customerOk = false;
-  let companyError = null;
-  let customerError = null;
+  const orderNo = safeTrim(orderEl?.value) || "order";
+  const fileList = await buildAttachmentFileList(orderNo);
+  const allItems = fileList.items;
 
-  try {
-    await sendDesignToCompany();
-    companyOk = true;
-  } catch (err) {
-    companyError = err; // 수정 이유: 회사 메일 실패 원인을 밖으로 전달하기 위해 저장
-    console.error("[회사 메일 발송 실패]", err);
-  }
+  const companyBatches = batchItemsByWeight(
+    allItems,
+    fileList.itemFiles,
+    EMAIL_ATTACHMENT_BATCH_MAX_BYTES,
+    { includeOriginals: true },
+  );
 
-  try {
-    await sendDesignToCustomer();
-    customerOk = true;
-  } catch (err) {
-    customerError = err; // 수정 이유: 고객 메일 실패 여부도 추적 가능하게 저장
-    console.error("[고객 메일 발송 실패]", err);
-  }
+  const needsCustomerEmail =
+    !!EMAILJS_DESIGN_CUSTOMER_TEMPLATE_ID && !!safeTrim(emailEl?.value);
+
+  const customerBatches = needsCustomerEmail
+    ? batchItemsByWeight(
+        allItems,
+        fileList.itemFiles,
+        EMAIL_ATTACHMENT_BATCH_MAX_BYTES,
+        { includeOriginals: false },
+      )
+    : [];
+
+  const companySends = companyBatches.map((batch, idx) =>
+    sendDesignToCompany(batch, allItems, idx + 1, companyBatches.length),
+  );
+  const customerSends = customerBatches.map((batch, idx) =>
+    sendDesignToCustomer(batch, allItems, idx + 1, customerBatches.length),
+  );
+
+  const [companyResults, customerResults] = await Promise.all([
+    Promise.allSettled(companySends),
+    Promise.allSettled(customerSends),
+  ]);
+
+  const companyOk =
+    companyResults.length > 0 && companyResults.every((r) => r.status === "fulfilled");
+  const companyError =
+    companyResults.find((r) => r.status === "rejected")?.reason || null;
+
+  const customerOk =
+    !needsCustomerEmail || customerResults.every((r) => r.status === "fulfilled");
+  const customerError =
+    customerResults.find((r) => r.status === "rejected")?.reason || null;
+
+  if (companyError) console.error("[회사 메일 발송 실패]", companyError);
+  if (customerError) console.error("[고객 메일 발송 실패]", customerError);
 
   if (!companyOk) {
     console.error("[시안 접수 실패] 회사 메일 발송 실패");

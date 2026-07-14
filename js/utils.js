@@ -99,6 +99,42 @@ function dataUrlToBase64(dataUrl) {
   return String(dataUrl || "").split(",")[1] || "";
 }
 
+function loadImageFromDataUrl(dataUrl) {
+  return new Promise((resolve, reject) => {
+    if (!dataUrl) {
+      resolve(null);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = dataUrl;
+  });
+}
+
+/* =========================================================
+ * 이미지 오브젝트 변환 후 그리기 (캔버스 편집 / 미리보기 / 첨부 공용)
+========================================================= */
+function drawTransformedImageObject(targetCtx, img, obj = {}, fallbackCx, fallbackCy) {
+  if (!targetCtx || !img) return;
+
+  const scaleX = Number(obj.scaleX ?? obj.scale ?? 1);
+  const scaleY = Number(obj.scaleY ?? obj.scale ?? 1);
+  const rot = Number(obj.rot ?? 0);
+  const cx = Number.isFinite(obj.cx) ? obj.cx : fallbackCx;
+  const cy = Number.isFinite(obj.cy) ? obj.cy : fallbackCy;
+
+  const w = img.width * scaleX;
+  const h = img.height * scaleY;
+
+  targetCtx.save();
+  targetCtx.translate(cx, cy);
+  targetCtx.rotate(rot);
+  targetCtx.drawImage(img, -w / 2, -h / 2, w, h);
+  targetCtx.restore();
+}
+
 /* =========================================================
  * 공통 화면 갱신
 ========================================================= */
