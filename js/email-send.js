@@ -258,12 +258,59 @@ function getDesignSubmitFailMessage(err) {
 const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
 
 /* =========================================================
+ * 배치 1통 발송, 실패 시 짧은 대기 후 한 번 더 시도
+ * - 수정 이유: 순간적인 네트워크 오류나 EmailJS 요청 제한으로 배치 하나가
+ *   실패하면 그대로 메일이 통째로 누락됐음. 같은 주문 안에서 8개 시안이
+ *   4통으로 나뉘었는데 1통만 실패해도 그 안의 시안 정보가 전부 빠지므로,
+ *   재시도 없이 바로 실패 처리하기엔 손실이 큼 - 1회 재시도로 완화.
+========================================================= */
+async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
+  try {
+    return await sendFn(batch, allItems, idx, total);
+  } catch (firstError) {
+    console.warn(`[메일 배치 ${idx}/${total} 1차 발송 실패, 재시도]`, firstError);
+    await wait(800);
+    return await sendFn(batch, allItems, idx, total);
+  }
+}
+
+/* =========================================================
+ * 같은 수신자(회사 또는 고객) 앞으로 가는 배치 메일들을 순서대로 발송
+ * - 수정 이유: batchItemsByWeight()로 나뉜 배치를 map()으로 한꺼번에
+ *   병렬 발송하면, 배치 순서와 상관없이 emailjs 요청이 동시에 나가서
+ *   ① 메일 서버 처리 순서가 뒤섞여 (1/3)(2/3)(3/3)이 순서대로 도착한다는
+ *   보장이 없고, ② 순간적으로 여러 요청이 몰리면서 EmailJS 요청 제한에
+ *   걸려 일부 배치가 조용히 실패(누락)하는 문제가 있었음.
+ *   같은 수신자 앞으로 가는 배치끼리는 하나가 끝난 뒤 다음을 보내도록
+ *   순차 처리하고, 배치 사이에 짧은 텀을 둬서 두 문제를 함께 해결.
+ *   회사 발송과 고객 발송은 서로 다른 수신자라 순서가 섞여도 무방하므로
+ *   기존처럼 병렬로 유지 (대기 시간 절약).
+========================================================= */
+async function sendBatchesInOrder(batches, sendFn, allItems) {
+  const results = [];
+
+  for (let i = 0; i < batches.length; i += 1) {
+    try {
+      const value = await sendBatchWithRetry(batches[i], sendFn, allItems, i + 1, batches.length);
+      results.push({ status: "fulfilled", value });
+    } catch (reason) {
+      results.push({ status: "rejected", reason });
+    }
+
+    if (i < batches.length - 1) await wait(500);
+  }
+
+  return results;
+}
+
+/* =========================================================
  * 시안 접수 메일 발송 통합
  * - 수정 이유:
  *   1) 첨부파일(PNG 렌더링 + 원본파일 인코딩)을 회사/고객 메일에
  *      각각 새로 만들지 않고 한 번만 만들어서 재사용 (대기 시간 단축)
- *   2) 회사/고객 메일 발송을 순차적으로 기다리지 않고 동시에 진행
- *      (하나가 끝나야 다음이 시작되던 것 -> 병렬 처리로 대기 시간 단축)
+ *   2) 회사 발송과 고객 발송은 서로 다른 수신자이므로 병렬로 진행해
+ *      대기 시간을 줄이되, 같은 수신자 앞으로 가는 배치 메일끼리는
+ *      sendBatchesInOrder()로 순서대로 발송해 도착 순서와 누락 문제를 방지
  *   3) 시안이 많아 첨부 용량 합계가 EmailJS 한도(2MB)를 넘으면
  *      (1/2), (2/2)처럼 여러 통으로 나눠서 발송 (원본파일 포함 여부에
  *      따라 회사/고객 메일의 배치 개수가 서로 다를 수 있음)
@@ -292,16 +339,9 @@ async function sendOrderEmails() {
       )
     : [];
 
-  const companySends = companyBatches.map((batch, idx) =>
-    sendDesignToCompany(batch, allItems, idx + 1, companyBatches.length),
-  );
-  const customerSends = customerBatches.map((batch, idx) =>
-    sendDesignToCustomer(batch, allItems, idx + 1, customerBatches.length),
-  );
-
   const [companyResults, customerResults] = await Promise.all([
-    Promise.allSettled(companySends),
-    Promise.allSettled(customerSends),
+    sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems),
+    sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems),
   ]);
 
   const companyOk =

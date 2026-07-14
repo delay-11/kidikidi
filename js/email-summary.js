@@ -18,10 +18,13 @@ function getCapTypeFileText(capType) {
 }
 
 /* =========================================================
- * 시안 1개 표시명
+ * 같은 프로파일/규격 그룹 안에서 이 시안의 순번 (1부터)
+ * - PNG 파일명과 레이저 오리지널 파일명이 같은 시안이면 항상 같은
+ *   번호를 쓰도록, 번호를 매기는 기준을 이 함수 하나로 통일
+ * - 프로파일/규격별로 번호를 따로 세는 게 맞음 (예: OEM 1~17번,
+ *   XDA는 18번이 아니라 다시 1번부터 시작해서 1~6번)
 ========================================================= */
-function getItemDisplayName(item, index = 0, items = cartItems) {
-  const orderNo = safeTrim(orderEl?.value) || "order";
+function getItemGroupSeq(item, items = cartItems) {
   const profile = safeFilePart(item?.profile || "-");
   const capType = safeFilePart(
     getCapTypeFileText(item?.capType || safeTrim(capTypeEl?.value) || "-"),
@@ -49,6 +52,20 @@ function getItemDisplayName(item, index = 0, items = cartItems) {
       }
     }
   }
+
+  return seq;
+}
+
+/* =========================================================
+ * 시안 1개 표시명 (PNG 파일명)
+========================================================= */
+function getItemDisplayName(item, items = cartItems) {
+  const orderNo = safeTrim(orderEl?.value) || "order";
+  const profile = safeFilePart(item?.profile || "-");
+  const capType = safeFilePart(
+    getCapTypeFileText(item?.capType || safeTrim(capTypeEl?.value) || "-"),
+  );
+  const seq = getItemGroupSeq(item, items);
 
   return `${safeFilePart(orderNo)}_${profile}_${capType}_${String(seq).padStart(
     2,
@@ -80,7 +97,7 @@ function buildItemSummaryText(item, globalIndex, allItems = cartItems) {
 
   const lines = [
     `[시안 ${globalIndex + 1}]`,
-    `파일명: ${getItemDisplayName(item, globalIndex, allItems)}`,
+    `파일명: ${getItemDisplayName(item, allItems)}`,
     `규격: ${getCapTypeText(item?.capType)}`,
     `수량: ${numberWithCommas(qty)}개`,
     `레이저: ${getLaserText(item?.profile, item?.laser)}`,
@@ -129,7 +146,7 @@ function buildItemSummaryHtml(item, globalIndex, allItems = cartItems) {
       <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;">
         <tr>
           <td style="padding:4px 0;width:120px;font-weight:700;">파일명</td>
-          <td style="padding:4px 0;">${esc(getItemDisplayName(item, globalIndex, allItems))}</td>
+          <td style="padding:4px 0;">${esc(getItemDisplayName(item, allItems))}</td>
         </tr>
         <tr>
           <td style="padding:4px 0;font-weight:700;">규격</td>

@@ -329,7 +329,7 @@ async function buildAttachmentFileList(orderNo = "order") {
     const item = items[i];
     const currentItemFiles = [];
 
-    const filename = getItemDisplayName(item, i, items);
+    const filename = getItemDisplayName(item, items);
 
     const dataUrl = await renderItemToPngDataUrl(item);
 
@@ -345,11 +345,13 @@ async function buildAttachmentFileList(orderNo = "order") {
       // 수정 이유: EmailJS 첨부 용량(2MB) 안에 들어가도록 원본파일을
       // 압축해서 JPEG로 첨부함 - 실제 원본 파일 자체가 훼손되는 건 아니고
       // 메일에 실리는 사본만 압축됨
+      // 오리지널 파일 번호는 같은 시안의 PNG 파일명과 항상 같은 번호가
+      // 붙도록 getItemGroupSeq()로 동일하게 계산 (프로파일/규격별 순번)
       const originalFilename =
         `${safeFilePart(orderNo)}_` +
         `${safeFilePart(item.profile)}_` +
         `${safeFilePart(getCapTypeFileText(item.capType))}_` +
-        `${String(i + 1).padStart(2, "0")}` +
+        `${String(getItemGroupSeq(item, items)).padStart(2, "0")}` +
         `_original.jpg`;
 
       const compressed = await compressFileForEmailAttachment(item.originalFile);
