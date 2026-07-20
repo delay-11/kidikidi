@@ -50,9 +50,9 @@ function getBatchNoticeHtml(batchIndex, batchTotal, audience) {
   if (batchTotal <= 1) return "";
 
   const message =
-    audience === "customer"
-      ? `접수하신 시안이 많아 확인 메일이 총 <b>${batchTotal}통</b>으로 나뉘어 발송됩니다. 이 메일은 <b>${batchIndex}번째</b>이며, 순차적으로 도착하는 다른 메일도 함께 확인해주세요.`
-      : `이 주문은 시안이 많아 총 <b>${batchTotal}통</b>으로 나뉘어 발송되었습니다. 이 메일은 <b>${batchIndex}번째</b>이며, 전체 시안을 받으시려면 나머지 메일도 모두 확인해주세요.`;
+  audience === "customer"
+    ? `첨부 용량 제한으로 인해 확인 메일이 총 <b>${batchTotal}통</b>으로 나뉘어 발송됩니다. 이 메일은 <b>${batchIndex}번째</b>이며, 순차적으로 도착하는 나머지 메일도 함께 확인해주세요.`
+    : `첨부 용량 제한으로 인해 이 주문의 시안 메일이 총 <b>${batchTotal}통</b>으로 나뉘어 발송되었습니다. 이 메일은 <b>${batchIndex}번째</b>이며, 전체 시안을 확인하시려면 나머지 메일도 모두 확인해주세요.`;
 
   return `
     <div style="margin:0 0 14px;padding:12px 14px;border:1px solid #fdcc63;border-radius:12px;background:#fffaeb;color:#1b2330;font-size:13px;line-height:1.6;">
