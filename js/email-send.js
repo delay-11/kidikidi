@@ -317,27 +317,50 @@ async function sendBatchesInOrder(batches, sendFn, allItems) {
 ========================================================= */
 async function sendOrderEmails() {
   const orderNo = safeTrim(orderEl?.value) || "order";
-  const fileList = await buildAttachmentFileList(orderNo);
+
+  // 수정 이유: 이 아래(첨부 렌더링/배치 생성) 단계에서 예외가 나면
+  // emailjs.send()를 한 번도 시도하지 못한 채 confirmOrder()의 범용
+  // catch로 떨어져 "시안 접수 중 오류가 발생했습니다"라는 뭉뚱그려진
+  // 메시지만 뜨고 실패 원인을 알 수 없었음. getDesignSubmitFailMessage()로
+  // 원인별 안내 문구를 재사용할 수 있도록 여기서도 잡아서 반환한다.
+  let fileList;
+  let companyBatches;
+  let customerBatches;
+  let needsCustomerEmail;
+
+  try {
+    fileList = await buildAttachmentFileList(orderNo);
+
+    companyBatches = batchItemsByWeight(
+      fileList.items,
+      fileList.itemFiles,
+      EMAIL_ATTACHMENT_BATCH_MAX_BYTES,
+      { includeOriginals: true },
+    );
+
+    needsCustomerEmail =
+      !!EMAILJS_DESIGN_CUSTOMER_TEMPLATE_ID && !!safeTrim(emailEl?.value);
+
+    customerBatches = needsCustomerEmail
+      ? batchItemsByWeight(
+          fileList.items,
+          fileList.itemFiles,
+          EMAIL_ATTACHMENT_BATCH_MAX_BYTES,
+          { includeOriginals: false },
+        )
+      : [];
+  } catch (err) {
+    return {
+      ok: false,
+      companyOk: false,
+      customerOk: false,
+      message: getDesignSubmitFailMessage(err),
+      companyError: err,
+      customerError: null,
+    };
+  }
+
   const allItems = fileList.items;
-
-  const companyBatches = batchItemsByWeight(
-    allItems,
-    fileList.itemFiles,
-    EMAIL_ATTACHMENT_BATCH_MAX_BYTES,
-    { includeOriginals: true },
-  );
-
-  const needsCustomerEmail =
-    !!EMAILJS_DESIGN_CUSTOMER_TEMPLATE_ID && !!safeTrim(emailEl?.value);
-
-  const customerBatches = needsCustomerEmail
-    ? batchItemsByWeight(
-        allItems,
-        fileList.itemFiles,
-        EMAIL_ATTACHMENT_BATCH_MAX_BYTES,
-        { includeOriginals: false },
-      )
-    : [];
 
   const [companyResults, customerResults] = await Promise.all([
     sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems),
