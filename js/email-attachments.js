@@ -324,6 +324,9 @@ async function buildAttachmentFileList(orderNo = "order") {
   // "이 시안의 첨부파일들"이 어느 아이템 것인지 알아야 함 -
   // itemFiles[i]는 items[i]에 대응하는 첨부파일 목록 (PNG 1개 + 원본파일 0~1개)
   const itemFiles = [];
+  // 수정 이유: 원본파일 첨부를 건너뛴 시안이 있으면 접수는 성공해도
+  // 사용자에게 "일부만 빠졌다"는 걸 알려줘야 함 (오류 메시지 상세화)
+  const skippedOriginals = [];
 
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i];
@@ -331,7 +334,16 @@ async function buildAttachmentFileList(orderNo = "order") {
 
     const filename = getItemDisplayName(item, items);
 
-    const dataUrl = await renderItemToPngDataUrl(item);
+    // 수정 이유: 어느 시안에서 렌더링이 실패했는지 알 수 있도록 원본
+    // 오류 메시지 앞에 시안 파일명을 붙여서 다시 던짐 - 이 예외는
+    // sendOrderEmails()까지 전파되어 getDesignSubmitFailMessage()의
+    // 안내 문구에 그대로 노출됨
+    let dataUrl;
+    try {
+      dataUrl = await renderItemToPngDataUrl(item);
+    } catch (err) {
+      throw new Error(`[${filename}] 시안 이미지 생성 실패: ${err?.message || err}`);
+    }
 
     const base64 = dataUrlToBase64(dataUrl);
 
@@ -354,7 +366,17 @@ async function buildAttachmentFileList(orderNo = "order") {
         `${String(getItemGroupSeq(item, items)).padStart(2, "0")}` +
         `_original.jpg`;
 
-      const compressed = await compressFileForEmailAttachment(item.originalFile);
+      // 수정 이유: 원본파일 압축 단계에서 예외가 나면(예: 파일을 다시
+      // 읽지 못하는 경우) 이 시안 하나 때문에 시안 접수 전체가 막혔음.
+      // 원본파일은 참고용 첨부일 뿐이므로 실패해도 PNG 시안 첨부는
+      // 그대로 진행하고, 원본파일만 건너뛴다.
+      let compressed = null;
+      try {
+        compressed = await compressFileForEmailAttachment(item.originalFile);
+      } catch (err) {
+        console.warn("[레이저 원본파일 첨부 실패, 건너뜀]", item?.originalFile?.name, err);
+        skippedOriginals.push({ filename, reason: err?.message || String(err) });
+      }
 
       if (compressed?.base64) {
         const entry = { filename: originalFilename, file: compressed.base64, isOriginal: true };
@@ -366,7 +388,7 @@ async function buildAttachmentFileList(orderNo = "order") {
     itemFiles.push(currentItemFiles);
   }
 
-  return { items, files, itemFiles };
+  return { items, files, itemFiles, skippedOriginals };
 }
 
 /* =========================================================
@@ -413,10 +435,6 @@ function batchItemsByWeight(items, itemFiles, targetMaxBytes, { includeOriginals
  * - 10개 이상: ZIP 첨부
 ========================================================= */
 function packAttachmentParams(orderNo, items, allFiles, { includeOriginals = true } = {}) {
-  if (!window.JSZip) {
-    throw new Error("JSZip 라이브러리가 로드되지 않았습니다.");
-  }
-
   const files = includeOriginals
     ? allFiles
     : allFiles.filter((f) => !f.isOriginal);
@@ -455,6 +473,13 @@ function packAttachmentParams(orderNo, items, allFiles, { includeOriginals = tru
 }
 
 async function packAsZip(orderNo, items, files) {
+  // 수정 이유: JSZip은 첨부가 10개 이상일 때만 필요함. 예전에는 이 검사를
+  // packAttachmentParams() 맨 앞에서 무조건 했기 때문에, ZIP을 전혀 쓰지
+  // 않는 소량 주문도 JSZip CDN 로딩이 실패하면 접수 자체가 막혔음.
+  if (!window.JSZip) {
+    throw new Error("JSZip 라이브러리가 로드되지 않았습니다.");
+  }
+
   const zip = new JSZip();
 
   const folder = zip.folder(`${safeFilePart(orderNo)}_designs`);
