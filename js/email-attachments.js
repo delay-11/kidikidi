@@ -324,6 +324,9 @@ async function buildAttachmentFileList(orderNo = "order") {
   // "이 시안의 첨부파일들"이 어느 아이템 것인지 알아야 함 -
   // itemFiles[i]는 items[i]에 대응하는 첨부파일 목록 (PNG 1개 + 원본파일 0~1개)
   const itemFiles = [];
+  // 수정 이유: 원본파일 첨부를 건너뛴 시안이 있으면 접수는 성공해도
+  // 사용자에게 "일부만 빠졌다"는 걸 알려줘야 함 (오류 메시지 상세화)
+  const skippedOriginals = [];
 
   for (let i = 0; i < items.length; i += 1) {
     const item = items[i];
@@ -331,7 +334,16 @@ async function buildAttachmentFileList(orderNo = "order") {
 
     const filename = getItemDisplayName(item, items);
 
-    const dataUrl = await renderItemToPngDataUrl(item);
+    // 수정 이유: 어느 시안에서 렌더링이 실패했는지 알 수 있도록 원본
+    // 오류 메시지 앞에 시안 파일명을 붙여서 다시 던짐 - 이 예외는
+    // sendOrderEmails()까지 전파되어 getDesignSubmitFailMessage()의
+    // 안내 문구에 그대로 노출됨
+    let dataUrl;
+    try {
+      dataUrl = await renderItemToPngDataUrl(item);
+    } catch (err) {
+      throw new Error(`[${filename}] 시안 이미지 생성 실패: ${err?.message || err}`);
+    }
 
     const base64 = dataUrlToBase64(dataUrl);
 
@@ -363,6 +375,7 @@ async function buildAttachmentFileList(orderNo = "order") {
         compressed = await compressFileForEmailAttachment(item.originalFile);
       } catch (err) {
         console.warn("[레이저 원본파일 첨부 실패, 건너뜀]", item?.originalFile?.name, err);
+        skippedOriginals.push({ filename, reason: err?.message || String(err) });
       }
 
       if (compressed?.base64) {
@@ -375,7 +388,7 @@ async function buildAttachmentFileList(orderNo = "order") {
     itemFiles.push(currentItemFiles);
   }
 
-  return { items, files, itemFiles };
+  return { items, files, itemFiles, skippedOriginals };
 }
 
 /* =========================================================

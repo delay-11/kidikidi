@@ -195,10 +195,13 @@ async function confirmOrder() {
     const result = await sendOrderEmails();
 
     if (!result?.ok) {
+      const failMessage = result?.message || "시안 접수에 실패했습니다. 다시 시도해주세요.";
       showToast?.(
-        result?.message || "시안 접수에 실패했습니다. 다시 시도해주세요.",
+        failMessage,
         "error",
-        3200,
+        // 수정 이유: 원인 카테고리 + 기술적 상세까지 붙어 문구가 길어졌으므로
+        // 다 읽을 수 있도록 길이에 비례해 표시 시간을 늘림
+        Math.min(3200 + failMessage.length * 25, 7000),
       );
       return false;
     }
@@ -221,15 +224,21 @@ async function confirmOrder() {
       await applyConfirmedLockIfNeeded(true);
     }
 
-    if (result?.customerWarning) {
-      showToast?.(result.customerWarning, "warn", 2600);
+    // 수정 이유: showToast()는 새 토스트를 띄우면서 이전 토스트를 바로
+    // 지우기 때문에, 두 경고를 각각 showToast로 연달아 부르면 먼저 뜬
+    // 것을 읽을 새도 없이 사라졌음 - 하나로 합쳐서 한 번에 보여준다.
+    const warnings = [result?.originalFileWarning, result?.customerWarning].filter(Boolean);
+    if (warnings.length) {
+      const warningMessage = warnings.join(" / ");
+      showToast?.(warningMessage, "warn", Math.min(2600 + warningMessage.length * 25, 7000));
     }
 
     confirmed = true;
     return true;
   } catch (err) {
     console.error(err);
-    showToast?.("시안 접수 중 오류가 발생했습니다.", "error", 2600);
+    const detail = err?.message ? ` (오류 상세: ${err.message})` : "";
+    showToast?.(`시안 접수 중 오류가 발생했습니다.${detail}`, "error", 3200);
     return false;
   } finally {
     if (!confirmed) {

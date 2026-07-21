@@ -173,6 +173,16 @@ async function sendDesignToCustomer(batch, allItems, batchIndex, batchTotal) {
  * - 기존에는 실패 원인이 달라도 밖에서는 구분할 수 없었음
  * - 전송 구조는 건드리지 않고 사용자용 안내 문구만 세분화
 ========================================================= */
+// 수정 이유: 토스트에 원인 카테고리 안내만 뜨고 실제로 어떤 시안/어떤
+// 이유로 실패했는지는 콘솔을 열어야만 알 수 있었음. 사용자(비개발자)가
+// 무엇이 문제인지 스스로 판단하거나 문의할 때 그대로 전달할 수 있도록,
+// 원본 오류 내용을 안내 문구 뒤에 괄호로 덧붙인다.
+function formatErrDetail(err) {
+  const detail = String(err?.message || err?.text || "").trim();
+  if (!detail || detail === "[object Object]") return "";
+  return detail.length > 160 ? `${detail.slice(0, 160)}…` : detail;
+}
+
 function getDesignSubmitFailMessage(err) {
   const message = String(err?.message || "").toLowerCase();
   const text = String(err?.text || "").toLowerCase();
@@ -188,14 +198,19 @@ function getDesignSubmitFailMessage(err) {
     fullError: err,
   });
 
+  const detail = formatErrDetail(err);
+  const withDetail = (guide) => (detail ? `${guide} (오류 상세: ${detail})` : guide);
+
   // 수정 이유:
   // ZIP/압축 단계에서 실패한 경우 사용자에게 용량/개수 조절 안내
+  // (우리 코드가 직접 던지는 메시지는 한글이므로 한글 키워드도 함께 확인)
   if (
     joined.includes("jszip") ||
     joined.includes("zip") ||
-    joined.includes("compression")
+    joined.includes("compression") ||
+    joined.includes("압축")
   ) {
-    return "압축파일 생성 중 오류가 발생했습니다. 시안 개수나 이미지 용량을 줄인 뒤 다시 시도해주세요.";
+    return withDetail("압축파일 생성 중 오류가 발생했습니다. 시안 개수나 이미지 용량을 줄인 뒤 다시 시도해주세요.");
   }
 
   // 수정 이유:
@@ -205,9 +220,13 @@ function getDesignSubmitFailMessage(err) {
     joined.includes("dataurl") ||
     joined.includes("base64") ||
     joined.includes("filereader") ||
-    joined.includes("image")
+    joined.includes("image") ||
+    joined.includes("캔버스") ||
+    joined.includes("이미지") ||
+    joined.includes("blob") ||
+    joined.includes("could not be read")
   ) {
-    return "시안 파일 생성 중 오류가 발생했습니다. 이미지 파일 상태나 용량을 확인한 뒤 다시 시도해주세요.";
+    return withDetail("시안 파일 생성 중 오류가 발생했습니다. 이미지 파일 상태나 용량을 확인한 뒤 다시 시도해주세요.");
   }
 
   // 수정 이유:
@@ -217,9 +236,10 @@ function getDesignSubmitFailMessage(err) {
     joined.includes("failed to fetch") ||
     joined.includes("fetch") ||
     joined.includes("timeout") ||
-    joined.includes("load failed")
+    joined.includes("load failed") ||
+    joined.includes("네트워크")
   ) {
-    return "네트워크 연결 문제로 시안 접수에 실패했습니다. 잠시 후 다시 시도해주세요.";
+    return withDetail("네트워크 연결 문제로 시안 접수에 실패했습니다. 잠시 후 다시 시도해주세요.");
   }
 
   // 수정 이유:
@@ -229,9 +249,10 @@ function getDesignSubmitFailMessage(err) {
     joined.includes("payload") ||
     joined.includes("size") ||
     joined.includes("limit") ||
-    joined.includes("413")
+    joined.includes("413") ||
+    joined.includes("용량")
   ) {
-    return "첨부 용량이 너무 커서 접수에 실패했습니다. 이미지 용량이나 시안 개수를 줄인 뒤 다시 시도해주세요.";
+    return withDetail("첨부 용량이 너무 커서 접수에 실패했습니다. 이미지 용량이나 시안 개수를 줄인 뒤 다시 시도해주세요.");
   }
 
   // 수정 이유:
@@ -242,12 +263,12 @@ function getDesignSubmitFailMessage(err) {
     joined.includes("template id") ||
     joined.includes("the user id is required")
   ) {
-    return "메일 설정 오류로 시안 접수에 실패했습니다. 관리자 확인이 필요합니다.";
+    return withDetail("메일 설정 오류로 시안 접수에 실패했습니다. 관리자 확인이 필요합니다.");
   }
 
   // 수정 이유:
   // 그 외 알 수 없는 오류는 기존보다 조금 더 실질적인 기본 문구 사용
-  return "시안 접수 중 오류가 발생했습니다. 이미지 용량이나 개수를 줄인 뒤 다시 시도해주세요.";
+  return withDetail("시안 접수 중 오류가 발생했습니다. 이미지 용량이나 개수를 줄인 뒤 다시 시도해주세요.");
 }
 
 /* =========================================================
@@ -392,10 +413,20 @@ async function sendOrderEmails() {
     };
   }
 
+  // 수정 이유: 원본파일 첨부에 실패한 시안이 있으면 접수는 정상 처리돼도
+  // 회사에 원본파일이 안 갔다는 걸 알려줘야 놓치지 않음
+  const skippedOriginals = fileList.skippedOriginals || [];
+  const originalFileWarning = skippedOriginals.length
+    ? `일부 시안의 레이저 원본파일 첨부에 실패했습니다 (PNG 시안은 정상 접수됨): ${skippedOriginals
+        .map((s) => `${s.filename}(${s.reason})`)
+        .join(", ")}`
+    : "";
+
   return {
     ok: true,
     companyOk,
     customerOk,
+    originalFileWarning,
     customerWarning:
       !customerOk && customerError
         ? "시안은 정상 접수되었지만 고객 확인 메일 발송은 실패했습니다."
