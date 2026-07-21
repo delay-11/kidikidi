@@ -70,6 +70,9 @@ function saveCanvasToItem(it) {
   if (hasImageObject()) {
     const images = serializeImageObjects();
     it.design.images = images;
+    // 수정 이유: 이미지가 여러 장이면 원본파일도 각 이미지와 같은 순서로
+    // 전부 저장해야 시안 확정 메일에 하나만 첨부되던 문제가 없어짐
+    it.originalFiles = collectOriginalFiles();
     const active = images[activeImageIndex] || images[images.length - 1] || images[0];
     it.design.imgDataUrl = active?.imgDataUrl || null;
     it.design.cx = active?.cx ?? canvasLogicalW / 2;
@@ -79,6 +82,7 @@ function saveCanvasToItem(it) {
     it.design.rot = active?.rot ?? 0;
   } else if (!isLoadingItemToCanvas) {
     it.design.images = [];
+    it.originalFiles = [];
     it.design.imgDataUrl = null;
     it.design.cx = imgCX;
     it.design.cy = imgCY;
@@ -105,7 +109,6 @@ function saveCanvasToItem(it) {
   it.design.text = getCurrentTextState?.() || { enabled: false, value: "" };
   it.bgColor = it.design.bgColor;
   it.design.previewDataUrl = renderItemPreviewDataUrl(it);
-  it.originalFile = userImgFile || it.originalFile || null;
 }
 
 function resetEditorStateBeforeLoad() {
@@ -156,8 +159,6 @@ async function loadItemToCanvas(it) {
   isLoadingItemToCanvas = true;
 
   resetEditorStateBeforeLoad();
-
-  userImgFile = it.originalFile || null;
 
   imgCX = it.design?.cx ?? canvasLogicalW / 2;
   imgCY = it.design?.cy ?? canvasLogicalH / 2;
@@ -243,8 +244,14 @@ async function loadItemToCanvas(it) {
         }]
       : [];
 
+  // 수정 이유: 저장 당시 각 이미지에 대응하던 원본파일을 같은 인덱스로
+  // 복원해야, 재저장(saveCanvasToItem)할 때 File이 null로 유실되지 않고
+  // 시안 확정 메일에 업로드된 원본파일이 전부 첨부됨
+  const savedOriginalFiles = Array.isArray(it.originalFiles) ? it.originalFiles : [];
+
   userImages = [];
-  for (const imageState of savedImages) {
+  for (let i = 0; i < savedImages.length; i += 1) {
+    const imageState = savedImages[i];
     if (!imageState?.imgDataUrl) continue;
     const img = new Image();
     try {
@@ -258,7 +265,7 @@ async function loadItemToCanvas(it) {
 
       userImages.push({
         img,
-        file: null,
+        file: savedOriginalFiles[i] || null,
         cx: Number.isFinite(imageState.cx) ? imageState.cx : canvasLogicalW / 2,
         cy: Number.isFinite(imageState.cy) ? imageState.cy : canvasLogicalH / 2,
         scaleX: Number.isFinite(imageState.scaleX) ? imageState.scaleX : Number(imageState.scale ?? 1),

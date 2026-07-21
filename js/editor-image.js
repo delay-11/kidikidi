@@ -64,6 +64,17 @@ function serializeImageObjects() {
     }));
 }
 
+// 수정 이유: design.images[]로 직렬화되는 이미지들과 항상 같은 순서/개수로
+// 원본파일도 함께 저장해야 시안 확정 메일에 업로드된 원본파일이 전부
+// 첨부됨 - serializeImageObjects()와 완전히 같은 필터 조건을 사용해서
+// 인덱스가 어긋나지 않게 한다.
+function collectOriginalFiles() {
+  syncActiveImageFromLegacy();
+  return (Array.isArray(userImages) ? userImages : [])
+    .filter((obj) => !!obj?.img?.src)
+    .map((obj) => obj.file || null);
+}
+
 function syncImageCountBadge() {
   const count = Array.isArray(userImages) ? userImages.filter((obj) => !!obj?.img).length : (userImg ? 1 : 0);
   if (imageCountBadgeEl) imageCountBadgeEl.textContent = `현재 ${count}개`;
