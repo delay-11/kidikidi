@@ -51,7 +51,7 @@ function cloneItemForEditorLoad(item) {
   // 그래서 로드용 얕은 복사본을 만들어 이전 시안이 초기화/덮어쓰기 되지 않게 합니다.
   return {
     ...item,
-    originalFile: item.originalFile || null,
+    originalFiles: Array.isArray(item.originalFiles) ? item.originalFiles.slice() : [],
     design: item.design ? JSON.parse(JSON.stringify(item.design)) : null,
   };
 }
@@ -135,7 +135,7 @@ function addCurrentItemToCart() {
     laser,
     qty,
     bgColor: draftBgColor || "#ffffff",
-    originalFile: userImgFile || null, // 레이저 원본파일
+    originalFiles: typeof collectOriginalFiles === "function" ? collectOriginalFiles() : [], // 레이저 원본파일
     design: {
       imgDataUrl: null,
       images: typeof serializeImageObjects === "function" ? serializeImageObjects() : [],

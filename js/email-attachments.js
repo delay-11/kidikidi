@@ -353,35 +353,59 @@ async function buildAttachmentFileList(orderNo = "order") {
       currentItemFiles.push(entry);
     }
 
-    if (isLaserOriginalAttachTarget(item) && item?.originalFile) {
-      // 수정 이유: EmailJS 첨부 용량(2MB) 안에 들어가도록 원본파일을
-      // 압축해서 JPEG로 첨부함 - 실제 원본 파일 자체가 훼손되는 건 아니고
-      // 메일에 실리는 사본만 압축됨
+    // 수정 이유: 이미지를 여러 장 업로드해 합성한 시안은 원본파일도 여러
+    // 개일 수 있음 - 예전에는 마지막에 활성이었던 이미지 1개만 저장돼서
+    // 나머지 원본파일이 메일에서 통째로 누락됐음. 이제 업로드된 원본파일을
+    // 전부 순회하며 각각 압축/첨부한다.
+    const originalFiles = Array.isArray(item?.originalFiles)
+      ? item.originalFiles.filter(Boolean)
+      : [];
+
+    if (isLaserOriginalAttachTarget(item) && originalFiles.length) {
       // 오리지널 파일 번호는 같은 시안의 PNG 파일명과 항상 같은 번호가
       // 붙도록 getItemGroupSeq()로 동일하게 계산 (프로파일/규격별 순번)
-      const originalFilename =
-        `${safeFilePart(orderNo)}_` +
-        `${safeFilePart(item.profile)}_` +
-        `${safeFilePart(getCapTypeFileText(item.capType))}_` +
-        `${String(getItemGroupSeq(item, items)).padStart(2, "0")}` +
-        `_original.jpg`;
+      const groupSeq = String(getItemGroupSeq(item, items)).padStart(2, "0");
 
-      // 수정 이유: 원본파일 압축 단계에서 예외가 나면(예: 파일을 다시
-      // 읽지 못하는 경우) 이 시안 하나 때문에 시안 접수 전체가 막혔음.
-      // 원본파일은 참고용 첨부일 뿐이므로 실패해도 PNG 시안 첨부는
-      // 그대로 진행하고, 원본파일만 건너뛴다.
-      let compressed = null;
-      try {
-        compressed = await compressFileForEmailAttachment(item.originalFile);
-      } catch (err) {
-        console.warn("[레이저 원본파일 첨부 실패, 건너뜀]", item?.originalFile?.name, err);
-        skippedOriginals.push({ filename, reason: err?.message || String(err) });
-      }
+      for (let fileIdx = 0; fileIdx < originalFiles.length; fileIdx += 1) {
+        const originalFile = originalFiles[fileIdx];
+        // 수정 이유: 원본파일이 1개일 때는 기존 파일명을 그대로 유지하고,
+        // 2개 이상일 때만 몇 번째 원본인지 서브 인덱스를 붙인다.
+        const subIndexSuffix =
+          originalFiles.length > 1 ? `_${String(fileIdx + 1).padStart(2, "0")}` : "";
+        const originalFilename =
+          `${safeFilePart(orderNo)}_` +
+          `${safeFilePart(item.profile)}_` +
+          `${safeFilePart(getCapTypeFileText(item.capType))}_` +
+          `${groupSeq}` +
+          `_original${subIndexSuffix}.jpg`;
 
-      if (compressed?.base64) {
-        const entry = { filename: originalFilename, file: compressed.base64, isOriginal: true };
-        files.push(entry);
-        currentItemFiles.push(entry);
+        // 수정 이유: EmailJS 첨부 용량(2MB) 안에 들어가도록 원본파일을
+        // 압축해서 JPEG로 첨부함 - 실제 원본 파일 자체가 훼손되는 건 아니고
+        // 메일에 실리는 사본만 압축됨
+        // 원본파일 압축 단계에서 예외가 나면(예: 파일을 다시 읽지 못하는
+        // 경우) 이 파일 하나 때문에 시안 접수 전체가 막혔음. 원본파일은
+        // 참고용 첨부일 뿐이므로 실패해도 나머지 원본파일/PNG 시안 첨부는
+        // 그대로 진행하고, 실패한 파일만 건너뛴다.
+        let compressed = null;
+        try {
+          compressed = await compressFileForEmailAttachment(originalFile);
+        } catch (err) {
+          console.warn("[레이저 원본파일 첨부 실패, 건너뜀]", originalFile?.name, err);
+          skippedOriginals.push({
+            filename:
+              originalFiles.length > 1
+                ? `${filename} (원본 ${fileIdx + 1}/${originalFiles.length})`
+                : filename,
+            reason: err?.message || String(err),
+          });
+          continue;
+        }
+
+        if (compressed?.base64) {
+          const entry = { filename: originalFilename, file: compressed.base64, isOriginal: true };
+          files.push(entry);
+          currentItemFiles.push(entry);
+        }
       }
     }
 
