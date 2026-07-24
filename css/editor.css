@@ -36,6 +36,30 @@
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'GiantsInline';
+    src: url('../files/GiantsInline.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'KBLCourt';
+    src: url('../files/KBLCourt_EB.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'KBLJump';
+    src: url('../files/KBLJump_EB_Extended.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 .icon-eye {
     width: 16px;
     height: 16px;
@@ -892,7 +916,7 @@ canvas {
     text-transform: lowercase;
 }
 
-.textFontPreviewBasic, .textFontPreviewBold, .textFontPreviewRound, .textFontPreviewHand, .textFontPreviewRetro, .textFontPreviewCalli {
+.textFontPreviewBasic, .textFontPreviewBold, .textFontPreviewRound, .textFontPreviewHand, .textFontPreviewRetro, .textFontPreviewCalli, .textFontPreviewGiants, .textFontPreviewCourt, .textFontPreviewJump {
     font-family: system-ui, -apple-system, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, sans-serif;
 }
 
@@ -926,6 +950,21 @@ canvas {
     font-weight: 700 !important;
     letter-spacing: -0.02em;
     font-family: "HakgyoansimGaeulsopungB", "Apple SD Gothic Neo", "Noto Sans KR", cursive !important;
+}
+
+.textFontPreviewGiants {
+    font-weight: 700 !important;
+    font-family: "GiantsInline", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+
+.textFontPreviewCourt {
+    font-weight: 400 !important;
+    font-family: "KBLCourt", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+}
+
+.textFontPreviewJump {
+    font-weight: 400 !important;
+    font-family: "KBLJump", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
 }
 
 .imageToolActions .uploadRow, .textActionRow {
@@ -1019,4 +1058,19 @@ canvas {
 .textFontPreviewCalli, .textFontBtn[data-text-font="calli"] {
     font-family: 'HakgyoansimGaeulsopungB', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', cursive !important;
     font-weight: 700 !important;
+}
+
+.textFontPreviewGiants, .textFontBtn[data-text-font="giants"] {
+    font-family: 'GiantsInline', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.textFontPreviewCourt, .textFontBtn[data-text-font="court"] {
+    font-family: 'KBLCourt', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 400 !important;
+}
+
+.textFontPreviewJump, .textFontBtn[data-text-font="jump"] {
+    font-family: 'KBLJump', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
+    font-weight: 400 !important;
 }
