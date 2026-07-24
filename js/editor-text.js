@@ -13,6 +13,9 @@ function getTextFontFamily(type = textFontType) {
     retro: "'BinggreIi', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
     calli: "'HakgyoansimGaeulsopungB', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', cursive",
     soft: "'HakgyoansimGaeulsopungB', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', cursive",
+    giants: "'GiantsInline', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
+    court: "'KBLCourt', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
+    jump: "'KBLJump', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
   };
   return map[type] || map.basic;
 }
@@ -20,10 +23,11 @@ function getTextFontFamily(type = textFontType) {
 function getTextFontWeight(type = textFontType) {
   // JalnanGothic / Cafe24 Ssurround / GriunMongtori는 단일 굵기 폰트라
   // 그 자체 디자인으로 이미 원하는 인상을 내므로 400을 사용.
-  // BinggreIi / HakgyoansimGaeulsopungB는 Bold(700) 파일 하나만 배포되어 700을 그대로 사용.
+  // BinggreIi / HakgyoansimGaeulsopungB / GiantsInline은 Bold(700) 파일 하나만 배포되어 700을 그대로 사용.
   if (type === "basic") return 700;
   if (type === "retro") return 700;
   if (type === "calli") return 700;
+  if (type === "giants") return 700;
   return 400;
 }
 
@@ -234,6 +238,9 @@ function syncTextFontPreviewButtons() {
     hand: "Aa 손글씨",
     retro: "Aa 레트로",
     calli: "Aa 캘리",
+    giants: "Aa 자이언츠",
+    court: "Aa 코트",
+    jump: "Aa 점프",
   };
 
   textFontBtnEls?.forEach((btn) => {

@@ -334,6 +334,9 @@
 .kidikidiBootstrap .textFontPreviewHand,
 .kidikidiBootstrap .textFontPreviewRetro,
 .kidikidiBootstrap .textFontPreviewCalli,
+.kidikidiBootstrap .textFontPreviewGiants,
+.kidikidiBootstrap .textFontPreviewCourt,
+.kidikidiBootstrap .textFontPreviewJump,
 .kidikidiBootstrap .textFontBtn[data-text-font] {
     font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "SF Pro Display", "SF Pro Text", sans-serif !important;
     letter-spacing: -0.02em !important;
@@ -830,6 +833,21 @@ body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="editor"]
     font-weight: 700 !important;
 }
 
+.kidikidiBootstrap .textFontPreviewGiants {
+    font-family: "GiantsInline", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.kidikidiBootstrap .textFontPreviewCourt {
+    font-family: "KBLCourt", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 400 !important;
+}
+
+.kidikidiBootstrap .textFontPreviewJump {
+    font-family: "KBLJump", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 400 !important;
+}
+
 
 /* =========================================================
  * fix7 overrides - font preview matches canvas render font
@@ -870,6 +888,24 @@ body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="editor"]
 .kidikidiBootstrap .textFontPreviewCalli {
     font-family: "HakgyoansimGaeulsopungB", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", cursive !important;
     font-weight: 700 !important;
+}
+
+.kidikidiBootstrap .textFontRow .textFontBtn[data-text-font="giants"],
+.kidikidiBootstrap .textFontPreviewGiants {
+    font-family: "GiantsInline", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 700 !important;
+}
+
+.kidikidiBootstrap .textFontRow .textFontBtn[data-text-font="court"],
+.kidikidiBootstrap .textFontPreviewCourt {
+    font-family: "KBLCourt", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 400 !important;
+}
+
+.kidikidiBootstrap .textFontRow .textFontBtn[data-text-font="jump"],
+.kidikidiBootstrap .textFontPreviewJump {
+    font-family: "KBLJump", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 400 !important;
 }
 
 /* =========================================================
@@ -920,6 +956,21 @@ body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn[data-text-font=
 body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn[data-text-font="calli"] {
     font-family: "HakgyoansimGaeulsopungB", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", cursive !important;
     font-weight: 700 !important;
+}
+
+body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn[data-text-font="giants"] {
+    font-family: "GiantsInline", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 700 !important;
+}
+
+body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn[data-text-font="court"] {
+    font-family: "KBLCourt", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 400 !important;
+}
+
+body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn[data-text-font="jump"] {
+    font-family: "KBLJump", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
+    font-weight: 400 !important;
 }
 
 /* 버튼 라벨이 길어져도 입력값으로 바뀌지 않지만, 혹시 모를 줄바꿈 방지 */
