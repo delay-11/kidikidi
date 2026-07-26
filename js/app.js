@@ -189,6 +189,7 @@ async function confirmOrder() {
   if (btnConfirmEl) btnConfirmEl.disabled = true;
   if (confirmModalOkEl) confirmModalOkEl.disabled = true;
 
+  showLoadingOverlay?.("시안을 접수하고 있습니다.<br />잠시만 기다려 주세요.");
   showToast?.("시안을 접수 중입니다.", "info", 1800);
 
   try {
@@ -241,6 +242,7 @@ async function confirmOrder() {
     showToast?.(`시안 접수 중 오류가 발생했습니다.${detail}`, "error", 3200);
     return false;
   } finally {
+    hideLoadingOverlay?.();
     if (!confirmed) {
       uiLocked = false;
       if (btnConfirmEl) btnConfirmEl.disabled = false;
