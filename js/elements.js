@@ -137,6 +137,12 @@ const confirmModalBodyEl = $("confirmModalBody");
 const confirmModalCancelEl = $("confirmModalCancel");
 const confirmModalOkEl = $("confirmModalOk");
 
+/* =========================================================
+ * 접수 처리중 로딩 팝업
+========================================================= */
+const loadingOverlayEl = $("loadingOverlay");
+const loadingOverlayTextEl = $("loadingOverlayText");
+
 
 /* =========================================================
  * 호환 변수 별칭
