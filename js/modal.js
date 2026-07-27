@@ -86,30 +86,6 @@ function openNoticeModal(
 }
 
 /* =========================================================
- * 접수 처리중 로딩 팝업
- * 시안 접수는 메일 전송 등으로 수 초 이상 걸릴 수 있는데,
- * 그 동안 화면이 그대로 멈춰 있으면 렉이 걸린 것처럼 보이므로
- * 접수 중임을 알려주는 팝업을 띄운다.
-========================================================= */
-function showLoadingOverlay(message) {
-  if (!loadingOverlayEl) return;
-
-  if (message && loadingOverlayTextEl) {
-    loadingOverlayTextEl.innerHTML = message;
-  }
-
-  loadingOverlayEl.classList.add("show");
-  loadingOverlayEl.setAttribute("aria-hidden", "false");
-}
-
-function hideLoadingOverlay() {
-  if (!loadingOverlayEl) return;
-
-  loadingOverlayEl.classList.remove("show");
-  loadingOverlayEl.setAttribute("aria-hidden", "true");
-}
-
-/* =========================================================
  * 모달 닫기
 ========================================================= */
 function closeConfirmModal() {
