@@ -7,6 +7,8 @@ const fieldErr = {
   phone: null,
   order: null,
   email: null,
+  profile: null,
+  capType: null,
 };
 
 /* =========================================================
@@ -48,6 +50,8 @@ fieldErr.name = ensureFieldErrorBox(nameEl, "name");
 fieldErr.phone = ensureFieldErrorBox(phoneEl, "phone");
 fieldErr.order = ensureFieldErrorBox(orderEl, "order");
 fieldErr.email = ensureFieldErrorBox(emailEl, "email");
+fieldErr.profile = ensureFieldErrorBox(profileEl, "profile");
+fieldErr.capType = ensureFieldErrorBox(capTypeEl, "capType");
 
 /* =========================================================
  * 필드 에러 표시
@@ -66,6 +70,8 @@ function setFieldError(key, message) {
     phone: phoneEl,
     order: orderEl,
     email: emailEl,
+    profile: profileEl,
+    capType: capTypeEl,
   };
 
   if (!message) {
@@ -85,6 +91,8 @@ function clearFieldErrors() {
   setFieldError("phone", "");
   setFieldError("order", "");
   setFieldError("email", "");
+  setFieldError("profile", "");
+  setFieldError("capType", "");
 }
 
 /* =========================================================
@@ -128,6 +136,16 @@ function validateDesignUserInfo(showMessage = false) {
   if (!EMAIL_RE.test(email)) {
     ok = false;
     if (showMessage) setFieldError("email", "이메일 형식이 올바르지 않습니다.");
+  }
+
+  if (!safeTrim(profileEl?.value)) {
+    ok = false;
+    if (showMessage) setFieldError("profile", "프로파일을 선택해주세요.");
+  }
+
+  if (!safeTrim(capTypeEl?.value)) {
+    ok = false;
+    if (showMessage) setFieldError("capType", "규격을 선택해주세요.");
   }
 
   if (showMessage) {
