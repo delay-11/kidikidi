@@ -394,6 +394,14 @@ input::placeholder, textarea::placeholder {
     color: #98a2b3;
 }
 
+select:required:invalid {
+    color: #98a2b3;
+}
+
+select option[value=""] {
+    color: #98a2b3;
+}
+
 input:focus, select:focus, textarea:focus {
     border-color: var(--acc);
     box-shadow: var(--focus-ring);
