@@ -99,6 +99,7 @@ function bindCustomerFieldEvents() {
 
     if (typeof updateDraftInfo === "function") updateDraftInfo();
     if (typeof updateActionLocks === "function") updateActionLocks();
+    if (typeof updateStepButtons === "function") updateStepButtons();
   });
 });
 
