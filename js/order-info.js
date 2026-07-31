@@ -36,7 +36,7 @@ function initProfileOptions() {
 /* =========================================================
  * 프로파일별 규격 옵션 구성
  * 사용자가 실제로 구매한 규격을 직접 고르게 하기 위해, 첫 옵션을
- * 자동으로 선택하지 않고 "선택하세요" 플레이스홀더를 항상 유지합니다.
+ * 자동으로 선택하지 않고 "선택하기" 플레이스홀더를 항상 유지합니다.
 ========================================================= */
 function setCapTypeOptions() {
   const p = profileEl.value;
@@ -45,7 +45,7 @@ function setCapTypeOptions() {
 
   const placeholder = document.createElement("option");
   placeholder.value = "";
-  placeholder.textContent = "선택하세요";
+  placeholder.textContent = "선택하기";
   placeholder.disabled = true;
   placeholder.selected = true;
   capTypeEl.appendChild(placeholder);
