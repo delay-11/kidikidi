@@ -316,19 +316,46 @@ async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
  *   순차 처리하고, 배치 사이에 텀을 둬서 두 문제를 함께 해결.
  * - 추가 수정 이유: 배치 사이 텀(500ms)이 짧아 발신 계정 쪽 순간 발송량
  *   제한에 걸리는 경우가 남아있어 텀을 늘림.
+ * - 추가 수정 이유: 배치가 20통 이상인 대형 주문에서는 배치별 재시도
+ *   (최대 3회, 수 초 내)를 다 채워도 그 시점의 순간 발송량 제한 구간을
+ *   벗어나지 못해 몇 통이 그대로 누락되는 경우가 있었음. 1차 순회가 모두
+ *   끝난 뒤, 그래도 실패한 배치가 있으면 한 텀 쉬었다가(제한 구간이
+ *   충분히 풀리도록) 그 배치들만 모아서 마지막으로 한 번 더 순차 재시도.
 ========================================================= */
 async function sendBatchesInOrder(batches, sendFn, allItems) {
-  const results = [];
+  const results = batches.map(() => null);
 
   for (let i = 0; i < batches.length; i += 1) {
     try {
       const value = await sendBatchWithRetry(batches[i], sendFn, allItems, i + 1, batches.length);
-      results.push({ status: "fulfilled", value });
+      results[i] = { status: "fulfilled", value };
     } catch (reason) {
-      results.push({ status: "rejected", reason });
+      results[i] = { status: "rejected", reason };
     }
 
     if (i < batches.length - 1) await wait(1200);
+  }
+
+  const failedIndexes = results
+    .map((r, i) => (r.status === "rejected" ? i : -1))
+    .filter((i) => i >= 0);
+
+  if (failedIndexes.length) {
+    console.warn(`[메일 배치 최종 재시도] ${failedIndexes.length}개 배치 쿨다운 후 재시도`, failedIndexes.map((i) => i + 1));
+    await wait(6000);
+
+    for (let j = 0; j < failedIndexes.length; j += 1) {
+      const i = failedIndexes[j];
+
+      try {
+        const value = await sendBatchWithRetry(batches[i], sendFn, allItems, i + 1, batches.length);
+        results[i] = { status: "fulfilled", value };
+      } catch (reason) {
+        results[i] = { status: "rejected", reason };
+      }
+
+      if (j < failedIndexes.length - 1) await wait(1200);
+    }
   }
 
   return results;
