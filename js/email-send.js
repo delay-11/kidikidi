@@ -275,6 +275,10 @@ function getDesignSubmitFailMessage(err) {
  * 첨부 용량 배치 기준
  * - EmailJS 첨부 한도(2MB)보다 여유 있게 안전 마진을 둠
  *   (템플릿 자체 HTML 용량 등도 고려)
+ * - js/email-attachments.js의 buildAttachmentFileList()에서도 시안 1개의
+ *   PNG+원본파일 합계가 이 기준을 넘지 않도록 원본파일을 제외하는 데
+ *   재사용함 (한 시안이 이 기준을 넘으면 단독 배치로 빠지는데, 그 배치는
+ *   용량 자체가 문제라 재시도해도 항상 실패하기 때문)
 ========================================================= */
 const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
 
