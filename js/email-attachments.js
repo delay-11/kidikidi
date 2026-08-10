@@ -365,6 +365,7 @@ async function buildAttachmentFileList(orderNo = "order") {
       // 오리지널 파일 번호는 같은 시안의 PNG 파일명과 항상 같은 번호가
       // 붙도록 getItemGroupSeq()로 동일하게 계산 (프로파일/규격별 순번)
       const groupSeq = String(getItemGroupSeq(item, items)).padStart(2, "0");
+      const compressedEntries = [];
 
       for (let fileIdx = 0; fileIdx < originalFiles.length; fileIdx += 1) {
         const originalFile = originalFiles[fileIdx];
@@ -402,11 +403,47 @@ async function buildAttachmentFileList(orderNo = "order") {
         }
 
         if (compressed?.base64) {
-          const entry = { filename: originalFilename, file: compressed.base64, isOriginal: true };
-          files.push(entry);
-          currentItemFiles.push(entry);
+          compressedEntries.push({
+            filename: originalFilename,
+            file: compressed.base64,
+            isOriginal: true,
+            fileIdx,
+          });
         }
       }
+
+      // 수정 이유: 원본파일을 여러 개 압축해도, 이 시안 하나(PNG + 원본
+      // 전체)의 첨부 용량 합계가 배치 목표치(EMAIL_ATTACHMENT_BATCH_MAX_BYTES)
+      // 를 넘으면 batchItemsByWeight()가 이 시안만 단독 배치로 뺄 수밖에
+      // 없는데, 그 배치는 용량 자체가 문제라 몇 번을 재시도해도 항상 같은
+      // 이유로 실패해서 시안이 통째로 누락됐음(재시도로 해결 불가능한
+      // 유형). PNG 시안 원본은 그대로 지키고, 용량이 큰 원본파일부터
+      // 순서대로 제외해 최소한 PNG 시안만이라도 확실히 접수되게 한다.
+      const pngWeight = currentItemFiles.reduce((sum, f) => sum + f.file.length, 0);
+      let totalWeight =
+        pngWeight + compressedEntries.reduce((sum, e) => sum + e.file.length, 0);
+
+      compressedEntries.sort((a, b) => b.file.length - a.file.length);
+
+      while (totalWeight > EMAIL_ATTACHMENT_BATCH_MAX_BYTES && compressedEntries.length) {
+        const dropped = compressedEntries.shift();
+        totalWeight -= dropped.file.length;
+        console.warn("[레이저 원본파일 첨부 용량 초과로 제외]", dropped.filename);
+        skippedOriginals.push({
+          filename:
+            originalFiles.length > 1
+              ? `${filename} (원본 ${dropped.fileIdx + 1}/${originalFiles.length})`
+              : filename,
+          reason: "첨부 용량 초과로 제외됨 (PNG 시안은 정상 첨부)",
+        });
+      }
+
+      compressedEntries
+        .sort((a, b) => a.fileIdx - b.fileIdx)
+        .forEach((entry) => {
+          files.push(entry);
+          currentItemFiles.push(entry);
+        });
     }
 
     itemFiles.push(currentItemFiles);
