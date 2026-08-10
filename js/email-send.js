@@ -279,19 +279,29 @@ function getDesignSubmitFailMessage(err) {
 const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
 
 /* =========================================================
- * 배치 1통 발송, 실패 시 짧은 대기 후 한 번 더 시도
+ * 배치 1통 발송, 실패 시 대기 후 최대 2회 재시도 (총 3회 시도)
  * - 수정 이유: 순간적인 네트워크 오류나 EmailJS 요청 제한으로 배치 하나가
  *   실패하면 그대로 메일이 통째로 누락됐음. 같은 주문 안에서 8개 시안이
  *   4통으로 나뉘었는데 1통만 실패해도 그 안의 시안 정보가 전부 빠지므로,
- *   재시도 없이 바로 실패 처리하기엔 손실이 큼 - 1회 재시도로 완화.
+ *   재시도 없이 바로 실패 처리하기엔 손실이 큼.
+ * - 추가 수정 이유: 1회 재시도(800ms 뒤 재발송)로도 이따금 누락이 남아있었음.
+ *   메일 발송 요청 자체는 성공(resolve)했는데 발신 계정 쪽 순간 발송량
+ *   제한으로 실제 발송이 조용히 실패하는 경우, 아주 짧은 대기 후 재시도하면
+ *   같은 제한 구간에 다시 걸릴 수 있어 대기 시간을 늘리고 재시도 횟수도
+ *   2회로 늘려 제한 구간을 벗어날 가능성을 높인다.
 ========================================================= */
 async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
-  try {
-    return await sendFn(batch, allItems, idx, total);
-  } catch (firstError) {
-    console.warn(`[메일 배치 ${idx}/${total} 1차 발송 실패, 재시도]`, firstError);
-    await wait(800);
-    return await sendFn(batch, allItems, idx, total);
+  const retryDelaysMs = [1200, 3000];
+
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await sendFn(batch, allItems, idx, total);
+    } catch (err) {
+      if (attempt >= retryDelaysMs.length) throw err;
+
+      console.warn(`[메일 배치 ${idx}/${total} ${attempt + 1}차 발송 실패, 재시도]`, err);
+      await wait(retryDelaysMs[attempt]);
+    }
   }
 }
 
@@ -303,9 +313,9 @@ async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
  *   보장이 없고, ② 순간적으로 여러 요청이 몰리면서 EmailJS 요청 제한에
  *   걸려 일부 배치가 조용히 실패(누락)하는 문제가 있었음.
  *   같은 수신자 앞으로 가는 배치끼리는 하나가 끝난 뒤 다음을 보내도록
- *   순차 처리하고, 배치 사이에 짧은 텀을 둬서 두 문제를 함께 해결.
- *   회사 발송과 고객 발송은 서로 다른 수신자라 순서가 섞여도 무방하므로
- *   기존처럼 병렬로 유지 (대기 시간 절약).
+ *   순차 처리하고, 배치 사이에 텀을 둬서 두 문제를 함께 해결.
+ * - 추가 수정 이유: 배치 사이 텀(500ms)이 짧아 발신 계정 쪽 순간 발송량
+ *   제한에 걸리는 경우가 남아있어 텀을 늘림.
 ========================================================= */
 async function sendBatchesInOrder(batches, sendFn, allItems) {
   const results = [];
@@ -318,7 +328,7 @@ async function sendBatchesInOrder(batches, sendFn, allItems) {
       results.push({ status: "rejected", reason });
     }
 
-    if (i < batches.length - 1) await wait(500);
+    if (i < batches.length - 1) await wait(1200);
   }
 
   return results;
@@ -329,12 +339,18 @@ async function sendBatchesInOrder(batches, sendFn, allItems) {
  * - 수정 이유:
  *   1) 첨부파일(PNG 렌더링 + 원본파일 인코딩)을 회사/고객 메일에
  *      각각 새로 만들지 않고 한 번만 만들어서 재사용 (대기 시간 단축)
- *   2) 회사 발송과 고객 발송은 서로 다른 수신자이므로 병렬로 진행해
- *      대기 시간을 줄이되, 같은 수신자 앞으로 가는 배치 메일끼리는
- *      sendBatchesInOrder()로 순서대로 발송해 도착 순서와 누락 문제를 방지
+ *   2) 같은 수신자 앞으로 가는 배치 메일끼리는 sendBatchesInOrder()로
+ *      순서대로 발송해 도착 순서와 누락 문제를 방지
  *   3) 시안이 많아 첨부 용량 합계가 EmailJS 한도(2MB)를 넘으면
  *      (1/2), (2/2)처럼 여러 통으로 나눠서 발송 (원본파일 포함 여부에
  *      따라 회사/고객 메일의 배치 개수가 서로 다를 수 있음)
+ * - 추가 수정 이유: 회사 발송과 고객 발송을 Promise.all()로 항상 동시에
+ *   진행했더니, 배치가 여러 통으로 나뉘는 주문에서 두 수신자 앞 요청이
+ *   겹쳐서 순간적으로 몰릴 때 발신 계정 쪽 발송량 제한에 걸려 요청은
+ *   성공(resolve)했는데 실제로는 일부 메일이 조용히 누락되는 경우가
+ *   있었음(재시도로도 못 잡음). 배치가 1통뿐인 대부분의 주문은 기존처럼
+ *   병렬로 유지해 접수 속도를 지키고, 여러 통으로 나뉘는 주문만 회사 →
+ *   고객 순으로 완전히 순차 처리해 동시 발송량 자체를 줄인다.
 ========================================================= */
 async function sendOrderEmails() {
   const orderNo = safeTrim(orderEl?.value) || "order";
@@ -383,10 +399,23 @@ async function sendOrderEmails() {
 
   const allItems = fileList.items;
 
-  const [companyResults, customerResults] = await Promise.all([
-    sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems),
-    sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems),
-  ]);
+  // 배치가 여러 통으로 나뉘는 주문만 회사 → 고객 순차 처리로 동시 발송량을
+  // 낮추고, 배치가 1통뿐인 일반적인 주문은 기존처럼 병렬로 빠르게 처리한다.
+  const isSplitOrder = companyBatches.length > 1 || customerBatches.length > 1;
+
+  let companyResults;
+  let customerResults;
+
+  if (isSplitOrder) {
+    companyResults = await sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems);
+    if (customerBatches.length) await wait(1200);
+    customerResults = await sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems);
+  } else {
+    [companyResults, customerResults] = await Promise.all([
+      sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems),
+      sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems),
+    ]);
+  }
 
   const companyOk =
     companyResults.length > 0 && companyResults.every((r) => r.status === "fulfilled");
