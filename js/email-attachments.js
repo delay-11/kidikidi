@@ -128,6 +128,15 @@ async function waitForDesignFontsReady() {
 ========================================================= */
 const SMALL_CANVAS_EXPORT_SCALE = 3;
 
+/* =========================================================
+ * 시안 첨부 용량 상한
+ * - 수정 이유: 사진처럼 색이 복잡한 이미지가 들어간 시안은 무손실 PNG로
+ *   내보내면 용량이 수 MB까지 커져서, 시안 1개만으로도 메일 배치 한도
+ *   (EMAIL_ATTACHMENT_BATCH_MAX_BYTES, email-send.js)를 넘어 접수 자체가
+ *   실패했음. 배치 한도보다 여유를 둔 목표치.
+========================================================= */
+const DESIGN_ATTACHMENT_TARGET_MAX_BYTES = 1_400_000;
+
 async function renderItemToPngDataUrl(item) {
   await waitForDesignFontsReady();
 
@@ -235,7 +244,22 @@ async function renderItemToPngDataUrl(item) {
       : [];
   attachmentTexts.forEach((t) => drawTextObjectToContext?.(offCtx, size.w, size.h, t));
 
-  return off.toDataURL("image/png");
+  const pngDataUrl = off.toDataURL("image/png");
+
+  if (estimateBase64Bytes(pngDataUrl) <= DESIGN_ATTACHMENT_TARGET_MAX_BYTES) {
+    return pngDataUrl;
+  }
+
+  // 수정 이유: 캔버스는 그리기 전에 항상 배경을 불투명하게 채우므로
+  // 투명도가 필요 없음 - 용량이 클 때만 JPEG로 전환해도 시각적 손실이
+  // 거의 없다 (레이저 원본파일 압축과 동일한 방식, compressFileForEmailAttachment 참고).
+  let quality = 0.92;
+  let outDataUrl = off.toDataURL("image/jpeg", quality);
+  while (estimateBase64Bytes(outDataUrl) > DESIGN_ATTACHMENT_TARGET_MAX_BYTES && quality > 0.6) {
+    quality -= 0.08;
+    outDataUrl = off.toDataURL("image/jpeg", quality);
+  }
+  return outDataUrl;
 }
 
 /* =========================================================
