@@ -183,6 +183,40 @@ function formatErrDetail(err) {
   return detail.length > 160 ? `${detail.slice(0, 160)}…` : detail;
 }
 
+/* =========================================================
+ * EmailJS 계정/과금 문제(관리자만 해결 가능) 여부 판단
+ * - 수정 이유: 발신 계정 쪽 발송 한도/잔액이 꽉 찬 경우, 에러 메시지에
+ *   "limit" 같은 단어가 섞여 있어 기존 "첨부 용량 초과" 분류에 잘못
+ *   걸려서 "이미지 용량을 줄여보세요"라는 엉뚱한 안내가 떴음. 고객이
+ *   스스로 해결할 수 없는 이런 계정 단위 문제는 별도로 구분해서, 토스트
+ *   대신 "시스템 오류 - 관리자 문의" 팝업으로 명확히 안내한다.
+ * - EmailJS가 실제로 어떤 문구/상태코드로 반환하는지 정확히 검증된 건
+ *   아니라, 흔히 쓰이는 과금/한도 관련 키워드를 폭넓게 잡아둔 것.
+ *   실제 발생 시 콘솔의 [시안 접수 상세 오류] 로그로 키워드를 다듬을 수 있음.
+========================================================= */
+function isEmailSystemIssue(err) {
+  const message = String(err?.message || "").toLowerCase();
+  const text = String(err?.text || "").toLowerCase();
+  const status = String(err?.status || "").toLowerCase();
+  const joined = `${message} ${text} ${status}`.trim();
+
+  return (
+    status === "402" ||
+    joined.includes("insufficient") ||
+    joined.includes("balance") ||
+    joined.includes("quota") ||
+    joined.includes("plan limit") ||
+    joined.includes("monthly limit") ||
+    joined.includes("account") ||
+    joined.includes("suspended") ||
+    joined.includes("blocked") ||
+    joined.includes("exceeded the") ||
+    joined.includes("reached the limit") ||
+    joined.includes("한도") ||
+    joined.includes("잔액")
+  );
+}
+
 function getDesignSubmitFailMessage(err) {
   const message = String(err?.message || "").toLowerCase();
   const text = String(err?.text || "").toLowerCase();
@@ -200,6 +234,13 @@ function getDesignSubmitFailMessage(err) {
 
   const detail = formatErrDetail(err);
   const withDetail = (guide) => (detail ? `${guide} (오류 상세: ${detail})` : guide);
+
+  // 수정 이유:
+  // 계정/과금 문제는 다른 분류(특히 "limit" 키워드가 겹치는 첨부 용량
+  // 초과 분류)보다 먼저 확인해야 오분류를 막을 수 있음
+  if (isEmailSystemIssue(err)) {
+    return withDetail("사이트 시스템 오류로 시안 접수가 되지 않았습니다. 관리자에게 문의해주세요.");
+  }
 
   // 수정 이유:
   // ZIP/압축 단계에서 실패한 경우 사용자에게 용량/개수 조절 안내
@@ -423,6 +464,7 @@ async function sendOrderEmails() {
       companyOk: false,
       customerOk: false,
       message: getDesignSubmitFailMessage(err),
+      systemIssue: isEmailSystemIssue(err),
       companyError: err,
       customerError: null,
     };
@@ -468,6 +510,7 @@ async function sendOrderEmails() {
       companyOk,
       customerOk,
       message: getDesignSubmitFailMessage(companyError), // 수정 이유: 사용자에게 보여줄 상세 실패 문구 반환
+      systemIssue: isEmailSystemIssue(companyError),
       companyError,
       customerError,
     };

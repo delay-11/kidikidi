@@ -190,20 +190,33 @@ async function confirmOrder() {
   if (btnConfirmEl) btnConfirmEl.disabled = true;
   if (confirmModalOkEl) confirmModalOkEl.disabled = true;
 
-  showToast?.("시안을 접수 중입니다.", "info", 1800);
+  // 수정 이유: 첨부 렌더링 + 메일 발송이 끝날 때까지 걸리는 시간 동안
+  // 화면이 멈춘 것처럼 보이지 않도록, 이미 열려있는 확정 모달을 로딩
+  // 화면으로 전환한다 (기존의 짧게 뜨고 사라지는 토스트 대신).
+  if (typeof showConfirmModalLoading === "function") showConfirmModalLoading();
 
   try {
     const result = await sendOrderEmails();
 
     if (!result?.ok) {
       const failMessage = result?.message || "시안 접수에 실패했습니다. 다시 시도해주세요.";
-      showToast?.(
-        failMessage,
-        "error",
-        // 수정 이유: 원인 카테고리 + 기술적 상세까지 붙어 문구가 길어졌으므로
-        // 다 읽을 수 있도록 길이에 비례해 표시 시간을 늘림
-        Math.min(3200 + failMessage.length * 25, 7000),
-      );
+
+      // 수정 이유: 고객이 스스로 해결할 수 없는 시스템(EmailJS 계정/한도)
+      // 문제는 토스트가 아니라 팝업으로 명확히 "관리자 문의"를 안내한다.
+      // 그 외 사유(용량/네트워크 등)는 기존처럼 토스트로 안내하고, 모달은
+      // 재시도할 수 있도록 확인 질문 상태로 되돌린다.
+      if (result?.systemIssue && typeof openSystemErrorModal === "function") {
+        openSystemErrorModal(failMessage);
+      } else {
+        if (typeof openConfirmModal === "function") openConfirmModal();
+        showToast?.(
+          failMessage,
+          "error",
+          // 수정 이유: 원인 카테고리 + 기술적 상세까지 붙어 문구가 길어졌으므로
+          // 다 읽을 수 있도록 길이에 비례해 표시 시간을 늘림
+          Math.min(3200 + failMessage.length * 25, 7000),
+        );
+      }
       return false;
     }
 
@@ -239,6 +252,7 @@ async function confirmOrder() {
   } catch (err) {
     console.error(err);
     const detail = err?.message ? ` (오류 상세: ${err.message})` : "";
+    if (typeof openConfirmModal === "function") openConfirmModal();
     showToast?.(`시안 접수 중 오류가 발생했습니다.${detail}`, "error", 3200);
     return false;
   } finally {
