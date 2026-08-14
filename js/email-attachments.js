@@ -128,19 +128,15 @@ async function waitForDesignFontsReady() {
 ========================================================= */
 const SMALL_CANVAS_EXPORT_SCALE = 3;
 
-async function renderItemToPngDataUrl(item) {
-  await waitForDesignFontsReady();
-
-  const profile = safeTrim(item?.profile) || "OEM";
-  const capType = safeTrim(item?.capType) || "-";
-  const size = getCanvasSize(profile, capType);
-
-  const exportScale =
-    size.w === 330 && size.h === 330 ? SMALL_CANVAS_EXPORT_SCALE : 1;
-
+/* =========================================================
+ * 지정한 배율로 시안을 캔버스에 렌더링
+ * - renderItemToPngDataUrl()에서 용량 초과 시 배율을 낮춰 재렌더링하거나,
+ *   PNG 대신 JPEG로도 내보낼 수 있도록 캔버스 자체를 반환한다
+========================================================= */
+async function renderItemToCanvasAtScale(item, size, exportScale) {
   const off = document.createElement("canvas");
-  off.width = size.w * exportScale;
-  off.height = size.h * exportScale;
+  off.width = Math.max(1, Math.round(size.w * exportScale));
+  off.height = Math.max(1, Math.round(size.h * exportScale));
 
   const offCtx = off.getContext("2d");
   if (!offCtx) {
@@ -235,7 +231,83 @@ async function renderItemToPngDataUrl(item) {
       : [];
   attachmentTexts.forEach((t) => drawTextObjectToContext?.(offCtx, size.w, size.h, t));
 
-  return off.toDataURL("image/png");
+  return off;
+}
+
+/* =========================================================
+ * 캔버스를 흰 배경의 JPEG data URL로 변환 (알파 없는 포맷이라 배경을 먼저 채움)
+========================================================= */
+function canvasToJpegDataUrl(canvas, quality) {
+  const flat = document.createElement("canvas");
+  flat.width = canvas.width;
+  flat.height = canvas.height;
+
+  const flatCtx = flat.getContext("2d");
+  flatCtx.fillStyle = "#ffffff";
+  flatCtx.fillRect(0, 0, flat.width, flat.height);
+  flatCtx.drawImage(canvas, 0, 0);
+
+  return flat.toDataURL("image/jpeg", quality);
+}
+
+/* =========================================================
+ * 시안을 PNG(필요시 JPEG) data URL로 렌더링 - 용량 초과 시 무조건 접수되도록
+ * 배율/화질을 단계적으로 낮춰 재시도
+ * - 수정 이유: 기본 규격(330x330)은 화질을 위해 3배 확대해서 내보내는데,
+ *   사진처럼 디테일이 많은 이미지는 이 PNG 자체가 이메일 배치 용량
+ *   기준(EMAIL_ATTACHMENT_BATCH_MAX_BYTES)을 넘을 수 있음. 레이저
+ *   원본파일이 없는 순수 PNG 시안은 뺄 첨부가 없어서 그대로 접수가
+ *   막혔음("이미지 두 장을 겹쳐서 만든 시안만 접수가 안 된다"는 문의도
+ *   같은 원인 - 합성 이미지일수록 PNG가 무거워지기 쉬움). 화질이 낮아지더라도
+ *   접수 자체는 무조건 되어야 하므로, 다음 순서로 단계적으로 낮춘다:
+ *   1) 내보내기 배율을 3배 -> 1배까지 축소 (여전히 PNG, 무손실)
+ *   2) 그래도 넘으면 1배 캔버스를 JPEG로 전환해 화질을 단계적으로 낮춤
+ *      (레이저 원본파일 압축과 동일한 방식)
+========================================================= */
+async function renderItemToPngDataUrl(item) {
+  await waitForDesignFontsReady();
+
+  const profile = safeTrim(item?.profile) || "OEM";
+  const capType = safeTrim(item?.capType) || "-";
+  const size = getCanvasSize(profile, capType);
+
+  const baseExportScale =
+    size.w === 330 && size.h === 330 ? SMALL_CANVAS_EXPORT_SCALE : 1;
+
+  let exportScale = baseExportScale;
+  let canvas = await renderItemToCanvasAtScale(item, size, exportScale);
+  let dataUrl = canvas.toDataURL("image/png");
+
+  while (
+    exportScale > 1 &&
+    dataUrlToBase64(dataUrl).length > EMAIL_ATTACHMENT_BATCH_MAX_BYTES
+  ) {
+    exportScale = Math.max(1, exportScale - 0.5);
+    console.warn(`[PNG 용량 초과, 배율 축소 재렌더링] ${exportScale}배`);
+    canvas = await renderItemToCanvasAtScale(item, size, exportScale);
+    dataUrl = canvas.toDataURL("image/png");
+  }
+
+  if (dataUrlToBase64(dataUrl).length <= EMAIL_ATTACHMENT_BATCH_MAX_BYTES) {
+    return dataUrl;
+  }
+
+  // 수정 이유: 배율을 최소(1배)까지 낮춰도 여전히 용량을 넘는 극단적인
+  // 경우 - 접수 자체는 무조건 되어야 하므로 마지막 수단으로 JPEG 화질을
+  // 단계적으로 낮춰서라도 기준 용량 안에 들어오게 만든다.
+  let quality = 0.85;
+  let jpegDataUrl = canvasToJpegDataUrl(canvas, quality);
+
+  while (
+    dataUrlToBase64(jpegDataUrl).length > EMAIL_ATTACHMENT_BATCH_MAX_BYTES &&
+    quality > 0.25
+  ) {
+    quality -= 0.1;
+    jpegDataUrl = canvasToJpegDataUrl(canvas, quality);
+  }
+
+  console.warn(`[PNG 용량 초과, JPEG 화질 ${quality.toFixed(2)}로 최종 변환]`);
+  return jpegDataUrl;
 }
 
 /* =========================================================
@@ -332,7 +404,7 @@ async function buildAttachmentFileList(orderNo = "order") {
     const item = items[i];
     const currentItemFiles = [];
 
-    const filename = getItemDisplayName(item, items);
+    let filename = getItemDisplayName(item, items);
 
     // 수정 이유: 어느 시안에서 렌더링이 실패했는지 알 수 있도록 원본
     // 오류 메시지 앞에 시안 파일명을 붙여서 다시 던짐 - 이 예외는
@@ -343,6 +415,12 @@ async function buildAttachmentFileList(orderNo = "order") {
       dataUrl = await renderItemToPngDataUrl(item);
     } catch (err) {
       throw new Error(`[${filename}] 시안 이미지 생성 실패: ${err?.message || err}`);
+    }
+
+    // 수정 이유: 극단적인 용량 초과로 JPEG로 최종 변환된 경우, 파일명도
+    // 실제 포맷(.jpg)에 맞게 바꿔줘야 확장자와 내용이 어긋나지 않음
+    if (dataUrl.startsWith("data:image/jpeg")) {
+      filename = filename.replace(/\.png$/i, ".jpg");
     }
 
     const base64 = dataUrlToBase64(dataUrl);
