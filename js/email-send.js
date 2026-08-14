@@ -324,29 +324,26 @@ function getDesignSubmitFailMessage(err) {
 const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
 
 /* =========================================================
- * 배치 1통 발송, 실패 시 대기 후 최대 2회 재시도 (총 3회 시도)
- * - 수정 이유: 순간적인 네트워크 오류나 EmailJS 요청 제한으로 배치 하나가
- *   실패하면 그대로 메일이 통째로 누락됐음. 같은 주문 안에서 8개 시안이
- *   4통으로 나뉘었는데 1통만 실패해도 그 안의 시안 정보가 전부 빠지므로,
- *   재시도 없이 바로 실패 처리하기엔 손실이 큼.
- * - 추가 수정 이유: 1회 재시도(800ms 뒤 재발송)로도 이따금 누락이 남아있었음.
- *   메일 발송 요청 자체는 성공(resolve)했는데 발신 계정 쪽 순간 발송량
- *   제한으로 실제 발송이 조용히 실패하는 경우, 아주 짧은 대기 후 재시도하면
- *   같은 제한 구간에 다시 걸릴 수 있어 대기 시간을 늘리고 재시도 횟수도
- *   2회로 늘려 제한 구간을 벗어날 가능성을 높인다.
+ * 배치 1통 발송, 실패 시 대기 후 1회만 재시도 (총 2회 시도)
+ * - 수정 이유: 순간적인 네트워크 오류로 배치 하나가 실패하면 그대로
+ *   메일이 통째로 누락됐음. 같은 주문 안에서 8개 시안이 4통으로
+ *   나뉘었는데 1통만 실패해도 그 안의 시안 정보가 전부 빠지므로,
+ *   재시도 없이 바로 실패 처리하기엔 손실이 큼 - 1회 재시도로 완화.
+ * - 되돌린 이유: 한때 재시도를 2회(최대 3~4회 시도)까지 늘렸었는데,
+ *   "배치가 계속 누락되는" 진짜 원인은 발송량 제한이 아니라 시안 1개의
+ *   첨부 용량 초과였음(별도로 근본 수정함, EMAIL_ATTACHMENT_BATCH_MAX_BYTES
+ *   기준으로 원본파일을 미리 제외). 재시도는 요청이 서버까지는 갔는데
+ *   응답만 못 받아 실패로 착각하는 경우에도 똑같이 재발송되므로, 시도
+ *   횟수를 늘릴수록 "실제로는 이미 보내졌는데 중복으로 또 보내지는"
+ *   위험만 커짐 - 진짜 원인이 따로 고쳐졌으니 재시도는 다시 최소화한다.
 ========================================================= */
 async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
-  const retryDelaysMs = [1200, 3000];
-
-  for (let attempt = 0; ; attempt += 1) {
-    try {
-      return await sendFn(batch, allItems, idx, total);
-    } catch (err) {
-      if (attempt >= retryDelaysMs.length) throw err;
-
-      console.warn(`[메일 배치 ${idx}/${total} ${attempt + 1}차 발송 실패, 재시도]`, err);
-      await wait(retryDelaysMs[attempt]);
-    }
+  try {
+    return await sendFn(batch, allItems, idx, total);
+  } catch (err) {
+    console.warn(`[메일 배치 ${idx}/${total} 1차 발송 실패, 재시도]`, err);
+    await wait(1500);
+    return await sendFn(batch, allItems, idx, total);
   }
 }
 
@@ -354,18 +351,9 @@ async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
  * 같은 수신자(회사 또는 고객) 앞으로 가는 배치 메일들을 순서대로 발송
  * - 수정 이유: batchItemsByWeight()로 나뉜 배치를 map()으로 한꺼번에
  *   병렬 발송하면, 배치 순서와 상관없이 emailjs 요청이 동시에 나가서
- *   ① 메일 서버 처리 순서가 뒤섞여 (1/3)(2/3)(3/3)이 순서대로 도착한다는
- *   보장이 없고, ② 순간적으로 여러 요청이 몰리면서 EmailJS 요청 제한에
- *   걸려 일부 배치가 조용히 실패(누락)하는 문제가 있었음.
- *   같은 수신자 앞으로 가는 배치끼리는 하나가 끝난 뒤 다음을 보내도록
- *   순차 처리하고, 배치 사이에 텀을 둬서 두 문제를 함께 해결.
- * - 추가 수정 이유: 배치 사이 텀(500ms)이 짧아 발신 계정 쪽 순간 발송량
- *   제한에 걸리는 경우가 남아있어 텀을 늘림.
- * - 추가 수정 이유: 배치가 20통 이상인 대형 주문에서는 배치별 재시도
- *   (최대 3회, 수 초 내)를 다 채워도 그 시점의 순간 발송량 제한 구간을
- *   벗어나지 못해 몇 통이 그대로 누락되는 경우가 있었음. 1차 순회가 모두
- *   끝난 뒤, 그래도 실패한 배치가 있으면 한 텀 쉬었다가(제한 구간이
- *   충분히 풀리도록) 그 배치들만 모아서 마지막으로 한 번 더 순차 재시도.
+ *   메일 서버 처리 순서가 뒤섞여 (1/3)(2/3)(3/3)이 순서대로 도착한다는
+ *   보장이 없었음. 같은 수신자 앞으로 가는 배치끼리는 하나가 끝난 뒤
+ *   다음을 보내도록 순차 처리하고, 배치 사이에 짧은 텀을 둔다.
 ========================================================= */
 async function sendBatchesInOrder(batches, sendFn, allItems) {
   const results = batches.map(() => null);
@@ -378,29 +366,7 @@ async function sendBatchesInOrder(batches, sendFn, allItems) {
       results[i] = { status: "rejected", reason };
     }
 
-    if (i < batches.length - 1) await wait(1200);
-  }
-
-  const failedIndexes = results
-    .map((r, i) => (r.status === "rejected" ? i : -1))
-    .filter((i) => i >= 0);
-
-  if (failedIndexes.length) {
-    console.warn(`[메일 배치 최종 재시도] ${failedIndexes.length}개 배치 쿨다운 후 재시도`, failedIndexes.map((i) => i + 1));
-    await wait(6000);
-
-    for (let j = 0; j < failedIndexes.length; j += 1) {
-      const i = failedIndexes[j];
-
-      try {
-        const value = await sendBatchWithRetry(batches[i], sendFn, allItems, i + 1, batches.length);
-        results[i] = { status: "fulfilled", value };
-      } catch (reason) {
-        results[i] = { status: "rejected", reason };
-      }
-
-      if (j < failedIndexes.length - 1) await wait(1200);
-    }
+    if (i < batches.length - 1) await wait(600);
   }
 
   return results;
