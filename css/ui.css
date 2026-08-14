@@ -452,6 +452,41 @@ button:disabled {
     min-width: 120px;
 }
 
+.confirmModal.loading .confirmModalActions {
+    display: none;
+}
+
+.confirmModalLoading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0 6px;
+    text-align: center;
+}
+
+.confirmModalLoading p {
+    margin: 0;
+    color: var(--txt);
+    font-size: var(--fs-13);
+    line-height: 1.6;
+}
+
+.confirmModalSpinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--line);
+    border-top-color: var(--acc);
+    border-radius: 50%;
+    animation: confirmModalSpin 0.8s linear infinite;
+}
+
+@keyframes confirmModalSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .editorOnboarding {
     position: fixed;
     inset: 0;

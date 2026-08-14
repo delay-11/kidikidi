@@ -183,6 +183,40 @@ function formatErrDetail(err) {
   return detail.length > 160 ? `${detail.slice(0, 160)}…` : detail;
 }
 
+/* =========================================================
+ * EmailJS 계정/과금 문제(관리자만 해결 가능) 여부 판단
+ * - 수정 이유: 발신 계정 쪽 발송 한도/잔액이 꽉 찬 경우, 에러 메시지에
+ *   "limit" 같은 단어가 섞여 있어 기존 "첨부 용량 초과" 분류에 잘못
+ *   걸려서 "이미지 용량을 줄여보세요"라는 엉뚱한 안내가 떴음. 고객이
+ *   스스로 해결할 수 없는 이런 계정 단위 문제는 별도로 구분해서, 토스트
+ *   대신 "시스템 오류 - 관리자 문의" 팝업으로 명확히 안내한다.
+ * - EmailJS가 실제로 어떤 문구/상태코드로 반환하는지 정확히 검증된 건
+ *   아니라, 흔히 쓰이는 과금/한도 관련 키워드를 폭넓게 잡아둔 것.
+ *   실제 발생 시 콘솔의 [시안 접수 상세 오류] 로그로 키워드를 다듬을 수 있음.
+========================================================= */
+function isEmailSystemIssue(err) {
+  const message = String(err?.message || "").toLowerCase();
+  const text = String(err?.text || "").toLowerCase();
+  const status = String(err?.status || "").toLowerCase();
+  const joined = `${message} ${text} ${status}`.trim();
+
+  return (
+    status === "402" ||
+    joined.includes("insufficient") ||
+    joined.includes("balance") ||
+    joined.includes("quota") ||
+    joined.includes("plan limit") ||
+    joined.includes("monthly limit") ||
+    joined.includes("account") ||
+    joined.includes("suspended") ||
+    joined.includes("blocked") ||
+    joined.includes("exceeded the") ||
+    joined.includes("reached the limit") ||
+    joined.includes("한도") ||
+    joined.includes("잔액")
+  );
+}
+
 function getDesignSubmitFailMessage(err) {
   const message = String(err?.message || "").toLowerCase();
   const text = String(err?.text || "").toLowerCase();
@@ -200,6 +234,13 @@ function getDesignSubmitFailMessage(err) {
 
   const detail = formatErrDetail(err);
   const withDetail = (guide) => (detail ? `${guide} (오류 상세: ${detail})` : guide);
+
+  // 수정 이유:
+  // 계정/과금 문제는 다른 분류(특히 "limit" 키워드가 겹치는 첨부 용량
+  // 초과 분류)보다 먼저 확인해야 오분류를 막을 수 있음
+  if (isEmailSystemIssue(err)) {
+    return withDetail("사이트 시스템 오류로 시안 접수가 되지 않았습니다. 관리자에게 문의해주세요.");
+  }
 
   // 수정 이유:
   // ZIP/압축 단계에서 실패한 경우 사용자에게 용량/개수 조절 안내
@@ -283,83 +324,33 @@ function getDesignSubmitFailMessage(err) {
 const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
 
 /* =========================================================
- * 배치 1통 발송, 실패 시 대기 후 최대 2회 재시도 (총 3회 시도)
- * - 수정 이유: 순간적인 네트워크 오류나 EmailJS 요청 제한으로 배치 하나가
- *   실패하면 그대로 메일이 통째로 누락됐음. 같은 주문 안에서 8개 시안이
- *   4통으로 나뉘었는데 1통만 실패해도 그 안의 시안 정보가 전부 빠지므로,
- *   재시도 없이 바로 실패 처리하기엔 손실이 큼.
- * - 추가 수정 이유: 1회 재시도(800ms 뒤 재발송)로도 이따금 누락이 남아있었음.
- *   메일 발송 요청 자체는 성공(resolve)했는데 발신 계정 쪽 순간 발송량
- *   제한으로 실제 발송이 조용히 실패하는 경우, 아주 짧은 대기 후 재시도하면
- *   같은 제한 구간에 다시 걸릴 수 있어 대기 시간을 늘리고 재시도 횟수도
- *   2회로 늘려 제한 구간을 벗어날 가능성을 높인다.
-========================================================= */
-async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
-  const retryDelaysMs = [1200, 3000];
-
-  for (let attempt = 0; ; attempt += 1) {
-    try {
-      return await sendFn(batch, allItems, idx, total);
-    } catch (err) {
-      if (attempt >= retryDelaysMs.length) throw err;
-
-      console.warn(`[메일 배치 ${idx}/${total} ${attempt + 1}차 발송 실패, 재시도]`, err);
-      await wait(retryDelaysMs[attempt]);
-    }
-  }
-}
-
-/* =========================================================
  * 같은 수신자(회사 또는 고객) 앞으로 가는 배치 메일들을 순서대로 발송
  * - 수정 이유: batchItemsByWeight()로 나뉜 배치를 map()으로 한꺼번에
  *   병렬 발송하면, 배치 순서와 상관없이 emailjs 요청이 동시에 나가서
- *   ① 메일 서버 처리 순서가 뒤섞여 (1/3)(2/3)(3/3)이 순서대로 도착한다는
- *   보장이 없고, ② 순간적으로 여러 요청이 몰리면서 EmailJS 요청 제한에
- *   걸려 일부 배치가 조용히 실패(누락)하는 문제가 있었음.
- *   같은 수신자 앞으로 가는 배치끼리는 하나가 끝난 뒤 다음을 보내도록
- *   순차 처리하고, 배치 사이에 텀을 둬서 두 문제를 함께 해결.
- * - 추가 수정 이유: 배치 사이 텀(500ms)이 짧아 발신 계정 쪽 순간 발송량
- *   제한에 걸리는 경우가 남아있어 텀을 늘림.
- * - 추가 수정 이유: 배치가 20통 이상인 대형 주문에서는 배치별 재시도
- *   (최대 3회, 수 초 내)를 다 채워도 그 시점의 순간 발송량 제한 구간을
- *   벗어나지 못해 몇 통이 그대로 누락되는 경우가 있었음. 1차 순회가 모두
- *   끝난 뒤, 그래도 실패한 배치가 있으면 한 텀 쉬었다가(제한 구간이
- *   충분히 풀리도록) 그 배치들만 모아서 마지막으로 한 번 더 순차 재시도.
+ *   메일 서버 처리 순서가 뒤섞여 (1/3)(2/3)(3/3)이 순서대로 도착한다는
+ *   보장이 없었음. 같은 수신자 앞으로 가는 배치끼리는 하나가 끝난 뒤
+ *   다음을 보내도록 순차 처리하고, 배치 사이에 짧은 텀을 둔다.
+ * - 수정 이유(재시도 제거): 이전에는 배치 발송 실패 시 재시도를 했는데,
+ *   요청이 서버까지는 갔지만 응답만 못 받아 실패로 착각하는 경우에도
+ *   똑같이 재발송되어 같은 시안이 중복으로 여러 통 발송되는 문제가
+ *   있었음. 배치가 계속 누락되던 진짜 원인(첨부 용량 초과)은 이미
+ *   근본적으로 고쳤으므로(EMAIL_ATTACHMENT_BATCH_MAX_BYTES 기준으로
+ *   원본파일을 미리 제외), 재시도 없이 1회만 시도하고 실패하면 바로
+ *   실패로 처리해 중복 발송 위험을 없앤다.
 ========================================================= */
 async function sendBatchesInOrder(batches, sendFn, allItems) {
   const results = batches.map(() => null);
 
   for (let i = 0; i < batches.length; i += 1) {
     try {
-      const value = await sendBatchWithRetry(batches[i], sendFn, allItems, i + 1, batches.length);
+      const value = await sendFn(batches[i], allItems, i + 1, batches.length);
       results[i] = { status: "fulfilled", value };
     } catch (reason) {
+      console.warn(`[메일 배치 ${i + 1}/${batches.length} 발송 실패]`, reason);
       results[i] = { status: "rejected", reason };
     }
 
-    if (i < batches.length - 1) await wait(1200);
-  }
-
-  const failedIndexes = results
-    .map((r, i) => (r.status === "rejected" ? i : -1))
-    .filter((i) => i >= 0);
-
-  if (failedIndexes.length) {
-    console.warn(`[메일 배치 최종 재시도] ${failedIndexes.length}개 배치 쿨다운 후 재시도`, failedIndexes.map((i) => i + 1));
-    await wait(6000);
-
-    for (let j = 0; j < failedIndexes.length; j += 1) {
-      const i = failedIndexes[j];
-
-      try {
-        const value = await sendBatchWithRetry(batches[i], sendFn, allItems, i + 1, batches.length);
-        results[i] = { status: "fulfilled", value };
-      } catch (reason) {
-        results[i] = { status: "rejected", reason };
-      }
-
-      if (j < failedIndexes.length - 1) await wait(1200);
-    }
+    if (i < batches.length - 1) await wait(600);
   }
 
   return results;
@@ -423,6 +414,7 @@ async function sendOrderEmails() {
       companyOk: false,
       customerOk: false,
       message: getDesignSubmitFailMessage(err),
+      systemIssue: isEmailSystemIssue(err),
       companyError: err,
       customerError: null,
     };
@@ -468,6 +460,7 @@ async function sendOrderEmails() {
       companyOk,
       customerOk,
       message: getDesignSubmitFailMessage(companyError), // 수정 이유: 사용자에게 보여줄 상세 실패 문구 반환
+      systemIssue: isEmailSystemIssue(companyError),
       companyError,
       customerError,
     };
