@@ -37,6 +37,9 @@ function initProfileOptions() {
  * 프로파일별 규격 옵션 구성
  * 사용자가 실제로 구매한 규격을 직접 고르게 하기 위해, 첫 옵션을
  * 자동으로 선택하지 않고 "선택하기" 플레이스홀더를 항상 유지합니다.
+ * - 단, 규격이 1개뿐인 프로파일(XDA, MAO 등)은 고를 필요 자체가 없으므로
+ *   자동으로 선택해줍니다 - 실수로 잘못 고르는 걸 막으려는 목적이
+ *   선택지가 하나뿐일 때는 의미가 없고 불필요한 클릭만 늘어나기 때문.
 ========================================================= */
 function setCapTypeOptions() {
   const p = profileEl.value;
@@ -50,9 +53,12 @@ function setCapTypeOptions() {
   placeholder.selected = true;
   capTypeEl.appendChild(placeholder);
 
-  (CAP_OPTIONS[p] || []).forEach((o) => {
+  const options = CAP_OPTIONS[p] || [];
+  const soldOutValues = SOLD_OUT_OPTIONS[p] || [];
+
+  options.forEach((o) => {
     const opt = document.createElement("option");
-    const isSoldOut = (SOLD_OUT_OPTIONS[p] || []).includes(o.value);
+    const isSoldOut = soldOutValues.includes(o.value);
 
     opt.value = o.value;
     opt.textContent = isSoldOut ? `${o.label} [품절]` : o.label;
@@ -60,6 +66,12 @@ function setCapTypeOptions() {
 
     capTypeEl.appendChild(opt);
   });
+
+  const onlyOption =
+    options.length === 1 && !soldOutValues.includes(options[0].value) ? options[0] : null;
+  if (onlyOption) {
+    capTypeEl.value = onlyOption.value;
+  }
 
   const isOEM = p === "OEM";
   laserEl.disabled = !isOEM;
