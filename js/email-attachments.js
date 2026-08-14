@@ -252,17 +252,21 @@ function canvasToJpegDataUrl(canvas, quality) {
 
 /* =========================================================
  * 시안을 PNG(필요시 JPEG) data URL로 렌더링 - 용량 초과 시 무조건 접수되도록
- * 배율/화질을 단계적으로 낮춰 재시도
+ * 화질(압축)만 낮춰 재시도
  * - 수정 이유: 기본 규격(330x330)은 화질을 위해 3배 확대해서 내보내는데,
  *   사진처럼 디테일이 많은 이미지는 이 PNG 자체가 이메일 배치 용량
  *   기준(EMAIL_ATTACHMENT_BATCH_MAX_BYTES)을 넘을 수 있음. 레이저
  *   원본파일이 없는 순수 PNG 시안은 뺄 첨부가 없어서 그대로 접수가
  *   막혔음("이미지 두 장을 겹쳐서 만든 시안만 접수가 안 된다"는 문의도
- *   같은 원인 - 합성 이미지일수록 PNG가 무거워지기 쉬움). 화질이 낮아지더라도
- *   접수 자체는 무조건 되어야 하므로, 다음 순서로 단계적으로 낮춘다:
- *   1) 내보내기 배율을 3배 -> 1배까지 축소 (여전히 PNG, 무손실)
- *   2) 그래도 넘으면 1배 캔버스를 JPEG로 전환해 화질을 단계적으로 낮춤
- *      (레이저 원본파일 압축과 동일한 방식)
+ *   같은 원인 - 합성 이미지일수록 PNG가 무거워지기 쉬움).
+ * - 수정 이유(해상도 고정): 처음엔 용량 초과 시 내보내기 배율(해상도)을
+ *   단계적으로 낮췄었는데, 그러면 시안마다 실제 픽셀 크기가 제각각이 되어
+ *   인쇄 작업(포토샵 등)에서 목표 크기로 맞추는 배율(%)이 시안마다 8%,
+ *   11%, 22%처럼 달라지는 부작용이 있었음. 같은 규격이면 픽셀 크기는
+ *   항상 동일하게 유지해야 하므로, 해상도는 절대 낮추지 않고 용량이
+ *   초과할 때만 같은 해상도에서 JPEG 화질만 단계적으로 낮춘다
+ *   (레이저 원본파일 압축과 동일한 방식) - 접수는 보장되면서 규격별
+ *   픽셀 크기(그리고 인쇄 시 맞춰야 하는 배율)는 항상 일정하게 유지됨.
 ========================================================= */
 async function renderItemToPngDataUrl(item) {
   await waitForDesignFontsReady();
@@ -271,30 +275,18 @@ async function renderItemToPngDataUrl(item) {
   const capType = safeTrim(item?.capType) || "-";
   const size = getCanvasSize(profile, capType);
 
-  const baseExportScale =
+  const exportScale =
     size.w === 330 && size.h === 330 ? SMALL_CANVAS_EXPORT_SCALE : 1;
 
-  let exportScale = baseExportScale;
-  let canvas = await renderItemToCanvasAtScale(item, size, exportScale);
-  let dataUrl = canvas.toDataURL("image/png");
-
-  while (
-    exportScale > 1 &&
-    dataUrlToBase64(dataUrl).length > EMAIL_ATTACHMENT_BATCH_MAX_BYTES
-  ) {
-    exportScale = Math.max(1, exportScale - 0.5);
-    console.warn(`[PNG 용량 초과, 배율 축소 재렌더링] ${exportScale}배`);
-    canvas = await renderItemToCanvasAtScale(item, size, exportScale);
-    dataUrl = canvas.toDataURL("image/png");
-  }
+  const canvas = await renderItemToCanvasAtScale(item, size, exportScale);
+  const dataUrl = canvas.toDataURL("image/png");
 
   if (dataUrlToBase64(dataUrl).length <= EMAIL_ATTACHMENT_BATCH_MAX_BYTES) {
     return dataUrl;
   }
 
-  // 수정 이유: 배율을 최소(1배)까지 낮춰도 여전히 용량을 넘는 극단적인
-  // 경우 - 접수 자체는 무조건 되어야 하므로 마지막 수단으로 JPEG 화질을
-  // 단계적으로 낮춰서라도 기준 용량 안에 들어오게 만든다.
+  // 수정 이유: 접수 자체는 무조건 되어야 하므로 마지막 수단으로, 해상도는
+  // 그대로 둔 채 JPEG 화질만 단계적으로 낮춰서 기준 용량 안에 들어오게 만든다.
   let quality = 0.85;
   let jpegDataUrl = canvasToJpegDataUrl(canvas, quality);
 
@@ -306,7 +298,7 @@ async function renderItemToPngDataUrl(item) {
     jpegDataUrl = canvasToJpegDataUrl(canvas, quality);
   }
 
-  console.warn(`[PNG 용량 초과, JPEG 화질 ${quality.toFixed(2)}로 최종 변환]`);
+  console.warn(`[PNG 용량 초과, JPEG 화질 ${quality.toFixed(2)}로 변환(해상도 유지)]`);
   return jpegDataUrl;
 }
 
