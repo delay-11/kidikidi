@@ -324,45 +324,29 @@ function getDesignSubmitFailMessage(err) {
 const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
 
 /* =========================================================
- * 배치 1통 발송, 실패 시 대기 후 1회만 재시도 (총 2회 시도)
- * - 수정 이유: 순간적인 네트워크 오류로 배치 하나가 실패하면 그대로
- *   메일이 통째로 누락됐음. 같은 주문 안에서 8개 시안이 4통으로
- *   나뉘었는데 1통만 실패해도 그 안의 시안 정보가 전부 빠지므로,
- *   재시도 없이 바로 실패 처리하기엔 손실이 큼 - 1회 재시도로 완화.
- * - 되돌린 이유: 한때 재시도를 2회(최대 3~4회 시도)까지 늘렸었는데,
- *   "배치가 계속 누락되는" 진짜 원인은 발송량 제한이 아니라 시안 1개의
- *   첨부 용량 초과였음(별도로 근본 수정함, EMAIL_ATTACHMENT_BATCH_MAX_BYTES
- *   기준으로 원본파일을 미리 제외). 재시도는 요청이 서버까지는 갔는데
- *   응답만 못 받아 실패로 착각하는 경우에도 똑같이 재발송되므로, 시도
- *   횟수를 늘릴수록 "실제로는 이미 보내졌는데 중복으로 또 보내지는"
- *   위험만 커짐 - 진짜 원인이 따로 고쳐졌으니 재시도는 다시 최소화한다.
-========================================================= */
-async function sendBatchWithRetry(batch, sendFn, allItems, idx, total) {
-  try {
-    return await sendFn(batch, allItems, idx, total);
-  } catch (err) {
-    console.warn(`[메일 배치 ${idx}/${total} 1차 발송 실패, 재시도]`, err);
-    await wait(1500);
-    return await sendFn(batch, allItems, idx, total);
-  }
-}
-
-/* =========================================================
  * 같은 수신자(회사 또는 고객) 앞으로 가는 배치 메일들을 순서대로 발송
  * - 수정 이유: batchItemsByWeight()로 나뉜 배치를 map()으로 한꺼번에
  *   병렬 발송하면, 배치 순서와 상관없이 emailjs 요청이 동시에 나가서
  *   메일 서버 처리 순서가 뒤섞여 (1/3)(2/3)(3/3)이 순서대로 도착한다는
  *   보장이 없었음. 같은 수신자 앞으로 가는 배치끼리는 하나가 끝난 뒤
  *   다음을 보내도록 순차 처리하고, 배치 사이에 짧은 텀을 둔다.
+ * - 수정 이유(재시도 제거): 이전에는 배치 발송 실패 시 재시도를 했는데,
+ *   요청이 서버까지는 갔지만 응답만 못 받아 실패로 착각하는 경우에도
+ *   똑같이 재발송되어 같은 시안이 중복으로 여러 통 발송되는 문제가
+ *   있었음. 배치가 계속 누락되던 진짜 원인(첨부 용량 초과)은 이미
+ *   근본적으로 고쳤으므로(EMAIL_ATTACHMENT_BATCH_MAX_BYTES 기준으로
+ *   원본파일을 미리 제외), 재시도 없이 1회만 시도하고 실패하면 바로
+ *   실패로 처리해 중복 발송 위험을 없앤다.
 ========================================================= */
 async function sendBatchesInOrder(batches, sendFn, allItems) {
   const results = batches.map(() => null);
 
   for (let i = 0; i < batches.length; i += 1) {
     try {
-      const value = await sendBatchWithRetry(batches[i], sendFn, allItems, i + 1, batches.length);
+      const value = await sendFn(batches[i], allItems, i + 1, batches.length);
       results[i] = { status: "fulfilled", value };
     } catch (reason) {
+      console.warn(`[메일 배치 ${i + 1}/${batches.length} 발송 실패]`, reason);
       results[i] = { status: "rejected", reason };
     }
 
