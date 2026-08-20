@@ -71,6 +71,7 @@ window.addEventListener("resize", () => {
   canvasResyncRaf = requestAnimationFrame(() => {
     syncCanvasRenderResolution();
     redraw();
+    updateMaoGuide();
   });
 });
 
@@ -160,11 +161,63 @@ function ensureMaoGuide() {
   return wrap;
 }
 
+/* =========================================================
+ * 수정 이유: maoGuideWrap이 canvasWrapEl 전체(inset:0)를 기준으로
+ * 꽉 채워졌는데, 모바일 반응형(767px 이하)에서는 canvasWrapEl 안의
+ * 안내 문구(.canvasGuideOverlay)가 position:static + order:-1로 바뀌어
+ * 캔버스 위에 실제 공간을 차지하는 요소가 되면서 canvasWrapEl 박스가
+ * 캔버스보다 커지고 위쪽으로 밀림. 그 상태에서 가이드가 canvasWrapEl
+ * 기준으로 꽉 차면 실제 캔버스와 어긋난 위치에 그려져서, 사용자가
+ * 화면에 보이는 가이드에 맞춰 이미지를 배치해도 실제 저장되는 좌표는
+ * 다르게 되는 문제가 있었음(모바일에서 만든 시안이 위로 밀려 보인다는
+ * 문의와 일치). canvasWrapEl이 아니라 실제 <canvas> 요소의 화면상
+ * 박스에 정확히 맞춰서 위치/크기를 지정한다.
+========================================================= */
+function positionMaoGuide(wrap) {
+  if (!wrap || !canvas || !canvasWrapEl) return;
+
+  const canvasRect = canvas.getBoundingClientRect();
+  const wrapRect = canvasWrapEl.getBoundingClientRect();
+
+  wrap.style.left = `${canvasRect.left - wrapRect.left}px`;
+  wrap.style.top = `${canvasRect.top - wrapRect.top}px`;
+  wrap.style.width = `${canvasRect.width}px`;
+  wrap.style.height = `${canvasRect.height}px`;
+  wrap.style.right = "auto";
+  wrap.style.bottom = "auto";
+}
+
 function updateMaoGuide() {
   const wrap = ensureMaoGuide();
   if (!wrap) return;
 
-  wrap.style.display = profileEl?.value === "MAO" ? "block" : "none";
+  const isMao = profileEl?.value === "MAO";
+  wrap.style.display = isMao ? "block" : "none";
+  if (!isMao) return;
+
+  positionMaoGuide(wrap);
+}
+
+/* =========================================================
+ * 수정 이유:
+ * updateMaoGuide()는 프로파일 변경 시점에 호출되는데, 그 시점에 아직
+ * 에디터 화면(캔버스)이 CSS로 숨겨져 있으면(display:none) canvas의
+ * getBoundingClientRect()가 0x0으로 잡혀서 가이드 위치/크기가 0으로
+ * 저장되어버림. 이후 실제로 화면이 보여져도 다시 계산해주는 트리거가
+ * 없으면 가이드가 안 보이거나 잘못된 위치에 남게 됨.
+ * ResizeObserver로 캔버스/캔버스랩의 실제 렌더 크기가 바뀔 때마다
+ * (숨김→표시 전환 포함) 자동으로 재계산하도록 해서, 호출 시점과
+ * 무관하게 항상 실제 렌더링된 캔버스 위치를 따라가게 함.
+========================================================= */
+if (typeof ResizeObserver !== "undefined") {
+  const maoGuideResizeObserver = new ResizeObserver(() => {
+    if (profileEl?.value !== "MAO") return;
+    const wrap = document.getElementById("maoGuideWrap");
+    if (wrap) positionMaoGuide(wrap);
+  });
+
+  if (canvas) maoGuideResizeObserver.observe(canvas);
+  if (canvasWrapEl) maoGuideResizeObserver.observe(canvasWrapEl);
 }
 
 /* =========================================================
