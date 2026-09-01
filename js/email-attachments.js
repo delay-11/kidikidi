@@ -251,6 +251,55 @@ function canvasToJpegDataUrl(canvas, quality) {
 }
 
 /* =========================================================
+ * 시안 요약 이메일용 작은 썸네일
+ * - 수정 이유: 첨부용으로 이미 만들어둔 고해상도 PNG(dataUrl)를 메일
+ *   본문에 그대로 넣으면, 시안이 많은 주문은 본문 용량이 크게 늘어나는데
+ *   이 용량은 배치 나누기 계산(EMAIL_ATTACHMENT_BATCH_MAX_BYTES)에
+ *   반영되지 않아 요청 자체가 실패할 위험이 있음. 이미 렌더링된
+ *   이미지를 다시 그리지 않고 축소만 해서 아주 가벼운 JPEG 썸네일을
+ *   따로 만들고, 같은 시안이면 재사용하도록 캐시해둔다(회사/고객
+ *   메일 두 번 만들 때 중복 렌더링 방지).
+========================================================= */
+const SUMMARY_THUMB_MAX_SIDE = 180;
+const SUMMARY_THUMB_JPEG_QUALITY = 0.7;
+const itemThumbnailCache = new WeakMap();
+
+async function buildItemThumbnailDataUrl(item, sourceDataUrl) {
+  if (!item || !sourceDataUrl) return "";
+  if (itemThumbnailCache.has(item)) return itemThumbnailCache.get(item);
+
+  try {
+    const img = await loadImageFromDataUrl(sourceDataUrl);
+    if (!img) return "";
+
+    const scale = Math.min(1, SUMMARY_THUMB_MAX_SIDE / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.round(img.width * scale));
+    const h = Math.max(1, Math.round(img.height * scale));
+
+    const off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
+    const offCtx = off.getContext("2d");
+    offCtx.fillStyle = "#ffffff";
+    offCtx.fillRect(0, 0, w, h);
+    offCtx.imageSmoothingEnabled = true;
+    offCtx.imageSmoothingQuality = "high";
+    offCtx.drawImage(img, 0, 0, w, h);
+
+    const thumbDataUrl = off.toDataURL("image/jpeg", SUMMARY_THUMB_JPEG_QUALITY);
+    itemThumbnailCache.set(item, thumbDataUrl);
+    return thumbDataUrl;
+  } catch (err) {
+    console.warn("[시안 썸네일 생성 실패]", err);
+    return "";
+  }
+}
+
+function getCachedItemThumbnailDataUrl(item) {
+  return itemThumbnailCache.get(item) || "";
+}
+
+/* =========================================================
  * 시안을 PNG(필요시 JPEG) data URL로 렌더링 - 용량 초과 시 무조건 접수되도록
  * 화질(압축)만 낮춰 재시도
  * - 수정 이유: 기본 규격(330x330)은 화질을 위해 3배 확대해서 내보내는데,
@@ -414,6 +463,11 @@ async function buildAttachmentFileList(orderNo = "order") {
     if (dataUrl.startsWith("data:image/jpeg")) {
       filename = filename.replace(/\.png$/i, ".jpg");
     }
+
+    // 수정 이유: 시안 요약(items_summary_html)에 넣을 썸네일을 여기서
+    // 미리 만들어 캐시해둔다 - 이미 렌더링된 dataUrl을 축소만 하므로
+    // 다시 그리는 비용이 없고, 회사/고객 메일을 만들 때 재사용된다.
+    await buildItemThumbnailDataUrl(item, dataUrl);
 
     const base64 = dataUrlToBase64(dataUrl);
 

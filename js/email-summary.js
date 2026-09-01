@@ -1,14 +1,5 @@
 /* moved from js/design/design-email-summary.js */
 /* =========================================================
- * 규격 표시명
-========================================================= */
-function getCapTypeText(capType) {
-  if (!capType) return "-";
-  if (capType === "R2-1U_HOMING") return "R2-1U 돌기";
-  return capType;
-}
-
-/* =========================================================
  * 규격 파일명용 텍스트
 ========================================================= */
 function getCapTypeFileText(capType) {
@@ -90,6 +81,10 @@ function getLaserText(profile, laser) {
  *   않고, 전체 주문 기준 번호를 그대로 유지하도록 함
    (실제 첨부되는 파일명도 전체 주문 기준으로 매겨지므로 일치시킴)
 ========================================================= */
+function hasLaserOption(item) {
+  return item?.profile === "OEM" && (item?.laser === "black" || item?.laser === "white");
+}
+
 function buildItemSummaryText(item, globalIndex, allItems = cartItems) {
   if (!item) return "";
 
@@ -98,10 +93,12 @@ function buildItemSummaryText(item, globalIndex, allItems = cartItems) {
   const lines = [
     `[시안 ${globalIndex + 1}]`,
     `파일명: ${getItemDisplayName(item, allItems)}`,
-    `규격: ${getCapTypeText(item?.capType)}`,
     `수량: ${numberWithCommas(qty)}개`,
-    `레이저: ${getLaserText(item?.profile, item?.laser)}`,
   ];
+
+  if (hasLaserOption(item)) {
+    lines.push(`레이저: ${getLaserText(item?.profile, item?.laser)}`);
+  }
 
   return lines.join("\n");
 }
@@ -138,27 +135,48 @@ function buildItemSummaryHtml(item, globalIndex, allItems = cartItems) {
 
   const esc = (v) => escapeHtml(String(v ?? "-"));
   const qty = Math.max(1, toInt(item?.qty ?? 1, 1));
+  const thumbDataUrl =
+    typeof getCachedItemThumbnailDataUrl === "function"
+      ? getCachedItemThumbnailDataUrl(item)
+      : "";
+
+  const laserRow = hasLaserOption(item)
+    ? `
+        <tr>
+          <td style="padding:4px 0;font-weight:700;">레이저</td>
+          <td style="padding:4px 0;">${esc(getLaserText(item?.profile, item?.laser))}</td>
+        </tr>
+      `
+    : "";
+
+  const thumbCell = thumbDataUrl
+    ? `
+        <td style="width:88px;padding:0 12px 0 0;vertical-align:top;">
+          <img src="${thumbDataUrl}" alt="시안 ${globalIndex + 1} 썸네일" width="80" style="width:80px;height:auto;border:1px solid #e5e7eb;border-radius:8px;display:block;" />
+        </td>
+      `
+    : "";
 
   return `
     <div style="border:1px solid #e5e7eb;border-radius:12px;padding:14px;margin-bottom:12px;">
       <div style="font-weight:700;font-size:15px;margin-bottom:8px;">시안 ${globalIndex + 1}</div>
 
-      <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;">
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
         <tr>
-          <td style="padding:4px 0;width:120px;font-weight:700;">파일명</td>
-          <td style="padding:4px 0;">${esc(getItemDisplayName(item, allItems))}</td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;font-weight:700;">규격</td>
-          <td style="padding:4px 0;">${esc(getCapTypeText(item?.capType))}</td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;font-weight:700;">수량</td>
-          <td style="padding:4px 0;">${esc(numberWithCommas(qty))}개</td>
-        </tr>
-        <tr>
-          <td style="padding:4px 0;font-weight:700;">레이저</td>
-          <td style="padding:4px 0;">${esc(getLaserText(item?.profile, item?.laser))}</td>
+          ${thumbCell}
+          <td style="vertical-align:top;">
+            <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;font-size:14px;line-height:1.6;">
+              <tr>
+                <td style="padding:4px 0;width:120px;font-weight:700;">파일명</td>
+                <td style="padding:4px 0;">${esc(getItemDisplayName(item, allItems))}</td>
+              </tr>
+              <tr>
+                <td style="padding:4px 0;font-weight:700;">수량</td>
+                <td style="padding:4px 0;">${esc(numberWithCommas(qty))}개</td>
+              </tr>
+              ${laserRow}
+            </table>
+          </td>
         </tr>
       </table>
     </div>
