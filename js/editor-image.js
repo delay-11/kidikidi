@@ -214,6 +214,59 @@ function warnLowResolutionImage(img) {
   return minSide < 600 || maxSide < 600;
 }
 
+/* =========================================================
+ * 업로드 직후 첨부 용량 사전 확인
+ * - 수정 이유: 업로드 시점엔 원본 파일 크기(15MB 제한)만 확인하는데,
+ *   배경/기존 이미지와 합쳐진 최종 첨부 PNG 용량은 그 크기만으로 알 수
+ *   없음 - 접수 버튼을 눌러야만 화질이 자동으로 낮아진 걸 알게 되면
+ *   이미 늦으므로, 업로드 직후 실제 접수 때와 같은 방식으로 한 번
+ *   렌더링해 미리 계산해보고 기준(2MB)을 넘으면 바로 알려준다.
+ *   (실제 자동 화질 조정 기준인 EMAIL_ATTACHMENT_BATCH_MAX_BYTES(1.6MB)
+ *   보다 여유를 더 둬서, 아슬아슬한 경우까지 매번 경고하지 않도록 함)
+========================================================= */
+const UPLOAD_SIZE_WARNING_BYTES = 2_000_000;
+
+function buildDraftItemSnapshot() {
+  return {
+    profile: profileEl?.value || "OEM",
+    capType: capTypeEl?.value || "-",
+    design: {
+      images: typeof serializeImageObjects === "function" ? serializeImageObjects() : [],
+      texts: typeof serializeTextObjects === "function" ? serializeTextObjects() : [],
+      bgSet: !!draftBgSet,
+      bgType: draftBgType,
+      bgColor: draftBgColor || "#ffffff",
+      bgColor2: draftBgColor2 || "#fdcc63",
+      bgDirection: draftBgDirection || "to-right",
+      bgPosition:
+        typeof normalizeGradientPosition === "function"
+          ? normalizeGradientPosition(draftGradientPosition)
+          : 0.5,
+      bgSoftness:
+        typeof normalizeGradientSoftness === "function"
+          ? normalizeGradientSoftness(draftGradientSoftness)
+          : 1,
+    },
+  };
+}
+
+async function isDraftAttachmentTooHeavy() {
+  try {
+    const item = buildDraftItemSnapshot();
+    const size = getCanvasSize(item.profile, item.capType);
+    const exportScale =
+      size.w === 330 && size.h === 330 ? SMALL_CANVAS_EXPORT_SCALE : 1;
+
+    const canvas = await renderItemToCanvasAtScale(item, size, exportScale);
+    const bytes = dataUrlToBase64(canvas.toDataURL("image/png")).length;
+
+    return bytes > UPLOAD_SIZE_WARNING_BYTES;
+  } catch (err) {
+    console.warn("[업로드 용량 사전 확인 실패]", err);
+    return false;
+  }
+}
+
 // 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
 // function fitImageToCanvas(img) {
 //   const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
@@ -326,7 +379,19 @@ fileEl?.addEventListener("change", async () => {
     updateActionLocks();
 
     clearCanvasNotice();
-    showToast(files.length > 1 ? `이미지 ${files.length}개가 업로드되었습니다.` : "이미지가 업로드되었습니다.", "ok");
+
+    const uploadedText = files.length > 1 ? `이미지 ${files.length}개가 업로드되었습니다.` : "이미지가 업로드되었습니다.";
+    const tooHeavy = await isDraftAttachmentTooHeavy();
+
+    if (tooHeavy) {
+      showToast(
+        `${uploadedText} 다만 이 시안은 용량이 커서 접수 시 화질이 자동으로 낮아질 수 있어요.`,
+        "warn",
+        3600,
+      );
+    } else {
+      showToast(uploadedText, "ok");
+    }
   } catch (e) {
     console.error("이미지 업로드 실패:", e);
     setCanvasNotice(
