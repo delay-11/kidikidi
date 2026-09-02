@@ -164,7 +164,12 @@ function addCurrentItemToCart() {
     cartItems[editIdx] = item;
     showToast("시안이 수정되었습니다.", "ok");
   } else {
-    cartItems.unshift(item);
+    // 수정 이유: unshift로 맨 앞에 추가하면 나중에 추가한 시안이 먼저 추가한
+    // 시안보다 배열 앞쪽에 오게 되어, 파일명 순번(_01, _02...)과 접수 메일의
+    // "시안 N" 번호가 실제로 만든 순서와 반대로 매겨짐(가장 나중에 올린
+    // 시안이 1번이 됨). 항상 맨 뒤에 추가해서 시안 번호가 실제 업로드/제작
+    // 순서와 일치하도록 한다.
+    cartItems.push(item);
     showToast("시안이 추가되었습니다.", "ok");
   }
 
