@@ -1,0 +1,134 @@
+/* =========================================================
+ * 에디터 화면 온보딩 오버레이 (실제 UI 요소를 빨간 테두리로 직접 안내)
+ * - 데스크탑: 3개 대상 동시 표시 / 모바일: 1개씩 순차 표시
+========================================================= */
+.editorTourSvg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.editorTourRing {
+    fill: none;
+    stroke: var(--bad);
+    stroke-width: 2.5;
+}
+
+.editorTourLabel {
+    position: fixed;
+    max-width: 240px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #f3d2ce;
+    color: var(--txt);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.5;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.24);
+    z-index: 9999;
+}
+
+.editorTourLabel::before {
+    content: "";
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ffffff;
+    border-left: 1px solid #f3d2ce;
+    border-top: 1px solid #f3d2ce;
+    transform: rotate(45deg);
+}
+
+.editorTourLabel.arrow-top::before {
+    top: -6px;
+    left: 20px;
+}
+
+.editorTourLabel.arrow-bottom::before {
+    bottom: -6px;
+    left: 20px;
+    transform: rotate(225deg);
+}
+
+.editorTourPanel {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 14px;
+    background: var(--txt);
+    color: #ffffff;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    z-index: 9999;
+    max-width: calc(100% - 24px);
+}
+
+.editorTourPanelText {
+    white-space: nowrap;
+}
+
+.editorTourProgress {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.14);
+    font-weight: 800;
+    font-size: 12px;
+    flex: none;
+}
+
+.editorTourNeverAgain {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #c9cedb;
+    font-weight: 500;
+    white-space: nowrap;
+    flex: none;
+}
+
+.editorTourBtn {
+    appearance: none;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    flex: none;
+}
+
+.editorTourBtnPrimary {
+    background: #fdcc63;
+    color: var(--txt);
+}
+
+.editorTourBtnGhost {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .editorTourPanel {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        transform: none;
+        max-width: none;
+        flex-wrap: wrap;
+    }
+
+    .editorTourPanelText {
+        white-space: normal;
+    }
+}

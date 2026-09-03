@@ -32,6 +32,7 @@
     <link href="./css/design-list.css" rel="stylesheet" />
     <link href="./css/bootstrap-wizard.css" rel="stylesheet" />
     <link href="./css/bootstrap-wizard-overrides.css" rel="stylesheet" />
+    <link href="./css/editor-tour.css" rel="stylesheet" />
     <link href="./css/responsive.css" rel="stylesheet" />
     <link href="./css/responsive-editor.css" rel="stylesheet" />
 
@@ -52,7 +53,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.6.14
+                v2.6.15
             </div>
         </div>
     </header>
@@ -561,24 +562,6 @@
             </div>
         </div>
     </div>
-    <!-- 제작 화면 첫 안내 모달
-    <div id="editorOnboarding" class="editorOnboarding" aria-hidden="true">
-        <div class="editorOnboardingDim"></div>
-        <div class="editorOnboardingDialog" role="dialog" aria-modal="true" aria-labelledby="editorOnboardingTitle">
-            <div class="editorOnboardingBadge">시안 제작 안내</div>
-            <h3 id="editorOnboardingTitle">제작 전 이것만 확인해 주세요</h3>
-            <ul>
-                <li>이미지와 배경은 빨간선 안쪽 기준으로 배치해 주세요.</li>
-                <li>배경을 사용하는 경우 캔버스 전체를 빈 공간 없이 채워 주세요.</li>
-                <li>작업 후 반드시 <b>시안 추가</b>를 눌러 리스트에 담아 주세요.</li>
-            </ul>
-            <label class="editorOnboardingCheck">
-                <input type="checkbox" id="editorOnboardingNever">
-                다시 보지 않기
-            </label>
-            <button type="button" id="editorOnboardingClose" class="confirmBtn">확인했어요</button>
-        </div> -->
-
     <!-- 시안 확정 모달 -->
     <div aria-hidden="true" class="confirmModal" id="confirmModal">
         <div class="confirmModalDim"></div>
@@ -642,6 +625,7 @@
     <script src="./js/email-summary.js"></script>
     <script src="./js/email-send.js"></script>
     <script src="./js/print-guide-modal.js"></script>
+    <script src="./js/editor-onboarding-tour.js"></script>
     <script src="./js/app.js"></script>
 </body>
 

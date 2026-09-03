@@ -325,3 +325,38 @@
         bottom: -10px;
     }
 }
+
+/* =========================================================
+   "시안 추가" 버튼 모바일 하단 고정
+   - 수정 이유: 상단 이전/다음 버튼처럼 스크롤 중에도 항상 눌러서
+     시안을 추가할 수 있도록 화면 하단에 고정. bootstrap-wizard-overrides.css
+     의 !important position:static은 데스크탑용으로 그대로 두고(원인 불명의
+     과거 버그를 되살리지 않기 위해), 가장 나중에 로드되는 이 파일의
+     모바일 전용 규칙으로만 다시 고정시킨다. .editorMain은 모바일 1컬럼
+     레이아웃에서 전체 스크롤 높이를 차지하지 않으므로 position:sticky가
+     아니라 뷰포트 기준 position:fixed를 사용해야 스크롤 내내 고정된다.
+========================================================= */
+@media (max-width: 768px) {
+    .kidikidiBootstrap .editorActionBar {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        top: auto !important;
+        z-index: 40 !important;
+        margin: 0 !important;
+        padding: 10px 12px !important;
+        background: var(--card, #fff) !important;
+        box-shadow: 0 -2px 10px rgba(16, 24, 40, 0.08) !important;
+    }
+
+    /* 하단 고정바에 카트 목록 마지막 항목/푸터가 가려지지 않도록 여유 공간 확보 */
+    body.kidikidiBootstrap[data-step="editor"] {
+        padding-bottom: 74px !important;
+    }
+
+    /* 토스트가 하단 고정바 뒤에 가려지지 않도록 위치를 올림 */
+    .toastStack {
+        bottom: 84px !important;
+    }
+}

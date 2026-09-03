@@ -305,40 +305,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-const EDITOR_ONBOARDING_KEY = "kidikidi_editor_onboarding_hidden";
-let didShowEditorOnboardingThisSession = false;
-
-function shouldShowEditorOnboarding() {
-  try {
-    return localStorage.getItem(EDITOR_ONBOARDING_KEY) !== "1";
-  } catch (e) {
-    return true;
-  }
-}
-
-function openEditorOnboarding() {
-  if (!editorOnboardingEl || didShowEditorOnboardingThisSession) return;
-  if (!shouldShowEditorOnboarding()) return;
-  didShowEditorOnboardingThisSession = true;
-  editorOnboardingEl.classList.add("is-open");
-  editorOnboardingEl.setAttribute("aria-hidden", "false");
-}
-
-function closeEditorOnboarding() {
-  if (!editorOnboardingEl) return;
-
-  if (editorOnboardingNeverEl?.checked) {
-    try {
-      localStorage.setItem(EDITOR_ONBOARDING_KEY, "1");
-    } catch (e) {
-      console.warn("온보딩 표시 설정 저장 실패:", e);
-    }
-  }
-
-  editorOnboardingEl.classList.remove("is-open");
-  editorOnboardingEl.setAttribute("aria-hidden", "true");
-}
-
 function saveSelectedDraftItem() {
   if (!selectedItemId || typeof saveCanvasToItem !== "function") return;
 
@@ -371,12 +337,12 @@ function setDesignStep(step) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 
   if (nextStep === "editor") {
-    // 주문정보 입력 완료 후 시안 제작 화면에 진입했을 때만 인쇄 가이드 팝업을 표시합니다.
+    // 수정 이유: 텍스트 위주 "인쇄 가이드" 팝업은 사람들이 잘 안 읽고 넘길
+    // 가능성이 높아서, 실제 화면 위에 빨간 테두리로 각 UI 요소를 직접
+    // 가리키는 온보딩 오버레이로 대체합니다. 인쇄 가이드 모달 자체와
+    // #openPrintGuideBtn 수동 클릭 동작은 그대로 유지됩니다.
     window.setTimeout(() => {
-      // 주문정보 입력 후 시안 제작 화면에 들어오면 인쇄 가이드를 자동 노출합니다.
-      // 단, 사용자가 2페이지까지 확인 후 [다시 보지 않기]를 누른 경우에는 자동 노출하지 않습니다.
-      window.openPrintGuideModal?.();
-      openEditorOnboarding?.();
+      window.openEditorOnboardingTour?.();
     }, 180);
   }
 
@@ -416,12 +382,6 @@ function bindStepEvents() {
     setDesignStep("editor");
   });
 
-  editorOnboardingCloseEl?.addEventListener("click", closeEditorOnboarding);
-  editorOnboardingEl?.addEventListener("click", (e) => {
-    if (e.target === editorOnboardingEl || e.target?.classList?.contains("editorOnboardingDim")) {
-      closeEditorOnboarding();
-    }
-  });
 
   stepChipEls?.forEach((chip) => {
     chip.addEventListener("click", () => {

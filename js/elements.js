@@ -110,9 +110,6 @@ const textSizeBtnEls = Array.from(document.querySelectorAll("[data-text-size]"))
 ========================================================= */
 const canvasNoticeEl = $("canvasNotice");
 const canvasHelpTipEl = $("canvasHelpTip");
-const editorOnboardingEl = $("editorOnboarding");
-const editorOnboardingCloseEl = $("editorOnboardingClose");
-const editorOnboardingNeverEl = $("editorOnboardingNever");
 
 /* =========================================================
  * 장바구니 / 시안 확정
