@@ -98,6 +98,8 @@
 
 .editorTourBtn {
     appearance: none;
+    width: auto;
+    min-height: 0;
     border: none;
     padding: 8px 16px;
     border-radius: 999px;
