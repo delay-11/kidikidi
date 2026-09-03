@@ -190,6 +190,7 @@
       resizeObserver = null;
     }
     window.removeEventListener("resize", scheduleReposition);
+    window.removeEventListener("scroll", scheduleReposition);
     if (repositionRaf) {
       cancelAnimationFrame(repositionRaf);
       repositionRaf = null;
@@ -238,6 +239,7 @@
     // 그리고 대상 요소 자체의 크기 변화 시 좌표를 다시 계산해야 함
     // (모바일에서 실제 캔버스와 어긋났던 이전 가이드선 버그와 동일한 함정).
     window.addEventListener("resize", scheduleReposition);
+    window.addEventListener("scroll", scheduleReposition, { passive: true });
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(scheduleReposition);
       const editorWrapEl = document.querySelector(".editorWrap");
@@ -247,6 +249,30 @@
         if (el) resizeObserver.observe(el);
       });
     }
+
+    // 수정 이유: 커스텀 한글 웹폰트가 온보딩이 뜬 직후에 뒤늦게 로드되면서
+    // 텍스트 줄높이가 바뀌어 프로파일/규격 줄이 아래로 밀리는데, 대상
+    // 요소 자체의 크기 변화가 아니라 위쪽 형제 요소의 폰트 교체로 인한
+    // 레이아웃 이동이라 resize/ResizeObserver 어느 쪽도 감지하지 못했음
+    // (실제 폰트 로딩이 막힌 이 저장소의 테스트 환경에서는 재현되지 않고
+    // 실제 기기에서만 나타났던 위치 어긋남의 원인). 폰트 로딩이 끝나는
+    // 시점에 한 번 더 재계산한다.
+    try {
+      document.fonts?.ready?.then(() => {
+        if (rootEl) scheduleReposition();
+      });
+    } catch (e) {
+      // 폰트 로딩 상태를 확인할 수 없는 환경은 무시
+    }
+
+    // 수정 이유: 폰트 외에도 이미지 로딩 등 예측하기 어려운 레이아웃
+    // 변동이 있을 수 있어, 연 직후 잠시 동안 몇 차례 더 재계산해서
+    // 놓치는 경우를 줄인다.
+    [200, 500, 1000].forEach((delay) => {
+      window.setTimeout(() => {
+        if (rootEl) scheduleReposition();
+      }, delay);
+    });
   }
 
   window.openEditorOnboardingTour = openEditorOnboardingTour;
