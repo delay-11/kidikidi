@@ -8,6 +8,13 @@
  *   1/3 → 2/3 → 3/3 순서로 하나씩만 보여준다.
  * - 인쇄 가이드 모달(js/print-guide-modal.js) 자체와 그 버튼의 수동 클릭
  *   동작은 그대로 유지 - 여기서는 진입 시 자동 트리거만 대체한다.
+ * - 수정 이유: 반투명 배경으로 실제 화면을 가리지 않았더니, 온보딩이
+ *   떠 있는 동안에도 뒤에 있는 실제 버튼(프로파일/규격 등)이 그대로
+ *   눌려서 온보딩을 보다가 의도치 않게 옵션이 바뀌는 문제가 있었음.
+ *   전체 화면을 덮는 반투명 dim 레이어를 추가해 온보딩이 떠 있는 동안
+ *   뒤쪽 UI는 아예 클릭/터치가 안 되게 막고, 온보딩 자체의 버튼만
+ *   그 위에서 눌리도록 한다. 테두리도 SVG 대신 일반 div로 바꿔서
+ *   모바일 브라우저에서 좌표/터치 관련 예외 케이스를 줄인다.
 ========================================================= */
 (() => {
   const TOUR_STORAGE_KEY = "kidikidi_editor_tour_hidden_v1";
@@ -20,7 +27,8 @@
     { selector: "#canvasWrap", label: "캔버스 전체에 색을 채워야 측면이 다 덮여요" },
   ];
 
-  let svgEl = null;
+  let rootEl = null;
+  let dimEl = null;
   let panelEl = null;
   let entries = []; // { ring, label, step }
   let resizeObserver = null;
@@ -75,23 +83,26 @@
     labelEl.style.top = `${ly}px`;
   }
 
+  function placeRing(ringEl, rect) {
+    ringEl.style.left = `${rect.left}px`;
+    ringEl.style.top = `${rect.top}px`;
+    ringEl.style.width = `${rect.width}px`;
+    ringEl.style.height = `${rect.height}px`;
+  }
+
   function renderStepHighlight(step) {
     const rect = targetRect(step);
     if (!rect) return null;
 
-    const ring = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    ring.setAttribute("x", rect.left);
-    ring.setAttribute("y", rect.top);
-    ring.setAttribute("width", rect.width);
-    ring.setAttribute("height", rect.height);
-    ring.setAttribute("rx", 12);
-    ring.setAttribute("class", "editorTourRing");
-    svgEl.appendChild(ring);
+    const ring = document.createElement("div");
+    ring.className = "editorTourRing";
+    rootEl.appendChild(ring);
+    placeRing(ring, rect);
 
     const label = document.createElement("div");
     label.className = "editorTourLabel";
     label.textContent = step.label;
-    document.body.appendChild(label);
+    rootEl.appendChild(label);
     placeLabel(label, rect);
 
     return { ring, label, step };
@@ -109,10 +120,7 @@
     entries.forEach(({ ring, label, step }) => {
       const rect = targetRect(step);
       if (!rect) return;
-      ring.setAttribute("x", rect.left);
-      ring.setAttribute("y", rect.top);
-      ring.setAttribute("width", rect.width);
-      ring.setAttribute("height", rect.height);
+      placeRing(ring, rect);
       placeLabel(label, rect);
     });
   }
@@ -130,7 +138,7 @@
       <label class="editorTourNeverAgain"><input type="checkbox" class="editorTourNeverInput" />다시 보지 않기</label>
       <button type="button" class="editorTourBtn editorTourBtnPrimary editorTourDoneBtn">확인했어요</button>
     `;
-    document.body.appendChild(panelEl);
+    rootEl.appendChild(panelEl);
 
     panelEl.querySelector(".editorTourDoneBtn").addEventListener("click", () => {
       if (panelEl.querySelector(".editorTourNeverInput")?.checked) persistHidden();
@@ -171,7 +179,7 @@
   function buildMobilePanel() {
     panelEl = document.createElement("div");
     panelEl.className = "editorTourPanel";
-    document.body.appendChild(panelEl);
+    rootEl.appendChild(panelEl);
     currentIndex = 0;
     renderMobileStep(0);
   }
@@ -186,10 +194,10 @@
       cancelAnimationFrame(repositionRaf);
       repositionRaf = null;
     }
-    clearEntries();
-    svgEl?.remove();
-    panelEl?.remove();
-    svgEl = null;
+    entries = [];
+    rootEl?.remove();
+    rootEl = null;
+    dimEl = null;
     panelEl = null;
   }
 
@@ -203,9 +211,17 @@
 
     isMobile = window.matchMedia(TOUR_MOBILE_QUERY).matches;
 
-    svgEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    svgEl.setAttribute("class", "editorTourSvg");
-    document.body.appendChild(svgEl);
+    // 수정 이유: 온보딩이 떠 있는 동안 뒤쪽 실제 UI(프로파일/규격 버튼 등)가
+    // 그대로 눌리던 문제 - 전체 화면을 덮는 dim 레이어가 클릭/터치를
+    // 가로채서, 온보딩 안내 문구를 보는 도중에 실제 옵션이 바뀌는 걸 막는다.
+    // 온보딩 자체의 버튼(panelEl)만 dim보다 위에서 정상적으로 눌린다.
+    rootEl = document.createElement("div");
+    rootEl.className = "editorTour";
+    document.body.appendChild(rootEl);
+
+    dimEl = document.createElement("div");
+    dimEl.className = "editorTourDim";
+    rootEl.appendChild(dimEl);
 
     if (isMobile) {
       buildMobilePanel();
