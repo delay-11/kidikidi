@@ -126,17 +126,40 @@ function buildItemsSummaryText(items = cartItems, allItems = items) {
 }
 
 /* =========================================================
+ * 이메일 본문(첨부 제외) 전체 용량 제한 대응
+ * - 수정 이유: EmailJS는 첨부파일이 아닌 일반 템플릿 변수(items_summary_html
+ *   등)의 총합을 약 50KB로 제한한다 - 이건 요금제와 무관하게 항상 적용되는
+ *   제한이라, 시안이 아주 많은 주문(예: 180개)에서 시안마다 썸네일을 넣으면
+ *   이 50KB를 넘어 요청 자체가 거부되어 접수가 대량으로 누락되는 사고가
+ *   있었다. 첨부파일 용량(EMAIL_ATTACHMENT_BATCH_MAX_BYTES)과는 완전히
+ *   별개의 한도이므로, 이 배치에 포함된 시안들의 썸네일 총합이 안전
+ *   기준을 넘으면 그 배치 전체는 썸네일 없이(텍스트만) 요약하도록
+ *   낮춘다 - 실제 제작에 쓰이는 첨부파일에는 전혀 영향 없음.
+========================================================= */
+const SUMMARY_THUMBS_BUDGET_BYTES = 30_000;
+
+function getBatchThumbWeight(items) {
+  if (typeof getCachedItemThumbnailDataUrl !== "function") return 0;
+  return items.reduce((sum, item) => {
+    const thumb = getCachedItemThumbnailDataUrl(item);
+    return sum + (thumb ? thumb.length : 0);
+  }, 0);
+}
+
+/* =========================================================
  * 시안 1개 요약 HTML
  * - globalIndex/allItems: buildItemSummaryText와 동일한 이유로
  *   전체 주문 기준 번호/파일명을 유지
+ * - includeThumb: false면 이 배치는 썸네일 총합이 안전 기준을 넘어
+ *   텍스트만으로 요약한다는 뜻
 ========================================================= */
-function buildItemSummaryHtml(item, globalIndex, allItems = cartItems) {
+function buildItemSummaryHtml(item, globalIndex, allItems = cartItems, includeThumb = true) {
   if (!item) return "";
 
   const esc = (v) => escapeHtml(String(v ?? "-"));
   const qty = Math.max(1, toInt(item?.qty ?? 1, 1));
   const thumbDataUrl =
-    typeof getCachedItemThumbnailDataUrl === "function"
+    includeThumb && typeof getCachedItemThumbnailDataUrl === "function"
       ? getCachedItemThumbnailDataUrl(item)
       : "";
 
@@ -199,8 +222,10 @@ function buildItemsSummaryHtml(items = cartItems, allItems = items) {
     `;
   }
 
+  const includeThumb = getBatchThumbWeight(items) <= SUMMARY_THUMBS_BUDGET_BYTES;
+
   const body = items
-    .map((item) => buildItemSummaryHtml(item, allItems.indexOf(item), allItems))
+    .map((item) => buildItemSummaryHtml(item, allItems.indexOf(item), allItems, includeThumb))
     .join("");
 
   const countLine =
