@@ -244,6 +244,7 @@ function setAllLocked(locked) {
     bgModeGradientBtn,
     gradientColor1El,
     gradientColor2El,
+    ...gradientEyeBtnEls,
     gradientPositionRangeEl,
     gradientSoftnessRangeEl,
     btnAddItemEl,
@@ -339,6 +340,7 @@ function updateActionLocks() {
     }
     if (gradientColor1El) gradientColor1El.disabled = true;
     if (gradientColor2El) gradientColor2El.disabled = true;
+    gradientEyeBtnEls?.forEach((btn) => (btn.disabled = true));
     if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = true;
     if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = true;
     gradientDirBtnEls?.forEach((btn) => (btn.disabled = true));
@@ -372,6 +374,7 @@ function updateActionLocks() {
     }
     if (gradientColor1El) gradientColor1El.disabled = true;
     if (gradientColor2El) gradientColor2El.disabled = true;
+    gradientEyeBtnEls?.forEach((btn) => (btn.disabled = true));
     if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = true;
     if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = true;
     gradientDirBtnEls?.forEach((btn) => (btn.disabled = true));
@@ -410,6 +413,7 @@ function updateActionLocks() {
   }
   if (gradientColor1El) gradientColor1El.disabled = false;
   if (gradientColor2El) gradientColor2El.disabled = false;
+  gradientEyeBtnEls?.forEach((btn) => (btn.disabled = false));
   if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = false;
   if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = false;
   gradientDirBtnEls?.forEach((btn) => (btn.disabled = false));

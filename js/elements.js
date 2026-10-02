@@ -84,6 +84,7 @@ const gradientColor1SwatchEl = $("gradientColor1Swatch");
 const gradientColor2SwatchEl = $("gradientColor2Swatch");
 const gradientColor1ValueEl = $("gradientColor1Value");
 const gradientColor2ValueEl = $("gradientColor2Value");
+const gradientEyeBtnEls = Array.from(document.querySelectorAll(".gradientEyeBtn"));
 const gradientDirBtnEls = Array.from(document.querySelectorAll("[data-gradient-dir]"));
 const gradientPositionRangeEl = $("gradientPositionRange");
 const gradientPositionValueEl = $("gradientPositionValue");

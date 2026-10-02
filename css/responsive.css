@@ -741,7 +741,8 @@
         text-align: center;
     }
 
-    #toolBg .gradientPanel {
+    #toolBg .gradientPanel,
+    .kidikidiBootstrap #toolBg .gradientPanel {
         grid-template-columns: minmax(0, 1fr) !important;
     }
 
@@ -783,6 +784,36 @@
     #toolBg .gradientPickBtn .colorValue {
         font-size: 11px !important;
         letter-spacing: -0.01em;
+    }
+
+    #toolBg .gradientColorRow {
+        gap: 4px;
+    }
+
+    #toolBg .gradientColorRow .gradientPickBtn {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        gap: 5px !important;
+        padding: 7px 6px !important;
+        overflow: hidden;
+    }
+
+    #toolBg .gradientColorRow .gradientSwatch {
+        width: 20px !important;
+        height: 20px !important;
+    }
+
+    #toolBg .gradientPickBtn .colorValue {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    #toolBg .gradientEyeBtn {
+        flex: 0 0 34px !important;
+        width: 34px !important;
+        height: 42px !important;
+        min-height: 42px !important;
     }
 
     .print-guide-modal {

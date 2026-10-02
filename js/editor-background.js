@@ -287,6 +287,7 @@ function syncBgControlDisabledState() {
 
   if (gradientColor1El) gradientColor1El.disabled = !canEditBg;
   if (gradientColor2El) gradientColor2El.disabled = !canEditBg;
+  gradientEyeBtnEls?.forEach((btn) => (btn.disabled = !canEditBg));
   if (gradientPositionRangeEl) gradientPositionRangeEl.disabled = !canEditBg;
   if (gradientSoftnessRangeEl) gradientSoftnessRangeEl.disabled = !canEditBg;
   if (typeof gradientResetBtnEl !== "undefined" && gradientResetBtnEl) gradientResetBtnEl.disabled = !canEditBg;
@@ -776,10 +777,34 @@ function updateBgLockUI(profile, laser) {
 }
 
 /* =========================================================
+ * 스포이드 색상 적용
+ * - 단색: 배경색 적용
+ * - 그라데이션: 시작/끝 색상 중 선택한 쪽에 적용
+========================================================= */
+function getEyedropperTargetLabel(target = eyedropperTarget) {
+  if (target === "gradient1") return "그라데이션 시작 색상";
+  if (target === "gradient2") return "그라데이션 끝 색상";
+  return "배경색";
+}
+
+function applyEyedropperColor(hex, target = eyedropperTarget) {
+  if (target === "gradient1") {
+    applyGradientSettings({ color1: hex });
+    setActivePickrTarget("gradient1", gradientColor1El);
+  } else if (target === "gradient2") {
+    applyGradientSettings({ color2: hex });
+    setActivePickrTarget("gradient2", gradientColor2El);
+  } else {
+    applyBgColor(hex);
+  }
+}
+
+/* =========================================================
  * 스포이드 열기
 ========================================================= */
-async function openEyeDropper() {
+async function openEyeDropper(target = "solid") {
   if (uiLocked) return;
+  eyedropperTarget = target === "gradient1" || target === "gradient2" ? target : "solid";
 
   if (isLaserFixedBg()) {
     setCanvasNotice("레이저 선택 시 배경색은 흰색으로 고정됩니다.", "error");
@@ -821,10 +846,11 @@ async function openEyeDropper() {
 
     if (!result?.sRGBHex) return;
 
+    const label = getEyedropperTargetLabel();
     clearCanvasNotice();
-    applyBgColor(result.sRGBHex);
-    setCanvasNotice("스포이드로 배경색을 적용했습니다.", "ok");
-    showToast("배경색을 적용했습니다.", "ok");
+    applyEyedropperColor(result.sRGBHex);
+    setCanvasNotice(`스포이드로 ${label}을 적용했습니다.`, "ok");
+    showToast(`${label}을 적용했습니다.`, "ok");
   } catch (e) {
     if (e?.name !== "AbortError") {
       console.error("스포이드 사용 실패:", e);
@@ -929,6 +955,15 @@ function bindEditorToolEvents() {
     setActivePickrTarget("gradient2", gradientColor2El);
     bgPickr?.show();
     requestAnimationFrame(positionPickrPanel);
+  });
+
+  gradientEyeBtnEls?.forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      syncBgControlDisabledState?.();
+      if (uiLocked || isLaserFixedBg() || !validateUserInfo(false)) return;
+      bgPickr?.hide();
+      await openEyeDropper(btn.dataset.eyeTarget || "gradient1");
+    });
   });
 
   gradientDirBtnEls?.forEach((btn) => {
@@ -1060,7 +1095,7 @@ function initPickr() {
   });
 
   bgEyeBtn?.addEventListener("click", async () => {
-    await openEyeDropper();
+    await openEyeDropper("solid");
   });
 
   solidNativeColorEl?.addEventListener("input", () => {
