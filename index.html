@@ -53,7 +53,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.6.19
+                v2.6.20
             </div>
         </div>
     </header>
@@ -347,27 +347,61 @@
                                                         <div class="gradientColorGrid">
                                                             <div class="gradientColorItem">
                                                                 <span class="gradientColorLabel">시작 색상</span>
-                                                                <button class="gradientPickBtn btn btn-light"
-                                                                    data-gradient-color="1" id="gradientColor1"
-                                                                    type="button">
-                                                                    <span aria-hidden="true"
-                                                                        class="colorSwatch gradientSwatch"
-                                                                        id="gradientColor1Swatch"></span>
-                                                                    <span class="colorValue"
-                                                                        id="gradientColor1Value">#ffffff</span>
-                                                                </button>
+                                                                <div class="gradientColorRow">
+                                                                    <button class="gradientPickBtn btn btn-light"
+                                                                        data-gradient-color="1" id="gradientColor1"
+                                                                        type="button">
+                                                                        <span aria-hidden="true"
+                                                                            class="colorSwatch gradientSwatch"
+                                                                            id="gradientColor1Swatch"></span>
+                                                                        <span class="colorValue"
+                                                                            id="gradientColor1Value">#ffffff</span>
+                                                                    </button>
+                                                                    <button aria-label="시작 색상 스포이드" class="iconToolBtn gradientEyeBtn btn btn-light"
+                                                                        data-eye-target="gradient1" disabled="" id="gradientEye1Btn" type="button">
+                                                                        <svg class="icon-eye" fill="none" stroke="currentColor"
+                                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2" viewbox="0 0 24 24"
+                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                            <path
+                                                                                d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12">
+                                                                            </path>
+                                                                            <path
+                                                                                d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z">
+                                                                            </path>
+                                                                            <path d="m2 22 .414-.414"></path>
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                             <div class="gradientColorItem">
                                                                 <span class="gradientColorLabel">끝 색상</span>
-                                                                <button class="gradientPickBtn btn btn-light"
-                                                                    data-gradient-color="2" id="gradientColor2"
-                                                                    type="button">
-                                                                    <span aria-hidden="true"
-                                                                        class="colorSwatch gradientSwatch"
-                                                                        id="gradientColor2Swatch"></span>
-                                                                    <span class="colorValue"
-                                                                        id="gradientColor2Value">#fdcc63</span>
-                                                                </button>
+                                                                <div class="gradientColorRow">
+                                                                    <button class="gradientPickBtn btn btn-light"
+                                                                        data-gradient-color="2" id="gradientColor2"
+                                                                        type="button">
+                                                                        <span aria-hidden="true"
+                                                                            class="colorSwatch gradientSwatch"
+                                                                            id="gradientColor2Swatch"></span>
+                                                                        <span class="colorValue"
+                                                                            id="gradientColor2Value">#fdcc63</span>
+                                                                    </button>
+                                                                    <button aria-label="끝 색상 스포이드" class="iconToolBtn gradientEyeBtn btn btn-light"
+                                                                        data-eye-target="gradient2" disabled="" id="gradientEye2Btn" type="button">
+                                                                        <svg class="icon-eye" fill="none" stroke="currentColor"
+                                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2" viewbox="0 0 24 24"
+                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                            <path
+                                                                                d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12">
+                                                                            </path>
+                                                                            <path
+                                                                                d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z">
+                                                                            </path>
+                                                                            <path d="m2 22 .414-.414"></path>
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                         <div aria-label="그라데이션 방향" class="gradientDirectionRow">

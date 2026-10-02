@@ -215,9 +215,10 @@ function onMainPointerDown(e) {
       return;
     }
 
-    applyBgColor(picked.hex);
+    const label = getEyedropperTargetLabel();
+    applyEyedropperColor(picked.hex);
     setMobileEyedropperMode(false);
-    showToast("배경색을 적용했습니다.", "ok");
+    showToast(`${label}을 적용했습니다.`, "ok");
     return;
   }
 

@@ -102,3 +102,5 @@ let canvasLoadToken = 0;
  * 모바일 스포이드
 ========================================================= */
 let mobileEyedropperMode = false;
+// 스포이드로 추출한 색을 적용할 대상: solid | gradient1 | gradient2
+let eyedropperTarget = "solid";

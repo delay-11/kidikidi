@@ -419,6 +419,23 @@
     font-weight: 800;
 }
 
+#toolBg .gradientColorRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+#toolBg .gradientColorRow .gradientPickBtn {
+    flex: 1 1 auto;
+}
+
+#toolBg .gradientEyeBtn svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+}
+
 #toolBg .gradientPickBtn {
     display: inline-flex;
     align-items: center;
