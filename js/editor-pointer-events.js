@@ -73,8 +73,6 @@ function beginPinchDrag() {
   pinchDrag = {
     pointerIds: pair.ids,
     startDistance: Math.max(1, getPointerDistance(pair.a, pair.b)),
-    startMidX: midpoint.x,
-    startMidY: midpoint.y,
     startCX: Number.isFinite(obj.cx) ? obj.cx : canvasLogicalW / 2,
     startCY: Number.isFinite(obj.cy) ? obj.cy : canvasLogicalH / 2,
     startScaleX: Number.isFinite(obj.scaleX) ? obj.scaleX : 1,
@@ -96,18 +94,14 @@ function updatePinchDrag() {
 
   const currentDistance = Math.max(1, getPointerDistance(pair.a, pair.b));
   const scaleRatio = currentDistance / Math.max(1, pinchDrag.startDistance);
-  const currentMid = getPointerMidpointCanvas(pair.a, pair.b);
 
   imgScaleX = clamp(pinchDrag.startScaleX * scaleRatio, 0.05, 10);
   imgScaleY = clamp(pinchDrag.startScaleY * scaleRatio, 0.05, 10);
   obj.scaleX = imgScaleX;
   obj.scaleY = imgScaleY;
 
-  setObjectCenter(
-    "image",
-    pinchDrag.startCX + (currentMid.x - pinchDrag.startMidX),
-    pinchDrag.startCY + (currentMid.y - pinchDrag.startMidY),
-  );
+  // 손가락 위치와 무관하게 이미지 중심을 고정한 채 크기만 조절
+  setObjectCenter("image", pinchDrag.startCX, pinchDrag.startCY);
 
   redraw();
 }
@@ -274,13 +268,10 @@ bboxEl?.querySelectorAll(".h").forEach((h) => {
 
     if (!spec || !size) return;
 
-    const anchor = localToWorldPoint(
-      size.halfW * spec.anchorLocal.x,
-      size.halfH * spec.anchorLocal.y,
-    );
-
     const activeType = getActiveObjectType() || "image";
     const startCenter = getObjectCenter(activeType);
+    // 오브젝트 중심을 기준점으로 고정
+    const anchor = { x: startCenter.x, y: startCenter.y };
 
     handleDrag = {
       type: activeType,
@@ -379,19 +370,19 @@ document.addEventListener("pointermove", (e) => {
     /* =========================================================
      * 모든 리사이즈는 원본 비율 유지
      * - Shift / Alt 같은 보조키 없이 동일하게 동작
-     * - 반대쪽 핸들을 기준점으로 두고 크기만 비율에 맞게 조절
+     * - 오브젝트 중심을 기준점으로 두고 사방으로 균등하게 크기 조절
     ========================================================= */
     const dx = p.x - handleDrag.anchorX;
     const dy = p.y - handleDrag.anchorY;
 
     if (handleDrag.signX !== 0) {
       const projX = dx * axes.ux + dy * axes.uy;
-      halfW = Math.max(minHalf, (handleDrag.signX * projX) / 2);
+      halfW = Math.max(minHalf, handleDrag.signX * projX);
     }
 
     if (handleDrag.signY !== 0) {
       const projY = dx * axes.vx + dy * axes.vy;
-      halfH = Math.max(minHalf, (handleDrag.signY * projY) / 2);
+      halfH = Math.max(minHalf, handleDrag.signY * projY);
     }
 
     const startHalfW = Math.max(1, handleDrag.startHalfW);
@@ -413,25 +404,7 @@ document.addEventListener("pointermove", (e) => {
     halfW = Math.max(minHalf, startHalfW * ratioScale);
     halfH = Math.max(minHalf, startHalfH * ratioScale);
 
-    if (handleDrag.signX !== 0 && handleDrag.signY !== 0) {
-      setObjectCenter(
-        type,
-        handleDrag.anchorX + axes.ux * (handleDrag.signX * halfW) + axes.vx * (handleDrag.signY * halfH),
-        handleDrag.anchorY + axes.uy * (handleDrag.signX * halfW) + axes.vy * (handleDrag.signY * halfH),
-      );
-    } else if (handleDrag.signX !== 0) {
-      setObjectCenter(
-        type,
-        handleDrag.anchorX + axes.ux * (handleDrag.signX * halfW),
-        handleDrag.anchorY + axes.uy * (handleDrag.signX * halfW),
-      );
-    } else if (handleDrag.signY !== 0) {
-      setObjectCenter(
-        type,
-        handleDrag.anchorX + axes.vx * (handleDrag.signY * halfH),
-        handleDrag.anchorY + axes.vy * (handleDrag.signY * halfH),
-      );
-    }
+    setObjectCenter(type, handleDrag.startCX, handleDrag.startCY);
 
     if (type === "text") {
       const scaleRatio = Math.max(halfW / startHalfW, halfH / startHalfH);
