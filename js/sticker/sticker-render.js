@@ -14,6 +14,12 @@ const stickerState = {
   sources: new Map(),
   objects: [],
   selectedId: null,
+  // 드래그로 여러 개 선택했을 때 (2개 이상)
+  multiIds: [],
+  // 드래그 선택 중인 영역 (mm)
+  marquee: null,
+  // 꽉 채우기 설정 - 채운 뒤에도 크기/간격을 바꾸면 다시 배치하기 위해 보관
+  fill: null,
   locked: false,
 };
 
@@ -242,7 +248,7 @@ function drawSheetGuides(targetCtx, pxPerMm, opts = {}) {
     targetCtx.fillStyle = "#e5484d";
     targetCtx.font = `600 ${11 * lw}px Pretendard, system-ui, sans-serif`;
     targetCtx.textBaseline = "bottom";
-    targetCtx.fillText("인쇄 안전선 (2cm)", safe.x * pxPerMm + 2 * lw, safe.y * pxPerMm - 4 * lw);
+    targetCtx.fillText("인쇄 안전선", safe.x * pxPerMm + 2 * lw, safe.y * pxPerMm - 4 * lw);
   }
   targetCtx.restore();
 }
@@ -275,7 +281,39 @@ function getHandleLocalPositions(obj, pxPerMm) {
   };
 }
 
+function drawMultiSelection(targetCtx, pxPerMm, lw = 1) {
+  const ids = new Set(stickerState.multiIds);
+
+  targetCtx.save();
+  targetCtx.strokeStyle = "#2563eb";
+  targetCtx.lineWidth = 1.5 * lw;
+  stickerState.objects.forEach((obj) => {
+    if (!ids.has(obj.id)) return;
+    const pts = getObjectCorners(obj);
+    targetCtx.beginPath();
+    pts.forEach((p, i) => targetCtx[i ? "lineTo" : "moveTo"](p.x * pxPerMm, p.y * pxPerMm));
+    targetCtx.closePath();
+    targetCtx.stroke();
+  });
+
+  const m = stickerState.marquee;
+  if (m) {
+    const x = Math.min(m.x1, m.x2) * pxPerMm;
+    const y = Math.min(m.y1, m.y2) * pxPerMm;
+    const w = Math.abs(m.x2 - m.x1) * pxPerMm;
+    const h = Math.abs(m.y2 - m.y1) * pxPerMm;
+    targetCtx.fillStyle = "rgba(37, 99, 235, 0.08)";
+    targetCtx.fillRect(x, y, w, h);
+    targetCtx.setLineDash([4 * lw, 3 * lw]);
+    targetCtx.lineWidth = 1 * lw;
+    targetCtx.strokeRect(x, y, w, h);
+  }
+  targetCtx.restore();
+}
+
 function drawSelection(targetCtx, pxPerMm, opts = {}) {
+  drawMultiSelection(targetCtx, pxPerMm, opts.lineScale || 1);
+
   const obj = getSelectedObject();
   if (!obj) return;
 

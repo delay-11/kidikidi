@@ -160,13 +160,11 @@
                     <div class="stkEditorWrap">
                         <div class="stkCanvasCol">
                             <div class="stkPill">
-                                <span class="stkTag">용지</span>
-                                <button aria-label="용지 사이즈 변경" class="stkPillBtn" id="paperQuickBtn" type="button">
-                                    <b id="paperText">-</b><span aria-hidden="true" class="stkCaret">▼</span>
+                                <button class="stkPillBtn" disabled id="undoBtn" title="뒤로가기 (Ctrl+Z)" type="button">
+                                    <span aria-hidden="true">↶</span> 뒤로가기
                                 </button>
-                                <span class="stkPillHint">눌러서 변경</span>
-                                <span class="stkTag">배경</span><b>투명</b>
-                                <span class="stkTag">안전선</span><b>사방 2cm</b>
+                                <button class="stkPillBtn stkPillBtnDanger" disabled id="resetBtn" type="button">초기화</button>
+                                <span class="stkPillHint stkPillHintWide">빈 곳을 드래그하면 여러 개를 한 번에 선택할 수 있어요</span>
                             </div>
                             <div class="stkCanvasWrap" id="canvasWrap">
                                 <canvas aria-label="스티커 배치 캔버스" id="stickerCanvas" tabindex="0"></canvas>
@@ -178,14 +176,14 @@
                         </div>
 
                         <div class="stkToolCol">
-                            <!-- 선택한 스티커 크기 / 위치 -->
+                            <!-- 선택한 스티커 크기 -->
                             <div class="stkPanel stkSelPanel" id="selPanel">
                                 <div class="stkPanelHead">
-                                    <b>선택한 스티커</b>
+                                    <b id="selTitle">선택한 스티커</b>
                                     <span class="stkMuted" id="selEmptyText">캔버스에서 스티커를 눌러 선택하세요</span>
                                 </div>
                                 <div class="stkSelBody" id="selBody" hidden>
-                                    <div class="stkFieldGrid">
+                                    <div class="stkFieldGrid stkSelSize" id="selSizeArea">
                                         <label class="stkField">
                                             <span>가로 (cm)</span>
                                             <input class="form-control" id="selW" inputmode="decimal" min="0.5" step="0.1" type="number" />
@@ -194,24 +192,11 @@
                                             <span>세로 (cm)</span>
                                             <input class="form-control" id="selH" inputmode="decimal" min="0.5" step="0.1" type="number" />
                                         </label>
-                                        <label class="stkField">
-                                            <span>X 위치 (cm)</span>
-                                            <input class="form-control" id="selX" inputmode="decimal" step="0.1" type="number" />
-                                        </label>
-                                        <label class="stkField">
-                                            <span>Y 위치 (cm)</span>
-                                            <input class="form-control" id="selY" inputmode="decimal" step="0.1" type="number" />
-                                        </label>
-                                        <label class="stkField">
-                                            <span>회전 (°)</span>
-                                            <input class="form-control" id="selRot" inputmode="numeric" step="1" type="number" />
-                                        </label>
                                         <label class="stkCheck">
                                             <input checked id="selLockRatio" type="checkbox" />
                                             <span>비율 고정</span>
                                         </label>
                                     </div>
-                                    <p class="stkMuted stkFieldHint">X / Y는 용지 왼쪽 위 모서리 기준 스티커 왼쪽 위 위치입니다.</p>
                                     <p class="stkWarn" id="selDpiWarn" hidden></p>
                                     <div class="stkBtnRow">
                                         <button class="btn btn-outline-secondary" id="selDupBtn" type="button">복제</button>
@@ -252,27 +237,25 @@
 
                             <!-- 텍스트 -->
                             <div class="stkPanel stkToolPanel" id="toolText">
-                                <textarea class="form-control" id="textInput" maxlength="60" placeholder="텍스트를 입력하세요"
+                                <textarea class="form-control" id="textInput" maxlength="60" placeholder="텍스트를 입력하면 캔버스에 바로 표시돼요"
                                     rows="2"></textarea>
                                 <div class="stkFontRow" id="textFontRow"></div>
-                                <div class="stkFieldGrid">
-                                    <label class="stkField">
-                                        <span>글자 높이 (cm)</span>
-                                        <input class="form-control" id="textHeightCm" inputmode="decimal" min="0.5" step="0.1" type="number" value="1.5" />
-                                    </label>
-                                    <label class="stkField">
-                                        <span>색상</span>
-                                        <input class="form-control form-control-color" id="textColor" type="color" value="#111827" />
-                                    </label>
+                                <label class="stkField">
+                                    <span>글자 높이 (cm)</span>
+                                    <input class="form-control" id="textHeightCm" inputmode="decimal" min="0.5" step="0.1" type="number" value="1.5" />
+                                </label>
+                                <div class="stkField">
+                                    <span>글자 색상</span>
+                                    <div aria-label="글자 색상" class="stkColorRow" id="textColorRow" role="radiogroup"></div>
                                 </div>
                                 <div class="stkBtnRow">
-                                    <button class="btn btn-dark fw-bold" id="textAddBtn" type="button">텍스트 추가</button>
+                                    <button class="btn btn-outline-secondary" id="textNewBtn" type="button">+ 새 텍스트</button>
                                 </div>
                             </div>
 
                             <!-- 꽉 채우기 -->
                             <div class="stkPanel stkToolPanel" id="toolFill">
-                                <p class="stkMuted">선택한 스티커를 같은 크기로 복사해서 안전선 안에 바둑판처럼 꽉 채웁니다. <b>기존 배치는 지워져요.</b></p>
+                                <p class="stkMuted">선택한 스티커를 같은 크기로 복사해서 안전선 안에 바둑판처럼 꽉 채웁니다. 채운 뒤에도 크기와 간격을 바꾸면 바로 다시 배치돼요.</p>
                                 <div class="stkFieldGrid">
                                     <label class="stkField">
                                         <span>스티커 가로 (cm)</span>
@@ -280,7 +263,7 @@
                                     </label>
                                     <label class="stkField">
                                         <span>스티커 세로 (cm)</span>
-                                        <input class="form-control" id="fillH" readonly type="number" />
+                                        <input class="form-control" id="fillH" inputmode="decimal" min="0.5" step="0.1" type="number" />
                                     </label>
                                     <label class="stkField">
                                         <span>간격 (cm)</span>
@@ -323,19 +306,6 @@
             </div>
         </div>
     </footer>
-    <!-- 제작 화면 용지 빠른 변경 모달 -->
-    <div aria-hidden="true" class="stkPaperModal" id="paperModal">
-        <div class="stkPaperModalDim"></div>
-        <div aria-labelledby="paperModalTitle" aria-modal="true" class="stkPaperModalDialog" role="dialog">
-            <h3 id="paperModalTitle">용지 사이즈 변경</h3>
-            <p class="stkMuted">배치한 스티커는 용지 중앙 기준으로 그대로 옮겨집니다.</p>
-            <div aria-label="용지 사이즈" class="stkPaperOptions" id="paperModalOptions" role="radiogroup"></div>
-            <div class="stkBtnRow stkModalActions">
-                <button class="btn btn-outline-secondary" id="paperModalCancel" type="button">닫기</button>
-                <button class="btn btn-warning fw-bold" id="paperModalApply" type="button">변경</button>
-            </div>
-        </div>
-    </div>
     <!-- 확인 질문 모달 (브라우저 confirm 대신 사용) -->
     <div aria-hidden="true" class="stkPaperModal" id="askModal">
         <div class="stkPaperModalDim"></div>

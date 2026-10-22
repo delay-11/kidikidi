@@ -42,6 +42,7 @@ const STICKER_DEFAULT_GAP_MM = 3;
 ========================================================= */
 const STICKER_MAX_UPLOAD_BYTES = 20 * 1024 * 1024;
 const STICKER_MAX_OBJECTS = 400;
+const STICKER_HISTORY_LIMIT = 50;
 
 /* =========================================================
  * 인쇄 해상도 안내 기준 (이보다 낮으면 흐릴 수 있다고 안내)
@@ -67,9 +68,22 @@ const STICKER_LIBRARY = [
 ========================================================= */
 const STICKER_TEXT_FONTS = [
   { id: "basic", label: "기본", family: "Pretendard", weight: 700 },
-  { id: "round", label: "둥근", family: "Cafe24Ssurround", weight: 700 },
   { id: "bold", label: "굵게", family: "JalnanGothic", weight: 400 },
+  { id: "round", label: "둥근", family: "Cafe24 Ssurround", weight: 400 },
   { id: "hand", label: "손글씨", family: "GriunMongtori", weight: 400 },
+  { id: "retro", label: "레트로", family: "BinggreIi", weight: 700 },
+  { id: "calli", label: "캘리", family: "HakgyoansimGaeulsopungB", weight: 700 },
+  { id: "giants", label: "자이언츠", family: "GiantsInline", weight: 700 },
+  { id: "court", label: "코트", family: "KBLCourt", weight: 400 },
+  { id: "jump", label: "점프", family: "KBLJump", weight: 400 },
+];
+
+/* =========================================================
+ * 텍스트 색상 (스포이드 없이 고르는 기본 팔레트)
+========================================================= */
+const STICKER_TEXT_COLORS = [
+  "#111827", "#ffffff", "#6b7280", "#e5484d", "#ff8a3d", "#fdcc63",
+  "#30a46c", "#0ea5e9", "#2563eb", "#7c5cff", "#ff5c9a", "#8b5a2b",
 ];
 
 /* =========================================================

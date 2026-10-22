@@ -7,6 +7,15 @@
     font-family: 'JalnanGothic';
     src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_231029@1.1/JalnanGothic.woff') format('woff');
     font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'BinggreIi';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Binggrae-Bold.woff') format('woff');
+    font-weight: 700;
+    font-style: normal;
     font-display: swap;
 }
 
@@ -14,6 +23,39 @@
     font-family: 'GriunMongtori';
     src: url('../files/Griun_Mongtori-Rg.ttf') format('truetype');
     font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'HakgyoansimGaeulsopungB';
+    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/HakgyoansimGaeulsopungB.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'GiantsInline';
+    src: url('../files/GiantsInline.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'KBLCourt';
+    src: url('../files/KBLCourt_EB.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'KBLJump';
+    src: url('../files/KBLJump_EB_Extended.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
     font-display: swap;
 }
 
@@ -180,24 +222,41 @@ body.stickerPage[data-step="editor"] .stkEditorCard {
     align-items: center;
     gap: 6px;
     width: auto;
-    min-height: 30px;
-    padding: 4px 12px;
-    border: 1.5px solid #efc24f;
+    min-height: 34px;
+    padding: 4px 14px;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: #fff8e8;
+    background: #fff;
     color: var(--txt);
     font-size: 13px;
+    font-weight: 700;
     cursor: pointer;
 }
 
-.stkCaret {
-    font-size: 9px;
-    color: #b58105;
+.kidikidiBootstrap .stkPillBtn:hover:not(:disabled) {
+    border-color: #111827;
+}
+
+.kidikidiBootstrap .stkPillBtnDanger {
+    color: var(--bad);
+}
+
+.kidikidiBootstrap .stkPillBtnDanger:hover:not(:disabled) {
+    border-color: var(--bad);
+}
+
+.kidikidiBootstrap .stkPillBtn:disabled {
+    opacity: 0.45;
+    cursor: default;
 }
 
 .stkPillHint {
     color: var(--muted);
     font-size: 11px;
+}
+
+.stkPillHintWide {
+    margin-left: auto;
 }
 
 .stkCanvasWrap {
@@ -279,6 +338,9 @@ body.stickerPage[data-step="editor"] .stkEditorCard {
 }
 
 .stkSelBody[hidden],
+.stkSelSize[hidden],
+.stkBtnRow .btn[hidden],
+.stkFillInfo[hidden],
 .stkMuted[hidden],
 .stkWarn[hidden] {
     display: none !important;
@@ -451,6 +513,27 @@ body.stickerPage[data-step="editor"] .stkEditorCard {
     border-color: #111827;
     background: #111827;
     color: #fff;
+}
+
+.stkColorRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.kidikidiBootstrap .stkColorBtn {
+    width: 30px !important;
+    min-height: 0;
+    height: 30px;
+    padding: 0;
+    border: 1px solid rgba(17, 24, 39, 0.18);
+    border-radius: 50%;
+    background: var(--swatch);
+    cursor: pointer;
+}
+
+.kidikidiBootstrap .stkColorBtn.is-active {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111827;
 }
 
 .stkFillInfo {
