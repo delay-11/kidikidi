@@ -582,3 +582,42 @@ body[data-step="editor"] .editorStepCard {
 body[data-step="info"] .leftStack, body[data-step="editor"] .rightStack, body[data-step="confirm"] .rightStack {
     gap: 12px;
 }
+
+/* 이메일 도메인 자동완성 */
+.emailSuggestWrap {
+    position: relative;
+}
+
+.emailSuggestList {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    margin: 4px 0 0;
+    padding: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    list-style: none;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow);
+}
+
+.emailSuggestList.show {
+    display: block;
+}
+
+.emailSuggestList li {
+    padding: 8px 10px;
+    font-size: var(--fs-14);
+    color: var(--txt);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.emailSuggestList li:hover,
+.emailSuggestList li.active {
+    background: rgba(253, 204, 99, 0.25);
+}
