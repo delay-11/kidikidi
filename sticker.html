@@ -336,6 +336,18 @@
             </div>
         </div>
     </div>
+    <!-- 확인 질문 모달 (브라우저 confirm 대신 사용) -->
+    <div aria-hidden="true" class="stkPaperModal" id="askModal">
+        <div class="stkPaperModalDim"></div>
+        <div aria-labelledby="askModalTitle" aria-modal="true" class="stkPaperModalDialog" role="dialog">
+            <h3 id="askModalTitle">확인</h3>
+            <p class="stkAskText" id="askModalText"></p>
+            <div class="stkBtnRow stkModalActions">
+                <button class="btn btn-outline-secondary" id="askModalCancel" type="button">취소</button>
+                <button class="btn btn-warning fw-bold" id="askModalOk" type="button">계속</button>
+            </div>
+        </div>
+    </div>
     <!-- 시안 확정 모달 -->
     <div aria-hidden="true" class="confirmModal" id="confirmModal">
         <div class="confirmModalDim"></div>

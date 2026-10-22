@@ -385,9 +385,17 @@ function fillSafeArea() {
   }
 
   const others = stickerState.objects.filter((o) => o.id !== layout.obj.id).length;
-  if (others && !window.confirm(`기존에 배치한 스티커 ${others}개가 지워지고 선택한 스티커로 채워집니다. 계속할까요?`)) {
+  if (others) {
+    askConfirm(`기존에 배치한 스티커 ${others}개가 지워지고 선택한 스티커로 채워집니다. 계속할까요?`, "꽉 채우기").then(
+      (ok) => ok && applyFillLayout(layout),
+    );
     return;
   }
+
+  applyFillLayout(layout);
+}
+
+function applyFillLayout(layout) {
 
   const { w, h, gap, cols, rows, safe } = layout;
   const gridW = cols * w + (cols - 1) * gap;
@@ -416,6 +424,32 @@ function fillSafeArea() {
   pruneUnusedSources();
   refreshEditor();
   showToast(`안전선 안에 ${next.length}개를 꽉 채웠어요.`, "ok", 2200);
+}
+
+/* =========================================================
+ * 확인 질문 모달 (window.confirm은 일부 환경에서 표시되지 않아 직접 구현)
+========================================================= */
+const askModalEl = byId("askModal");
+let askResolve = null;
+
+function askConfirm(message, title = "확인") {
+  if (!askModalEl) return Promise.resolve(true);
+
+  byId("askModalTitle").textContent = title;
+  byId("askModalText").textContent = message;
+  askModalEl.classList.add("is-open");
+  askModalEl.setAttribute("aria-hidden", "false");
+
+  return new Promise((resolve) => {
+    askResolve = resolve;
+  });
+}
+
+function closeAskModal(result) {
+  askModalEl?.classList.remove("is-open");
+  askModalEl?.setAttribute("aria-hidden", "true");
+  askResolve?.(result);
+  askResolve = null;
 }
 
 /* =========================================================
@@ -855,6 +889,12 @@ function bindEditorEvents() {
   paperModalApplyEl?.addEventListener("click", applyPaperModal);
   paperModalEl?.addEventListener("click", (e) => {
     if (e.target === paperModalEl || e.target.classList.contains("stkPaperModalDim")) closePaperModal();
+  });
+
+  byId("askModalOk")?.addEventListener("click", () => closeAskModal(true));
+  byId("askModalCancel")?.addEventListener("click", () => closeAskModal(false));
+  askModalEl?.addEventListener("click", (e) => {
+    if (e.target === askModalEl || e.target.classList.contains("stkPaperModalDim")) closeAskModal(false);
   });
 
   if (typeof ResizeObserver === "function" && canvasWrapEl) {

@@ -556,6 +556,13 @@ body.stickerPage[data-step="editor"] .stkEditorCard {
     font-weight: 800;
 }
 
+.stkAskText {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    word-break: keep-all;
+}
+
 .stkModalActions {
     margin-top: 4px;
 }
