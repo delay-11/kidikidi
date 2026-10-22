@@ -12,48 +12,8 @@
 }
 
 @font-face {
-    font-family: 'BinggreIi';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Binggrae-Bold.woff') format('woff');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
     font-family: 'GriunMongtori';
     src: url('../files/Griun_Mongtori-Rg.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'HakgyoansimGaeulsopungB';
-    src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2307-2@1.0/HakgyoansimGaeulsopungB.woff2') format('woff2');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'GiantsInline';
-    src: url('../files/GiantsInline.ttf') format('truetype');
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'KBLCourt';
-    src: url('../files/KBLCourt_EB.ttf') format('truetype');
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'KBLJump';
-    src: url('../files/KBLJump_EB_Extended.ttf') format('truetype');
     font-weight: 400;
     font-style: normal;
     font-display: swap;
@@ -255,7 +215,9 @@ body.stickerPage[data-step="editor"] .stkEditorCard {
     font-size: 11px;
 }
 
-.stkPillHintWide {
+.stkPillActions {
+    display: flex;
+    gap: 8px;
     margin-left: auto;
 }
 

@@ -160,11 +160,13 @@
                     <div class="stkEditorWrap">
                         <div class="stkCanvasCol">
                             <div class="stkPill">
-                                <button class="stkPillBtn" disabled id="undoBtn" title="뒤로가기 (Ctrl+Z)" type="button">
-                                    <span aria-hidden="true">↶</span> 뒤로가기
-                                </button>
-                                <button class="stkPillBtn stkPillBtnDanger" disabled id="resetBtn" type="button">초기화</button>
-                                <span class="stkPillHint stkPillHintWide">빈 곳을 드래그하면 여러 개를 한 번에 선택할 수 있어요</span>
+                                <span class="stkTag">용지</span><b id="paperText">-</b>
+                                <div class="stkPillActions">
+                                    <button class="stkPillBtn" disabled id="undoBtn" title="뒤로가기 (Ctrl+Z)" type="button">
+                                        <span aria-hidden="true">↶</span> 뒤로가기
+                                    </button>
+                                    <button class="stkPillBtn stkPillBtnDanger" disabled id="resetBtn" type="button">초기화</button>
+                                </div>
                             </div>
                             <div class="stkCanvasWrap" id="canvasWrap">
                                 <canvas aria-label="스티커 배치 캔버스" id="stickerCanvas" tabindex="0"></canvas>
@@ -172,6 +174,7 @@
                             </div>
                             <p class="stkCanvasHelp">
                                 빨간 점선(인쇄 안전선) 안쪽에만 배치해 주세요. 회색 체크무늬는 투명 영역으로 인쇄되지 않습니다.
+                                빈 곳을 드래그하면 여러 개를 한 번에 선택할 수 있어요.
                             </p>
                         </div>
 
@@ -214,11 +217,7 @@
 
                             <!-- 이미지 업로드 -->
                             <div class="stkPanel stkToolPanel is-active" id="toolUpload">
-                                <label class="stkField">
-                                    <span>추가할 크기 – 가로 (cm)</span>
-                                    <input class="form-control" id="addSizeCm" inputmode="decimal" min="0.5" step="0.1" type="number" value="5" />
-                                </label>
-                                <p class="stkMuted">입력한 가로 크기로 용지 안전선 안에 배치됩니다. 세로는 이미지 비율에 맞춰 자동 계산돼요.</p>
+                                <p class="stkMuted">가로 5cm 크기로 용지 안전선 안에 배치됩니다. 배치한 뒤 캔버스나 선택한 스티커 칸에서 크기를 바꿀 수 있어요.</p>
                                 <div class="stkBtnRow">
                                     <button class="btn btn-dark fw-bold" id="fileBtn" type="button">이미지 업로드</button>
                                     <input accept="image/png,image/jpeg,image/webp" hidden id="file" multiple type="file" />
@@ -231,7 +230,7 @@
 
                             <!-- 기본 스티커 -->
                             <div class="stkPanel stkToolPanel" id="toolLibrary">
-                                <p class="stkMuted">누르면 이미지 탭에서 설정한 가로 크기(cm)로 추가됩니다.</p>
+                                <p class="stkMuted">누르면 가로 5cm 크기로 추가됩니다. 배치한 뒤 크기를 바꿀 수 있어요.</p>
                                 <div class="stkLibraryGrid" id="libraryGrid"></div>
                             </div>
 

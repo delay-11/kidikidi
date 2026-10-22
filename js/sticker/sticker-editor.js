@@ -22,7 +22,6 @@ const selDelBtn = byId("selDelBtn");
 const toolTabEls = Array.from(document.querySelectorAll("[data-tool-target]"));
 const toolPanelEls = Array.from(document.querySelectorAll(".stkToolPanel"));
 
-const addSizeCmEl = byId("addSizeCm");
 const fileEl = byId("file");
 const fileBtn = byId("fileBtn");
 const libraryGridEl = byId("libraryGrid");
@@ -222,8 +221,7 @@ function selectObjects(ids) {
  * 스티커 추가
 ========================================================= */
 function getAddWidthMm() {
-  const cm = parseFloat(addSizeCmEl?.value);
-  return Number.isFinite(cm) && cm > 0 ? cm * 10 : STICKER_DEFAULT_SIZE_MM;
+  return STICKER_DEFAULT_SIZE_MM;
 }
 
 // 안전선 안에서 기존 스티커와 겹치지 않는 첫 위치 (위→아래, 왼→오른쪽)
@@ -1088,7 +1086,13 @@ function onEditorKeyDown(e) {
 /* =========================================================
  * 외부(sticker-order.js)에서 부르는 훅
 ========================================================= */
+function syncPaperText() {
+  const el = byId("paperText");
+  if (el) el.textContent = getPaperLabel();
+}
+
 function onPaperChanged() {
+  syncPaperText();
   // 용지가 바뀌면 이전 용지 기준 기록은 의미가 없으므로 비움
   clearHistory();
   resizeEditorCanvas();
@@ -1096,6 +1100,7 @@ function onPaperChanged() {
 }
 
 function onEditorShown() {
+  syncPaperText();
   requestAnimationFrame(resizeEditorCanvas);
 }
 
