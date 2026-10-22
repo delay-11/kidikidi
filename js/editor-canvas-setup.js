@@ -9,7 +9,8 @@ function getCanvasSize(profile, capType) {
     return CANVAS_SIZE_MAP[capType] || { w: 330, h: 330 };
   }
 
-  return CANVAS_SIZE_MAP[profile] || CANVAS_SIZE_MAP.STD;
+  // 용지(A3/A4/A5)처럼 한 프로파일 안에 규격이 여러 개인 상품은 규격 기준
+  return CANVAS_SIZE_MAP[capType] || CANVAS_SIZE_MAP[profile] || CANVAS_SIZE_MAP.STD;
 }
 
 /* =========================================================
@@ -105,11 +106,8 @@ function resizeCanvasKeepView(w, h) {
 }
 
 function updateSelectedInfoText() {
-  const profile = safeTrim(profileEl?.value || "") || "-";
-  const cap = getCapTypeDisplayName(capTypeEl?.value);
-
   if (selTextEl) {
-    selTextEl.textContent = `${profile} / ${cap}`;
+    selTextEl.textContent = getProfileCapLabel(safeTrim(profileEl?.value || ""), capTypeEl?.value);
   }
 }
 
@@ -285,7 +283,7 @@ function applyCanvasSizeFromForm() {
 
   // 수정: 사이즈 텍스트는 무조건 갱신
   if (canvasTextEl) {
-    canvasTextEl.textContent = `${size.w}×${size.h}`;
+    canvasTextEl.textContent = size.label || `${size.w}×${size.h}`;
   }
 
   // 이미지 위치 보정
@@ -386,7 +384,7 @@ function drawGuide() {
   if (profile === "MAO") return;
 
   const capType = capTypeEl.value;
-  const key = profile === "OEM" ? capType : profile;
+  const key = profile === "OEM" || GUIDE_SIZE_MAP[capType] ? capType : profile;
 
   const guide = GUIDE_SIZE_MAP[key] || GUIDE_SIZE_MAP.STD;
   if (!guide) return;
@@ -414,19 +412,19 @@ function drawGuide() {
   ctx.strokeStyle = "#d2d2d2";
   ctx.lineWidth = 0.8;
   ctx.setLineDash([]);
-  roundRectPath(ctx, outerX, outerY, outerW, outerH, 18);
+  roundRectPath(ctx, outerX, outerY, outerW, outerH, guide.radius ?? 18);
   ctx.stroke();
 
   ctx.strokeStyle = "#b8b8b8";
   ctx.lineWidth = 0.8;
   ctx.setLineDash([]);
-  roundRectPath(ctx, innerX, innerY, innerW, innerH, 16);
+  roundRectPath(ctx, innerX, innerY, innerW, innerH, guide.radius ?? 16);
   ctx.stroke();
 
   ctx.strokeStyle = "#d92d20";
   ctx.lineWidth = 2;
   ctx.setLineDash([8, 8]);
-  roundRectPath(ctx, safeX, safeY, safeW, safeH, 14);
+  roundRectPath(ctx, safeX, safeY, safeW, safeH, guide.radius ?? 14);
   ctx.stroke();
 
   ctx.restore();

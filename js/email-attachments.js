@@ -128,6 +128,12 @@ async function waitForDesignFontsReady() {
 ========================================================= */
 const SMALL_CANVAS_EXPORT_SCALE = 3;
 
+// 용지(A3/A4/A5)처럼 규격에 내보내기 배율(exportScale)이 따로 지정된 경우 그 값을 사용
+function getCanvasExportScale(size) {
+  if (size?.exportScale) return size.exportScale;
+  return size?.w === 330 && size?.h === 330 ? SMALL_CANVAS_EXPORT_SCALE : 1;
+}
+
 /* =========================================================
  * 지정한 배율로 시안을 캔버스에 렌더링
  * - renderItemToPngDataUrl()에서 용량 초과 시 배율을 낮춰 재렌더링하거나,
@@ -324,8 +330,7 @@ async function renderItemToPngDataUrl(item) {
   const capType = safeTrim(item?.capType) || "-";
   const size = getCanvasSize(profile, capType);
 
-  const exportScale =
-    size.w === 330 && size.h === 330 ? SMALL_CANVAS_EXPORT_SCALE : 1;
+  const exportScale = getCanvasExportScale(size);
 
   const canvas = await renderItemToCanvasAtScale(item, size, exportScale);
   const dataUrl = canvas.toDataURL("image/png");

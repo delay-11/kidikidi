@@ -27,11 +27,12 @@ function updateFormReadyState() {
   formReadyBoxEl.classList.toggle("is-ready", ready);
 
   if (ready) {
-    formReadyTitleEl.textContent = "주문한 프로파일/규격을 선택하세요";
+    const readyTitle = formReadyTitleEl.dataset.readyText || "주문한 프로파일/규격을 선택하세요";
+    formReadyTitleEl.textContent = readyTitle;
     formReadyDescEl.textContent = "";
 
     if (lastFormReadyState === false) {
-      showToast?.("주문한 프로파일/규격을 선택하세요", "ok", 2200);
+      showToast?.(readyTitle, "ok", 2200);
     }
   } else {
     formReadyTitleEl.textContent = "주문자 정보 입력이 필요합니다.";
@@ -520,7 +521,8 @@ function applyQuickOptionChange() {
   if (nextProfile === "OEM" && (nextLaser === "black" || nextLaser === "white")) {
     showToast?.("레이저 옵션 선택 시 배경은 흰색으로 고정됩니다.", "warn", 2400);
   } else {
-    showToast?.("프로파일 / 규격을 변경했습니다.", "ok", 1800);
+    const changedText = optionQuickModalEl?.dataset.changedText || "프로파일 / 규격을 변경했습니다.";
+    showToast?.(changedText, "ok", 1800);
   }
 }
 

@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <title>용지 인쇄 시안 제작 시스템</title>
+    <!-- 링크 공유 시 미리보기 -->
+    <meta content="A3 · A4 · A5 용지 인쇄 시안 제작 시스템" name="description" />
+    <meta content="용지 인쇄 시안 제작 시스템" property="og:title" />
+    <meta content="A3 · A4 · A5 인쇄물 디자인을 직접 제작해보세요." property="og:description" />
+    <meta content="website" property="og:type" />
+    <meta content="./image/favicon.png" property="og:image" />
+    <!-- favicon -->
+    <link href="./image/favicon.png" rel="icon" type="image/png" />
+    <!-- Korean Web Fonts for text tool -->
+    <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/fonts-archive/Cafe24Ssurround/Cafe24Ssurround.css" rel="stylesheet" />
+    <!-- Bootstrap -->
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4pa+loy7c8zWO5VnGz2BbPkZWZ6zfaeVfN11p/2" rel="stylesheet" />
+
+    <!-- Pickr (커스텀 컬러피커) -->
+    <link href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" rel="stylesheet" />
+    <!-- CSS -->
+    <link href="./css/base.css" rel="stylesheet" />
+    <link href="./css/layout.css" rel="stylesheet" />
+    <link href="./css/ui.css" rel="stylesheet" />
+    <link href="./css/color-picker.css" rel="stylesheet" />
+    <link href="./css/editor.css" rel="stylesheet" />
+    <link href="./css/design-list.css" rel="stylesheet" />
+    <link href="./css/bootstrap-wizard.css" rel="stylesheet" />
+    <link href="./css/bootstrap-wizard-overrides.css" rel="stylesheet" />
+    <link href="./css/editor-tour.css" rel="stylesheet" />
+    <link href="./css/responsive.css" rel="stylesheet" />
+    <link href="./css/responsive-editor.css" rel="stylesheet" />
+    <!-- 용지 인쇄 페이지 전용: 키캡 전용 항목(프로파일/레이저) 숨김 -->
+    <style>
+        .paperHidden {
+            display: none !important;
+        }
+
+        .kidikidiBootstrap .optionSelectLine,
+        .optionQuickGrid {
+            grid-template-columns: minmax(0, 1fr) !important;
+        }
+    </style>
+
+    <!-- Pickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- JSZip -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+
+<body class="kidikidiBootstrap" data-step="info">
+    <!-- HEADER -->
+    <header class="siteHeader bg-white border-bottom sticky-top">
+        <div class="headerInner container-fluid px-3 px-md-4">
+            <div class="headerBrand">
+                <img alt="KidiKidi" class="headerLogo" src="./image/favicon.png" />
+                <span class="systemName">용지 인쇄 시안 제작 시스템</span>
+            </div>
+            <div class="headerVersion">
+                v2.7.0
+            </div>
+        </div>
+    </header>
+    <!-- ORDER BAR -->
+    <div class="orderBar">
+        <div class="orderInner container-fluid px-3 px-md-4">
+            <div class="orderLine">
+                <span class="orderLabel">주문번호</span>
+                <span class="orderNumber" id="orderBarNo">-</span>
+                <span class="orderDivider">|</span>
+                <span class="paperHidden" id="draftProfile">PAPER</span>
+                <span class="draftDivider paperHidden">/</span>
+                <span id="draftCap">-</span>
+                <span class="draftDivider paperHidden">/</span>
+                <span class="paperHidden" id="draftLaser">레이저 없음</span>
+            </div>
+        </div>
+    </div>
+    <!-- BOOTSTRAP WIZARD PROGRESS -->
+    <nav aria-label="시안 제작 단계" class="wizardProgress container-fluid px-3 px-md-4 py-3" id="wizardProgress">
+        <div class="wizardSteps mx-auto">
+            <button class="wizardStep stepChip is-active" data-step-chip="info" type="button">
+                <span class="wizardStepNo">1</span>
+                <strong>주문정보</strong>
+                <small>용지 크기 선택</small>
+            </button>
+            <button class="wizardStep stepChip" data-step-chip="editor" type="button">
+                <span class="wizardStepNo">2</span>
+                <strong>시안 제작</strong>
+                <small>업로드 / 추가</small>
+            </button>
+            <button class="wizardStep stepChip" data-step-chip="confirm" type="button">
+                <span class="wizardStepNo">3</span>
+                <strong>시안 확정</strong>
+                <small>최종 확인</small>
+            </button>
+        </div>
+    </nav>
+
+    <div class="wrap bootstrapWrap container-fluid px-3 px-md-4 pb-5">
+        <div class="layout2 row justify-content-center g-4">
+            <!-- LEFT -->
+            <div class="leftStack appStep stepInfo col-12 col-xl-8" data-step-panel="info">
+                <div class="stepTopBar stepPageHeader stepHeaderInfo">
+                    <button class="ghostBtn miniStepBtn btn btn-outline-secondary" disabled="" type="button">이전</button>
+                    <div class="stepTitleBlock">
+                        <h2 class="h5 fw-bold mb-1">주문정보 입력</h2>
+                        <p class="text-muted small">주문정보 입력 후 용지 크기를 선택할 수 있습니다.</p>
+                    </div>
+                    <button class="confirmBtn miniStepBtn btn btn-warning fw-bold w-100" id="btnGoEditor"
+                        type="button">다음</button>
+                </div>
+                <section class="card stepIntroCard shadow-sm">
+                    <div class="row1">
+                        <div class="formReadyBox bootstrapReadyBox alert alert-light border mt-3" id="formReadyBox"
+                            role="status">
+                            <strong data-ready-text="주문한 용지 크기를 선택하세요" id="formReadyTitle">주문자 정보 입력이 필요합니다.</strong>
+                            <p class="mb-0" id="formReadyDesc">주문자명, 연락처, 주문번호, 이메일을 모두 입력해주세요.</p>
+                        </div>
+                        <div aria-live="polite" class="formNotice small mt-2" id="formNotice"></div>
+
+                        <div class="row g-3">
+                            <div>
+                                <label class="form-label">주문자명 *</label>
+                                <input class="form-control" id="name" placeholder="홍길동" />
+                            </div>
+                            <div>
+                                <label class="form-label">핸드폰번호 *</label>
+                                <input class="form-control" id="phone" placeholder="01012345678" />
+                            </div>
+                        </div>
+                        <div class="row g-3 rowOrderEmail">
+                            <div>
+                                <label class="form-label" id="orderLabel">주문번호 *</label>
+                                <input class="form-control" id="orderNo" placeholder="주문번호" />
+                            </div>
+                            <div>
+                                <label class="form-label">이메일 *</label>
+                                <input class="form-control" id="email" placeholder="customer@email.com" />
+                            </div>
+                        </div>
+                        <div class="optionSelectGuide">
+                            <label class="form-label">주문 옵션 선택 *</label>
+                            <p>구매하신 <b>용지 크기(A3, A4, A5)</b>를 선택해 주세요.</p>
+                        </div>
+                        <div class="optionSelectLine">
+                            <div class="paperHidden">
+                                <select class="form-select" id="profile" required>
+                                    <option selected value="PAPER">용지 인쇄</option>
+                                </select>
+                            </div>
+                            <div>
+                                <select class="form-select" id="capType" required></select>
+                            </div>
+                            <div class="paperHidden">
+                                <select class="form-select" id="laser">
+                                    <option value="none">레이저 없음</option>
+                                    <option value="black">블랙</option>
+                                    <option value="white">화이트</option>
+                                </select>
+                            </div>
+                            <input id="qty" type="hidden" value="1" />
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- RIGHT -->
+            <div class="rightStack appStep stepEditor col-12" data-step-panel="editor">
+                <div class="stepTopBar stepPageHeader stepHeaderEditor">
+                    <button class="ghostBtn miniStepBtn btn btn-outline-secondary" id="btnBackInfo"
+                        type="button">이전</button>
+                    <div class="stepTitleBlock">
+                        <h2 class="h5 fw-bold mb-1">시안 제작</h2>
+                        <p class="text-muted small">주문한 용지 크기 선택 후 원하는 시안을 제작해 주세요.</p>
+                    </div>
+                    <button class="confirmBtn miniStepBtn btn btn-warning fw-bold w-100" id="btnGoConfirm"
+                        type="button">다음</button>
+                </div>
+                <div class="stepTopBar stepPageHeader stepHeaderConfirm">
+                    <button class="ghostBtn miniStepBtn btn btn-outline-secondary" id="btnBackEditor"
+                        type="button">이전</button>
+                    <div class="stepTitleBlock">
+                        <h2 class="h5 fw-bold mb-1">시안 확인 / 확정</h2>
+                        <p class="text-muted small">추가한 시안 및 수량을 확인한 뒤 최종 확정을 눌러주세요.</p>
+                    </div>
+                    <button class="confirmBtn miniStepBtn btn btn-warning fw-bold w-100" disabled="" id="btnConfirm"
+                        type="button">시안 확정</button>
+                </div>
+                <section class="card editorStepCard shadow-sm">
+                    <div class="editorWrap">
+                        <!-- LEFT COLUMN IN EDITOR -->
+                        <div class="editorMain">
+                            <div class="canvasFrame border rounded-4 bg-white">
+                                <div class="pill">
+                                    <span class="tag">용지 크기</span>
+                                    <button aria-label="용지 크기 변경" class="pillActionBtn" id="optionQuickBtn"
+                                        type="button">
+                                        <b id="selText">없음</b><span aria-hidden="true" class="pillCaret">▼</span>
+                                    </button>
+                                    <span class="quickOptionHint">눌러서 변경</span>
+                                    <span class="tag">캔버스</span><b id="canvasText">-</b>
+                                    <span class="tag">배경</span><b id="bgText">-</b>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="canvasWrap" id="canvasWrap">
+                                    <canvas height="330" id="designCanvas" width="330"></canvas>
+                                    <div aria-label="시안 제작 핵심 안내" class="canvasInnerNotice">
+                                        <span>배경은 용지 끝까지 채우기</span>
+                                        <span>실제 제작 시 CMYK 기준</span>
+                                    </div>
+                                    <div aria-hidden="true" class="canvasGuideOverlay">
+                                        <span>잘리면 안 되는 글자/이미지는 빨간선 안쪽에 배치해 주세요</span>
+                                    </div>
+                                    <div aria-live="polite" class="canvasHelpTip" id="canvasHelpTip"></div>
+                                    <div class="bbox" id="bbox">
+                                        <div class="bboxActionGroup" aria-hidden="false">
+                                            <div class="actionBtn rot" id="rotHandle" title="회전" aria-label="회전"></div>
+                                            <div class="actionBtn del" id="deleteHandle" title="삭제" aria-label="삭제">
+                                            </div>
+                                        </div>
+                                        <div class="h nw" data-h="nw" title="크기 조절"></div>
+                                        <div class="h ne" data-h="ne" title="크기 조절"></div>
+                                        <div class="h se" data-h="se" title="크기 조절"></div>
+                                        <div class="h sw" data-h="sw" title="크기 조절"></div>
+                                    </div>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="editorToolBox">
+                                    <div aria-label="시안 제작 도구" class="toolTabRow">
+                                        <button class="toolTab is-active btn btn-sm btn-light"
+                                            data-tool-target="toolImage" type="button">이미지</button>
+                                        <button class="toolTab btn btn-sm btn-light" data-tool-target="toolBg"
+                                            type="button">배경</button>
+                                        <button class="toolTab btn btn-sm btn-light" data-tool-target="toolText"
+                                            type="button">텍스트</button>
+                                    </div>
+                                    <div class="toolPanel is-active imageToolPanel" id="toolImage">
+                                        <div class="imageToolGrid">
+                                            <div class="imageToolSection imageToolActions">
+                                                <div class="toolPanelHead compact">
+                                                    <div>
+                                                        <b>이미지</b>
+                                                    </div>
+                                                </div>
+                                                <div class="uploadRow">
+                                                    <button class="ghostBtn fileBtn btn btn-outline-secondary"
+                                                        disabled="" id="fileBtn" type="button">
+                                                        이미지 업로드
+                                                    </button>
+                                                    <button class="dangerBtn btn btn-outline-danger" disabled=""
+                                                        id="fileDelBtn" type="button">
+                                                        삭제
+                                                    </button>
+                                                    <button class="ghostBtn btn btn-outline-secondary" disabled=""
+                                                        id="imageCenterBtn" type="button">
+                                                        캔버스 중앙
+                                                    </button>
+                                                    <input accept="image/png,image/jpeg,image/webp" disabled=""
+                                                        hidden="" id="file" multiple="" type="file" />
+                                                </div>
+                                                <span class="fileName" id="fileName">선택된 파일 없음</span>
+                                            </div>
+                                            <div class="imageToolSection imageToolInfo">
+                                                <div class="toolPanelHead compact">
+                                                    <div>
+                                                        <b>안내사항</b>
+                                                        <p>시안 이미지를 올린 뒤 캔버스에서 위치와 크기를 조절해 주세요. 모바일에서는 두 손가락으로 확대/축소할 수
+                                                            있습니다.</p>
+                                                    </div>
+                                                    <!-- <span id="imageCountBadge" class="toolBadge">현재 0개</span> -->
+                                                </div>
+                                                <div class="imageHelpLine">
+                                                    <span>PNG / JPG / WEBP 가능</span>
+                                                    <span>투명 배경 권장</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="toolPanel" data-bg-mode="solid" id="toolBg">
+                                        <div class="bgToolStack">
+                                            <div aria-label="배경 타입 선택" class="bgModeToggle">
+                                                <button class="bgModeBtn is-active btn btn-sm btn-outline-secondary"
+                                                    id="bgModeSolidBtn" type="button">단색</button>
+                                                <button class="bgModeBtn btn btn-sm btn-outline-secondary"
+                                                    id="bgModeGradientBtn" type="button">그라데이션</button>
+                                            </div>
+                                            <div class="bgOptionPanel">
+                                                <div class="bgToolSection bgToolSectionSolid">
+                                                    <div class="solidSettingHeader">
+                                                        <span class="solidSettingTitle">배경 색상</span>
+                                                        <div aria-label="단색 배경 직접 선택" class="solidColorDirectPanel">
+                                                            <span aria-hidden="true" class="colorSwatch"
+                                                                id="bgColorSwatch"></span>
+                                                            <input aria-label="배경 색상 코드"
+                                                                class="solidHexInput form-control" disabled=""
+                                                                id="solidHexInput" inputmode="text" maxlength="7"
+                                                                type="text" value="#ffffff" />
+                                                            <button aria-label="스포이드" class="iconToolBtn btn btn-light"
+                                                                disabled="" id="bgEyeBtn" type="button">
+                                                                <svg class="icon-eye" fill="none" stroke="currentColor"
+                                                                    stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" viewbox="0 0 24 24"
+                                                                    xmlns="http://www.w3.org/2000/svg">
+                                                                    <path
+                                                                        d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12">
+                                                                    </path>
+                                                                    <path
+                                                                        d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z">
+                                                                    </path>
+                                                                    <path d="m2 22 .414-.414"></path>
+                                                                </svg>
+                                                            </button>
+                                                            <input aria-label="배경 색상 선택" class="solidNativeColor"
+                                                                disabled="" id="solidNativeColor" type="color"
+                                                                value="#ffffff" />
+                                                            <span class="colorValue solidColorValueText"
+                                                                id="bgColorValue">#ffffff</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="solidColorItem">
+                                                        <div aria-label="단색 배경 컬러 선택" class="solidColorBoardBox">
+                                                            <canvas aria-label="배경 색상 전체 선택 영역" class="solidColorBoard"
+                                                                height="180" id="solidColorBoard" width="1200"></canvas>
+                                                            <span aria-hidden="true" class="solidColorBoardMarker"
+                                                                id="solidColorBoardMarker"></span>
+                                                        </div>
+                                                        <div aria-hidden="true" class="solidInlinePickerBox">
+                                                            <span class="solidInlinePickrMount"
+                                                                id="solidInlinePickrMount"></span>
+                                                        </div>
+                                                        <button aria-hidden="true" class="solidLegacyPickBtn"
+                                                            disabled="" id="bgPickBtn" tabindex="-1" type="button">배경 색상
+                                                            선택</button>
+                                                        <span class="pickrMount" id="bgPickMount"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="bgToolSection bgToolSectionGradient">
+                                                    <div class="bgToolSectionHeader gradientSectionHeader">
+                                                        <div class="bgToolSectionTitle">그라데이션 설정</div>
+                                                        <button
+                                                            class="gradientResetBtn btn btn-sm btn-outline-secondary"
+                                                            id="gradientResetBtn" type="button">초기화</button>
+                                                    </div>
+                                                    <div class="gradientPanel" id="gradientPanel">
+                                                        <div class="gradientColorGrid">
+                                                            <div class="gradientColorItem">
+                                                                <span class="gradientColorLabel">시작 색상</span>
+                                                                <div class="gradientColorRow">
+                                                                    <button class="gradientPickBtn btn btn-light"
+                                                                        data-gradient-color="1" id="gradientColor1"
+                                                                        type="button">
+                                                                        <span aria-hidden="true"
+                                                                            class="colorSwatch gradientSwatch"
+                                                                            id="gradientColor1Swatch"></span>
+                                                                        <span class="colorValue"
+                                                                            id="gradientColor1Value">#ffffff</span>
+                                                                    </button>
+                                                                    <button aria-label="시작 색상 스포이드" class="iconToolBtn gradientEyeBtn btn btn-light"
+                                                                        data-eye-target="gradient1" disabled="" id="gradientEye1Btn" type="button">
+                                                                        <svg class="icon-eye" fill="none" stroke="currentColor"
+                                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2" viewbox="0 0 24 24"
+                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                            <path
+                                                                                d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12">
+                                                                            </path>
+                                                                            <path
+                                                                                d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z">
+                                                                            </path>
+                                                                            <path d="m2 22 .414-.414"></path>
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="gradientColorItem">
+                                                                <span class="gradientColorLabel">끝 색상</span>
+                                                                <div class="gradientColorRow">
+                                                                    <button class="gradientPickBtn btn btn-light"
+                                                                        data-gradient-color="2" id="gradientColor2"
+                                                                        type="button">
+                                                                        <span aria-hidden="true"
+                                                                            class="colorSwatch gradientSwatch"
+                                                                            id="gradientColor2Swatch"></span>
+                                                                        <span class="colorValue"
+                                                                            id="gradientColor2Value">#fdcc63</span>
+                                                                    </button>
+                                                                    <button aria-label="끝 색상 스포이드" class="iconToolBtn gradientEyeBtn btn btn-light"
+                                                                        data-eye-target="gradient2" disabled="" id="gradientEye2Btn" type="button">
+                                                                        <svg class="icon-eye" fill="none" stroke="currentColor"
+                                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                                            stroke-width="2" viewbox="0 0 24 24"
+                                                                            xmlns="http://www.w3.org/2000/svg">
+                                                                            <path
+                                                                                d="m12 9-8.414 8.414A2 2 0 0 0 3 18.828v1.344a2 2 0 0 1-.586 1.414A2 2 0 0 1 3.828 21h1.344a2 2 0 0 0 1.414-.586L15 12">
+                                                                            </path>
+                                                                            <path
+                                                                                d="m18 9 .4.4a1 1 0 1 1-3 3l-3.8-3.8a1 1 0 1 1 3-3l.4.4 3.4-3.4a1 1 0 1 1 3 3z">
+                                                                            </path>
+                                                                            <path d="m2 22 .414-.414"></path>
+                                                                        </svg>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div aria-label="그라데이션 방향" class="gradientDirectionRow">
+                                                            <button class="gradientDirBtn btn btn-sm btn-light"
+                                                                data-gradient-dir="to-left" type="button">←</button>
+                                                            <button
+                                                                class="gradientDirBtn is-active btn btn-sm btn-light"
+                                                                data-gradient-dir="to-right" type="button">→</button>
+                                                            <button class="gradientDirBtn btn btn-sm btn-light"
+                                                                data-gradient-dir="to-top" type="button">↑</button>
+                                                            <button class="gradientDirBtn btn btn-sm btn-light"
+                                                                data-gradient-dir="to-bottom" type="button">↓</button>
+                                                        </div>
+                                                        <div aria-label="그라데이션 경계 조절" class="gradientControlGrid">
+                                                            <label class="gradientRangeItem form-label"
+                                                                for="gradientPositionRange">
+                                                                <span class="gradientRangeTop">
+                                                                    <span>경계 위치</span>
+                                                                    <b id="gradientPositionValue">50%</b>
+                                                                </span>
+                                                                <input id="gradientPositionRange" max="100" min="0"
+                                                                    step="1" type="range" value="50" />
+                                                            </label>
+                                                            <label class="gradientRangeItem form-label"
+                                                                for="gradientSoftnessRange">
+                                                                <span class="gradientRangeTop">
+                                                                    <span>퍼짐 정도</span>
+                                                                    <b id="gradientSoftnessValue">100%</b>
+                                                                </span>
+                                                                <input id="gradientSoftnessRange" max="100" min="0"
+                                                                    step="1" type="range" value="100" />
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="toolPanel textToolPanel" id="toolText">
+                                        <div class="textToolGrid">
+                                            <div class="textToolSection textToolInputSection">
+                                                <div class="bgToolSectionTitle">텍스트 입력</div>
+                                                <textarea class="textInput form-control" id="textInput" maxlength="80"
+                                                    placeholder="텍스트를 입력하세요" rows="3"></textarea>
+                                                <div class="textActionRow">
+                                                    <button class="ghostBtn btn btn-outline-secondary" disabled=""
+                                                        id="textApplyBtn" type="button">텍스트 추가</button>
+                                                    <button class="dangerBtn btn btn-outline-danger" disabled=""
+                                                        id="textClearBtn" type="button">삭제</button>
+                                                </div>
+                                                <span class="fileName" id="textCountBadge">현재 0/3개</span>
+                                            </div>
+                                            <div class="textToolSection textToolFontSection">
+                                                <div class="bgToolSectionTitle">폰트 타입</div>
+                                                <div aria-label="폰트 타입" class="textFontRow">
+                                                    <button
+                                                        class="textFontBtn is-active textFontPreviewBasic btn btn-sm btn-light"
+                                                        data-text-font="basic" type="button">Aa 기본</button>
+                                                    <button class="textFontBtn textFontPreviewBold btn btn-sm btn-light"
+                                                        data-text-font="bold" type="button">Aa 굵게</button>
+                                                    <button
+                                                        class="textFontBtn textFontPreviewRound btn btn-sm btn-light"
+                                                        data-text-font="round" type="button">Aa 둥근</button>
+                                                    <button class="textFontBtn textFontPreviewHand btn btn-sm btn-light"
+                                                        data-text-font="hand" type="button">Aa 손글씨</button>
+                                                    <button
+                                                        class="textFontBtn textFontPreviewRetro btn btn-sm btn-light"
+                                                        data-text-font="retro" type="button">Aa 레트로</button>
+                                                    <button
+                                                        class="textFontBtn textFontPreviewCalli btn btn-sm btn-light"
+                                                        data-text-font="calli" type="button">Aa 캘리</button>
+                                                    <button
+                                                        class="textFontBtn textFontPreviewGiants btn btn-sm btn-light"
+                                                        data-text-font="giants" type="button">Aa 자이언츠</button>
+                                                    <button
+                                                        class="textFontBtn textFontPreviewCourt btn btn-sm btn-light"
+                                                        data-text-font="court" type="button">Aa 코트</button>
+                                                    <button
+                                                        class="textFontBtn textFontPreviewJump btn btn-sm btn-light"
+                                                        data-text-font="jump" type="button">Aa 점프</button>
+                                                </div>
+                                            </div>
+                                            <div class="textToolSection textToolColorSection">
+                                                <div class="bgToolSectionTitle">텍스트 색상</div>
+                                                <button class="gradientPickBtn textColorBtn btn btn-light" disabled=""
+                                                    id="textColorBtn" type="button">
+                                                    <span aria-hidden="true" class="colorSwatch gradientSwatch"
+                                                        id="textColorSwatch"></span>
+                                                    <span class="colorValue" id="textColorValue">#111827</span>
+                                                </button>
+                                            </div>
+                                            <div class="textToolSection textToolAlignSection">
+                                                <div class="bgToolSectionTitle">텍스트 위치</div>
+                                                <div aria-label="텍스트 위치" class="textAlignRow">
+                                                    <button aria-label="캔버스 왼쪽 배치"
+                                                        class="textIconBtn btn btn-sm btn-light" data-text-align="left"
+                                                        type="button">
+                                                        <svg aria-hidden="true" viewbox="0 0 24 24">
+                                                            <path d="M4 6h14M4 10h10M4 14h14M4 18h10"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button aria-label="캔버스 가운데 배치"
+                                                        class="textIconBtn is-active btn btn-sm btn-light"
+                                                        data-text-align="center" type="button">
+                                                        <svg aria-hidden="true" viewbox="0 0 24 24">
+                                                            <path d="M5 6h14M7 10h10M5 14h14M7 18h10"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button aria-label="캔버스 오른쪽 배치"
+                                                        class="textIconBtn btn btn-sm btn-light" data-text-align="right"
+                                                        type="button">
+                                                        <svg aria-hidden="true" viewbox="0 0 24 24">
+                                                            <path d="M6 6h14M10 10h10M6 14h14M10 18h10"></path>
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="canvasNotice" id="canvasNotice"></div>
+                            </div>
+                            <div class="editorActionBar">
+                                <button class="secondaryActionBtn actionBtn btn btn-dark fw-bold w-100" disabled=""
+                                    id="btnAddItem" type="button">
+                                    시안 추가
+                                </button>
+                            </div>
+                        </div>
+                        <!-- RIGHT COLUMN IN EDITOR -->
+                        <div class="canvasFrame cartStepFrame border rounded-4 bg-white" data-step-panel="confirm">
+                            <div class="cartList" id="cartList"></div>
+                            <div class="divider"></div>
+                            <div class="pill">
+                                <span class="tag">시안 리스트</span><b id="cartCount">0</b>개
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+    <div aria-atomic="true" aria-live="polite" class="toastStack" id="toastStack"></div>
+    <footer class="footer">
+        <div class="footerInner">
+            <div class="footerLeft">
+                © 2026 KidiKidi. All rights reserved.
+            </div>
+            <div class="footerRight">
+                본 제작 시스템 및 디자인 툴은 KidiKidi의 자산입니다.<br />
+                무단 복제, 배포, 재사용을 금지합니다.
+            </div>
+        </div>
+    </footer>
+    <!-- 제작 화면 옵션 빠른 변경 모달 -->
+    <div aria-hidden="true" class="optionQuickModal" data-changed-text="용지 크기를 변경했습니다." id="optionQuickModal">
+        <div class="optionQuickDim"></div>
+        <div aria-labelledby="optionQuickTitle" aria-modal="true" class="optionQuickDialog" role="dialog">
+            <div class="optionQuickHeader">
+                <div>
+                    <!-- <div class="optionQuickBadge">빠른 변경</div> -->
+                    <h3 id="optionQuickTitle">용지 크기 선택</h3>
+                    <p>여러 크기 주문 시 주문한 크기만큼 변경 및 추가할 수 있어요</p>
+                </div>
+                <button aria-label="닫기" class="optionQuickClose" id="optionQuickClose" type="button">×</button>
+            </div>
+            <div class="optionQuickGrid">
+                <label class="form-label paperHidden">프로파일
+                    <select class="form-select" id="quickProfile">
+                        <option value="PAPER">용지 인쇄</option>
+                    </select>
+                </label>
+                <label class="form-label">용지 크기
+                    <select class="form-select" id="quickCapType"></select>
+                </label>
+                <label class="form-label paperHidden">레이저 각인
+                    <select class="form-select" id="quickLaser">
+                        <option value="none">없음</option>
+                        <option value="black">블랙</option>
+                        <option value="white">화이트</option>
+                    </select>
+                </label>
+            </div>
+            <p class="optionQuickNotice">
+                ※ 용지 크기에 따라 이미지 위치가 조금 달라질 수 있어요
+            </p>
+            <div class="optionQuickActions">
+                <button class="ghostBtn btn btn-outline-secondary" id="optionQuickCancel" type="button">닫기</button>
+                <button class="confirmBtn btn btn-warning fw-bold" id="optionQuickApply" type="button">변경</button>
+            </div>
+        </div>
+    </div>
+    <!-- 시안 확정 모달 -->
+    <div aria-hidden="true" class="confirmModal" id="confirmModal">
+        <div class="confirmModalDim"></div>
+        <div aria-labelledby="confirmModalTitle" aria-modal="true" class="confirmModalDialog" role="dialog">
+            <div class="confirmModalHeader">
+                <div class="confirmModalBadge">안내</div>
+                <h3 class="confirmModalTitle" id="confirmModalTitle">시안 최종 확정</h3>
+            </div>
+            <div class="confirmModalBody" id="confirmModalBody"></div>
+            <div class="confirmModalActions">
+                <button class="ghostBtn btn btn-outline-secondary" id="confirmModalCancel" type="button">취소</button>
+                <button class="confirmBtn btn btn-warning fw-bold w-100" id="confirmModalOk" type="button">확정하기</button>
+            </div>
+        </div>
+    </div>
+    <!-- JS -->
+
+    <!-- Bootstrap JS -->
+    <script crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // 용지 인쇄 페이지 전용 온보딩 안내 (인쇄 가이드 버튼이 없으므로 2곳만 안내)
+        window.EDITOR_TOUR_CONFIG = {
+            storageKey: "kidikidi_paper_editor_tour_hidden_v1",
+            steps: [
+                { selector: "#optionQuickBtn", label: "용지 크기를 변경할 수 있어요" },
+                { selector: "#canvasWrap", label: "글자/이미지는 빨간선 안쪽에, 배경은 끝까지 채워 주세요" },
+            ],
+        };
+    </script>
+    <script src="./js/constants.js"></script>
+    <script src="./js/utils.js"></script>
+    <script src="./js/toast.js"></script>
+    <script src="./js/tooltip.js"></script>
+    <script src="./js/email-core.js"></script>
+    <script src="./js/modal.js"></script>
+    <script src="./js/elements.js"></script>
+    <script src="./js/state.js"></script>
+    <script src="./js/validation.js"></script>
+    <script src="./js/order-info.js"></script>
+    <script src="./js/editor-canvas-setup.js"></script>
+    <script src="./js/editor-background.js"></script>
+    <script src="./js/editor-text.js"></script>
+    <script src="./js/editor-image.js"></script>
+    <script src="./js/editor-object-transform.js"></script>
+    <script src="./js/editor-pointer-events.js"></script>
+    <script src="./js/editor-item-io.js"></script>
+    <script src="./js/design-list.js"></script>
+    <script src="./js/email-attachments.js"></script>
+    <script src="./js/email-summary.js"></script>
+    <script src="./js/email-send.js"></script>
+    <script src="./js/editor-onboarding-tour.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+
+</html>

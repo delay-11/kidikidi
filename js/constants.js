@@ -44,6 +44,14 @@ const CAP_OPTIONS = {
   ],
   XDA: [{ value: "XDA", label: "XDA" }],
   MAO: [{ value: "MAO", label: "MAO" }],
+
+  // 용지 인쇄 시안 페이지(paper.html) 전용 - 키캡 페이지(index.html)의
+  // 프로파일 선택에는 PAPER가 없으므로 키캡 쪽에는 노출되지 않음
+  PAPER: [
+    { value: "A3", label: "A3 (297×420mm)" },
+    { value: "A4", label: "A4 (210×297mm)" },
+    { value: "A5", label: "A5 (148×210mm)" },
+  ],
 };
 
 /* =========================================================
@@ -53,6 +61,7 @@ const SOLD_OUT_OPTIONS = {
   OEM: [],
   XDA: [],
   MAO: [],
+  PAPER: [],
 };
 
 /* =========================================================
@@ -83,6 +92,14 @@ const CANVAS_SIZE_MAP = {
   XDA: { w: 330, h: 330 },
   MAO: { w: 330, h: 330 },
   STD: { w: 330, h: 330 },
+
+  // 용지(세로 방향) - 편집 화면이 너무 커지지 않도록 A3도 A4와 같은
+  // 크기로 편집하고, 첨부 내보내기 배율(exportScale)로 실제 비율을 맞춤
+  // (모두 약 152dpi: A5 888×1260 / A4 1260×1782 / A3 1782×2520)
+  // label: 캔버스 표시용 실제 크기
+  A5: { w: 296, h: 420, exportScale: 3, label: "148×210mm" },
+  A4: { w: 420, h: 594, exportScale: 3, label: "210×297mm" },
+  A3: { w: 420, h: 594, exportScale: 3 * Math.SQRT2, label: "297×420mm" },
 };
 
 /* =========================================================
@@ -116,4 +133,10 @@ const GUIDE_SIZE_MAP = {
   XDA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 135, h: 135 } },
   MAO: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
   STD: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
+
+  // 용지: outer = 재단선(용지 전체), inner = 재단 오차 3mm, safe = 안전 여백 5mm
+  // radius: 용지는 모서리가 각지므로 둥근 모서리 없이 그림
+  A5: { outer: { w: 296, h: 420 }, inner: { w: 284, h: 408 }, safe: { w: 276, h: 400 }, radius: 0 },
+  A4: { outer: { w: 420, h: 594 }, inner: { w: 408, h: 582 }, safe: { w: 400, h: 574 }, radius: 0 },
+  A3: { outer: { w: 420, h: 594 }, inner: { w: 412, h: 586 }, safe: { w: 406, h: 580 }, radius: 0 },
 };

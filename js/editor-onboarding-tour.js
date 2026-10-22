@@ -17,11 +17,15 @@
  *   모바일 브라우저에서 좌표/터치 관련 예외 케이스를 줄인다.
 ========================================================= */
 (() => {
-  const TOUR_STORAGE_KEY = "kidikidi_editor_tour_hidden_v1";
+  // 다른 상품 페이지(paper.html 등)는 window.EDITOR_TOUR_CONFIG로
+  // 안내 항목과 "다시 보지 않기" 저장 키를 따로 지정할 수 있음
+  const tourConfig = window.EDITOR_TOUR_CONFIG || {};
+
+  const TOUR_STORAGE_KEY = tourConfig.storageKey || "kidikidi_editor_tour_hidden_v1";
   const TOUR_MOBILE_QUERY = "(max-width: 768px)";
   const TARGET_PAD = 8;
 
-  const EDITOR_TOUR_STEPS = [
+  const EDITOR_TOUR_STEPS = tourConfig.steps || [
     { selector: "#optionQuickBtn", label: "프로파일과 규격을 변경할 수 있어요" },
     { selector: "#openPrintGuideBtn", label: "인쇄 전 배치 가이드를 볼 수 있어요" },
     { selector: "#canvasWrap", label: "캔버스 전체에 색을 채워야 측면이 다 덮여요" },

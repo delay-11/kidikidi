@@ -101,6 +101,13 @@ function getCapTypeDisplayName(capType) {
   return found?.label || capType;
 }
 
+// 프로파일 / 규격 표시 - 용지(PAPER)처럼 프로파일 구분이 없는 상품은 규격만 표시
+function getProfileCapLabel(profile, capType) {
+  const cap = getCapTypeDisplayName(capType);
+  if (profile === "PAPER") return cap;
+  return `${safeTrim(profile) || "-"} / ${cap}`;
+}
+
 function getImageIndexAtPoint(px, py) {
   if (!hasImageObject()) return -1;
   syncActiveImageFromLegacy();
@@ -254,8 +261,7 @@ async function isDraftAttachmentTooHeavy() {
   try {
     const item = buildDraftItemSnapshot();
     const size = getCanvasSize(item.profile, item.capType);
-    const exportScale =
-      size.w === 330 && size.h === 330 ? SMALL_CANVAS_EXPORT_SCALE : 1;
+    const exportScale = getCanvasExportScale(size);
 
     const canvas = await renderItemToCanvasAtScale(item, size, exportScale);
     const bytes = dataUrlToBase64(canvas.toDataURL("image/png")).length;

@@ -93,7 +93,7 @@ async function selectItem(id) {
   await loadItemToCanvas(loadSnapshot);
 
   if (selTextEl) {
-    selTextEl.textContent = `${it.profile} / ${getCapTypeDisplayName(it.capType)}`;
+    selTextEl.textContent = getProfileCapLabel(it.profile, it.capType);
   }
   if (bgTextEl) bgTextEl.textContent = getItemBgLabel?.(it) || getItemBgColor(it);
 
@@ -238,7 +238,7 @@ function makeCartThumb(item) {
 ========================================================= */
 function buildCartItemHtml(item) {
   const activeClass = selectedItemId === item.id ? " selected" : "";
-  const title = `${safeTrim(item.profile) || "-"} / ${getCapTypeDisplayName(item.capType)}`;
+  const title = getProfileCapLabel(item.profile, item.capType);
   const laserText = labelLaser(item);
   const qtyNum = normalizeQty(item.qty ?? 1);
   const bg = getItemBgLabel?.(item) || getItemBgColor(item);
@@ -258,7 +258,7 @@ function buildCartItemHtml(item) {
         <div class="cartBody">
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
           <div class="cartMeta cartMetaStack">
-            <span>${escapeHtml(laserText)}</span>
+            ${item.profile === "PAPER" ? "" : `<span>${escapeHtml(laserText)}</span>`}
             <span class="cartBgMeta">${escapeHtml(bg)}</span>
             <span>${escapeHtml(designText)}</span>
           </div>
