@@ -44,7 +44,6 @@ const CAP_OPTIONS = {
   ],
   XDA: [{ value: "XDA", label: "XDA" }],
   MAO: [{ value: "MAO", label: "MAO" }],
-  MOA: [{ value: "MOA", label: "MOA" }],
 };
 
 /* =========================================================
@@ -54,7 +53,6 @@ const SOLD_OUT_OPTIONS = {
   OEM: [],
   XDA: [],
   MAO: [],
-  MOA: [],
 };
 
 /* =========================================================
@@ -84,7 +82,6 @@ const CANVAS_SIZE_MAP = {
 
   XDA: { w: 330, h: 330 },
   MAO: { w: 330, h: 330 },
-  MOA: { w: 330, h: 330 },
   STD: { w: 330, h: 330 },
 };
 
@@ -93,7 +90,6 @@ const CANVAS_SIZE_MAP = {
  * outer = 바깥 가이드선
  * inner = 안쪽 가이드선
  * safe  = 인쇄 안전선
- * round = true면 inner/safe를 원형으로 그림 (MOA)
 ========================================================= */
 const GUIDE_SIZE_MAP = {
   "R4-1U": { outer: { w: 177, h: 175 }, inner: { w: 130, h: 140 }, safe: { w: 115, h: 125 } },
@@ -119,7 +115,5 @@ const GUIDE_SIZE_MAP = {
 
   XDA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 135, h: 135 } },
   MAO: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
-  // MOA는 도면이 없어 XDA 크기를 그대로 쓰고, 윗면(inner)/안전선(safe)만 원형으로 그린다.
-  MOA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 135, h: 135 }, round: true },
   STD: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
 };
