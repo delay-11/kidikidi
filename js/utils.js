@@ -114,6 +114,32 @@ function loadImageFromDataUrl(dataUrl) {
 }
 
 /* =========================================================
+ * 레이어 순서 (캔버스 편집 / 미리보기 / 첨부 공용)
+ * - 이미지/텍스트 오브젝트마다 z(작을수록 뒤)를 저장한다.
+ * - z가 없는 구버전 시안은 기존처럼 "이미지 전부 → 텍스트 전부" 순서로 그린다.
+========================================================= */
+function getLayerZ(obj, kind, index) {
+  if (Number.isFinite(obj?.z)) return obj.z;
+  return (kind === "text" ? 1000 : 0) + index;
+}
+
+function sortLayerStates(images = [], texts = []) {
+  const list = [];
+  (Array.isArray(images) ? images : []).forEach((state, index) => {
+    list.push({ kind: "image", state, index, z: getLayerZ(state, "image", index) });
+  });
+  (Array.isArray(texts) ? texts : []).forEach((state, index) => {
+    list.push({ kind: "text", state, index, z: getLayerZ(state, "text", index) });
+  });
+
+  return list.sort((a, b) => {
+    if (a.z !== b.z) return a.z - b.z;
+    if (a.kind !== b.kind) return a.kind === "image" ? -1 : 1;
+    return a.index - b.index;
+  });
+}
+
+/* =========================================================
  * 이미지 오브젝트 변환 후 그리기 (캔버스 편집 / 미리보기 / 첨부 공용)
 ========================================================= */
 function drawTransformedImageObject(targetCtx, img, obj = {}, fallbackCx, fallbackCy) {

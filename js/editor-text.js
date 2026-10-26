@@ -113,6 +113,8 @@ function serializeTextObjects() {
       cy: Number.isFinite(obj.cy) ? obj.cy : canvasLogicalH / 2,
       scale: Number.isFinite(obj.scale) ? obj.scale : 1,
       rot: Number.isFinite(obj.rot) ? obj.rot : 0,
+      z: Number.isFinite(obj.z) ? obj.z : undefined,
+      locked: !!obj.locked,
     }));
 }
 
@@ -127,9 +129,9 @@ function getTextIndexAtPoint(px, py) {
   if (!hasTextObject()) return -1;
   syncActiveTextFromLegacy();
 
-  for (let i = textObjects.length - 1; i >= 0; i -= 1) {
+  for (const i of getLayerIndexesFrontToBack("text")) {
     const obj = textObjects[i];
-    if (!obj || !safeTrim(obj.value || "")) continue;
+    if (!obj || obj.locked || !safeTrim(obj.value || "")) continue;
 
     const dx = px - (Number.isFinite(obj.cx) ? obj.cx : canvasLogicalW / 2);
     const dy = py - (Number.isFinite(obj.cy) ? obj.cy : canvasLogicalH / 2);
@@ -161,6 +163,7 @@ function createEmptyTextObject() {
     cy: canvasLogicalH / 2,
     scale: 1,
     rot: 0,
+    z: getNewTextLayerZ(),
   };
 }
 

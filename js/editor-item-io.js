@@ -38,20 +38,22 @@ function renderItemPreviewDataUrl(it) {
   // 보장이 없어 업로드 직후 첫 저장에서 미리보기가 빈 값으로 나올 수 있었음.
   // 이 함수는 현재 캔버스 상태(userImages)를 저장하는 시점에만 호출되므로
   // 이미 로드가 끝난 live Image 객체를 그대로 재사용하면 됨.
-  if (hasImageObject()) {
-    syncActiveImageFromLegacy();
-    userImages.forEach((obj) => {
-      if (!obj?.img) return;
-      drawTransformedImageObject(offCtx, obj.img, obj, off.width / 2, off.height / 2);
-    });
-  }
+  if (hasImageObject()) syncActiveImageFromLegacy();
 
   const previewTexts = Array.isArray(it.design?.texts) && it.design.texts.length
     ? it.design.texts
     : it.design?.text?.value
       ? [it.design.text]
       : [];
-  previewTexts.forEach((t) => drawTextObjectToContext?.(offCtx, off.width, off.height, t));
+
+  // 캔버스와 같은 레이어 순서로 이미지/텍스트를 섞어서 그림
+  sortLayerStates(hasImageObject() ? userImages : [], previewTexts).forEach(({ kind, state }) => {
+    if (kind === "image") {
+      if (state?.img) drawTransformedImageObject(offCtx, state.img, state, off.width / 2, off.height / 2);
+    } else {
+      drawTextObjectToContext?.(offCtx, off.width, off.height, state);
+    }
+  });
 
   try {
     return off.toDataURL("image/png");
@@ -220,6 +222,8 @@ async function loadItemToCanvas(it) {
       cy: Number.isFinite(t.cy) ? t.cy : canvasLogicalH / 2,
       scale: Number.isFinite(t.scale) ? t.scale : 1,
       rot: Number.isFinite(t.rot) ? t.rot : 0,
+      z: Number.isFinite(t.z) ? t.z : undefined,
+      locked: !!t.locked,
     }));
 
   setActiveTextIndex(textObjects.length ? textObjects.length - 1 : -1);
@@ -271,6 +275,8 @@ async function loadItemToCanvas(it) {
         scaleX: Number.isFinite(imageState.scaleX) ? imageState.scaleX : Number(imageState.scale ?? 1),
         scaleY: Number.isFinite(imageState.scaleY) ? imageState.scaleY : Number(imageState.scale ?? 1),
         rot: Number.isFinite(imageState.rot) ? imageState.rot : 0,
+        z: Number.isFinite(imageState.z) ? imageState.z : undefined,
+        locked: !!imageState.locked,
       });
     } catch (e) {
       console.warn("저장된 시안 이미지 불러오기 실패:", e);

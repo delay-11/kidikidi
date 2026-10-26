@@ -432,23 +432,14 @@ function drawGuide() {
   ctx.restore();
 }
 
-function drawImageTransformed() {
-  if (!hasImageObject()) return;
-  syncActiveImageFromLegacy();
-
-  userImages.forEach((obj) => {
-    if (!obj?.img) return;
-    drawTransformedImageObject(ctx, obj.img, obj, canvasLogicalW / 2, canvasLogicalH / 2);
-  });
-}
-
-function drawTextTransformed() {
-  if (!hasTextObject()) return;
-  syncActiveTextFromLegacy();
-
-  textObjects.forEach((obj) => {
-    if (!obj) return;
-    drawTextObjectToContext(ctx, canvasLogicalW, canvasLogicalH, obj);
+// 이미지/텍스트를 레이어 순서(z)대로 섞어서 그린다.
+function drawObjectsInLayerOrder() {
+  getLayerEntries().forEach((entry) => {
+    if (entry.kind === "image") {
+      drawTransformedImageObject(ctx, entry.obj.img, entry.obj, canvasLogicalW / 2, canvasLogicalH / 2);
+    } else {
+      drawTextObjectToContext(ctx, canvasLogicalW, canvasLogicalH, entry.obj);
+    }
   });
 }
 
@@ -499,7 +490,8 @@ function getHandleSpec(handle) {
 
 function updateBBox() {
   const type = getActiveObjectType();
-  if (!type) {
+  // 잠긴 레이어는 선택돼 있어도 이동/크기/회전 핸들을 보여주지 않는다.
+  if (!type || isActiveObjectLocked()) {
     bboxEl.style.display = "none";
     return;
   }
@@ -539,9 +531,10 @@ function updateBBox() {
 function redraw() {
   ctx.clearRect(0, 0, canvasLogicalW, canvasLogicalH);
   drawBackground();
-  drawImageTransformed();
-  drawTextTransformed();
+  drawObjectsInLayerOrder();
   drawCenterGuide();
   drawGuide();
+  // 레이어 패널이 오브젝트 1개일 때 잠금을 자동으로 풀어주므로 선택 박스보다 먼저 갱신
+  renderLayerPanel();
   updateBBox();
 }
