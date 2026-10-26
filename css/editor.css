@@ -93,8 +93,15 @@ canvas {
     border: 2px solid rgba(43, 108, 255, 0.92);
     border-radius: var(--radius-sm);
     background: transparent;
-    pointer-events: auto;
+    /* 큰 이미지를 고르면 선택 박스가 캔버스 밖으로 넘쳐서 아래 탭/버튼을 덮었음
+       (가로로 긴 특수키, 모바일 등). 박스 몸통은 눌림을 통과시키고 핸들/버튼만 받는다.
+       캔버스 안 드래그는 canvasWrap(capture)에서 처리하므로 그대로 동작함. */
+    pointer-events: none;
     transform-origin: center center;
+}
+
+.bbox .h, .bbox .actionBtn {
+    pointer-events: auto;
 }
 
 .bbox .bboxActionGroup {
@@ -1305,4 +1312,8 @@ canvas {
     font-size: 10px;
     font-style: normal;
     line-height: 1.1;
+}
+
+.bbox.isUiLocked .h, .bbox.isUiLocked .actionBtn {
+    pointer-events: none;
 }

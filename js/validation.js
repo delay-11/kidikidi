@@ -267,7 +267,8 @@ function setAllLocked(locked) {
   }
 
   if (bboxEl) {
-    bboxEl.style.pointerEvents = uiLocked ? "none" : "auto";
+    // 박스 몸통은 CSS에서 항상 none, 잠금 시에는 핸들/버튼까지 막는다.
+    bboxEl.classList.toggle("isUiLocked", uiLocked);
   }
 
   if (uiLocked) {
