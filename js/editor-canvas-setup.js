@@ -537,4 +537,5 @@ function redraw() {
   // 레이어 패널이 오브젝트 1개일 때 잠금을 자동으로 풀어주므로 선택 박스보다 먼저 갱신
   renderLayerPanel();
   updateBBox();
+  if (typeof scheduleDraftSave === "function") scheduleDraftSave();
 }

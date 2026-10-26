@@ -336,6 +336,7 @@ function renderEmptyCart() {
  * 장바구니 렌더링
 ========================================================= */
 function renderCart() {
+  if (typeof scheduleDraftSave === "function") scheduleDraftSave();
   if (!cartListEl) return;
 
   if (!Array.isArray(cartItems) || !cartItems.length) {
