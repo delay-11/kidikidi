@@ -72,21 +72,6 @@ function selectLayer(kind, index) {
   redraw();
 }
 
-// dir: +1 = 앞으로, -1 = 뒤로
-function moveLayer(kind, index, dir) {
-  const entries = getLayerEntries();
-  const from = entries.findIndex((entry) => entry.kind === kind && entry.index === index);
-  const to = from + dir;
-  if (from < 0 || to < 0 || to >= entries.length) return;
-
-  const fromZ = entries[from].obj.z;
-  entries[from].obj.z = entries[to].obj.z;
-  entries[to].obj.z = fromZ;
-
-  selectLayer(kind, index);
-  syncActiveItemDesign?.();
-}
-
 function toggleLayerLock(kind, index) {
   const obj = kind === "image" ? userImages?.[index] : textObjects?.[index];
   if (!obj) return;
@@ -118,6 +103,7 @@ const LAYER_ICONS = {
   up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 15 6-6 6 6"/></svg>',
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
   lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  grip: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>',
   unlock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>',
 };
 
@@ -186,13 +172,12 @@ function escapeLayerHtml(value) {
   return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 }
 
-function renderLayerBtn(action, entry, { disabled = false, label = "" } = {}) {
+function renderLayerLockBtn(entry, { label = false } = {}) {
   const locked = !!entry?.obj.locked;
-  const icon = action === "lock" ? (locked ? LAYER_ICONS.lock : LAYER_ICONS.unlock) : LAYER_ICONS[action];
-  const title = { up: "앞으로", down: "뒤로", lock: locked ? "잠금 해제" : "잠금" }[action];
+  const title = locked ? "잠금 해제" : "잠금";
   const data = entry ? ` data-kind="${entry.kind}" data-index="${entry.index}"` : "";
-  return `<button class="layerBtn${action === "lock" && locked ? " isLocked" : ""}" type="button" data-layer-action="${action}"${data}
-    title="${title}" aria-label="${title}"${disabled || uiLocked ? " disabled" : ""}>${icon}${label ? `<em>${locked && action === "lock" ? "해제" : title}</em>` : ""}</button>`;
+  return `<button class="layerBtn${locked ? " isLocked" : ""}" type="button" data-layer-action="lock"${data}
+    title="${title}" aria-label="${title}"${!entry || uiLocked ? " disabled" : ""}>${locked ? LAYER_ICONS.lock : LAYER_ICONS.unlock}${label ? `<em>${locked ? "해제" : "잠금"}</em>` : ""}</button>`;
 }
 
 function renderLayerPanel() {
@@ -238,14 +223,13 @@ function renderLayerPanel() {
         <b>레이어</b>${layerSideOpen ? LAYER_ICONS.up : LAYER_ICONS.down}
       </button>
       ${layerSideOpen ? `<div class="layerRows">${front
-        .map((entry, i) => `
+        .map((entry) => `
           <div class="layerRow${entry.obj === activeObj ? " isActive" : ""}${entry.obj.locked ? " isLocked" : ""}"
             data-layer-action="select" data-layer-drag data-kind="${entry.kind}" data-index="${entry.index}">
             ${renderLayerThumb(entry)}
             <span class="layerBtns">
-              ${renderLayerBtn("up", entry, { disabled: i === 0 })}
-              ${renderLayerBtn("down", entry, { disabled: i === front.length - 1 })}
-              ${renderLayerBtn("lock", entry)}
+              ${renderLayerLockBtn(entry)}
+              <span class="layerGrip" title="끌어서 순서 바꾸기" aria-hidden="true">${LAYER_ICONS.grip}</span>
             </span>
           </div>`)
         .join("")}</div>` : ""}`;
@@ -255,7 +239,6 @@ function renderLayerPanel() {
 
   const open = isLayerBarOpen();
   const activeEntry = front.find((entry) => entry.obj === activeObj) || null;
-  const activePos = activeEntry ? front.indexOf(activeEntry) : -1;
 
   layerBarEl.innerHTML = `
     <button class="layerToggle" type="button" data-layer-action="toggle" aria-expanded="${open}">
@@ -271,9 +254,7 @@ function renderLayerPanel() {
           </button>`)
         .join("")}</div>
       <div class="layerActions">
-        ${renderLayerBtn("up", activeEntry, { disabled: !activeEntry || activePos === 0, label: true })}
-        ${renderLayerBtn("down", activeEntry, { disabled: !activeEntry || activePos === front.length - 1, label: true })}
-        ${renderLayerBtn("lock", activeEntry, { disabled: !activeEntry, label: true })}
+        ${renderLayerLockBtn(activeEntry, { label: true })}
       </div>` : ""}`;
 }
 
@@ -321,8 +302,6 @@ function onLayerPanelClick(e) {
   }
 
   if (uiLocked) return;
-  if (action === "up") moveLayer(kind, index, 1);
-  if (action === "down") moveLayer(kind, index, -1);
   if (action === "lock") toggleLayerLock(kind, index);
 }
 
@@ -332,7 +311,8 @@ function onLayerPanelClick(e) {
  * - 마우스: 5px 이상 움직이면 바로 시작
  * - 손가락: 썸네일 줄 가로 스크롤과 겹치지 않도록 살짝 길게(0.2초) 누른 뒤 시작.
  *   그 전에 손가락이 움직이면 스크롤로 보고 드래그하지 않는다.
- * - 버튼(앞으로/뒤로/잠금)을 누른 건 드래그로 보지 않는다.
+ *   단, 손잡이(⠿)를 잡았으면 끌려는 뜻이 분명하므로 마우스처럼 바로 시작.
+ * - 자물쇠 버튼을 누른 건 드래그로 보지 않는다.
 ========================================================= */
 const LAYER_DRAG_MOUSE_THRESHOLD = 5;
 const LAYER_DRAG_TOUCH_HOLD_MS = 200;
@@ -355,14 +335,15 @@ function onLayerDragPointerDown(e) {
     list,
     axis: item.classList.contains("layerChip") ? "x" : "y",
     pointerId: e.pointerId,
-    pointerType: e.pointerType,
+    // 손잡이를 잡았으면 손가락도 길게 누를 필요 없이 마우스처럼 바로 끈다.
+    immediate: e.pointerType === "mouse" || !!e.target.closest(".layerGrip"),
     startX: e.clientX,
     startY: e.clientY,
     active: false,
     holdTimer: null,
   };
 
-  if (e.pointerType !== "mouse") {
+  if (!layerDrag.immediate) {
     layerDrag.holdTimer = window.setTimeout(() => activateLayerDrag(), LAYER_DRAG_TOUCH_HOLD_MS);
   }
 
@@ -400,7 +381,7 @@ function onLayerDragPointerMove(e) {
   const dy = e.clientY - drag.startY;
 
   if (!drag.active) {
-    if (drag.pointerType === "mouse") {
+    if (drag.immediate) {
       if (Math.hypot(dx, dy) >= LAYER_DRAG_MOUSE_THRESHOLD) activateLayerDrag();
     } else if (Math.hypot(dx, dy) > LAYER_DRAG_TOUCH_SLOP) {
       // 길게 누르기 전에 움직였으면 스크롤하려는 것
