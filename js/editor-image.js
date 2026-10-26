@@ -60,6 +60,8 @@ function serializeImageObjects() {
       scaleX: Number.isFinite(obj.scaleX) ? obj.scaleX : 1,
       scaleY: Number.isFinite(obj.scaleY) ? obj.scaleY : 1,
       rot: Number.isFinite(obj.rot) ? obj.rot : 0,
+      z: Number.isFinite(obj.z) ? obj.z : undefined,
+      locked: !!obj.locked,
       fileName: obj.file?.name || "",
     }));
 }
@@ -105,9 +107,10 @@ function getImageIndexAtPoint(px, py) {
   if (!hasImageObject()) return -1;
   syncActiveImageFromLegacy();
 
-  for (let i = userImages.length - 1; i >= 0; i -= 1) {
+  // 앞에 있는 레이어부터 검사하고, 잠긴 레이어는 캔버스에서 집히지 않게 건너뜀
+  for (const i of getLayerIndexesFrontToBack("image")) {
     const obj = userImages[i];
-    if (!obj?.img) continue;
+    if (!obj?.img || obj.locked) continue;
 
     const dx = px - (obj.cx ?? canvasLogicalW / 2);
     const dy = py - (obj.cy ?? canvasLogicalH / 2);
@@ -364,6 +367,8 @@ fileEl?.addEventListener("change", async () => {
         scaleX: scale,
         scaleY: scale,
         rot: 0,
+        // 새 이미지는 기존 이미지들 위, 텍스트 아래에 들어감 (기존 동작 유지)
+        z: getNewImageLayerZ(),
       });
       warnLowResolutionImage(img);
     }

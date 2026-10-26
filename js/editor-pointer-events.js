@@ -56,7 +56,7 @@ function beginPinchDrag() {
 
   const midpoint = getPointerMidpointCanvas(pair.a, pair.b);
   let targetIndex = getImageIndexAtPoint(midpoint.x, midpoint.y);
-  if (targetIndex < 0 && activeImageIndex >= 0) targetIndex = activeImageIndex;
+  if (targetIndex < 0 && activeImageIndex >= 0 && !userImages[activeImageIndex]?.locked) targetIndex = activeImageIndex;
   if (targetIndex < 0) return;
 
   setActiveImageIndex(targetIndex);
@@ -226,7 +226,12 @@ function onMainPointerDown(e) {
   let targetType = null;
   const hitTextIndex = getTextIndexAtPoint(p.x, p.y);
   const hitImageIndex = getImageIndexAtPoint(p.x, p.y);
-  if (hitTextIndex >= 0) {
+  // 텍스트와 이미지가 겹쳐 있으면 레이어상 더 앞에 있는 쪽을 집는다.
+  const textInFront =
+    hitTextIndex >= 0 &&
+    (hitImageIndex < 0 ||
+      getLayerZ(textObjects[hitTextIndex], "text", hitTextIndex) >= getLayerZ(userImages[hitImageIndex], "image", hitImageIndex));
+  if (textInFront) {
     setActiveTextIndex(hitTextIndex);
     targetType = "text";
   } else if (hitImageIndex >= 0) {

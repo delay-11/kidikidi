@@ -1074,3 +1074,235 @@ canvas {
     font-family: 'KBLJump', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif !important;
     font-weight: 400 !important;
 }
+
+/* =========================================================
+ * 레이어 패널 (js/editor-layers.js)
+ * - layerSide: PC에서 캔버스 옆 빈 공간에 띄우는 작은 카드
+ * - layerBar : 공간이 없을 때(가로로 긴 특수키 / 모바일) 캔버스 아래 한 줄
+========================================================= */
+.layerSide {
+    position: absolute;
+    z-index: 4;
+    width: 118px;
+    overflow-y: auto;
+    padding: 6px 6px 4px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(17, 25, 40, 0.06);
+}
+
+.layerSide[hidden], .layerBar[hidden] {
+    display: none !important;
+}
+
+.layerSide .layerHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 2px 4px 6px;
+    border: 0;
+    background: transparent;
+    color: #374151;
+}
+
+.layerSide .layerHead b {
+    font-size: 13px;
+    color: #111827;
+}
+
+.layerSide .layerHead svg {
+    width: 14px;
+    height: 14px;
+}
+
+.layerRow {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 2px;
+    padding: 3px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.layerRow.isActive, .layerChip.isActive {
+    border-color: #fdcc63;
+    background: #fff8e6;
+}
+
+.layerThumb {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #fff conic-gradient(#f1f1f1 25%, #fff 0 50%, #f1f1f1 0 75%, #fff 0) 0 0 / 8px 8px;
+}
+
+.layerThumb img {
+    max-width: 100%;
+    max-height: 100%;
+    pointer-events: none;
+}
+
+.layerThumb.isText {
+    background: #f3f4f6;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.layerRow.isLocked .layerThumb, .layerChip.isLocked .layerThumb {
+    opacity: 0.55;
+}
+
+.layerBtns {
+    display: flex;
+    margin-left: auto;
+}
+
+.layerBtn {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #4b5563;
+}
+
+.layerBtn:not([disabled]):hover {
+    background: #f3f4f6;
+}
+
+.layerBtn[disabled] {
+    color: #d1d5db;
+    cursor: default;
+}
+
+.layerBtn.isLocked {
+    color: #d97706;
+}
+
+.layerBtn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.layerBar {
+    /* 큰 이미지를 고르면 선택 박스(bbox)가 작은 캔버스 밖까지 넘쳐서 이 줄을 덮을 수 있어
+       (모바일 스페이스바 등) 항상 bbox보다 위에 오게 한다. */
+    position: relative;
+    z-index: 6;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin: 6px 0 2px;
+}
+
+.layerBar .layerToggle {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 4px;
+    width: auto !important;
+    height: 28px;
+    min-height: 0 !important;
+    padding: 0 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #111827;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.layerBar .layerToggle svg {
+    width: 12px;
+    height: 12px;
+}
+
+.layerCount {
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #f3f4f6;
+    color: #6b7280;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.layerChips {
+    display: flex;
+    flex: 1 1 auto;
+    gap: 6px;
+    min-width: 0;
+    overflow-x: auto;
+    padding: 2px;
+}
+
+.layerChip {
+    position: relative;
+    flex: none;
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 1px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+}
+
+.layerLockBadge {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    display: grid;
+    place-items: center;
+    width: 15px;
+    height: 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    background: #fff;
+    color: #d97706;
+}
+
+.layerLockBadge svg {
+    width: 9px;
+    height: 9px;
+}
+
+.layerActions {
+    display: flex;
+    flex: none;
+    gap: 2px;
+    margin-left: auto;
+}
+
+.layerActions .layerBtn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto !important;
+    height: 32px;
+    min-height: 0 !important;
+    padding: 0 4px;
+}
+
+.layerActions .layerBtn em {
+    color: #6b7280;
+    font-size: 10px;
+    font-style: normal;
+    line-height: 1.1;
+}

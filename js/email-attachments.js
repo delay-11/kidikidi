@@ -215,21 +215,26 @@ async function renderItemToCanvasAtScale(item, size, exportScale) {
         }]
       : [];
 
-  for (const imageState of imageStates) {
-    if (!imageState?.imgDataUrl) continue;
-    const img = await loadImageFromDataUrl(imageState.imgDataUrl);
-
-    if (img) {
-      drawTransformedImageObject(offCtx, img, imageState, size.w / 2, size.h / 2);
-    }
-  }
-
   const attachmentTexts = Array.isArray(item?.design?.texts) && item.design.texts.length
     ? item.design.texts
     : item?.design?.text?.value
       ? [item.design.text]
       : [];
-  attachmentTexts.forEach((t) => drawTextObjectToContext?.(offCtx, size.w, size.h, t));
+
+  // 에디터에서 정한 레이어 순서(z) 그대로 이미지/텍스트를 섞어서 그림
+  for (const { kind, state } of sortLayerStates(imageStates, attachmentTexts)) {
+    if (kind === "text") {
+      drawTextObjectToContext?.(offCtx, size.w, size.h, state);
+      continue;
+    }
+
+    if (!state?.imgDataUrl) continue;
+    const img = await loadImageFromDataUrl(state.imgDataUrl);
+
+    if (img) {
+      drawTransformedImageObject(offCtx, img, state, size.w / 2, size.h / 2);
+    }
+  }
 
   return off;
 }
