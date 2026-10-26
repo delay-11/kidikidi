@@ -230,6 +230,9 @@ async function confirmOrder() {
       markOrderConfirmed(orderNo);
     }
 
+    // 접수가 끝난 주문은 새로고침해도 다시 불러올 필요가 없으므로 자동 저장본을 지운다.
+    await clearSavedDraft();
+
     if (typeof closeConfirmModal === "function") {
       closeConfirmModal();
     }
@@ -294,6 +297,9 @@ async function initDesignPage() {
   if (typeof updateActionLocks === "function") updateActionLocks();
   setDesignStep?.("info");
 
+  // 새로고침/재접속 시 이전에 작업하던 내용 복원
+  await restoreSavedDraft();
+
   await (typeof applyConfirmedLockIfNeeded === "function" ? applyConfirmedLockIfNeeded(true) : false);
 }
 
@@ -329,6 +335,7 @@ function setDesignStep(step) {
   currentStep = nextStep;
 
   document.body.dataset.step = nextStep;
+  if (typeof scheduleDraftSave === "function") scheduleDraftSave();
 
   stepChipEls?.forEach((chip) => {
     chip.classList.toggle("is-active", chip.dataset.stepChip === nextStep);
