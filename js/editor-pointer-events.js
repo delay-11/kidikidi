@@ -123,6 +123,7 @@ function endPinchDrag() {
 
 function trackTouchPointerDown(e) {
   if (uiLocked || e.pointerType !== "touch") return;
+  if (e.target.closest?.(".layerSide")) return;
   touchPointerMap.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
 
   if (touchPointerMap.size >= 2) {
@@ -181,6 +182,9 @@ function startMoveDrag(e, type = getActiveObjectType()) {
 
 function onMainPointerDown(e) {
   if (uiLocked) return;
+  // 캔버스 옆 레이어 카드는 canvasWrap 안에 있지만 캔버스 조작 대상이 아님
+  // (캔버스보다 큰 이미지가 카드 위치까지 걸쳐 있으면 이미지가 끌려가던 문제 방지)
+  if (e.target.closest?.(".layerSide")) return;
   if (pinchDrag || (e.pointerType === "touch" && touchPointerMap.size >= 2)) return;
 
   /* =========================================================

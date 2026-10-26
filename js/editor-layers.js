@@ -143,6 +143,7 @@ function ensureLayerPanelEls() {
     // canvasWrap에 걸린 캔버스 드래그(capture) 처리로 넘어가지 않게 막음
     layerSideEl.addEventListener("pointerdown", (e) => e.stopPropagation());
     layerSideEl.addEventListener("click", onLayerPanelClick);
+    layerSideEl.addEventListener("pointerdown", onLayerDragPointerDown);
   }
 
   if (!layerBarEl) {
@@ -153,6 +154,7 @@ function ensureLayerPanelEls() {
       layerBarEl.hidden = true;
       toolBox.parentNode.insertBefore(layerBarEl, toolBox);
       layerBarEl.addEventListener("click", onLayerPanelClick);
+      layerBarEl.addEventListener("pointerdown", onLayerDragPointerDown);
     }
   }
 }
@@ -196,6 +198,8 @@ function renderLayerBtn(action, entry, { disabled = false, label = "" } = {}) {
 function renderLayerPanel() {
   ensureLayerPanelEls();
   if (!layerSideEl || !layerBarEl) return;
+  // 끄는 도중에 다시 그리면 잡고 있던 요소가 사라지므로 끝날 때까지 미룬다.
+  if (layerDrag) return;
 
   const entries = getLayerEntries();
 
@@ -236,7 +240,7 @@ function renderLayerPanel() {
       ${layerSideOpen ? `<div class="layerRows">${front
         .map((entry, i) => `
           <div class="layerRow${entry.obj === activeObj ? " isActive" : ""}${entry.obj.locked ? " isLocked" : ""}"
-            data-layer-action="select" data-kind="${entry.kind}" data-index="${entry.index}">
+            data-layer-action="select" data-layer-drag data-kind="${entry.kind}" data-index="${entry.index}">
             ${renderLayerThumb(entry)}
             <span class="layerBtns">
               ${renderLayerBtn("up", entry, { disabled: i === 0 })}
@@ -261,7 +265,7 @@ function renderLayerPanel() {
       <div class="layerChips">${front
         .map((entry) => `
           <button class="layerChip${entry.obj === activeObj ? " isActive" : ""}${entry.obj.locked ? " isLocked" : ""}" type="button"
-            data-layer-action="select" data-kind="${entry.kind}" data-index="${entry.index}"
+            data-layer-action="select" data-layer-drag data-kind="${entry.kind}" data-index="${entry.index}"
             aria-label="${entry.kind === "text" ? "텍스트" : "이미지"} 레이어 선택">
             ${renderLayerThumb(entry)}${entry.obj.locked ? `<i class="layerLockBadge">${LAYER_ICONS.lock}</i>` : ""}
           </button>`)
@@ -289,6 +293,13 @@ function onLayerPanelClick(e) {
   const target = e.target.closest("[data-layer-action]");
   if (!target || target.disabled) return;
 
+  // 끌어서 순서를 바꾼 직후 따라오는 click은 선택으로 처리하지 않는다.
+  if (layerDragJustEnded) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+
   e.preventDefault();
   e.stopPropagation();
 
@@ -314,3 +325,173 @@ function onLayerPanelClick(e) {
   if (action === "down") moveLayer(kind, index, -1);
   if (action === "lock") toggleLayerLock(kind, index);
 }
+
+/* =========================================================
+ * 끌어서 순서 바꾸기 (마우스 / 손가락 공통, Pointer Events)
+ * - 옆 카드는 위아래, 아래 한 줄은 좌우로 끈다. 놓으면 그 순서가 레이어 순서가 됨.
+ * - 마우스: 5px 이상 움직이면 바로 시작
+ * - 손가락: 썸네일 줄 가로 스크롤과 겹치지 않도록 살짝 길게(0.2초) 누른 뒤 시작.
+ *   그 전에 손가락이 움직이면 스크롤로 보고 드래그하지 않는다.
+ * - 버튼(앞으로/뒤로/잠금)을 누른 건 드래그로 보지 않는다.
+========================================================= */
+const LAYER_DRAG_MOUSE_THRESHOLD = 5;
+const LAYER_DRAG_TOUCH_HOLD_MS = 200;
+const LAYER_DRAG_TOUCH_SLOP = 8;
+
+let layerDrag = null;
+let layerDragJustEnded = false;
+
+function onLayerDragPointerDown(e) {
+  if (uiLocked || layerDrag) return;
+  if (e.pointerType === "mouse" && e.button !== 0) return;
+  if (e.target.closest(".layerBtn")) return;
+
+  const item = e.target.closest("[data-layer-drag]");
+  if (!item) return;
+
+  const list = item.parentElement;
+  layerDrag = {
+    item,
+    list,
+    axis: item.classList.contains("layerChip") ? "x" : "y",
+    pointerId: e.pointerId,
+    pointerType: e.pointerType,
+    startX: e.clientX,
+    startY: e.clientY,
+    active: false,
+    holdTimer: null,
+  };
+
+  if (e.pointerType !== "mouse") {
+    layerDrag.holdTimer = window.setTimeout(() => activateLayerDrag(), LAYER_DRAG_TOUCH_HOLD_MS);
+  }
+
+  window.addEventListener("pointermove", onLayerDragPointerMove);
+  window.addEventListener("pointerup", onLayerDragPointerUp);
+  window.addEventListener("pointercancel", onLayerDragPointerCancel);
+}
+
+function activateLayerDrag() {
+  const drag = layerDrag;
+  if (!drag || drag.active) return;
+
+  drag.active = true;
+  window.clearTimeout(drag.holdTimer);
+
+  const rect = drag.item.getBoundingClientRect();
+  // 잡은 지점이 요소 안 어디였는지 기억해서, 끄는 동안 그 지점이 손가락/커서 밑에 붙어 있게 함
+  drag.grabOffset = drag.axis === "x" ? drag.startX - rect.left : drag.startY - rect.top;
+
+  drag.item.classList.add("isDragging");
+  drag.list.classList.add("isLayerSorting");
+  try {
+    drag.item.setPointerCapture(drag.pointerId);
+  } catch (err) {
+    // 이미 손을 뗀 경우 등은 무시
+  }
+  navigator.vibrate?.(10);
+}
+
+function onLayerDragPointerMove(e) {
+  const drag = layerDrag;
+  if (!drag || e.pointerId !== drag.pointerId) return;
+
+  const dx = e.clientX - drag.startX;
+  const dy = e.clientY - drag.startY;
+
+  if (!drag.active) {
+    if (drag.pointerType === "mouse") {
+      if (Math.hypot(dx, dy) >= LAYER_DRAG_MOUSE_THRESHOLD) activateLayerDrag();
+    } else if (Math.hypot(dx, dy) > LAYER_DRAG_TOUCH_SLOP) {
+      // 길게 누르기 전에 움직였으면 스크롤하려는 것
+      endLayerDrag(false);
+    }
+    if (!layerDrag?.active) return;
+  }
+
+  e.preventDefault();
+  const pos = drag.axis === "x" ? e.clientX : e.clientY;
+
+  // 지나친 형제 요소의 가운데를 넘으면 그 앞/뒤로 자리를 옮긴다.
+  const siblings = Array.from(drag.list.querySelectorAll("[data-layer-drag]")).filter((el) => el !== drag.item);
+  let before = null;
+  for (const el of siblings) {
+    const r = el.getBoundingClientRect();
+    const mid = drag.axis === "x" ? r.left + r.width / 2 : r.top + r.height / 2;
+    if (pos < mid) {
+      before = el;
+      break;
+    }
+  }
+  if (drag.item.nextElementSibling !== before) drag.list.insertBefore(drag.item, before);
+
+  // 바뀐 자리 기준으로 잡은 지점이 포인터를 따라오게 이동
+  drag.item.style.transform = "";
+  const r = drag.item.getBoundingClientRect();
+  const offset = pos - drag.grabOffset - (drag.axis === "x" ? r.left : r.top);
+  drag.item.style.transform = drag.axis === "x" ? `translateX(${offset}px)` : `translateY(${offset}px)`;
+}
+
+function onLayerDragPointerUp(e) {
+  if (!layerDrag || e.pointerId !== layerDrag.pointerId) return;
+  endLayerDrag(layerDrag.active);
+}
+
+function onLayerDragPointerCancel(e) {
+  if (!layerDrag || e.pointerId !== layerDrag.pointerId) return;
+  endLayerDrag(layerDrag.active);
+}
+
+function endLayerDrag(commit) {
+  const drag = layerDrag;
+  if (!drag) return;
+
+  window.clearTimeout(drag.holdTimer);
+  window.removeEventListener("pointermove", onLayerDragPointerMove);
+  window.removeEventListener("pointerup", onLayerDragPointerUp);
+  window.removeEventListener("pointercancel", onLayerDragPointerCancel);
+
+  drag.item.classList.remove("isDragging");
+  drag.item.style.transform = "";
+  drag.list.classList.remove("isLayerSorting");
+  layerDrag = null;
+
+  if (!drag.active) return;
+
+  layerDragJustEnded = true;
+  window.setTimeout(() => {
+    layerDragJustEnded = false;
+  }, 0);
+
+  if (!commit) {
+    layerPanelSignature = "";
+    renderLayerPanel();
+    return;
+  }
+
+  // 화면 순서는 위(왼쪽)가 앞이므로, 뒤에서부터 z를 0,1,2... 로 매긴다.
+  const order = Array.from(drag.list.querySelectorAll("[data-layer-drag]")).reverse();
+  order.forEach((el, z) => {
+    const index = Number(el.dataset.index);
+    const obj = el.dataset.kind === "image" ? userImages?.[index] : textObjects?.[index];
+    if (obj) obj.z = z;
+  });
+
+  layerPanelSignature = "";
+  selectLayer(drag.item.dataset.kind, Number(drag.item.dataset.index));
+  syncActiveItemDesign?.();
+}
+
+// 길게 눌렀을 때 뜨는 브라우저 메뉴(이미지 저장 등)가 드래그를 끊지 않게 막는다.
+document.addEventListener("contextmenu", (e) => {
+  if (e.target.closest?.("[data-layer-drag]")) e.preventDefault();
+});
+
+// 손가락으로 끄는 중에는 화면/썸네일 줄이 같이 스크롤되지 않게 막는다.
+document.addEventListener(
+  "touchmove",
+  (e) => {
+    if (layerDrag?.active) e.preventDefault();
+  },
+  { passive: false },
+);

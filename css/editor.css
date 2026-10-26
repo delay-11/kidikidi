@@ -1317,3 +1317,23 @@ canvas {
 .bbox.isUiLocked .h, .bbox.isUiLocked .actionBtn {
     pointer-events: none;
 }
+
+/* 레이어 끌어서 순서 바꾸기 */
+.layerRow, .layerChip {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.layerRow {
+    cursor: grab;
+}
+
+.layerRow.isDragging, .layerChip.isDragging {
+    position: relative;
+    z-index: 2;
+    background: #fff;
+    border-color: #fdcc63;
+    box-shadow: 0 6px 16px rgba(17, 25, 40, 0.16);
+    cursor: grabbing;
+}
