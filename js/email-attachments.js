@@ -432,7 +432,7 @@ function createEmptyAttachmentParams() {
  *   굳이 필요 없고 용량만 커지므로, 패키징 단계(packAttachmentParams)
  *   에서 수신자에 따라 골라서 뺄 수 있도록 표시해둠.
 ========================================================= */
-async function buildAttachmentFileList(orderNo = "order") {
+async function buildAttachmentFileList(orderNo = "order", onItemDone = null) {
   await waitForDesignFontsReady();
 
   const items = Array.isArray(cartItems) ? cartItems : [];
@@ -576,6 +576,7 @@ async function buildAttachmentFileList(orderNo = "order") {
     }
 
     itemFiles.push(currentItemFiles);
+    onItemDone?.(i + 1, items.length);
   }
 
   return { items, files, itemFiles, skippedOriginals };

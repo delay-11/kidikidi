@@ -338,7 +338,7 @@ const EMAIL_ATTACHMENT_BATCH_MAX_BYTES = 1_600_000;
  *   원본파일을 미리 제외), 재시도 없이 1회만 시도하고 실패하면 바로
  *   실패로 처리해 중복 발송 위험을 없앤다.
 ========================================================= */
-async function sendBatchesInOrder(batches, sendFn, allItems) {
+async function sendBatchesInOrder(batches, sendFn, allItems, onSent = null) {
   const results = batches.map(() => null);
 
   for (let i = 0; i < batches.length; i += 1) {
@@ -349,6 +349,7 @@ async function sendBatchesInOrder(batches, sendFn, allItems) {
       console.warn(`[메일 배치 ${i + 1}/${batches.length} 발송 실패]`, reason);
       results[i] = { status: "rejected", reason };
     }
+    onSent?.();
 
     if (i < batches.length - 1) await wait(600);
   }
@@ -374,8 +375,11 @@ async function sendBatchesInOrder(batches, sendFn, allItems) {
  *   병렬로 유지해 접수 속도를 지키고, 여러 통으로 나뉘는 주문만 회사 →
  *   고객 순으로 완전히 순차 처리해 동시 발송량 자체를 줄인다.
 ========================================================= */
-async function sendOrderEmails() {
+// onProgress({ percent, text }) - 확정 모달 진행 링 갱신용.
+// 첨부할 시안 이미지 준비가 0~60%, 메일 발송(회사 + 고객 확인 메일 통수 기준)이 60~100%.
+async function sendOrderEmails(onProgress = null) {
   const orderNo = safeTrim(orderEl?.value) || "order";
+  const PREPARE_SHARE = 60;
 
   // 수정 이유: 이 아래(첨부 렌더링/배치 생성) 단계에서 예외가 나면
   // emailjs.send()를 한 번도 시도하지 못한 채 confirmOrder()의 범용
@@ -388,7 +392,13 @@ async function sendOrderEmails() {
   let needsCustomerEmail;
 
   try {
-    fileList = await buildAttachmentFileList(orderNo);
+    fileList = await buildAttachmentFileList(orderNo, (done, total) => {
+      onProgress?.({
+        percent: Math.round((done / Math.max(1, total)) * PREPARE_SHARE),
+        text: "메일에 첨부할 시안 준비 중",
+        count: `${done} / ${total}`,
+      });
+    });
 
     companyBatches = batchItemsByWeight(
       fileList.items,
@@ -422,6 +432,21 @@ async function sendOrderEmails() {
 
   const allItems = fileList.items;
 
+  const totalSends = companyBatches.length + customerBatches.length;
+  let sentCount = 0;
+  const reportSend = () => {
+    onProgress?.({
+      percent: PREPARE_SHARE + Math.round((sentCount / Math.max(1, totalSends)) * (100 - PREPARE_SHARE)),
+      text: "메일 보내는 중",
+      count: totalSends > 1 ? `${Math.min(sentCount + 1, totalSends)} / ${totalSends}` : "",
+    });
+  };
+  const onSent = () => {
+    sentCount += 1;
+    if (sentCount < totalSends) reportSend();
+  };
+  reportSend();
+
   // 배치가 여러 통으로 나뉘는 주문만 회사 → 고객 순차 처리로 동시 발송량을
   // 낮추고, 배치가 1통뿐인 일반적인 주문은 기존처럼 병렬로 빠르게 처리한다.
   const isSplitOrder = companyBatches.length > 1 || customerBatches.length > 1;
@@ -430,13 +455,13 @@ async function sendOrderEmails() {
   let customerResults;
 
   if (isSplitOrder) {
-    companyResults = await sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems);
+    companyResults = await sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems, onSent);
     if (customerBatches.length) await wait(1200);
-    customerResults = await sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems);
+    customerResults = await sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems, onSent);
   } else {
     [companyResults, customerResults] = await Promise.all([
-      sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems),
-      sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems),
+      sendBatchesInOrder(companyBatches, sendDesignToCompany, allItems, onSent),
+      sendBatchesInOrder(customerBatches, sendDesignToCustomer, allItems, onSent),
     ]);
   }
 
