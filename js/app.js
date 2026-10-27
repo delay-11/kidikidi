@@ -196,7 +196,7 @@ async function confirmOrder() {
   if (typeof showConfirmModalLoading === "function") showConfirmModalLoading();
 
   try {
-    const result = await sendOrderEmails();
+    const result = await sendOrderEmails(updateConfirmProgress);
 
     if (!result?.ok) {
       const failMessage = result?.message || "시안 접수에 실패했습니다. 다시 시도해주세요.";
@@ -229,6 +229,10 @@ async function confirmOrder() {
     if (typeof markOrderConfirmed === "function") {
       markOrderConfirmed(orderNo);
     }
+
+    // 진행 링을 100%·완료로 잠깐 보여준 뒤 기존 완료 안내로 넘어감
+    completeConfirmProgress();
+    await wait(700);
 
     // 접수가 끝난 주문은 새로고침해도 다시 불러올 필요가 없으므로 자동 저장본을 지운다.
     await clearSavedDraft();
