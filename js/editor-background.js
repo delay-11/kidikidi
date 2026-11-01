@@ -192,7 +192,7 @@ function createBackgroundFill(c, w, h, bgType, color1, color2, direction, positi
 }
 
 function getPickrTargetColor(target = activePickrTarget) {
-  if (target === "text") return normalizeHexInput(textColor, "#111827");
+  if (target === "text") return normalizeHexInput(textColor, "#000000");
   if (target === "gradient2") return normalizeHexInput(draftBgColor2, "#fdcc63");
   if (target === "gradient1") return normalizeHexInput(draftBgColor, "#ffffff");
   return normalizeHexInput(draftBgColor, "#ffffff");
@@ -1004,7 +1004,7 @@ function bindEditorToolEvents() {
 
   textApplyBtnEl?.addEventListener("click", () => {
     if (addNewTextSlot()) {
-      showToast("새 텍스트를 추가할 수 있습니다. 입력창에 내용을 입력해 주세요.", "ok", 1200);
+      showToast("텍스트를 추가했어요. 글자를 입력해 주세요.", "ok", 1200);
     }
   });
 
@@ -1044,6 +1044,14 @@ function bindEditorToolEvents() {
         const label = align === "left" ? "왼쪽" : align === "right" ? "오른쪽" : "가운데";
         showToast(`텍스트를 캔버스 ${label}에 배치했습니다.`, "ok", 1200);
       }
+    });
+  });
+
+  // 굵게 / 기울임: 누를 때마다 켜고 끄기
+  textStyleBtnEls?.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.textStyle === "bold") applyTextSettings({ bold: !textBold });
+      else applyTextSettings({ italic: !textItalic });
     });
   });
 

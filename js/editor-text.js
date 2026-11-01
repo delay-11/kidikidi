@@ -20,6 +20,35 @@ function getTextFontFamily(type = textFontType) {
   return map[type] || map.basic;
 }
 
+/* =========================================================
+ * 폰트 늦게 받아오는 문제 처리
+ * 캔버스는 폰트 파일이 아직 안 받아졌으면 대체 글꼴로 그리고, 다 받아진 뒤에도
+ * 다시 그려주지 않아서 폰트를 골라도 화면이 그대로인 것처럼 보였음
+ * (캔버스를 한 번 건드려야 바뀜). 처음 쓰는 폰트는 받아질 때까지 기다렸다가 다시 그림.
+========================================================= */
+const requestedTextFonts = new Set();
+
+function ensureTextFontLoaded(type = textFontType) {
+  if (!document.fonts?.load || requestedTextFonts.has(type)) return;
+  requestedTextFonts.add(type);
+
+  const spec = `${getTextFontWeight(type)} 40px ${getTextFontFamily(type)}`;
+  try {
+    if (document.fonts.check(spec, "가")) return;
+  } catch (e) {
+    // check 미지원 브라우저는 그냥 load 시도
+  }
+  document.fonts
+    .load(spec, "가A")
+    .then(() => {
+      if (typeof redraw === "function") redraw();
+    })
+    .catch(() => {
+      // 폰트를 못 받아오면 대체 글꼴로 계속 표시 (다음에 다시 시도할 수 있게 표시 해제)
+      requestedTextFonts.delete(type);
+    });
+}
+
 function getTextFontWeight(type = textFontType) {
   // JalnanGothic / Cafe24 Ssurround / GriunMongtori는 단일 굵기 폰트라
   // 그 자체 디자인으로 이미 원하는 인상을 내므로 400을 사용.
@@ -57,6 +86,8 @@ function syncActiveTextFromLegacy() {
   obj.value = textValue;
   obj.fontType = textFontType;
   obj.color = textColor;
+  obj.bold = !!textBold;
+  obj.italic = !!textItalic;
   obj.align = textAlign;
   obj.size = textSize;
   obj.cx = textCX;
@@ -79,7 +110,9 @@ function setActiveTextIndex(index) {
   const obj = activeTextIndex >= 0 ? textObjects[activeTextIndex] : null;
   textValue = obj?.value || "";
   textFontType = obj?.fontType || "basic";
-  textColor = obj?.color || "#111827";
+  textColor = obj?.color || "#000000";
+  textBold = !!obj?.bold;
+  textItalic = !!obj?.italic;
   textAlign = obj?.align || "center";
   textSize = obj?.size || "medium";
   textCX = Number.isFinite(obj?.cx) ? obj.cx : canvasLogicalW / 2;
@@ -106,7 +139,9 @@ function serializeTextObjects() {
       enabled: true,
       value: obj.value || "",
       fontType: obj.fontType || "basic",
-      color: normalizeHexInput(obj.color, "#111827"),
+      color: normalizeHexInput(obj.color, "#000000"),
+      bold: !!obj.bold,
+      italic: !!obj.italic,
       align: ["left", "center", "right"].includes(obj.align) ? obj.align : "center",
       size: ["small", "medium", "large"].includes(obj.size) ? obj.size : "medium",
       cx: Number.isFinite(obj.cx) ? obj.cx : canvasLogicalW / 2,
@@ -156,7 +191,9 @@ function createEmptyTextObject() {
   return {
     value: "",
     fontType: "basic",
-    color: "#111827",
+    color: "#000000",
+    bold: false,
+    italic: false,
     align: "center",
     size: "medium",
     cx: canvasLogicalW / 2,
@@ -173,11 +210,12 @@ function addNewTextSlot() {
 
   syncActiveTextFromLegacy();
 
+  // 아직 비어 있는 텍스트 칸이 있으면 새로 만들지 않고 그 칸을 다시 편집
   const active = getActiveTextObject();
   if (active && !safeTrim(active.value || "")) {
-    showToast("텍스트를 입력해 주세요.", "warn");
-    textInputEl?.focus();
-    return false;
+    applyTextSettings({ value: "텍스트", enabled: true });
+    window.openInlineTextEditor?.({ selectAll: true });
+    return true;
   }
 
   const validCount = Array.isArray(textObjects)
@@ -193,10 +231,10 @@ function addNewTextSlot() {
   setActiveTextIndex(textObjects.length - 1);
   activeObjectType = "text";
 
-  if (textInputEl) textInputEl.value = "";
-  syncTextUI();
+  // 캔버스 가운데에 "텍스트"를 바로 넣고, 그 자리에서 고칠 수 있게 편집창을 띄움
+  applyTextSettings({ value: "텍스트", enabled: true });
   syncTextCountBadge();
-  textInputEl?.focus();
+  window.openInlineTextEditor?.({ selectAll: true });
   return true;
 }
 
@@ -269,19 +307,23 @@ function syncTextFontPreviewButtons() {
     const family = preview ? `${preview}, ${getTextFontFamily(type)}` : getTextFontFamily(type);
     btn.style.setProperty("font-family", family, "important");
     btn.style.setProperty("font-weight", String(getTextFontWeight(type)), "important");
-    btn.style.setProperty("font-size", "16px", "important");
     btn.style.setProperty("letter-spacing", "0", "important");
   });
 }
 
 function syncTextUI() {
   if (textInputEl) textInputEl.value = textValue || "";
-  const color = normalizeHexInput(textColor, "#111827");
+  const color = normalizeHexInput(textColor, "#000000");
   if (textColorSwatchEl) textColorSwatchEl.style.background = color;
   if (textColorValueEl) textColorValueEl.textContent = color;
 
   textFontBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textFont === textFontType));
   textAlignBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textAlign === textAlign));
+  document.querySelectorAll("[data-text-style]").forEach((btn) => {
+    const on = btn.dataset.textStyle === "bold" ? !!textBold : !!textItalic;
+    btn.classList.toggle("is-active", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
   textSizeBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textSize === textSize));
   syncTextFontPreviewButtons?.();
 
@@ -314,7 +356,9 @@ function applyTextSettings(partial = {}) {
     const obj = textObjects[activeTextIndex];
     textValue = obj?.value || "";
     textFontType = obj?.fontType || "basic";
-    textColor = obj?.color || "#111827";
+    textColor = obj?.color || "#000000";
+    textBold = !!obj?.bold;
+    textItalic = !!obj?.italic;
     textAlign = obj?.align || "center";
     textSize = obj?.size || "medium";
     textCX = Number.isFinite(obj?.cx) ? obj.cx : canvasLogicalW / 2;
@@ -327,7 +371,9 @@ function applyTextSettings(partial = {}) {
     textValue = partial.value.slice(0, 80);
   }
   if (partial.fontType) textFontType = partial.fontType;
-  if (partial.color) textColor = normalizeHexInput(partial.color, textColor || "#111827");
+  if (partial.color) textColor = normalizeHexInput(partial.color, textColor || "#000000");
+  if (typeof partial.bold === "boolean") textBold = partial.bold;
+  if (typeof partial.italic === "boolean") textItalic = partial.italic;
   if (partial.align) textAlign = ["left", "center", "right"].includes(partial.align) ? partial.align : "center";
   if (partial.size) textSize = ["small", "medium", "large"].includes(partial.size) ? partial.size : "medium";
   if (typeof partial.enabled === "boolean") textEnabled = partial.enabled;
@@ -360,7 +406,7 @@ function getTextRenderMetrics(targetCtx, w, h, textState = {}) {
   const lines = getTextLines(textState.value || textValue);
   if (!lines.length) return null;
 
-  const color = normalizeHexInput(textState.color, "#111827");
+  const color = normalizeHexInput(textState.color, "#000000");
   const fontType = textState.fontType || "basic";
   const sizeKey = textState.size || "medium";
   const scale = Number.isFinite(textState.scale) ? textState.scale : 1;
@@ -395,6 +441,8 @@ function getTextRenderMetrics(targetCtx, w, h, textState = {}) {
 function drawTextObjectToContext(targetCtx, w, h, textState = {}) {
   if (!safeTrim(textState?.value || "")) return;
 
+  ensureTextFontLoaded(textState.fontType || "basic");
+
   const metrics = getTextRenderMetrics(targetCtx, w, h, textState);
   if (!metrics) return;
 
@@ -413,8 +461,21 @@ function drawTextObjectToContext(targetCtx, w, h, textState = {}) {
   targetCtx.textAlign = align;
   targetCtx.font = `${metrics.weight} ${metrics.fontSize}px ${metrics.family}`;
 
+  // 기울임: 폰트마다 기울임 글꼴이 없어서, 글자를 비스듬히 기울여 똑같이 표현
+  if (textState.italic) targetCtx.transform(1, 0, -0.2, 1, 0, 0);
+
+  // 굵게: 굵기가 하나뿐인 폰트도 똑같이 굵어지도록 같은 색 테두리를 덧그림
+  if (textState.bold) {
+    targetCtx.strokeStyle = metrics.color;
+    targetCtx.lineWidth = Math.max(1, metrics.fontSize * 0.05);
+    targetCtx.lineJoin = "round";
+    targetCtx.miterLimit = 2;
+  }
+
   metrics.lines.forEach((line, idx) => {
-    targetCtx.fillText(line, x, startY + idx * metrics.lineHeight, metrics.widest);
+    const y = startY + idx * metrics.lineHeight;
+    if (textState.bold) targetCtx.strokeText(line, x, y, metrics.widest);
+    targetCtx.fillText(line, x, y, metrics.widest);
   });
 
   targetCtx.restore();
@@ -425,7 +486,9 @@ function getCurrentTextState() {
     enabled: !!textEnabled,
     value: textValue || "",
     fontType: textFontType || "basic",
-    color: normalizeHexInput(textColor, "#111827"),
+    color: normalizeHexInput(textColor, "#000000"),
+    bold: !!textBold,
+    italic: !!textItalic,
     align: textAlign || "center",
     size: textSize || "medium",
     cx: Number.isFinite(textCX) && textCX ? textCX : canvasLogicalW / 2,

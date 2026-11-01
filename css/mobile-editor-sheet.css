@@ -1,0 +1,343 @@
+/* =========================================================
+ * 모바일 시안 제작: [꾸미기] 버튼 + 도구 시트 (js/mobile-editor-sheet.js)
+ * - PC(769px 이상)에서는 새로 추가한 요소를 모두 숨기고 기존 화면 그대로
+========================================================= */
+.mDecorateBtn,
+.mDecorateMenu,
+.mSheetHead,
+.mFontRow {
+    display: none;
+}
+
+/* 폰트 버튼 이름표 글자 크기 (각 폰트 모양은 js/editor-text.js에서 지정) */
+body.kidikidiBootstrap .textFontRow .textFontBtn {
+    font-size: 16px !important;
+}
+
+@media (max-width: 768px) {
+    /* ---------- 아래 고정 바: [꾸미기] [시안 추가] ---------- */
+    body.kidikidiBootstrap[data-step="editor"] .editorActionBar {
+        display: flex !important;
+        gap: 8px !important;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* [꾸미기] [시안 추가] 1:1 */
+    body.kidikidiBootstrap[data-step="editor"] .editorActionBar #btnAddItem,
+    body[data-step="editor"] .editorActionBar .mDecorateBtn {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    body[data-step="editor"] .mDecorateBtn {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: auto;
+        min-height: 48px;
+        margin: 0;
+        padding: 0 18px;
+        border: 1px solid transparent; /* 옆 [시안 추가] 버튼과 테두리 두께를 맞춰 정확히 1:1 */
+        border-radius: 14px;
+        background: #fdcc63;
+        color: #101828;
+        font-size: 15px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .mDecorateBtn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .mDecorateBtn[aria-expanded="true"] {
+        background: #101828;
+        color: #fdcc63;
+    }
+
+    /* 캔버스 아래에 붙어 있던 도구 영역/구분선은 시트로 옮기므로 자리 차지하지 않게 */
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox + .canvasNotice,
+    body.kidikidiBootstrap[data-step="editor"] .canvasFrame > .divider:last-of-type {
+        margin-top: 0;
+    }
+
+    /* ---------- 공통: 아래에서 올라오는 시트 ---------- */
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox,
+    .mDecorateMenu {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 70 !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 46vh !important;
+        margin: 0 !important;
+        padding: 0 14px calc(16px + env(safe-area-inset-bottom)) !important;
+        overflow-y: auto !important;
+        border: 0 !important;
+        border-radius: 22px 22px 0 0 !important;
+        background: #ffffff !important;
+        box-shadow: 0 -8px 30px rgba(16, 24, 40, 0.16) !important;
+        transform: translateY(105%);
+        transition: transform 0.22s ease;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    body.mSheetMenuOpen .mDecorateMenu,
+    body.mSheetToolOpen.kidikidiBootstrap[data-step="editor"] .editorToolBox {
+        transform: translateY(0);
+    }
+
+    /* 스포이드로 캔버스를 누르는 동안은 시트를 내려 둠 */
+    body.mSheetPicking.kidikidiBootstrap[data-step="editor"] .editorToolBox {
+        transform: translateY(105%);
+    }
+
+    /* 시트 위쪽 손잡이 + 머리줄 */
+    .mSheetHead {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: 40px 1fr 40px;
+        align-items: center;
+        margin: 0 -14px 10px;
+        padding: 14px 10px 10px;
+        border-bottom: 1px solid #f2f4f7;
+        background: #ffffff;
+    }
+
+    .mSheetHead::before {
+        content: "";
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        width: 36px;
+        height: 4px;
+        border-radius: 999px;
+        background: #e4e7ec;
+        transform: translateX(-50%);
+    }
+
+    .mSheetHead__title {
+        font-family: "Cafe24 Ssurround", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .mSheetHead__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px !important;
+        min-height: 40px;
+        height: 40px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: #344054;
+    }
+
+    .mSheetHead__btn svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* 꾸미기 메뉴: 큰 타일 3개 */
+    .mDecorateMenu__grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        padding: 4px 0 6px;
+    }
+
+    .mDecorateTile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        padding: 16px 6px 14px;
+        border: 1px solid #fde7b0;
+        border-radius: 18px;
+        background: #fff9ea;
+        color: #101828;
+    }
+
+    .mDecorateTile:active {
+        background: #fdcc63;
+    }
+
+    .mDecorateTile__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        margin-bottom: 4px;
+        border-radius: 14px;
+        background: #fdcc63;
+    }
+
+    .mDecorateTile__icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .mDecorateTile b {
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .mDecorateTile small {
+        color: #7a4b00;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* ---------- 도구 시트 안 ---------- */
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox .toolTabRow {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox .mSheetHead {
+        display: grid;
+    }
+
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox .toolPanel {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    /* 텍스트: 폰트 버튼 9개 대신 "폰트  지금 폰트 ›" 한 줄 */
+    body[data-step="editor"] .mFontRow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 52px;
+        margin: 0;
+        padding: 0 14px;
+        border: 1px solid #e4e7ec;
+        border-radius: 14px;
+        background: #ffffff;
+        color: #101828;
+        text-align: left;
+    }
+
+    .mFontRow:disabled {
+        opacity: 0.5;
+    }
+
+    .mFontRow__label {
+        flex: 0 0 auto;
+        color: #667085;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    .mFontRow__name {
+        flex: 1 1 auto;
+        font-size: 18px;
+    }
+
+    .mFontRow svg {
+        flex: 0 0 auto;
+        width: 20px;
+        height: 20px;
+        color: #98a2b3;
+    }
+
+    body:not([data-m-sheet="font"]) .editorToolBox .textToolFontSection {
+        display: none !important;
+    }
+
+    /* 폰트 고르기 화면: 폰트 목록만 크게 */
+    body[data-m-sheet="font"] .editorToolBox #toolText .textToolSection:not(.textToolFontSection),
+    body[data-m-sheet="font"] .editorToolBox .mFontRow {
+        display: none !important;
+    }
+
+    body[data-m-sheet="font"] .editorToolBox .textToolFontSection .bgToolSectionTitle {
+        display: none !important;
+    }
+
+    body[data-m-sheet="font"].kidikidiBootstrap .textFontRow {
+        gap: 8px !important;
+    }
+
+    body[data-m-sheet="font"].kidikidiBootstrap .textFontRow .textFontBtn {
+        height: 58px !important;
+        min-height: 58px !important;
+        border: 0 !important;
+        border-radius: 14px !important;
+        background: #f9fafb !important;
+        color: #101828 !important;
+        font-size: 19px !important;
+    }
+
+    body[data-m-sheet="font"].kidikidiBootstrap .textFontRow .textFontBtn.is-active {
+        background: #fff4d6 !important;
+        box-shadow: inset 0 0 0 2px #fdcc63 !important;
+        color: #101828 !important;
+    }
+
+    /* 시트가 열려 있을 땐 알림을 화면 위쪽에 띄워서 시트 내용을 가리지 않게 */
+    body.mSheetMenuOpen .toastStack,
+    body.mSheetToolOpen .toastStack {
+        top: calc(12px + env(safe-area-inset-top)) !important;
+        bottom: auto !important;
+        z-index: 100 !important;
+    }
+}
+
+/* =========================================================
+ * 모바일 주문정보 / 상단 조작줄
+========================================================= */
+@media (max-width: 768px) {
+    /* 이전 | 제목 | 다음 줄: 로고 헤더(같이 위에 붙어 있음) 바로 아래에 고정
+       (예전엔 top:0이라 로고 헤더 뒤에 가려져 안 보였음) */
+    .kidikidiBootstrap .stepPageHeader,
+    .kidikidiBootstrap .stepTopBar.stepPageHeader {
+        top: var(--siteHeaderH, 0px) !important;
+    }
+
+    /* 주문번호 / 이메일 한 줄 */
+    .kidikidiBootstrap .rowOrderEmail {
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) !important;
+        column-gap: 10px !important;
+    }
+
+    /* 프로파일 / 규격 / 레이저 한 줄 */
+    .kidikidiBootstrap .optionSelectLine {
+        grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.17fr) minmax(0, 1.05fr) !important;
+        gap: 6px !important;
+    }
+
+    .kidikidiBootstrap .optionSelectLine .form-select {
+        padding-left: 10px !important;
+        padding-right: 26px !important;
+        background-position: right 8px center !important;
+        font-size: 13.5px !important;
+        text-overflow: ellipsis;
+    }
+}
+

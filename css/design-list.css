@@ -263,3 +263,36 @@ body[data-step="confirm"] .confirmStepActions {
     gap: 10px;
     margin-top: 12px;
 }
+
+/* =========================================================
+ * 시안 리스트 키캡 미리보기 썸네일
+ * - 규격 비율 그대로 (inline style로 aspect-ratio / 크기 지정)
+ * - 스페이스바처럼 아주 긴 키(is-wide)는 카드 위쪽에 한 줄로 크게
+========================================================= */
+.cartDesignCard .cartTop {
+    flex-wrap: wrap;
+}
+
+.cartDesignCard .cartThumb.cartThumbMockup {
+    min-width: 28px;
+    max-width: 96px;
+    border-color: #eaecf0;
+    background: #f4f5f7;
+}
+
+.cartDesignCard .cartThumb.cartThumbMockup.is-wide {
+    flex: 0 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+
+.cartDesignCard .cartThumb.cartThumbMockup.is-wide + .cartBody {
+    flex-basis: 100%;
+}
+
+.cartThumbMockup img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

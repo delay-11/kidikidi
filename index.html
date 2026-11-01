@@ -35,6 +35,7 @@
     <link href="./css/editor-tour.css" rel="stylesheet" />
     <link href="./css/responsive.css" rel="stylesheet" />
     <link href="./css/responsive-editor.css" rel="stylesheet" />
+    <link href="./css/mobile-editor-sheet.css" rel="stylesheet" />
 
     <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
@@ -53,7 +54,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.6.30
+                v3.0.0
             </div>
         </div>
     </header>
@@ -139,7 +140,6 @@
                             <label class="form-label">주문 옵션 선택 *</label>
                             <p>구매하신 <b>프로파일(OEM,XDA,MAO)</b>, <b>규격(R1~R4)</b>, 레이저 옵션을 선택해 주세요.
                             </p>
-                            <button class="rowGuideLink" id="openRowGuideBtn" type="button">OEM 키보드 열(R1~R4) 확인하기 ›</button>
                         </div>
                         <div class="optionSelectLine">
                             <div>
@@ -162,6 +162,7 @@
                             </div>
                             <input id="qty" type="hidden" value="1" />
                         </div>
+                        <div aria-live="polite" class="profileHelper" hidden id="profileHelper"></div>
                     </div>
                 </section>
             </div>
@@ -448,15 +449,11 @@
                                     <div class="toolPanel textToolPanel" id="toolText">
                                         <div class="textToolGrid">
                                             <div class="textToolSection textToolInputSection">
-                                                <div class="bgToolSectionTitle">텍스트 입력</div>
-                                                <textarea class="textInput form-control" id="textInput" maxlength="80"
-                                                    placeholder="텍스트를 입력하세요" rows="3"></textarea>
-                                                <div class="textActionRow">
-                                                    <button class="ghostBtn btn btn-outline-secondary" disabled=""
-                                                        id="textApplyBtn" type="button">텍스트 추가</button>
-                                                    <button class="dangerBtn btn btn-outline-danger" disabled=""
-                                                        id="textClearBtn" type="button">삭제</button>
-                                                </div>
+                                                <!-- 텍스트는 캔버스에서 바로 입력/수정 (js/inline-text-editor.js).
+                                                     입력값 처리 로직은 그대로 쓰기 위해 숨긴 입력칸은 남겨 둠 -->
+                                                <textarea aria-hidden="true" class="textInput form-control" hidden id="textInput"
+                                                    maxlength="80" rows="3" tabindex="-1"></textarea>
+                                                <p class="textCanvasHint">텍스트 추가 후 캔버스의 글자를 누르면 바로 고칠 수 있어요</p>
                                                 <span class="fileName" id="textCountBadge">현재 0/3개</span>
                                             </div>
                                             <div class="textToolSection textToolFontSection">
@@ -489,37 +486,58 @@
                                                         data-text-font="jump" type="button">Aa 점프</button>
                                                 </div>
                                             </div>
-                                            <div class="textToolSection textToolColorSection">
-                                                <div class="bgToolSectionTitle">텍스트 색상</div>
-                                                <button class="gradientPickBtn textColorBtn btn btn-light" disabled=""
-                                                    id="textColorBtn" type="button">
-                                                    <span aria-hidden="true" class="colorSwatch gradientSwatch"
-                                                        id="textColorSwatch"></span>
-                                                    <span class="colorValue" id="textColorValue">#111827</span>
-                                                </button>
-                                            </div>
-                                            <div class="textToolSection textToolAlignSection">
-                                                <div class="bgToolSectionTitle">텍스트 위치</div>
-                                                <div aria-label="텍스트 위치" class="textAlignRow">
-                                                    <button aria-label="캔버스 왼쪽 배치"
+                                            <!-- 텍스트 꾸미기 한 줄: 색상 | 굵게·기울임 | 정렬 (아이콘 위주로 간결하게) -->
+                                            <div class="textToolSection textStyleSection">
+                                                <div aria-label="텍스트 꾸미기" class="textStyleBar" role="toolbar">
+                                                    <button aria-label="텍스트 색상" title="텍스트 색상"
+                                                        class="gradientPickBtn textColorBtn btn btn-light" disabled=""
+                                                        id="textColorBtn" type="button">
+                                                        <span aria-hidden="true" class="colorSwatch gradientSwatch"
+                                                            id="textColorSwatch"></span>
+                                                        <span class="colorValue" id="textColorValue">#000000</span>
+                                                    </button>
+                                                    <span aria-hidden="true" class="textStyleBar__sep"></span>
+                                                    <button aria-label="굵게" aria-pressed="false" title="굵게"
+                                                        class="textIconBtn textStyleBtn btn btn-sm btn-light" data-text-style="bold"
+                                                        type="button"><b aria-hidden="true">B</b></button>
+                                                    <button aria-label="기울임" aria-pressed="false" title="기울임"
+                                                        class="textIconBtn textStyleBtn btn btn-sm btn-light" data-text-style="italic"
+                                                        type="button"><i aria-hidden="true">I</i></button>
+                                                    <span aria-hidden="true" class="textStyleBar__sep"></span>
+                                                    <button aria-label="왼쪽 정렬" title="왼쪽 정렬"
                                                         class="textIconBtn btn btn-sm btn-light" data-text-align="left"
                                                         type="button">
                                                         <svg aria-hidden="true" viewbox="0 0 24 24">
                                                             <path d="M4 6h14M4 10h10M4 14h14M4 18h10"></path>
                                                         </svg>
                                                     </button>
-                                                    <button aria-label="캔버스 가운데 배치"
-                                                        class="textIconBtn is-active btn btn-sm btn-light"
-                                                        data-text-align="center" type="button">
+                                                    <button aria-label="가운데 정렬" title="가운데 정렬"
+                                                        class="textIconBtn is-active btn btn-sm btn-light" data-text-align="center"
+                                                        type="button">
                                                         <svg aria-hidden="true" viewbox="0 0 24 24">
                                                             <path d="M5 6h14M7 10h10M5 14h14M7 18h10"></path>
                                                         </svg>
                                                     </button>
-                                                    <button aria-label="캔버스 오른쪽 배치"
+                                                    <button aria-label="오른쪽 정렬" title="오른쪽 정렬"
                                                         class="textIconBtn btn btn-sm btn-light" data-text-align="right"
                                                         type="button">
                                                         <svg aria-hidden="true" viewbox="0 0 24 24">
                                                             <path d="M6 6h14M10 10h10M6 14h14M10 18h10"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <span aria-hidden="true" class="textStyleBar__sep"></span>
+                                                    <button aria-label="텍스트 추가" title="텍스트 추가"
+                                                        class="textIconBtn textAddBtn btn btn-sm btn-light" disabled=""
+                                                        id="textApplyBtn" type="button">
+                                                        <svg aria-hidden="true" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                                            <path d="M4 6V4h10v2M9 4v14M6.5 18h5M18 13v8M14 17h8"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button aria-label="선택한 텍스트 삭제" title="선택한 텍스트 삭제"
+                                                        class="textIconBtn textDelBtn btn btn-sm btn-light" disabled=""
+                                                        id="textClearBtn" type="button">
+                                                        <svg aria-hidden="true" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"></path>
                                                         </svg>
                                                     </button>
                                                 </div>
@@ -620,37 +638,40 @@
     <div aria-hidden="true" class="print-guide-modal hidden" id="printGuideModal">
         <div aria-label="인쇄 가이드 안내" aria-modal="true" class="print-guide-modal-content" role="dialog">
             <div class="guideSheet print-guide-intro" id="printGuideIntro">
-                <h2 class="guideSheet__title">시안 배치, 이것만은 꼭!</h2>
-                <div class="guideSheet__section">▶ 중요한 그림은 빨간선 안쪽에</div>
-                <div class="placementExamples">
-                    <div class="placementExample is-good">
-                        <div class="placementExample__pair">
-                            <figure><canvas data-placement-example="good" data-view="flat"></canvas>
-                                <figcaption>캔버스 배치</figcaption></figure>
-                            <span aria-hidden="true" class="placementExample__arrow">›</span>
-                            <figure><canvas data-placement-example="good" data-view="mockup"></canvas>
-                                <figcaption>키캡 미리보기</figcaption></figure>
+                <h2 class="guideSheet__title">시안 만들기 전에 체크!</h2>
+                <p class="guideSheet__basis" id="printGuideBasis"></p>
+                <ol class="guideSteps">
+                    <li class="guideStep">
+                        <div class="guideStep__head"><span class="guideStep__num">1</span><strong>중요한 그림은 빨간선 안에</strong></div>
+                        <div class="guideStep__pair">
+                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="good" data-view="flat"></canvas></figure>
+                            <span aria-hidden="true" class="guideStep__arrow"></span>
+                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="good" data-view="mockup"></canvas></figure>
                         </div>
-                        <p class="placementExample__label"><b>좋아요</b> 중요한 그림이 빨간 안전선 안에 있어요</p>
-                    </div>
-                    <div class="placementExample is-bad">
-                        <div class="placementExample__pair">
-                            <figure><canvas data-placement-example="bad" data-view="flat"></canvas>
-                                <figcaption>캔버스 배치</figcaption></figure>
-                            <span aria-hidden="true" class="placementExample__arrow">›</span>
-                            <figure><canvas data-placement-example="bad" data-view="mockup"></canvas>
-                                <figcaption>키캡 미리보기</figcaption></figure>
+                    </li>
+                    <li class="guideStep">
+                        <div class="guideStep__head"><span class="guideStep__num">2</span><strong>배경은 캔버스 끝까지</strong></div>
+                        <div class="guideStep__pair">
+                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="nofill" data-view="flat"></canvas></figure>
+                            <span aria-hidden="true" class="guideStep__arrow"></span>
+                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="nofill" data-view="mockup"></canvas></figure>
                         </div>
-                        <p class="placementExample__label"><b>주의</b> 빨간선을 넘으면 옆면으로 넘어가요</p>
-                    </div>
-                </div>
-                <ul class="guideSheet__list">
-                    <li>중요한 그림과 글자는 <em class="is-red">빨간 안전선 안</em>에 넣어 주세요. 벗어나면 옆면으로 넘어가 늘어나거나 잘릴 수 있습니다.</li>
-                    <li>배경은 <b>캔버스 전체</b>를 빈틈없이 채워 주세요. 채우지 않으면 옆면에 여백이 생길 수 있습니다.</li>
-                    <li>실제 제작은 CMYK 기준이라 화면과 실제 상품의 색상이 조금 다를 수 있습니다.</li>
-                </ul>
+                    </li>
+                    <li class="guideStep">
+                        <div class="guideStep__head"><span class="guideStep__num">3</span><strong>빨간선 밖은 키캡 옆면</strong></div>
+                        <div class="guideStep__pair">
+                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="bad" data-view="flat"></canvas></figure>
+                            <span aria-hidden="true" class="guideStep__arrow"></span>
+                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="bad" data-view="mockup"></canvas></figure>
+                        </div>
+                    </li>
+                </ol>
             </div>
-            <img alt="인쇄 가이드" class="print-guide-image" hidden id="printGuideImage" src="./image/guides/print_guide.png" />
+            <!-- 꼭 읽어야 하는 안내라 스크롤 영역 밖(버튼 바로 위)에 고정 -->
+            <ul class="guideNote guideNote--list guideNote--pinned">
+                <li><b>색상</b> CMYK로 인쇄해서 화면과 조금 다를 수 있어요.</li>
+                <li><b>위치</b> 승화전사 인쇄 특성상 제작 시 1mm 정도 오차가 있을 수 있어요.</li>
+            </ul>
             <div class="print-guide-actions" data-step="0" id="printGuideActions">
                 <button class="print-guide-action-btn print-guide-hide" id="hidePrintGuideBtn" type="button">
                     다시 보지 않기
@@ -664,33 +685,6 @@
                 <button class="print-guide-action-btn print-guide-confirm" id="confirmPrintGuideBtn" type="button">
                     확인
                 </button>
-            </div>
-        </div>
-    </div>
-    <!-- Keyboard Row Guide Modal -->
-    <div aria-hidden="true" class="print-guide-modal row-guide-modal hidden" id="rowGuideModal">
-        <div aria-labelledby="rowGuideTitle" aria-modal="true" class="print-guide-modal-content" role="dialog">
-            <div class="guideSheet">
-                <h2 class="guideSheet__title" id="rowGuideTitle">내 키보드의 열(R1~R4)을 확인해 주세요</h2>
-                <div class="guideSheet__section">▶ 키보드 열(R1~R4)</div>
-                <!-- 회사 안내 이미지가 있으면 그 이미지를 보여주고, 없으면 아래 SVG 그림을 대신 보여줌 -->
-                <img alt="키보드 열 위치 안내" class="rowGuideImage" data-row-guide-image="keyboard" hidden
-                    src="./image/guides/row_keyboard.png" />
-                <svg class="rowGuideKeyboard" role="img" aria-label="키보드 열 위치: 숫자줄은 R4, Q줄은 R3, A줄은 R2, Z줄과 스페이스바 줄은 R1" id="rowGuideKeyboard" viewBox="0 0 330 132"></svg>
-                <img alt="열마다 다른 키캡 높이 안내" class="rowGuideImage" data-row-guide-image="profiles" hidden
-                    src="./image/guides/row_height.png" />
-                <svg class="rowGuideProfiles" role="img" aria-label="열마다 다른 키캡 옆모습: R4, R3, R2, R1" id="rowGuideProfiles" viewBox="0 0 330 92"></svg>
-                <p class="guideSheet__caption" id="rowGuideProfilesCaption">옆에서 본 모습 (왼쪽이 손 쪽) - 열마다 높이와 기울기가 달라요</p>
-                <ul class="guideSheet__list">
-                    <li>같은 1U 키캡이라도 <b>R1~R4 열마다 높이와 기울기가 다릅니다.</b></li>
-                    <li>꽂을 자리와 다른 열을 고르면 키보드에 끼웠을 때 <em class="is-red">높낮이가 맞지 않아</em> 어색해 보일 수 있습니다.</li>
-                    <li>주문하신 규격과 꽂을 자리의 열을 확인한 뒤 선택해 주세요.</li>
-                    <li>XDA·MAO는 모든 키의 높이가 같아서 열 구분이 없습니다.</li>
-                    <li>키디키디 키캡은 <b>십자(+) 축</b> 키보드용입니다. 키캡을 끼우는 축이 십자 모양이 아닌 키보드에는 사용할 수 없으니 미리 확인해 주세요.</li>
-                </ul>
-            </div>
-            <div class="print-guide-actions" data-step="0">
-                <button class="print-guide-action-btn print-guide-confirm" id="confirmRowGuideBtn" type="button">확인했습니다</button>
             </div>
         </div>
     </div>
@@ -726,7 +720,9 @@
     <script src="./js/email-summary.js"></script>
     <script src="./js/email-send.js"></script>
     <script src="./js/print-guide-modal.js"></script>
-    <script src="./js/row-guide-modal.js"></script>
+    <script src="./js/profile-helper.js"></script>
+    <script src="./js/mobile-editor-sheet.js"></script>
+    <script src="./js/inline-text-editor.js"></script>
     <script src="./js/editor-onboarding-tour.js"></script>
     <script src="./js/app.js"></script>
 </body>

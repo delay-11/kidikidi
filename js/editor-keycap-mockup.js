@@ -23,6 +23,10 @@ const MAO_MOCKUP_PATHS = {
     d: "M161.1,252.8c-13.7,0-26.8-.6-38.9-1.6h-.6s-5.8-.8-5.8-.8c-18.9-2.6-33.7-16.9-36.8-35.8l-1.7-10.9v-.6c-1.2-15-1.7-30.3-1.6-45.6.2-26.6,4.2-47.7,12.5-66.2,3.9-8.5,12.5-14,21.9-14,0,0,2.5,0,2.5,0h2.9c0,0,1.6.8,1.6.8l16,2.9h1.2c10.6,1.6,20.9,2.3,30.6,2.3s20.1-.7,30.6-2.2h.9c0-.1.5-.1.5-.1l19.4-3.5h.5c0,0,.1,0,.2,0,.7-.1,1.7-.3,2.9-.3,9,0,17.4,5.1,21.3,13l.2.5.3.6c8.2,18,12.2,38.5,12.6,64.6h0c0,16.9-.4,32.2-1.5,46.9v.6s-1.8,11.1-1.8,11.1c-3.1,18.8-17.8,33.2-36.6,35.9l-6.3.8h-.4c-10.4.8-21.7,1.4-33.5,1.6v.2h-13.1Z",
     box: { x: 75.7, y: 77.2, w: 178.6, h: 175.8 },
   },
+  // 인쇄 안전선 (mao-safe.svg의 점선 path)
+  safe: {
+    d: "M167.3,232.7h-7.9M151.3,232.6c-9.3-.2-18.4-.7-27.3-1.4l-5.5-.8c-10.2-1.4-18.1-9.1-19.8-19.2l-1.7-10.1c-1.1-14.7-1.6-29.4-1.4-43.6.2-23.9,3.6-42.4,10.8-58.2.6-1.4,2.1-2.4,3.7-2.4h.5l20.4,3.6h.4c11,1.6,22.3,2.4,33.6,2.4s22.3-.8,33.6-2.3h.4l20-3.6h1c1.3,0,2.5.6,3.2,1.6l.3.7c7.2,15.4,10.6,33.4,10.8,56.6.1,15.7-.4,30.7-1.4,44.7l-1.7,10.3c-1.6,10.2-9.5,17.9-19.7,19.3l-5.6.8c-12.1.9-23.7,1.4-34.7,1.5",
+  },
   inner: {
     d: "M161.2,239.8c-13.4,0-26.1-.6-37.9-1.6h-.3s-5.4-.8-5.4-.8c-13.2-1.8-23.5-11.8-25.7-25l-1.6-10.3h0c-1.1-14.7-1.6-29.7-1.5-44.6.2-24.7,3.8-44.1,11.4-61,1.8-3.9,5.7-6.4,10-6.4,0,0,2.2,0,2.2,0l.6.3,19,3.4h.5c11.1,1.5,22,2.3,32.4,2.3s21.3-.8,32.4-2.3h.7l19.4-3.5h.6c.3,0,.6-.1.9-.2.4,0,.8-.1.9-.1,4.1,0,7.9,2.3,9.7,5.8l.2.4v.2c7.5,16.3,11.2,35.2,11.5,59.5,0,16.4-.4,31.3-1.5,45.7h0c0,.1-1.6,10.6-1.6,10.6-2.2,13.2-12.5,23.3-25.6,25.1l-5.7.7h0c-11.9.9-24.9,1.5-38.7,1.6h-6.9Z",
     box: { x: 88.8, y: 90.0, w: 152.4, h: 149.8 },
@@ -181,14 +185,20 @@ function drawKeycapMockup() {
   const shape = getKeycapMockupShape();
   if (!shape) return;
 
-  paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY));
+  // 에디터에서는 키캡 밖도 시안이 비쳐 보이게 옅게만 덮고, "여기도 옆면에 인쇄된다"는 표시를 함께 그림
+  // (예전엔 키캡 밖을 거의 가려서, 키캡 모양 안만 채우면 되는 줄 아는 경우가 있었음)
+  paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY), {
+    outsideAlpha: 0.42,
+    sideHint: true,
+  });
   // 중앙 맞춤 가이드는 음영에 가려지지 않게 맨 위에
   if (typeof drawCenterGuide === "function") drawCenterGuide(c);
 }
 
 // 이미 시안이 그려진 화면 위에 키캡 음영을 얹는다. c는 논리 좌표(0~W, 0~H)로 스케일된 상태여야 한다.
 // blurScale: 그림자 blur는 transform 영향을 안 받으므로 실제 픽셀 배율을 따로 받는다.
-function paintKeycapMockup(c, W, H, shape, blurScale = 1) {
+// opts.showSafe=false: 빨간 안전선 생략 (시안 리스트 썸네일용)
+function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
   const o = shape.outerBox;
   const i = shape.innerBox;
 
@@ -198,7 +208,7 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1) {
   outside.addPath(shape.outer);
 
   c.save();
-  c.fillStyle = "rgba(244, 245, 247, 0.84)";
+  c.fillStyle = `rgba(244, 245, 247, ${Number.isFinite(opts.outsideAlpha) ? opts.outsideAlpha : 0.84})`;
   c.fill(outside, "evenodd");
   c.restore();
 
@@ -286,12 +296,14 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1) {
     c.fillStyle = g;
     c.fillRect(i.x, i.y, i.w, i.h);
   } else {
-    // OEM 원통형 접시: 좌우로 오목 → 왼쪽은 그늘, 오른쪽은 빛
+    // OEM 원통형 접시: 좌우 가장자리만 아주 살짝 어둡게 (오목한 느낌만)
+    // 예전에는 흰 반사광을 넣었는데 시안 위에 세로 줄처럼 보여서 뺐음
     const g = c.createLinearGradient(i.x, 0, i.x + i.w, 0);
-    g.addColorStop(0, "rgba(16,24,40,0.10)");
-    g.addColorStop(0.3, "rgba(16,24,40,0.02)");
-    g.addColorStop(0.68, "rgba(255,255,255,0.16)");
-    g.addColorStop(1, "rgba(16,24,40,0.06)");
+    g.addColorStop(0, "rgba(16,24,40,0.07)");
+    g.addColorStop(0.25, "rgba(16,24,40,0.015)");
+    g.addColorStop(0.5, "rgba(16,24,40,0)");
+    g.addColorStop(0.75, "rgba(16,24,40,0.015)");
+    g.addColorStop(1, "rgba(16,24,40,0.07)");
     c.fillStyle = g;
     c.fillRect(i.x, i.y, i.w, i.h);
   }
@@ -318,7 +330,7 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1) {
   c.restore();
 
   /* 6) 인쇄 안전선은 음영 위에 그대로 */
-  if (shape.safe) {
+  if (shape.safe && opts.showSafe !== false) {
     c.save();
     c.strokeStyle = "#d92d20";
     c.lineWidth = 2;
@@ -326,6 +338,9 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1) {
     c.stroke(shape.safe);
     c.restore();
   }
+
+  /* 7) 에디터 전용: 캔버스 끝 점선 + "옆면까지 인쇄" 안내 */
+  if (opts.sideHint) drawSidePrintHint(c, W, H, shape, blurScale);
 }
 
 // 목업 모드에서는 MAO의 회색 바깥/안쪽 선은 음영이 대신하므로 숨기고 빨간 안전선만 남긴다.
@@ -382,4 +397,95 @@ if (typeof ResizeObserver !== "undefined" && canvas) {
   });
   keycapMockupResizeObserver.observe(canvas);
   if (canvasWrapEl) keycapMockupResizeObserver.observe(canvasWrapEl);
+}
+
+/* =========================================================
+ * 키캡 부분만 잘라낸 미리보기 이미지 만들기
+ * - 시안 리스트 썸네일 / 인쇄 가이드 예시 그림에서 같이 사용
+ * - source: 캔버스 전체 크기(W×H)로 그려진 시안 (canvas 또는 img)
+========================================================= */
+
+// 키캡 바깥선 주변만 보이도록 자를 영역 (바깥선 + 여백)
+function getKeycapMockupCrop(shape, W, H, marginRatio = 0.12) {
+  const o = shape.outerBox;
+  const m = Math.max(10, Math.min(o.w, o.h) * marginRatio);
+  const x = Math.max(0, o.x - m);
+  const y = Math.max(0, o.y - m);
+  return {
+    x,
+    y,
+    w: Math.min(W, o.x + o.w + m) - x,
+    h: Math.min(H, o.y + o.h + m) - y,
+  };
+}
+
+// MAO는 사각형 가이드가 아니라 SVG 모양이라 안전선 path를 따로 만들어 준다.
+function getKeycapSafePath(shape, profile) {
+  if (shape.safe) return shape.safe;
+  if (profile === "MAO") return new Path2D(MAO_MOCKUP_PATHS.safe.d);
+  return null;
+}
+
+/**
+ * @returns {{ dataUrl: string, aspect: number }} 키캡 미리보기 이미지와 가로/세로 비율
+ */
+function renderKeycapMockupThumb(source, profile, capType, options = {}) {
+  const longSide = options.longSide || 320;
+  try {
+    const size = getCanvasSize(profile, capType);
+    const shape = getKeycapMockupShape(profile, capType, size.w, size.h);
+    if (!shape || !source) return { dataUrl: "", aspect: 1 };
+
+    const crop = getKeycapMockupCrop(shape, size.w, size.h);
+    const scale = longSide / Math.max(crop.w, crop.h);
+    const out = document.createElement("canvas");
+    out.width = Math.max(1, Math.round(crop.w * scale));
+    out.height = Math.max(1, Math.round(crop.h * scale));
+    const c = out.getContext("2d");
+    if (!c) return { dataUrl: "", aspect: crop.w / crop.h };
+
+    c.setTransform(scale, 0, 0, scale, -crop.x * scale, -crop.y * scale);
+    c.drawImage(source, 0, 0, size.w, size.h);
+    paintKeycapMockup(c, size.w, size.h, shape, scale, { showSafe: false });
+
+    return { dataUrl: out.toDataURL("image/png"), aspect: crop.w / crop.h };
+  } catch (e) {
+    console.warn("키캡 미리보기 썸네일 생성 실패:", e);
+    return { dataUrl: "", aspect: 1 };
+  }
+}
+
+// 캔버스 테두리에 점선을 두르고, 키캡 아래 여백에 안내 문구를 그림
+function drawSidePrintHint(c, W, H, shape, pxScale = 1) {
+  const o = shape.outerBox;
+  c.save();
+  c.strokeStyle = "rgba(183, 121, 31, 0.9)";
+  c.lineWidth = 2 / Math.max(0.5, pxScale / (window.devicePixelRatio || 1));
+  c.setLineDash([6, 5]);
+  c.strokeRect(2, 2, W - 4, H - 4);
+  c.restore();
+
+  const below = H - (o.y + o.h);
+  if (below < 26) return;
+
+  const text = "캔버스 끝까지 채워야 옆면까지 인쇄돼요";
+  const fontSize = Math.max(9, Math.min(13, below * 0.2, W * 0.042));
+  c.save();
+  c.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif`;
+  const tw = c.measureText(text).width;
+  const padX = fontSize * 0.8;
+  const pillW = Math.min(W - 8, tw + padX * 2);
+  const pillH = fontSize * 2;
+  const x = (W - pillW) / 2;
+  const y = o.y + o.h + (below - pillH) / 2 + below * 0.12;
+  c.fillStyle = "rgba(16, 24, 40, 0.82)";
+  c.beginPath();
+  if (c.roundRect) c.roundRect(x, y, pillW, pillH, pillH / 2);
+  else c.rect(x, y, pillW, pillH);
+  c.fill();
+  c.fillStyle = "#fdcc63";
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.fillText(text, W / 2, y + pillH / 2, pillW - padX);
+  c.restore();
 }

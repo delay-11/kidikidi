@@ -350,6 +350,7 @@ function updateActionLocks() {
     if (textColorBtnEl) textColorBtnEl.disabled = true;
     textFontBtnEls?.forEach((btn) => (btn.disabled = true));
     textAlignBtnEls?.forEach((btn) => (btn.disabled = true));
+    textStyleBtnEls?.forEach((btn) => (btn.disabled = true));
     textSizeBtnEls?.forEach((btn) => (btn.disabled = true));
     if (btnAddItemEl) btnAddItemEl.disabled = true;
     if (btnConfirmEl) btnConfirmEl.disabled = true;
@@ -384,6 +385,7 @@ function updateActionLocks() {
     if (textColorBtnEl) textColorBtnEl.disabled = true;
     textFontBtnEls?.forEach((btn) => (btn.disabled = true));
     textAlignBtnEls?.forEach((btn) => (btn.disabled = true));
+    textStyleBtnEls?.forEach((btn) => (btn.disabled = true));
     textSizeBtnEls?.forEach((btn) => (btn.disabled = true));
     if (btnAddItemEl) btnAddItemEl.disabled = true;
     if (btnConfirmEl) btnConfirmEl.disabled = true;
@@ -422,6 +424,7 @@ function updateActionLocks() {
   if (textColorBtnEl) textColorBtnEl.disabled = false;
   textFontBtnEls?.forEach((btn) => (btn.disabled = false));
   textAlignBtnEls?.forEach((btn) => (btn.disabled = false));
+  textStyleBtnEls?.forEach((btn) => (btn.disabled = false));
   textSizeBtnEls?.forEach((btn) => (btn.disabled = false));
   syncTextUI?.();
 
@@ -445,3 +448,29 @@ function updateActionLocks() {
 
   updateStepButtons?.();
 }
+
+/* =========================================================
+ * 값을 고치면 그 칸의 빨간 오류 문구는 바로 지움
+ * - 이전에는 [다음]을 다시 눌러 전체 검사를 할 때까지 오류가 남아 있어서,
+ *   OEM을 골라도 "프로파일을 선택해주세요."가 계속 보였음
+========================================================= */
+(() => {
+  const fields = [
+    ["name", nameEl, (v) => !!v],
+    ["phone", phoneEl, (v) => PHONE_RE.test(v)],
+    ["order", orderEl, (v) => !!v],
+    ["email", emailEl, (v) => EMAIL_RE.test(v)],
+    ["profile", profileEl, (v) => !!v],
+    ["capType", capTypeEl, (v) => !!v],
+  ];
+
+  fields.forEach(([key, el, isValid]) => {
+    if (!el) return;
+    const clearIfValid = () => {
+      if (isValid(safeTrim(el.value))) setFieldError(key, "");
+    };
+    el.addEventListener(el.tagName === "SELECT" ? "change" : "input", clearIfValid);
+  });
+
+  // 규격은 키보드 그림으로 고를 때도 change 이벤트가 오므로 위에서 함께 처리됨
+})();

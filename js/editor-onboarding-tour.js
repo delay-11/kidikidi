@@ -17,14 +17,20 @@
  *   모바일 브라우저에서 좌표/터치 관련 예외 케이스를 줄인다.
 ========================================================= */
 (() => {
-  const TOUR_STORAGE_KEY = "kidikidi_editor_tour_hidden_v1";
+  // v2: 안내를 1개(프로파일/규격 변경 + 여러 규격 수량 안내)로 바꾸면서,
+  // 예전 3단계 안내를 이미 닫은 고객도 새 안내를 한 번은 보도록 키를 새로 씀
+  const TOUR_STORAGE_KEY = "kidikidi_editor_tour_hidden_v2";
   const TOUR_MOBILE_QUERY = "(max-width: 768px)";
   const TARGET_PAD = 8;
 
+  // 배치 안내는 이미지 업로드 직전에, 열(R1~R4) 안내는 주문정보에서 이미 보여주므로
+  // 시안 제작 화면에서는 "프로파일/규격을 여기서 바꿀 수 있다"는 것 하나만 안내
   const EDITOR_TOUR_STEPS = [
-    { selector: "#optionQuickBtn", label: "프로파일과 규격을 변경할 수 있어요" },
-    { selector: "#openPrintGuideBtn", label: "인쇄 전 배치 가이드를 볼 수 있어요" },
-    { selector: "#canvasWrap", label: "캔버스 전체에 색을 채워야 측면이 다 덮여요" },
+    {
+      selector: "#optionQuickBtn",
+      title: "프로파일/규격은 여기서 바꿀 수 있어요",
+      body: "주문한 프로파일·규격이 여러 개라면, 각 규격에 맞춰 시안을 만든 뒤 수량을 설정해 주세요.",
+    },
   ];
 
   let rootEl = null;
@@ -101,7 +107,19 @@
 
     const label = document.createElement("div");
     label.className = "editorTourLabel";
-    label.textContent = step.label;
+    if (step.title) {
+      const title = document.createElement("strong");
+      title.className = "editorTourLabelTitle";
+      title.textContent = step.title;
+      label.appendChild(title);
+    }
+    if (step.body) {
+      const body = document.createElement("span");
+      body.className = "editorTourLabelBody";
+      body.textContent = step.body;
+      label.appendChild(body);
+    }
+    if (step.label) label.textContent = step.label;
     rootEl.appendChild(label);
     placeLabel(label, rect);
 
@@ -155,7 +173,7 @@
 
     const isLast = index === EDITOR_TOUR_STEPS.length - 1;
     panelEl.innerHTML = `
-      <span class="editorTourProgress">${index + 1} / ${EDITOR_TOUR_STEPS.length}</span>
+      ${EDITOR_TOUR_STEPS.length > 1 ? `<span class="editorTourProgress">${index + 1} / ${EDITOR_TOUR_STEPS.length}</span>` : ""}
       ${index > 0 ? '<button type="button" class="editorTourBtn editorTourBtnGhost editorTourPrevBtn">이전</button>' : ""}
       <button type="button" class="editorTourBtn editorTourBtnPrimary editorTourNextBtn">${isLast ? "확인했어요" : "다음"}</button>
     `;

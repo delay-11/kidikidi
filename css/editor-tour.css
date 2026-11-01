@@ -147,3 +147,22 @@
         white-space: normal;
     }
 }
+
+/* 안내 말풍선: 제목 + 설명 2줄 구성 */
+.editorTourLabel:has(.editorTourLabelTitle) {
+    max-width: 290px;
+}
+
+.editorTourLabelTitle {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.editorTourLabelBody {
+    display: block;
+    margin-top: 4px;
+    color: #475467;
+    font-size: 13px;
+    font-weight: 600;
+}

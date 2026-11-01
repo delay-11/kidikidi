@@ -30,7 +30,9 @@ function updateFormReadyState() {
     formReadyTitleEl.textContent = "주문한 프로파일/규격을 선택하세요";
     formReadyDescEl.textContent = "";
 
-    if (lastFormReadyState === false) {
+    // 프로파일/규격을 이미 골랐으면 굳이 안내하지 않음 (먼저 고르고 연락처를 나중에 채운 경우)
+    const optionsChosen = !!safeTrim(profileEl?.value || "") && !!safeTrim(capTypeEl?.value || "");
+    if (lastFormReadyState === false && !optionsChosen) {
       showToast?.("주문한 프로파일/규격을 선택하세요", "ok", 2200);
     }
   } else {
@@ -340,6 +342,8 @@ function setDesignStep(step) {
 
   document.body.dataset.step = nextStep;
   if (typeof scheduleDraftSave === "function") scheduleDraftSave();
+  // 주문정보 화면의 규격 고르기 도우미를 현재 값에 맞춤 (작업 불러오기로 값이 바뀐 경우 포함)
+  window.syncProfileHelper?.();
 
   stepChipEls?.forEach((chip) => {
     chip.classList.toggle("is-active", chip.dataset.stepChip === nextStep);
