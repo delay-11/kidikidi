@@ -53,7 +53,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.6.26
+                v2.6.27
             </div>
         </div>
     </header>
@@ -202,6 +202,10 @@
                                     <span class="tag">배경</span><b id="bgText">-</b>
                                     <button class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
                                         id="openPrintGuideBtn" type="button">인쇄 가이드 보기</button>
+                                    <button aria-pressed="true" class="keycapMockupToggle" id="keycapMockupToggle"
+                                        type="button"><span class="keycapMockupToggle__opt is-active"
+                                            data-mode="mockup">키캡 미리보기</span><span
+                                            class="keycapMockupToggle__opt" data-mode="guide">가이드선</span></button>
                                 </div>
                                 <div class="divider"></div>
                                 <div class="canvasWrap" id="canvasWrap">
@@ -649,6 +653,7 @@
     <script src="./js/email-domain-suggest.js"></script>
     <script src="./js/order-info.js"></script>
     <script src="./js/editor-canvas-setup.js"></script>
+    <script src="./js/editor-keycap-mockup.js"></script>
     <script src="./js/editor-background.js"></script>
     <script src="./js/editor-text.js"></script>
     <script src="./js/editor-image.js"></script>

@@ -8,6 +8,8 @@ function isTouchDevice() {
 function setMobileEyedropperMode(active) {
   mobileEyedropperMode = !!active;
   canvasWrapEl?.classList.toggle("isEyedropperMode", mobileEyedropperMode);
+  // 스포이드 중에는 키캡 음영을 걷어서 실제 시안 색 그대로 보이게 한다.
+  setKeycapMockupHiddenForPick?.(mobileEyedropperMode);
 }
 
 function rgbToHex(r, g, b) {
@@ -842,7 +844,14 @@ async function openEyeDropper(target = "solid") {
 
   try {
     const eyeDropper = new EyeDropper();
-    const result = await eyeDropper.open();
+    // PC 스포이드는 화면 색을 그대로 집으므로 키캡 음영을 잠깐 걷는다.
+    setKeycapMockupHiddenForPick?.(true);
+    let result;
+    try {
+      result = await eyeDropper.open();
+    } finally {
+      setKeycapMockupHiddenForPick?.(false);
+    }
 
     if (!result?.sRGBHex) return;
 

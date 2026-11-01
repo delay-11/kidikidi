@@ -384,6 +384,8 @@ function drawGuide() {
   const profile = profileEl.value;
 
   if (profile === "MAO") return;
+  // 키캡 미리보기(목업)가 켜져 있으면 가이드는 오버레이 캔버스가 음영 + 안전선으로 그린다.
+  if (typeof isKeycapMockupOn === "function" && isKeycapMockupOn()) return;
 
   const capType = capTypeEl.value;
   const key = profile === "OEM" ? capType : profile;
@@ -534,6 +536,7 @@ function redraw() {
   drawObjectsInLayerOrder();
   drawCenterGuide();
   drawGuide();
+  if (typeof drawKeycapMockup === "function") drawKeycapMockup();
   // 레이어 패널이 오브젝트 1개일 때 잠금을 자동으로 풀어주므로 선택 박스보다 먼저 갱신
   renderLayerPanel();
   updateBBox();
