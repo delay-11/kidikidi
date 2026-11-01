@@ -828,7 +828,7 @@
     }
 
     /* 2페이지(배치 예시)는 정보량이 많아 모바일에서도 세로 공간을 더 확보 */
-    .print-guide-modal[data-step="1"] .print-guide-modal-content {
+    .print-guide-modal[data-step="2"] .print-guide-modal-content {
         width: min(97vw, 600px) !important;
         max-height: 95vh !important;
         padding: 8px !important;

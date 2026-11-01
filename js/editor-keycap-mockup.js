@@ -105,14 +105,18 @@ function rectTrapezoid(c, pts) {
   c.closePath();
 }
 
-// 현재 프로파일/규격의 키캡 모양(바깥=키캡 바닥 테두리, 안쪽=윗면)을 Path2D로 만든다.
-function getKeycapMockupShape() {
-  const profile = profileEl?.value || "OEM";
-  const W = canvasLogicalW;
-  const H = canvasLogicalH;
-
+// 프로파일/규격의 키캡 모양(바깥=키캡 바닥 테두리, 안쪽=윗면)을 Path2D로 만든다.
+// 인자를 안 주면 현재 에디터에서 고른 프로파일/규격/캔버스 크기를 쓴다.
+// (인쇄 가이드 팝업의 예시 그림도 같은 함수로 그린다)
+function getKeycapMockupShape(
+  profile = profileEl?.value || "OEM",
+  capType = capTypeEl?.value,
+  W = canvasLogicalW,
+  H = canvasLogicalH
+) {
   if (profile === "MAO") {
     return {
+      isMao: true,
       dish: "sphere",
       outer: new Path2D(MAO_MOCKUP_PATHS.outer.d),
       inner: new Path2D(MAO_MOCKUP_PATHS.inner.d),
@@ -122,7 +126,7 @@ function getKeycapMockupShape() {
     };
   }
 
-  const key = profile === "OEM" ? capTypeEl?.value : profile;
+  const key = profile === "OEM" ? capType : profile;
   const guide = GUIDE_SIZE_MAP[key] || GUIDE_SIZE_MAP.STD;
   if (!guide) return null;
 
@@ -177,11 +181,14 @@ function drawKeycapMockup() {
   const shape = getKeycapMockupShape();
   if (!shape) return;
 
-  const W = canvasLogicalW;
-  const H = canvasLogicalH;
+  paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY));
+}
+
+// 이미 시안이 그려진 화면 위에 키캡 음영을 얹는다. c는 논리 좌표(0~W, 0~H)로 스케일된 상태여야 한다.
+// blurScale: 그림자 blur는 transform 영향을 안 받으므로 실제 픽셀 배율을 따로 받는다.
+function paintKeycapMockup(c, W, H, shape, blurScale = 1) {
   const o = shape.outerBox;
   const i = shape.innerBox;
-  const blurScale = Math.min(scale.scaleX, scale.scaleY);
 
   /* 1) 키캡 밖 여백: 흐리게 덮어서 "여긴 키캡에 안 찍힘"을 표현 */
   const outside = new Path2D();
@@ -237,7 +244,7 @@ function drawKeycapMockup() {
 
   c.save();
   c.clip(ring, "evenodd");
-  if (shape.dish === "sphere" && profileEl?.value === "MAO") {
+  if (shape.isMao) {
     // MAO는 옆면이 둥글게 이어져 있어서, 면을 나누면 꺾인 선이 생긴다 → 위아래/좌우 부드러운 음영만 겹친다.
     const v = c.createLinearGradient(0, o.y, 0, o.y + o.h);
     v.addColorStop(0, "rgba(255,255,255,0.26)");

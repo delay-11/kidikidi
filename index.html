@@ -53,7 +53,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.6.27
+                v2.6.28
             </div>
         </div>
     </header>
@@ -139,6 +139,7 @@
                             <label class="form-label">주문 옵션 선택 *</label>
                             <p>구매하신 <b>프로파일(OEM,XDA,MAO)</b>, <b>규격(R1~R4)</b>, 레이저 옵션을 선택해 주세요.
                             </p>
+                            <button class="rowGuideLink" id="openRowGuideBtn" type="button">OEM 키보드 열(R1~R4) 확인하기 ›</button>
                         </div>
                         <div class="optionSelectLine">
                             <div>
@@ -618,7 +619,38 @@
     <!-- Print Guide Modal -->
     <div aria-hidden="true" class="print-guide-modal hidden" id="printGuideModal">
         <div aria-label="인쇄 가이드 안내" aria-modal="true" class="print-guide-modal-content" role="dialog">
-            <img alt="인쇄 가이드" class="print-guide-image" id="printGuideImage" src="./image/guides/print_guide.png" />
+            <div class="guideSheet print-guide-intro" id="printGuideIntro">
+                <h2 class="guideSheet__title">만들기 전 확인해 주세요!</h2>
+                <div class="guideSheet__section">▶ 이미지 배치</div>
+                <div class="placementExamples">
+                    <div class="placementExample is-good">
+                        <div class="placementExample__pair">
+                            <figure><canvas data-placement-example="good" data-view="flat"></canvas>
+                                <figcaption>캔버스 배치</figcaption></figure>
+                            <span aria-hidden="true" class="placementExample__arrow">›</span>
+                            <figure><canvas data-placement-example="good" data-view="mockup"></canvas>
+                                <figcaption>키캡 미리보기</figcaption></figure>
+                        </div>
+                        <p class="placementExample__label"><b>좋아요</b> 중요한 그림이 빨간 안전선 안에 있어요</p>
+                    </div>
+                    <div class="placementExample is-bad">
+                        <div class="placementExample__pair">
+                            <figure><canvas data-placement-example="bad" data-view="flat"></canvas>
+                                <figcaption>캔버스 배치</figcaption></figure>
+                            <span aria-hidden="true" class="placementExample__arrow">›</span>
+                            <figure><canvas data-placement-example="bad" data-view="mockup"></canvas>
+                                <figcaption>키캡 미리보기</figcaption></figure>
+                        </div>
+                        <p class="placementExample__label"><b>주의</b> 빨간선을 넘으면 옆면으로 넘어가요</p>
+                    </div>
+                </div>
+                <ul class="guideSheet__list">
+                    <li>중요한 그림과 글자는 <em class="is-red">빨간 안전선 안</em>에 넣어 주세요. 벗어나면 옆면으로 넘어가 늘어나거나 잘릴 수 있습니다.</li>
+                    <li>배경은 <b>캔버스 전체</b>를 빈틈없이 채워 주세요. 채우지 않으면 옆면에 여백이 생길 수 있습니다.</li>
+                    <li>실제 제작은 CMYK 기준이라 화면과 실제 상품의 색상이 조금 다를 수 있습니다.</li>
+                </ul>
+            </div>
+            <img alt="인쇄 가이드" class="print-guide-image" hidden id="printGuideImage" src="./image/guides/print_guide.png" />
             <div class="print-guide-actions" data-step="0" id="printGuideActions">
                 <button class="print-guide-action-btn print-guide-hide" id="hidePrintGuideBtn" type="button">
                     다시 보지 않기
@@ -632,6 +664,27 @@
                 <button class="print-guide-action-btn print-guide-confirm" id="confirmPrintGuideBtn" type="button">
                     확인
                 </button>
+            </div>
+        </div>
+    </div>
+    <!-- Keyboard Row Guide Modal -->
+    <div aria-hidden="true" class="print-guide-modal row-guide-modal hidden" id="rowGuideModal">
+        <div aria-labelledby="rowGuideTitle" aria-modal="true" class="print-guide-modal-content" role="dialog">
+            <div class="guideSheet">
+                <h2 class="guideSheet__title" id="rowGuideTitle">OEM 키캡은 키보드 열을 꼭 확인해 주세요!</h2>
+                <div class="guideSheet__section">▶ 키보드 열(R1~R4)</div>
+                <svg class="rowGuideKeyboard" role="img" aria-label="키보드 열 위치: 숫자줄은 R4, Q줄은 R3, A줄은 R2, Z줄과 스페이스바 줄은 R1" id="rowGuideKeyboard" viewBox="0 0 330 132"></svg>
+                <svg class="rowGuideProfiles" role="img" aria-label="열마다 다른 키캡 옆모습: R4, R3, R2, R1" id="rowGuideProfiles" viewBox="0 0 330 92"></svg>
+                <p class="guideSheet__caption">옆에서 본 모습 (왼쪽이 손 쪽) - 열마다 높이와 기울기가 달라요</p>
+                <ul class="guideSheet__list">
+                    <li>같은 1U 키캡이라도 <b>R1~R4 열마다 높이와 기울기가 다릅니다.</b></li>
+                    <li>꽂을 자리와 다른 열을 고르면 키보드에 끼웠을 때 <em class="is-red">높낮이가 맞지 않아</em> 어색해 보일 수 있습니다.</li>
+                    <li>주문하신 규격과 꽂을 자리의 열을 확인한 뒤 선택해 주세요.</li>
+                    <li>XDA·MAO는 모든 키의 높이가 같아서 열 구분이 없습니다.</li>
+                </ul>
+            </div>
+            <div class="print-guide-actions" data-step="0">
+                <button class="print-guide-action-btn print-guide-confirm" id="confirmRowGuideBtn" type="button">확인했습니다</button>
             </div>
         </div>
     </div>
@@ -667,6 +720,7 @@
     <script src="./js/email-summary.js"></script>
     <script src="./js/email-send.js"></script>
     <script src="./js/print-guide-modal.js"></script>
+    <script src="./js/row-guide-modal.js"></script>
     <script src="./js/editor-onboarding-tour.js"></script>
     <script src="./js/app.js"></script>
 </body>
