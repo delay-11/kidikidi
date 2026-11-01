@@ -353,31 +353,84 @@ function drawBackground() {
   ctx.restore();
 }
 
-function drawCenterGuide() {
+/* =========================================================
+ * 중앙 맞춤 가이드 (스냅)
+ * - 예전에는 캔버스 중앙 십자선이 항상 떠 있었는데, 포토샵처럼
+ *   오브젝트를 끌 때만 중앙선을 보여주고, 오브젝트 중심이 캔버스 중앙
+ *   근처(화면 기준 약 6px)에 오면 그 축으로 착 붙으면서 선이 강조된다.
+ * - 가로/세로 따로 붙어서 한 축만 맞추는 것도 가능.
+========================================================= */
+const SNAP_THRESHOLD_SCREEN_PX = 6;
+const snapGuideState = { active: false, x: false, y: false };
+
+function getSnapThresholdLogical() {
+  const rect = canvas?.getBoundingClientRect();
+  if (!rect || !rect.width) return 4;
+  return (SNAP_THRESHOLD_SCREEN_PX * canvasLogicalW) / rect.width;
+}
+
+// 끌고 있는 오브젝트의 새 중심을 받아서, 중앙 근처면 중앙으로 붙인 좌표를 돌려준다.
+function applyCenterSnap(x, y) {
   const cx = canvasLogicalW / 2;
   const cy = canvasLogicalH / 2;
+  const th = getSnapThresholdLogical();
+  const snapX = Math.abs(x - cx) <= th;
+  const snapY = Math.abs(y - cy) <= th;
 
-  ctx.save();
-  ctx.strokeStyle = "rgba(17, 25, 40, 0.18)";
-  ctx.lineWidth = 1;
-  ctx.setLineDash([6, 6]);
+  // 새로 붙는 순간 짧게 진동 (지원하는 안드로이드 기기만, iOS는 무시됨)
+  if ((snapX && !snapGuideState.x) || (snapY && !snapGuideState.y)) {
+    try {
+      navigator.vibrate?.(8);
+    } catch (e) {
+      // 진동 미지원 무시
+    }
+  }
 
-  ctx.beginPath();
-  ctx.moveTo(cx, 0);
-  ctx.lineTo(cx, canvasLogicalH);
-  ctx.stroke();
+  snapGuideState.x = snapX;
+  snapGuideState.y = snapY;
+  return { x: snapX ? cx : x, y: snapY ? cy : y };
+}
 
-  ctx.beginPath();
-  ctx.moveTo(0, cy);
-  ctx.lineTo(canvasLogicalW, cy);
-  ctx.stroke();
+function setSnapGuideActive(active) {
+  snapGuideState.active = !!active;
+  if (!active) {
+    snapGuideState.x = false;
+    snapGuideState.y = false;
+  }
+}
 
-  ctx.setLineDash([]);
-  ctx.fillStyle = "rgba(17, 25, 40, 0.25)";
-  ctx.beginPath();
-  ctx.arc(cx, cy, 2, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
+// c: 논리 좌표로 스케일된 컨텍스트. 키캡 미리보기가 켜져 있으면 음영 위(오버레이)에 그린다.
+function drawCenterGuide(c = ctx) {
+  if (!snapGuideState.active) return;
+  if (c === ctx && typeof isKeycapMockupOn === "function" && isKeycapMockupOn()) return;
+
+  const cx = canvasLogicalW / 2;
+  const cy = canvasLogicalH / 2;
+  const snapColor = "#d444f1";
+
+  const line = (x1, y1, x2, y2, snapped) => {
+    c.save();
+    c.strokeStyle = snapped ? snapColor : "rgba(17, 25, 40, 0.28)";
+    c.lineWidth = snapped ? 1.5 : 1;
+    c.setLineDash(snapped ? [] : [6, 6]);
+    c.beginPath();
+    c.moveTo(x1, y1);
+    c.lineTo(x2, y2);
+    c.stroke();
+    c.restore();
+  };
+
+  line(cx, 0, cx, canvasLogicalH, snapGuideState.x);
+  line(0, cy, canvasLogicalW, cy, snapGuideState.y);
+
+  if (snapGuideState.x && snapGuideState.y) {
+    c.save();
+    c.fillStyle = snapColor;
+    c.beginPath();
+    c.arc(cx, cy, 3, 0, Math.PI * 2);
+    c.fill();
+    c.restore();
+  }
 }
 
 function drawGuide() {

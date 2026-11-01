@@ -135,6 +135,23 @@
 
   };
 
+  // 회사 안내 이미지(image/guides/row_keyboard.png, row_height.png)가 올라와 있으면
+  // 그 이미지를 쓰고, 파일이 없거나 못 불러오면 직접 그린 SVG를 대신 보여준다.
+  const rowImageFallbacks = { keyboard: keyboardSvg, profiles: profilesSvg };
+  modal.querySelectorAll("[data-row-guide-image]").forEach((img) => {
+    const fallback = rowImageFallbacks[img.dataset.rowGuideImage];
+    const useImage = () => {
+      img.hidden = false;
+      if (fallback) fallback.style.display = "none";
+      if (img.dataset.rowGuideImage === "profiles") {
+        const caption = document.getElementById("rowGuideProfilesCaption");
+        if (caption) caption.hidden = true;
+      }
+    };
+    if (img.complete && img.naturalWidth) useImage();
+    else img.addEventListener("load", useImage, { once: true });
+  });
+
   const openModal = () => {
     drawKeyboard();
     drawProfiles();

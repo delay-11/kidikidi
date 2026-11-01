@@ -178,6 +178,7 @@ function startMoveDrag(e, type = getActiveObjectType()) {
 
   centerStart.x = center.x;
   centerStart.y = center.y;
+  setSnapGuideActive?.(true);
 }
 
 function onMainPointerDown(e) {
@@ -363,7 +364,8 @@ document.addEventListener("pointermove", (e) => {
 
   if (draggingMove) {
     const type = getActiveObjectType() || "image";
-    setObjectCenter(type, centerStart.x + (p.x - moveStart.x), centerStart.y + (p.y - moveStart.y));
+    const next = applyCenterSnap(centerStart.x + (p.x - moveStart.x), centerStart.y + (p.y - moveStart.y));
+    setObjectCenter(type, next.x, next.y);
     redraw();
     return;
   }
@@ -444,6 +446,7 @@ document.addEventListener("pointermove", (e) => {
 
 function endPointerInteraction() {
   if (draggingMove || handleDrag || rotateDrag) {
+    setSnapGuideActive?.(false);
     draggingMove = false;
     handleDrag = null;
     rotateDrag = null;

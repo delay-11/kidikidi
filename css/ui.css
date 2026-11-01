@@ -1019,6 +1019,18 @@ button:disabled {
     background: #d92d20;
 }
 
+.rowGuideImage {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 0 auto 10px;
+    border-radius: 12px;
+}
+
+.rowGuideImage[hidden] {
+    display: none !important;
+}
+
 .rowGuideKeyboard,
 .rowGuideProfiles {
     display: block;

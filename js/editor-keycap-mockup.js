@@ -182,6 +182,8 @@ function drawKeycapMockup() {
   if (!shape) return;
 
   paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY));
+  // 중앙 맞춤 가이드는 음영에 가려지지 않게 맨 위에
+  if (typeof drawCenterGuide === "function") drawCenterGuide(c);
 }
 
 // 이미 시안이 그려진 화면 위에 키캡 음영을 얹는다. c는 논리 좌표(0~W, 0~H)로 스케일된 상태여야 한다.

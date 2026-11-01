@@ -53,7 +53,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.6.29
+                v2.6.30
             </div>
         </div>
     </header>
@@ -620,8 +620,8 @@
     <div aria-hidden="true" class="print-guide-modal hidden" id="printGuideModal">
         <div aria-label="인쇄 가이드 안내" aria-modal="true" class="print-guide-modal-content" role="dialog">
             <div class="guideSheet print-guide-intro" id="printGuideIntro">
-                <h2 class="guideSheet__title">만들기 전 확인해 주세요!</h2>
-                <div class="guideSheet__section">▶ 이미지 배치</div>
+                <h2 class="guideSheet__title">시안 배치, 이것만은 꼭!</h2>
+                <div class="guideSheet__section">▶ 중요한 그림은 빨간선 안쪽에</div>
                 <div class="placementExamples">
                     <div class="placementExample is-good">
                         <div class="placementExample__pair">
@@ -671,16 +671,22 @@
     <div aria-hidden="true" class="print-guide-modal row-guide-modal hidden" id="rowGuideModal">
         <div aria-labelledby="rowGuideTitle" aria-modal="true" class="print-guide-modal-content" role="dialog">
             <div class="guideSheet">
-                <h2 class="guideSheet__title" id="rowGuideTitle">OEM 키캡은 키보드 열을 꼭 확인해 주세요!</h2>
+                <h2 class="guideSheet__title" id="rowGuideTitle">내 키보드의 열(R1~R4)을 확인해 주세요</h2>
                 <div class="guideSheet__section">▶ 키보드 열(R1~R4)</div>
+                <!-- 회사 안내 이미지가 있으면 그 이미지를 보여주고, 없으면 아래 SVG 그림을 대신 보여줌 -->
+                <img alt="키보드 열 위치 안내" class="rowGuideImage" data-row-guide-image="keyboard" hidden
+                    src="./image/guides/row_keyboard.png" />
                 <svg class="rowGuideKeyboard" role="img" aria-label="키보드 열 위치: 숫자줄은 R4, Q줄은 R3, A줄은 R2, Z줄과 스페이스바 줄은 R1" id="rowGuideKeyboard" viewBox="0 0 330 132"></svg>
+                <img alt="열마다 다른 키캡 높이 안내" class="rowGuideImage" data-row-guide-image="profiles" hidden
+                    src="./image/guides/row_height.png" />
                 <svg class="rowGuideProfiles" role="img" aria-label="열마다 다른 키캡 옆모습: R4, R3, R2, R1" id="rowGuideProfiles" viewBox="0 0 330 92"></svg>
-                <p class="guideSheet__caption">옆에서 본 모습 (왼쪽이 손 쪽) - 열마다 높이와 기울기가 달라요</p>
+                <p class="guideSheet__caption" id="rowGuideProfilesCaption">옆에서 본 모습 (왼쪽이 손 쪽) - 열마다 높이와 기울기가 달라요</p>
                 <ul class="guideSheet__list">
                     <li>같은 1U 키캡이라도 <b>R1~R4 열마다 높이와 기울기가 다릅니다.</b></li>
                     <li>꽂을 자리와 다른 열을 고르면 키보드에 끼웠을 때 <em class="is-red">높낮이가 맞지 않아</em> 어색해 보일 수 있습니다.</li>
                     <li>주문하신 규격과 꽂을 자리의 열을 확인한 뒤 선택해 주세요.</li>
                     <li>XDA·MAO는 모든 키의 높이가 같아서 열 구분이 없습니다.</li>
+                    <li>키디키디 키캡은 <b>십자(+) 축</b> 키보드용입니다. 키캡을 끼우는 축이 십자 모양이 아닌 키보드에는 사용할 수 없으니 미리 확인해 주세요.</li>
                 </ul>
             </div>
             <div class="print-guide-actions" data-step="0">

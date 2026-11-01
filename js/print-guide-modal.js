@@ -46,50 +46,32 @@
 
   /* -------------------------------------------------------
    * 1페이지 배치 예시 그림
-   * 체크무늬 배경 + 스마일 그림을 OEM R4-1U 캔버스(330×330)에 그린 뒤
-   * 왼쪽은 캔버스 화면(가이드선), 오른쪽은 키캡 미리보기 음영을 얹어 보여준다.
+   * 회사 로고(image/favicon.png)를 연한 하늘색 배경 위에 올린 시안을
+   * OEM R4-1U 캔버스(330×330)에 그린 뒤, 왼쪽은 캔버스 화면(가이드선),
+   * 오른쪽은 키캡 미리보기 음영을 얹어 보여준다.
    * 키캡 주변만 보이도록 가운데 VIEW×VIEW 영역만 잘라서 표시.
   ------------------------------------------------------- */
   const EXAMPLE_W = 330;
   const EXAMPLE_VIEW = 236;
   const EXAMPLE_PROFILE = "OEM";
   const EXAMPLE_CAP = "R4-1U";
+  const EXAMPLE_BG = "#cfe6ff";
 
-  const drawExampleDesign = (c, faceR) => {
-    const cell = 22;
-    c.fillStyle = "#fff4d6";
+  const exampleLogo = new Image();
+  exampleLogo.src = "./image/favicon.png";
+  exampleLogo.addEventListener("load", () => {
+    if (!modal.classList.contains("hidden")) renderPlacementExamples();
+  });
+
+  // logoSize: 로고 한 변 길이(논리 px). 로고 png는 여백이 있어서 그림 자체는 이보다 조금 작게 보임
+  const drawExampleDesign = (c, logoSize) => {
+    c.fillStyle = EXAMPLE_BG;
     c.fillRect(0, 0, EXAMPLE_W, EXAMPLE_W);
-    c.fillStyle = "#fdcc63";
-    for (let y = 0; y < EXAMPLE_W; y += cell) {
-      for (let x = 0; x < EXAMPLE_W; x += cell) {
-        if (((x + y) / cell) % 2 === 0) c.fillRect(x, y, cell, cell);
-      }
-    }
 
-    const cx = EXAMPLE_W / 2;
-    const cy = EXAMPLE_W / 2;
-    const line = Math.max(2, faceR * 0.07);
-    c.save();
-    c.fillStyle = "#ffd43b";
-    c.strokeStyle = "#2b2100";
-    c.lineWidth = line;
-    c.beginPath();
-    c.arc(cx, cy, faceR, 0, Math.PI * 2);
-    c.fill();
-    c.stroke();
-
-    c.fillStyle = "#2b2100";
-    [-1, 1].forEach((side) => {
-      c.beginPath();
-      c.ellipse(cx + side * faceR * 0.33, cy - faceR * 0.22, faceR * 0.09, faceR * 0.17, 0, 0, Math.PI * 2);
-      c.fill();
-    });
-
-    c.lineCap = "round";
-    c.beginPath();
-    c.arc(cx, cy + faceR * 0.02, faceR * 0.55, Math.PI * 0.15, Math.PI * 0.85);
-    c.stroke();
-    c.restore();
+    if (!exampleLogo.complete || !exampleLogo.naturalWidth) return;
+    const x = (EXAMPLE_W - logoSize) / 2;
+    const y = (EXAMPLE_W - logoSize) / 2;
+    c.drawImage(exampleLogo, x, y, logoSize, logoSize);
   };
 
   const drawExampleGuideLines = (c) => {
@@ -129,7 +111,7 @@
       c.setTransform(scale, 0, 0, scale, -offset * scale, -offset * scale);
 
       const isGood = el.dataset.placementExample === "good";
-      drawExampleDesign(c, isGood ? 42 : 82);
+      drawExampleDesign(c, isGood ? 128 : 236);
 
       if (el.dataset.view === "mockup" && canMockup) {
         const shape = getKeycapMockupShape(EXAMPLE_PROFILE, EXAMPLE_CAP, EXAMPLE_W, EXAMPLE_W);
