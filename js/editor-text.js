@@ -232,26 +232,45 @@ function deleteActiveTextObject() {
 // }
 
 
+// 폰트 버튼 이름표 미리보기용 경량 폰트 (files/font-preview/*.woff2)
+// 로컬 ttf(손글씨 5.6MB, 자이언츠 2.5MB 등)를 텍스트 탭만 열어도 전부 받게 되면 모바일에서 너무 무거워서,
+// 이름표 글자만 뽑아낸 subset(합계 약 17KB)으로 먼저 보여준다. 실제 캔버스 글자는 원래 폰트로 그린다.
+const TEXT_FONT_PREVIEW_FAMILY = {
+  hand: "'KidiPreviewHand'",
+  giants: "'KidiPreviewGiants'",
+  court: "'KidiPreviewCourt'",
+  jump: "'KidiPreviewJump'",
+};
+
 function syncTextFontPreviewButtons() {
   // 폰트 타입 버튼은 입력값 미리보기가 아니라, 각 폰트 이름표를 해당 폰트로 보여주는 용도입니다.
+  // (이전에는 bootstrap-wizard-overrides.css의 !important 시스템 폰트 지정에 막혀
+  //  모든 버튼이 같은 글꼴로 보였음 → 버튼마다 inline !important로 실제 폰트를 지정)
   const labels = {
-    basic: "Aa 기본",
-    bold: "Aa 굵게",
-    round: "Aa 둥근",
-    hand: "Aa 손글씨",
-    retro: "Aa 레트로",
-    calli: "Aa 캘리",
-    giants: "Aa 자이언츠",
-    court: "Aa 코트",
-    jump: "Aa 점프",
+    basic: "기본",
+    bold: "굵게",
+    round: "둥근",
+    hand: "손글씨",
+    retro: "레트로",
+    calli: "캘리",
+    giants: "자이언츠",
+    court: "코트",
+    jump: "점프",
   };
 
   textFontBtnEls?.forEach((btn) => {
     const type = btn.dataset.textFont || "basic";
     const label = labels[type] || labels.basic;
     btn.textContent = label;
-    btn.title = label;
-    btn.setAttribute("aria-label", label);
+    btn.title = `${label} 폰트`;
+    btn.setAttribute("aria-label", `${label} 폰트`);
+
+    const preview = TEXT_FONT_PREVIEW_FAMILY[type];
+    const family = preview ? `${preview}, ${getTextFontFamily(type)}` : getTextFontFamily(type);
+    btn.style.setProperty("font-family", family, "important");
+    btn.style.setProperty("font-weight", String(getTextFontWeight(type)), "important");
+    btn.style.setProperty("font-size", "16px", "important");
+    btn.style.setProperty("letter-spacing", "0", "important");
   });
 }
 
