@@ -356,22 +356,56 @@ function syncTextFontPreviewButtons() {
  * 이름표 글자의 실제 높이를 재서, 프리텐다드로 같은 글자를 썼을 때와 같은 높이가 되게 맞춘다.
  * 버튼 폭을 넘으면 폭에 맞춰 줄임. (캔버스 글자 크기와는 무관 - 이름표 표시용)
 ========================================================= */
-const fontLabelMeasureCtx = document.createElement("canvas").getContext("2d");
+const fontLabelMeasureCanvas = document.createElement("canvas");
+const fontLabelMeasureCtx = fontLabelMeasureCanvas.getContext("2d", { willReadFrequently: true });
 
+// 글자를 실제로 그려서 칠해진 픽셀 범위로 높이/폭을 잰다.
+// (measureText의 actualBoundingBox 값은 동글체처럼 폰트에 따라 실제 모양과 크게 다를 수 있어서)
 function measureFontLabelInk(family, weight, size, text) {
-  if (!fontLabelMeasureCtx) return { h: 0, w: 0 };
-  fontLabelMeasureCtx.font = `${weight} ${size}px ${family}`;
-  const m = fontLabelMeasureCtx.measureText(text);
-  return { h: (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0), w: m.width || 0 };
+  const c = fontLabelMeasureCtx;
+  if (!c) return { h: 0, w: 0 };
+  const S = 40; // 정밀도를 위해 40px로 그려서 잰 뒤 size 비율로 환산
+  c.font = `${weight} ${S}px ${family}`;
+  const W = Math.ceil(c.measureText(text).width + S * 2);
+  const H = S * 3;
+  fontLabelMeasureCanvas.width = Math.max(1, W);
+  fontLabelMeasureCanvas.height = H;
+  c.font = `${weight} ${S}px ${family}`;
+  c.textBaseline = "alphabetic";
+  c.fillStyle = "#000";
+  c.fillText(text, S, S * 2);
+  const data = c.getImageData(0, 0, W, H).data;
+  let top = H, bottom = -1, left = W, right = -1;
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      if (data[(y * W + x) * 4 + 3] > 40) {
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+        if (x < left) left = x;
+        if (x > right) right = x;
+      }
+    }
+  }
+  if (bottom < 0) return { h: 0, w: 0 };
+  return { h: ((bottom - top + 1) * size) / S, w: ((right - left + 1) * size) / S };
+}
+
+// 글자 하나하나의 높이 평균 (동글체처럼 한 글자 획만 길게 뻗은 폰트는 전체 범위로 재면 크게 나와서)
+function measureFontLabelAvgCharHeight(family, weight, size, text) {
+  const chars = Array.from(String(text || "")).filter((ch) => ch.trim());
+  if (!chars.length) return 0;
+  const heights = chars.map((ch) => measureFontLabelInk(family, weight, size, ch).h).filter((h) => h > 0);
+  return heights.length ? heights.reduce((a, b) => a + b, 0) / heights.length : 0;
 }
 
 // el의 글자 크기를, 프리텐다드로 같은 글자를 baseSize로 썼을 때와 같은 높이가 되도록 지정
 function fitFontLabelSize(el, family, weight, text, baseSize, maxWidth = 0) {
   if (!el || !text) return;
   const apply = () => {
-    const ref = measureFontLabelInk("'Pretendard', sans-serif", 700, baseSize, text);
+    const refH = measureFontLabelAvgCharHeight("'Pretendard', sans-serif", 700, baseSize, text);
+    const curH = measureFontLabelAvgCharHeight(family, weight, baseSize, text);
     const cur = measureFontLabelInk(family, weight, baseSize, text);
-    let size = cur.h > 0 && ref.h > 0 ? (baseSize * ref.h) / cur.h : baseSize;
+    let size = curH > 0 && refH > 0 ? (baseSize * refH) / curH : baseSize;
     if (maxWidth > 0 && cur.w > 0) {
       const width = (cur.w * size) / baseSize;
       if (width > maxWidth) size *= maxWidth / width;
