@@ -167,3 +167,16 @@
     font-size: 13px;
     font-weight: 600;
 }
+
+/* 안내 본문의 줄바꿈(\n)을 그대로 보여주고, 단어 중간에서 끊기지 않게.
+   지정한 줄바꿈 한 줄이 한 번에 들어가도록 PC에서는 말풍선 폭을 넉넉하게 */
+.editorTourLabelBody {
+    white-space: pre-line;
+    word-break: keep-all;
+}
+
+@media (min-width: 769px) {
+    .editorTourLabel {
+        max-width: 400px !important;
+    }
+}

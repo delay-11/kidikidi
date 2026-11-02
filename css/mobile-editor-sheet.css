@@ -897,6 +897,12 @@ body.kidikidiBootstrap .textToolFontSection .bgToolSectionTitle {
     color: #101828;
 }
 
+/* 안내 문구가 단어 중간에서 끊기지 않게 */
+.optionSelectTips,
+#toolImage .imageToolInfo p {
+    word-break: keep-all;
+}
+
 /* =========================================================
  * PC 전용: 텍스트 한 줄을 칸 끝까지
 ========================================================= */
