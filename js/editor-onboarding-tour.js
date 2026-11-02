@@ -93,6 +93,9 @@
 
     labelEl.style.left = `${lx}px`;
     labelEl.style.top = `${ly}px`;
+    // 말풍선 꼬리가 대상 가운데를 가리키도록 (말풍선 양 끝 둥근 모서리는 피함)
+    const arrowX = rect.left + rect.width / 2 - lx - 6;
+    labelEl.style.setProperty("--tour-arrow-x", `${Math.max(14, Math.min(arrowX, lw - 26))}px`);
   }
 
   function placeRing(ringEl, rect) {

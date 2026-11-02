@@ -311,11 +311,18 @@ body.kidikidiBootstrap .pill {
     overflow: visible !important;
 }
 
+/* 줄바꿈은 모바일에서만 (PC는 한 줄로 쭉) */
 .pill .pillBreak {
-    display: block;
-    flex: 0 0 100% !important;
-    height: 0;
-    margin: 0;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .pill .pillBreak {
+        display: block;
+        flex: 0 0 100% !important;
+        height: 0;
+        margin: 0;
+    }
 }
 
 body.kidikidiBootstrap .pill #openPrintGuideBtn {
@@ -368,31 +375,18 @@ body.kidikidiBootstrap #toolImage .uploadRow #fileDelBtn {
     display: none;
 }
 
-/* 버튼 옆 말풍선 */
+/* 버튼 옆 안내: 예전처럼 회색 둥근 칩 */
 #toolImage .imgTip {
-    position: relative;
     display: inline-flex;
     align-items: center;
-    height: 30px;
-    margin-left: 4px;
-    padding: 0 10px;
-    border-radius: 8px;
-    background: #101828;
-    color: #ffffff;
+    height: 28px;
+    padding: 0 11px;
+    border-radius: 999px;
+    background: #f2f4f7;
+    color: #475467;
     font-size: 11px;
     font-weight: 700;
     white-space: nowrap;
-}
-
-#toolImage .imgTip::before {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: -4px;
-    width: 8px;
-    height: 8px;
-    background: inherit;
-    transform: translateY(-50%) rotate(45deg);
 }
 
 /* PC: 캔버스 옆 안내 칩은 모바일처럼 숨김 (같은 내용은 인쇄 가이드/목업에 있음) */
@@ -406,9 +400,65 @@ body.kidikidiBootstrap #toolImage .imageToolActions {
     padding: 0 !important;
 }
 
-body.kidikidiBootstrap #toolText .textToolGrid,
 body.kidikidiBootstrap #toolBg .gradientPanel {
     display: block !important;
+}
+
+/* 텍스트: PC는 [폰트 · 추가 · 삭제 | 색상 · 굵게 · 기울임 · 정렬] 한 줄,
+   모바일은 두 줄 (2줄째 버튼은 화면 폭을 고르게 채움) */
+body.kidikidiBootstrap #toolText .textToolGrid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    gap: 10px !important;
+}
+
+body.kidikidiBootstrap #toolText .textToolInputSection {
+    display: none !important;
+}
+
+body.kidikidiBootstrap #toolText .textToolFontSection {
+    flex: 0 0 100%;
+    order: 3;
+}
+
+body.kidikidiBootstrap #toolText .textStyleSection {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+}
+
+/* PC: 꾸미기 줄 버튼은 일정한 크기로 */
+body.kidikidiBootstrap #toolText .textStyleBar {
+    display: flex !important;
+    align-items: center;
+    gap: 6px !important;
+}
+
+body.kidikidiBootstrap #toolText .textStyleBar > button {
+    flex: 0 0 auto !important;
+    width: 52px !important;
+    min-width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+}
+
+@media (max-width: 768px) {
+    body.kidikidiBootstrap #toolText .textStyleSection {
+        flex: 0 0 100%;
+    }
+
+    body.kidikidiBootstrap #toolText .textStyleBar {
+        display: flex !important;
+        width: 100% !important;
+        gap: 6px !important;
+    }
+
+    body.kidikidiBootstrap #toolText .textStyleBar > button {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
 }
 
 /* ---------- 텍스트 ---------- */
@@ -421,7 +471,12 @@ body.kidikidiBootstrap .mTextTopRow {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    body.kidikidiBootstrap .mTextTopRow {
+        flex: 0 0 100%;
+    }
 }
 
 body.kidikidiBootstrap .mTextTopRow .mFontRow {
@@ -664,6 +719,14 @@ body.kidikidiBootstrap #toolBg .gradientRangeTop {
 
 body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"] {
     margin: 0 !important;
+}
+
+/* 슬라이더를 눌러도 입력칸용 노란 포커스 테두리가 생기지 않게 */
+body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"]:focus,
+body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"]:focus-visible {
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
 }
 
 /* =========================================================

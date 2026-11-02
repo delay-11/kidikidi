@@ -54,14 +54,15 @@
     transform: rotate(45deg);
 }
 
+/* 꼬리는 가리키는 대상의 가운데로 (js/editor-onboarding-tour.js에서 --tour-arrow-x 지정) */
 .editorTourLabel.arrow-top::before {
     top: -6px;
-    left: 20px;
+    left: var(--tour-arrow-x, 20px);
 }
 
 .editorTourLabel.arrow-bottom::before {
     bottom: -6px;
-    left: 20px;
+    left: var(--tour-arrow-x, 20px);
     transform: rotate(225deg);
 }
 

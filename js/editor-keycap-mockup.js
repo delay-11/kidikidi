@@ -286,15 +286,8 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
   c.save();
   c.clip(shape.inner);
   if (shape.dish === "sphere") {
-    const cx = i.x + i.w / 2;
-    const cy = i.y + i.h / 2;
-    const r = Math.max(i.w, i.h) * 0.62;
-    const g = c.createRadialGradient(cx + i.w * 0.08, cy + i.h * 0.08, r * 0.08, cx, cy, r);
-    g.addColorStop(0, "rgba(255,255,255,0.18)");
-    g.addColorStop(0.55, "rgba(255,255,255,0)");
-    g.addColorStop(1, "rgba(16,24,40,0.14)");
-    c.fillStyle = g;
-    c.fillRect(i.x, i.y, i.w, i.h);
+    // XDA/MAO: 윗면에 따로 음영을 넣지 않음 (아래 위쪽 가장자리 그늘 + 테두리 하이라이트만)
+    // 예전에는 원형/가장자리 그라데이션이라 윗면 가운데가 동그랗게 밝아 보였음
   } else {
     // OEM 원통형 접시: 좌우 가장자리만 아주 살짝 어둡게 (오목한 느낌만)
     // 예전에는 흰 반사광을 넣었는데 시안 위에 세로 줄처럼 보여서 뺐음
