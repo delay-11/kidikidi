@@ -104,6 +104,7 @@ const textColorSwatchEl = $("textColorSwatch");
 const textColorValueEl = $("textColorValue");
 const textFontBtnEls = Array.from(document.querySelectorAll("[data-text-font]"));
 const textAlignBtnEls = Array.from(document.querySelectorAll("[data-text-align]"));
+const textStyleBtnEls = Array.from(document.querySelectorAll("[data-text-style]"));
 const textSizeBtnEls = Array.from(document.querySelectorAll("[data-text-size]"));
 
 /* =========================================================

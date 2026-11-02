@@ -315,6 +315,10 @@ fileBtn?.addEventListener(
       return;
     }
 
+    /* 처음 업로드할 때는 배치 안내를 먼저 보여주고, [확인]을 누르면 바로 파일창을 띄움
+       (안내 팝업의 버튼 클릭도 사용자 동작이라 그 안에서 fileEl.click()이 허용됨) */
+    if (window.showPrintGuideBeforeUpload?.(() => fileEl.click())) return;
+
     /* 여기까지는 반드시 동기적으로 와야 파일창이 뜸 */
     fileEl.click();
   },

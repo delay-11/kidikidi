@@ -35,6 +35,7 @@
     <link href="./css/editor-tour.css" rel="stylesheet" />
     <link href="./css/responsive.css" rel="stylesheet" />
     <link href="./css/responsive-editor.css" rel="stylesheet" />
+    <link href="./css/mobile-editor-sheet.css" rel="stylesheet" />
 
     <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
@@ -53,7 +54,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v2.6.26
+                v3.0.0
             </div>
         </div>
     </header>
@@ -161,6 +162,7 @@
                             </div>
                             <input id="qty" type="hidden" value="1" />
                         </div>
+                        <div aria-live="polite" class="profileHelper" hidden id="profileHelper"></div>
                     </div>
                 </section>
             </div>
@@ -202,6 +204,10 @@
                                     <span class="tag">배경</span><b id="bgText">-</b>
                                     <button class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
                                         id="openPrintGuideBtn" type="button">인쇄 가이드 보기</button>
+                                    <button aria-pressed="true" class="keycapMockupToggle" id="keycapMockupToggle"
+                                        type="button"><span class="keycapMockupToggle__opt is-active"
+                                            data-mode="mockup">키캡 미리보기</span><span
+                                            class="keycapMockupToggle__opt" data-mode="guide">가이드선</span></button>
                                 </div>
                                 <div class="divider"></div>
                                 <div class="canvasWrap" id="canvasWrap">
@@ -443,15 +449,11 @@
                                     <div class="toolPanel textToolPanel" id="toolText">
                                         <div class="textToolGrid">
                                             <div class="textToolSection textToolInputSection">
-                                                <div class="bgToolSectionTitle">텍스트 입력</div>
-                                                <textarea class="textInput form-control" id="textInput" maxlength="80"
-                                                    placeholder="텍스트를 입력하세요" rows="3"></textarea>
-                                                <div class="textActionRow">
-                                                    <button class="ghostBtn btn btn-outline-secondary" disabled=""
-                                                        id="textApplyBtn" type="button">텍스트 추가</button>
-                                                    <button class="dangerBtn btn btn-outline-danger" disabled=""
-                                                        id="textClearBtn" type="button">삭제</button>
-                                                </div>
+                                                <!-- 텍스트는 캔버스에서 바로 입력/수정 (js/inline-text-editor.js).
+                                                     입력값 처리 로직은 그대로 쓰기 위해 숨긴 입력칸은 남겨 둠 -->
+                                                <textarea aria-hidden="true" class="textInput form-control" hidden id="textInput"
+                                                    maxlength="80" rows="3" tabindex="-1"></textarea>
+                                                <p class="textCanvasHint">텍스트 추가 후 캔버스의 글자를 누르면 바로 고칠 수 있어요</p>
                                                 <span class="fileName" id="textCountBadge">현재 0/3개</span>
                                             </div>
                                             <div class="textToolSection textToolFontSection">
@@ -484,37 +486,58 @@
                                                         data-text-font="jump" type="button">Aa 점프</button>
                                                 </div>
                                             </div>
-                                            <div class="textToolSection textToolColorSection">
-                                                <div class="bgToolSectionTitle">텍스트 색상</div>
-                                                <button class="gradientPickBtn textColorBtn btn btn-light" disabled=""
-                                                    id="textColorBtn" type="button">
-                                                    <span aria-hidden="true" class="colorSwatch gradientSwatch"
-                                                        id="textColorSwatch"></span>
-                                                    <span class="colorValue" id="textColorValue">#111827</span>
-                                                </button>
-                                            </div>
-                                            <div class="textToolSection textToolAlignSection">
-                                                <div class="bgToolSectionTitle">텍스트 위치</div>
-                                                <div aria-label="텍스트 위치" class="textAlignRow">
-                                                    <button aria-label="캔버스 왼쪽 배치"
+                                            <!-- 텍스트 꾸미기 한 줄: 색상 | 굵게·기울임 | 정렬 (아이콘 위주로 간결하게) -->
+                                            <div class="textToolSection textStyleSection">
+                                                <div aria-label="텍스트 꾸미기" class="textStyleBar" role="toolbar">
+                                                    <button aria-label="텍스트 색상" title="텍스트 색상"
+                                                        class="gradientPickBtn textColorBtn btn btn-light" disabled=""
+                                                        id="textColorBtn" type="button">
+                                                        <span aria-hidden="true" class="colorSwatch gradientSwatch"
+                                                            id="textColorSwatch"></span>
+                                                        <span class="colorValue" id="textColorValue">#000000</span>
+                                                    </button>
+                                                    <span aria-hidden="true" class="textStyleBar__sep"></span>
+                                                    <button aria-label="굵게" aria-pressed="false" title="굵게"
+                                                        class="textIconBtn textStyleBtn btn btn-sm btn-light" data-text-style="bold"
+                                                        type="button"><b aria-hidden="true">B</b></button>
+                                                    <button aria-label="기울임" aria-pressed="false" title="기울임"
+                                                        class="textIconBtn textStyleBtn btn btn-sm btn-light" data-text-style="italic"
+                                                        type="button"><i aria-hidden="true">I</i></button>
+                                                    <span aria-hidden="true" class="textStyleBar__sep"></span>
+                                                    <button aria-label="왼쪽 정렬" title="왼쪽 정렬"
                                                         class="textIconBtn btn btn-sm btn-light" data-text-align="left"
                                                         type="button">
                                                         <svg aria-hidden="true" viewbox="0 0 24 24">
                                                             <path d="M4 6h14M4 10h10M4 14h14M4 18h10"></path>
                                                         </svg>
                                                     </button>
-                                                    <button aria-label="캔버스 가운데 배치"
-                                                        class="textIconBtn is-active btn btn-sm btn-light"
-                                                        data-text-align="center" type="button">
+                                                    <button aria-label="가운데 정렬" title="가운데 정렬"
+                                                        class="textIconBtn is-active btn btn-sm btn-light" data-text-align="center"
+                                                        type="button">
                                                         <svg aria-hidden="true" viewbox="0 0 24 24">
                                                             <path d="M5 6h14M7 10h10M5 14h14M7 18h10"></path>
                                                         </svg>
                                                     </button>
-                                                    <button aria-label="캔버스 오른쪽 배치"
+                                                    <button aria-label="오른쪽 정렬" title="오른쪽 정렬"
                                                         class="textIconBtn btn btn-sm btn-light" data-text-align="right"
                                                         type="button">
                                                         <svg aria-hidden="true" viewbox="0 0 24 24">
                                                             <path d="M6 6h14M10 10h10M6 14h14M10 18h10"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <span aria-hidden="true" class="textStyleBar__sep"></span>
+                                                    <button aria-label="텍스트 추가" title="텍스트 추가"
+                                                        class="textIconBtn textAddBtn btn btn-sm btn-light" disabled=""
+                                                        id="textApplyBtn" type="button">
+                                                        <svg aria-hidden="true" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                                            <path d="M4 6V4h10v2M9 4v14M6.5 18h5M18 13v8M14 17h8"></path>
+                                                        </svg>
+                                                    </button>
+                                                    <button aria-label="선택한 텍스트 삭제" title="선택한 텍스트 삭제"
+                                                        class="textIconBtn textDelBtn btn btn-sm btn-light" disabled=""
+                                                        id="textClearBtn" type="button">
+                                                        <svg aria-hidden="true" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"></path>
                                                         </svg>
                                                     </button>
                                                 </div>
@@ -614,7 +637,41 @@
     <!-- Print Guide Modal -->
     <div aria-hidden="true" class="print-guide-modal hidden" id="printGuideModal">
         <div aria-label="인쇄 가이드 안내" aria-modal="true" class="print-guide-modal-content" role="dialog">
-            <img alt="인쇄 가이드" class="print-guide-image" id="printGuideImage" src="./image/guides/print_guide.png" />
+            <div class="guideSheet print-guide-intro" id="printGuideIntro">
+                <h2 class="guideSheet__title">시안 만들기 전에 체크!</h2>
+                <p class="guideSheet__basis" id="printGuideBasis"></p>
+                <ol class="guideSteps">
+                    <li class="guideStep">
+                        <div class="guideStep__head"><span class="guideStep__num">1</span><strong>중요한 그림은 빨간선 안에</strong></div>
+                        <div class="guideStep__pair">
+                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="good" data-view="flat"></canvas></figure>
+                            <span aria-hidden="true" class="guideStep__arrow"></span>
+                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="good" data-view="mockup"></canvas></figure>
+                        </div>
+                    </li>
+                    <li class="guideStep">
+                        <div class="guideStep__head"><span class="guideStep__num">2</span><strong>배경은 캔버스 끝까지</strong></div>
+                        <div class="guideStep__pair">
+                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="nofill" data-view="flat"></canvas></figure>
+                            <span aria-hidden="true" class="guideStep__arrow"></span>
+                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="nofill" data-view="mockup"></canvas></figure>
+                        </div>
+                    </li>
+                    <li class="guideStep">
+                        <div class="guideStep__head"><span class="guideStep__num">3</span><strong>빨간선 밖은 키캡 옆면</strong></div>
+                        <div class="guideStep__pair">
+                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="bad" data-view="flat"></canvas></figure>
+                            <span aria-hidden="true" class="guideStep__arrow"></span>
+                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="bad" data-view="mockup"></canvas></figure>
+                        </div>
+                    </li>
+                </ol>
+            </div>
+            <!-- 꼭 읽어야 하는 안내라 스크롤 영역 밖(버튼 바로 위)에 고정 -->
+            <ul class="guideNote guideNote--list guideNote--pinned">
+                <li><b>색상</b> CMYK로 인쇄해서 화면과 조금 다를 수 있어요.</li>
+                <li><b>위치</b> 승화전사 인쇄 특성상 제작 시 1mm 정도 오차가 있을 수 있어요.</li>
+            </ul>
             <div class="print-guide-actions" data-step="0" id="printGuideActions">
                 <button class="print-guide-action-btn print-guide-hide" id="hidePrintGuideBtn" type="button">
                     다시 보지 않기
@@ -649,6 +706,7 @@
     <script src="./js/email-domain-suggest.js"></script>
     <script src="./js/order-info.js"></script>
     <script src="./js/editor-canvas-setup.js"></script>
+    <script src="./js/editor-keycap-mockup.js"></script>
     <script src="./js/editor-background.js"></script>
     <script src="./js/editor-text.js"></script>
     <script src="./js/editor-image.js"></script>
@@ -662,6 +720,9 @@
     <script src="./js/email-summary.js"></script>
     <script src="./js/email-send.js"></script>
     <script src="./js/print-guide-modal.js"></script>
+    <script src="./js/profile-helper.js"></script>
+    <script src="./js/mobile-editor-sheet.js"></script>
+    <script src="./js/inline-text-editor.js"></script>
     <script src="./js/editor-onboarding-tour.js"></script>
     <script src="./js/app.js"></script>
 </body>

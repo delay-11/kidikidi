@@ -124,6 +124,8 @@ function endPinchDrag() {
 function trackTouchPointerDown(e) {
   if (uiLocked || e.pointerType !== "touch") return;
   if (e.target.closest?.(".layerSide")) return;
+  // 캔버스 위 텍스트 편집창 안에서 누르는 건 글자 편집용 (드래그로 가로채지 않음)
+  if (e.target.closest?.(".inlineTextEditor")) return;
   touchPointerMap.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
 
   if (touchPointerMap.size >= 2) {
@@ -178,7 +180,10 @@ function startMoveDrag(e, type = getActiveObjectType()) {
 
   centerStart.x = center.x;
   centerStart.y = center.y;
+  setSnapGuideActive?.(true);
 }
+
+let textTapCandidate = null;
 
 function onMainPointerDown(e) {
   if (uiLocked) return;
@@ -248,6 +253,8 @@ function onMainPointerDown(e) {
   e.stopPropagation();
 
   activeObjectType = targetType;
+  // 텍스트를 끌지 않고 톡 누르면 그 자리에서 편집 (js/inline-text-editor.js에서 처리)
+  textTapCandidate = targetType === "text" ? { x: e.clientX, y: e.clientY, t: Date.now() } : null;
   (e.currentTarget || canvasWrapEl)?.setPointerCapture?.(e.pointerId);
   showCanvasHelpTip(targetType === "text" ? "텍스트 드래그로 위치를 조절합니다." : "이미지 드래그로 위치를 조절합니다.");
   startMoveDrag(e, targetType);
@@ -363,7 +370,8 @@ document.addEventListener("pointermove", (e) => {
 
   if (draggingMove) {
     const type = getActiveObjectType() || "image";
-    setObjectCenter(type, centerStart.x + (p.x - moveStart.x), centerStart.y + (p.y - moveStart.y));
+    const next = applyCenterSnap(centerStart.x + (p.x - moveStart.x), centerStart.y + (p.y - moveStart.y));
+    setObjectCenter(type, next.x, next.y);
     redraw();
     return;
   }
@@ -444,6 +452,7 @@ document.addEventListener("pointermove", (e) => {
 
 function endPointerInteraction() {
   if (draggingMove || handleDrag || rotateDrag) {
+    setSnapGuideActive?.(false);
     draggingMove = false;
     handleDrag = null;
     rotateDrag = null;
@@ -457,8 +466,15 @@ function endPointerInteraction() {
 
 document.addEventListener("pointerup", (e) => {
   if (uiLocked) return;
+  const tap = textTapCandidate;
+  textTapCandidate = null;
   if (trackTouchPointerEnd(e)) return;
   endPointerInteraction();
+
+  // 거의 안 움직이고 짧게 누른 텍스트 → 그 자리에서 편집
+  if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 8 && Date.now() - tap.t < 450) {
+    window.openInlineTextEditor?.();
+  }
 });
 
 document.addEventListener("pointercancel", (e) => {

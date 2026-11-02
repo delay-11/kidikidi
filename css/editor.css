@@ -60,6 +60,39 @@
     font-display: swap;
 }
 
+/* 폰트 버튼 이름표 전용 경량 폰트 (이름표 글자만 들어있는 subset) */
+@font-face {
+    font-family: 'KidiPreviewHand';
+    src: url('../files/font-preview/hand.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'KidiPreviewGiants';
+    src: url('../files/font-preview/giants.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'KidiPreviewCourt';
+    src: url('../files/font-preview/court.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'KidiPreviewJump';
+    src: url('../files/font-preview/jump.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
 .icon-eye {
     width: 16px;
     height: 16px;
@@ -583,7 +616,9 @@ canvas {
 
 .pill {
     align-items: center;
-    flex-wrap: nowrap !important;
+    /* 키캡 미리보기 토글이 추가되면서 긴 특수키 이름(스페이스바 등)일 때 한 줄을 넘어
+       오른쪽으로 잘려 안 보이던 문제 → 넘치면 다음 줄로 내린다. */
+    flex-wrap: wrap !important;
     overflow-x: auto;
     overflow-y: hidden;
     white-space: nowrap;
@@ -1360,4 +1395,51 @@ canvas {
 .layerRow.isDragging .layerGrip {
     color: #4b5563;
     cursor: grabbing;
+}
+
+/* =========================================================
+ * 키캡 미리보기(목업) 오버레이 + 토글
+========================================================= */
+.keycapMockupCanvas {
+    position: absolute;
+    z-index: 1;
+    display: none;
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+}
+
+.keycapMockupToggle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 2px;
+    width: auto;
+    min-height: 0;
+    margin: 0;
+    padding: 3px;
+    border: 1px solid rgba(16, 24, 40, 0.12);
+    border-radius: 999px;
+    background: #ffffff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.keycapMockupToggle__opt {
+    padding: 4px 10px;
+    border-radius: 999px;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.keycapMockupToggle__opt.is-active {
+    background: #101828;
+    color: #ffffff;
+}
+
+.keycapMockupToggle:focus-visible {
+    outline: 2px solid rgba(43, 108, 255, 0.6);
+    outline-offset: 2px;
 }

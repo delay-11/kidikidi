@@ -8,6 +8,8 @@ function isTouchDevice() {
 function setMobileEyedropperMode(active) {
   mobileEyedropperMode = !!active;
   canvasWrapEl?.classList.toggle("isEyedropperMode", mobileEyedropperMode);
+  // 스포이드 중에는 키캡 음영을 걷어서 실제 시안 색 그대로 보이게 한다.
+  setKeycapMockupHiddenForPick?.(mobileEyedropperMode);
 }
 
 function rgbToHex(r, g, b) {
@@ -190,7 +192,7 @@ function createBackgroundFill(c, w, h, bgType, color1, color2, direction, positi
 }
 
 function getPickrTargetColor(target = activePickrTarget) {
-  if (target === "text") return normalizeHexInput(textColor, "#111827");
+  if (target === "text") return normalizeHexInput(textColor, "#000000");
   if (target === "gradient2") return normalizeHexInput(draftBgColor2, "#fdcc63");
   if (target === "gradient1") return normalizeHexInput(draftBgColor, "#ffffff");
   return normalizeHexInput(draftBgColor, "#ffffff");
@@ -842,7 +844,14 @@ async function openEyeDropper(target = "solid") {
 
   try {
     const eyeDropper = new EyeDropper();
-    const result = await eyeDropper.open();
+    // PC 스포이드는 화면 색을 그대로 집으므로 키캡 음영을 잠깐 걷는다.
+    setKeycapMockupHiddenForPick?.(true);
+    let result;
+    try {
+      result = await eyeDropper.open();
+    } finally {
+      setKeycapMockupHiddenForPick?.(false);
+    }
 
     if (!result?.sRGBHex) return;
 
@@ -995,7 +1004,7 @@ function bindEditorToolEvents() {
 
   textApplyBtnEl?.addEventListener("click", () => {
     if (addNewTextSlot()) {
-      showToast("새 텍스트를 추가할 수 있습니다. 입력창에 내용을 입력해 주세요.", "ok", 1200);
+      showToast("텍스트를 추가했어요. 글자를 입력해 주세요.", "ok", 1200);
     }
   });
 
@@ -1035,6 +1044,14 @@ function bindEditorToolEvents() {
         const label = align === "left" ? "왼쪽" : align === "right" ? "오른쪽" : "가운데";
         showToast(`텍스트를 캔버스 ${label}에 배치했습니다.`, "ok", 1200);
       }
+    });
+  });
+
+  // 굵게 / 기울임: 누를 때마다 켜고 끄기
+  textStyleBtnEls?.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.textStyle === "bold") applyTextSettings({ bold: !textBold });
+      else applyTextSettings({ italic: !textItalic });
     });
   });
 
