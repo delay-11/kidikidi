@@ -17,10 +17,10 @@
     <!-- Korean Web Fonts for text tool -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/gh/fonts-archive/Cafe24Ssurround/Cafe24Ssurround.css" rel="stylesheet" />
-    <!-- 추가 텍스트 폰트 (Google Fonts 한글, OFL: 상업적 이용·제품 인쇄 가능) - js/editor-text.js GOOGLE_TEXT_FONTS와 같이 맞춤 -->
+    <!-- 추가 텍스트 폰트 (Google Fonts 한글, OFL: 상업적 이용·제품 인쇄 가능, 굵은 폰트 위주) - js/editor-text.js GOOGLE_TEXT_FONTS와 같이 맞춤 -->
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
-    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Do+Hyeon&amp;family=Jua&amp;family=Bagel+Fat+One&amp;family=Gasoek+One&amp;family=Gugi&amp;family=Moirai+One&amp;family=Gaegu:wght@700&amp;family=Gamja+Flower&amp;family=Hi+Melody&amp;family=Nanum+Pen+Script&amp;family=Nanum+Brush+Script&amp;family=Single+Day&amp;family=Dokdo&amp;family=East+Sea+Dokdo&amp;family=Cute+Font&amp;family=Kirang+Haerang&amp;family=Poor+Story&amp;family=Yeon+Sung&amp;family=Black+And+White+Picture&amp;family=Dongle:wght@700&amp;family=Sunflower:wght@700&amp;family=Gowun+Dodum&amp;family=Nanum+Gothic:wght@800&amp;family=Gothic+A1:wght@800&amp;family=Noto+Sans+KR:wght@800&amp;family=IBM+Plex+Sans+KR:wght@700&amp;family=Orbit&amp;family=Stylish&amp;family=Gowun+Batang:wght@700&amp;family=Nanum+Myeongjo:wght@800&amp;family=Noto+Serif+KR:wght@800&amp;family=Song+Myung&amp;family=Hahmlet:wght@800&amp;family=Diphylleia&amp;family=Grandiflora+One&amp;display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Do+Hyeon&amp;family=Jua&amp;family=Bagel+Fat+One&amp;family=Gasoek+One&amp;family=Gugi&amp;family=Gothic+A1:wght@900&amp;family=Noto+Sans+KR:wght@900&amp;family=Nanum+Gothic:wght@800&amp;family=IBM+Plex+Sans+KR:wght@700&amp;family=Dongle:wght@700&amp;family=Sunflower:wght@700&amp;family=Gaegu:wght@700&amp;family=Nanum+Brush+Script&amp;family=East+Sea+Dokdo&amp;family=Noto+Serif+KR:wght@900&amp;family=Hahmlet:wght@900&amp;family=Nanum+Myeongjo:wght@800&amp;family=Gowun+Batang:wght@700&amp;display=swap" rel="stylesheet" />
     <!-- Bootstrap -->
     <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4pa+loy7c8zWO5VnGz2BbPkZWZ6zfaeVfN11p/2" rel="stylesheet" />
@@ -58,7 +58,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v3.0.7
+                v3.0.8
             </div>
         </div>
     </header>
@@ -505,36 +505,19 @@
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_bagel" type="button">베이글</button>
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gasoek" type="button">가석</button>
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gugi" type="button">구기</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_moirai" type="button">모이라이</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gaegu" type="button">개구</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gamja" type="button">감자꽃</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_himelody" type="button">하이멜로디</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanumpen" type="button">나눔펜</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanumbrush" type="button">나눔붓</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_singleday" type="button">싱글데이</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_dokdo" type="button">독도</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_eastseadokdo" type="button">동해독도</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_cutefont" type="button">귀여운폰트</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_kirang" type="button">기랑해랑</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_poorstory" type="button">푸어스토리</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_yeonsung" type="button">연성</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_bwpicture" type="button">흑백사진</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_dongle" type="button">동글</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_sunflower" type="button">해바라기</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gowundodum" type="button">고운돋움</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanumgothic" type="button">나눔고딕</button>
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gothica1" type="button">고딕 A1</button>
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_notosans" type="button">노토 산스</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanumgothic" type="button">나눔고딕</button>
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_ibmplex" type="button">IBM 플렉스</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_orbit" type="button">오르빗</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_stylish" type="button">스타일리시</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gowunbatang" type="button">고운바탕</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanummyeongjo" type="button">나눔명조</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_dongle" type="button">동글</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_sunflower" type="button">해바라기</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gaegu" type="button">개구</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanumbrush" type="button">나눔붓</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_eastseadokdo" type="button">동해독도</button>
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_notoserif" type="button">노토 세리프</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_songmyung" type="button">송명</button>
                                                     <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_hahmlet" type="button">함렡</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_diphylleia" type="button">디필레이아</button>
-                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_grandiflora" type="button">그랜디플로라</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanummyeongjo" type="button">나눔명조</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gowunbatang" type="button">고운바탕</button>
                                                 </div>
                                             </div>
                                             <!-- 텍스트 꾸미기 한 줄: 색상 | 굵게·기울임 | 정렬 (아이콘 위주로 간결하게) -->

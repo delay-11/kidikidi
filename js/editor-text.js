@@ -6,6 +6,7 @@
 ========================================================= */
 /* =========================================================
  * 추가 폰트 (Google Fonts 한글 폰트, 모두 OFL - 상업적 이용·제품 인쇄 가능)
+ * - 키캡처럼 작은 면에 인쇄해도 또렷한 굵은 폰트 위주로 고름 (여러 굵기가 있으면 가장 굵은 쪽)
  * - index.html <head>의 Google Fonts 링크, 폰트 버튼과 이 표를 같이 맞춰야 함
  * - Google Fonts 한글 폰트는 글자 범위별로 잘게 나뉘어 있어서 화면에 쓰인 글자만 받음
  *   (그래서 ensureTextFontLoaded()는 실제 입력한 글자로 불러온다)
@@ -17,36 +18,19 @@ const GOOGLE_TEXT_FONTS = [
   { key: "g_bagel", label: "베이글", family: "Bagel Fat One", weight: 400, generic: "sans-serif" },
   { key: "g_gasoek", label: "가석", family: "Gasoek One", weight: 400, generic: "sans-serif" },
   { key: "g_gugi", label: "구기", family: "Gugi", weight: 400, generic: "sans-serif" },
-  { key: "g_moirai", label: "모이라이", family: "Moirai One", weight: 400, generic: "sans-serif" },
-  { key: "g_gaegu", label: "개구", family: "Gaegu", weight: 700, generic: "cursive" },
-  { key: "g_gamja", label: "감자꽃", family: "Gamja Flower", weight: 400, generic: "cursive" },
-  { key: "g_himelody", label: "하이멜로디", family: "Hi Melody", weight: 400, generic: "cursive" },
-  { key: "g_nanumpen", label: "나눔펜", family: "Nanum Pen Script", weight: 400, generic: "cursive" },
-  { key: "g_nanumbrush", label: "나눔붓", family: "Nanum Brush Script", weight: 400, generic: "cursive" },
-  { key: "g_singleday", label: "싱글데이", family: "Single Day", weight: 400, generic: "cursive" },
-  { key: "g_dokdo", label: "독도", family: "Dokdo", weight: 400, generic: "cursive" },
-  { key: "g_eastseadokdo", label: "동해독도", family: "East Sea Dokdo", weight: 400, generic: "cursive" },
-  { key: "g_cutefont", label: "귀여운폰트", family: "Cute Font", weight: 400, generic: "cursive" },
-  { key: "g_kirang", label: "기랑해랑", family: "Kirang Haerang", weight: 400, generic: "cursive" },
-  { key: "g_poorstory", label: "푸어스토리", family: "Poor Story", weight: 400, generic: "cursive" },
-  { key: "g_yeonsung", label: "연성", family: "Yeon Sung", weight: 400, generic: "cursive" },
-  { key: "g_bwpicture", label: "흑백사진", family: "Black And White Picture", weight: 400, generic: "sans-serif" },
+  { key: "g_gothica1", label: "고딕 A1", family: "Gothic A1", weight: 900, generic: "sans-serif" },
+  { key: "g_notosans", label: "노토 산스", family: "Noto Sans KR", weight: 900, generic: "sans-serif" },
+  { key: "g_nanumgothic", label: "나눔고딕", family: "Nanum Gothic", weight: 800, generic: "sans-serif" },
+  { key: "g_ibmplex", label: "IBM 플렉스", family: "IBM Plex Sans KR", weight: 700, generic: "sans-serif" },
   { key: "g_dongle", label: "동글", family: "Dongle", weight: 700, generic: "sans-serif" },
   { key: "g_sunflower", label: "해바라기", family: "Sunflower", weight: 700, generic: "sans-serif" },
-  { key: "g_gowundodum", label: "고운돋움", family: "Gowun Dodum", weight: 400, generic: "sans-serif" },
-  { key: "g_nanumgothic", label: "나눔고딕", family: "Nanum Gothic", weight: 800, generic: "sans-serif" },
-  { key: "g_gothica1", label: "고딕 A1", family: "Gothic A1", weight: 800, generic: "sans-serif" },
-  { key: "g_notosans", label: "노토 산스", family: "Noto Sans KR", weight: 800, generic: "sans-serif" },
-  { key: "g_ibmplex", label: "IBM 플렉스", family: "IBM Plex Sans KR", weight: 700, generic: "sans-serif" },
-  { key: "g_orbit", label: "오르빗", family: "Orbit", weight: 400, generic: "sans-serif" },
-  { key: "g_stylish", label: "스타일리시", family: "Stylish", weight: 400, generic: "sans-serif" },
-  { key: "g_gowunbatang", label: "고운바탕", family: "Gowun Batang", weight: 700, generic: "serif" },
+  { key: "g_gaegu", label: "개구", family: "Gaegu", weight: 700, generic: "cursive" },
+  { key: "g_nanumbrush", label: "나눔붓", family: "Nanum Brush Script", weight: 400, generic: "cursive" },
+  { key: "g_eastseadokdo", label: "동해독도", family: "East Sea Dokdo", weight: 400, generic: "cursive" },
+  { key: "g_notoserif", label: "노토 세리프", family: "Noto Serif KR", weight: 900, generic: "serif" },
+  { key: "g_hahmlet", label: "함렡", family: "Hahmlet", weight: 900, generic: "serif" },
   { key: "g_nanummyeongjo", label: "나눔명조", family: "Nanum Myeongjo", weight: 800, generic: "serif" },
-  { key: "g_notoserif", label: "노토 세리프", family: "Noto Serif KR", weight: 800, generic: "serif" },
-  { key: "g_songmyung", label: "송명", family: "Song Myung", weight: 400, generic: "serif" },
-  { key: "g_hahmlet", label: "함렡", family: "Hahmlet", weight: 800, generic: "serif" },
-  { key: "g_diphylleia", label: "디필레이아", family: "Diphylleia", weight: 400, generic: "serif" },
-  { key: "g_grandiflora", label: "그랜디플로라", family: "Grandiflora One", weight: 400, generic: "serif" },
+  { key: "g_gowunbatang", label: "고운바탕", family: "Gowun Batang", weight: 700, generic: "serif" },
 ];
 const GOOGLE_TEXT_FONT_MAP = Object.fromEntries(GOOGLE_TEXT_FONTS.map((f) => [f.key, f]));
 

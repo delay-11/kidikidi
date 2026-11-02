@@ -197,6 +197,29 @@
     fontRow.setAttribute("aria-expanded", opened ? "true" : "false");
   });
 
+  // 폰트 목록을 끝까지 넘기면 오른쪽 흐림 표시를 없앰
+  const fontList = document.querySelector(".textToolFontSection .textFontRow");
+  if (fontList) {
+    const syncFontListEnd = () => {
+      fontList.classList.toggle("isAtEnd", fontList.scrollLeft + fontList.clientWidth >= fontList.scrollWidth - 4);
+    };
+    fontList.addEventListener("scroll", syncFontListEnd, { passive: true });
+    window.addEventListener("resize", syncFontListEnd);
+    // PC 마우스 휠(세로)로도 옆으로 넘길 수 있게
+    fontList.addEventListener(
+      "wheel",
+      (e) => {
+        if (Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;
+        const max = fontList.scrollWidth - fontList.clientWidth;
+        if (max <= 0) return;
+        e.preventDefault();
+        fontList.scrollLeft = Math.max(0, Math.min(max, fontList.scrollLeft + e.deltaY));
+      },
+      { passive: false },
+    );
+    syncFontListEnd();
+  }
+
   // 폰트를 고르면 이름표 갱신 (고른 뒤에도 폰트 화면에 머물러서 여러 개 비교 가능)
   document.querySelectorAll("[data-text-font]").forEach((btn) => {
     btn.addEventListener("click", () => setTimeout(syncFontRow, 0));

@@ -295,7 +295,8 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         border-radius: 14px !important;
         background: #f9fafb !important;
         color: #101828 !important;
-        font-size: 16px !important;
+        padding: 0 4px !important;
+        font-size: 14px !important;
         white-space: nowrap;
         overflow: hidden;
     }
@@ -971,4 +972,36 @@ body.kidikidiBootstrap #toolBg .bgModeBtn:not(.is-active) {
     background: transparent !important;
     box-shadow: none !important;
     color: #475467 !important;
+}
+
+/* 폰트 목록 (PC·모바일 공통): 3줄까지만 보이고 옆으로 넘겨서 보기
+   - 세로로 3개씩 채운 뒤 다음 칸으로, 칸 단위로 멈춤
+   - 오른쪽 끝을 살짝 흐리게 해서 더 있다는 걸 표시 */
+body.kidikidiBootstrap .textToolFontSection .textFontRow {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-template-rows: repeat(3, auto) !important;
+    grid-template-columns: none !important;
+    /* 3칸 + 다음 칸이 살짝 보이게 해서 옆으로 넘길 수 있다는 걸 알 수 있게 */
+    grid-auto-columns: calc((100% - 24px) / 3.3) !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding-bottom: 8px !important;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+
+body.kidikidiBootstrap .textToolFontSection .textFontRow.isAtEnd {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+body.kidikidiBootstrap .textToolFontSection .textFontRow .textFontBtn {
+    width: auto !important;
+    min-width: 0 !important;
+    scroll-snap-align: start;
 }
