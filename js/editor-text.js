@@ -18,18 +18,11 @@ const GOOGLE_TEXT_FONTS = [
   { key: "g_bagel", label: "베이글체", family: "Bagel Fat One", weight: 400, generic: "sans-serif" },
   { key: "g_gasoek", label: "가석체", family: "Gasoek One", weight: 400, generic: "sans-serif" },
   { key: "g_gugi", label: "구기체", family: "Gugi", weight: 400, generic: "sans-serif" },
-  { key: "g_gothica1", label: "고딕A1체", family: "Gothic A1", weight: 900, generic: "sans-serif" },
-  { key: "g_notosans", label: "노토산스체", family: "Noto Sans KR", weight: 900, generic: "sans-serif" },
-  { key: "g_nanumgothic", label: "나눔고딕체", family: "Nanum Gothic", weight: 800, generic: "sans-serif" },
-  { key: "g_ibmplex", label: "IBM플렉스체", family: "IBM Plex Sans KR", weight: 700, generic: "sans-serif" },
-  { key: "g_dongle", label: "동글체", family: "Dongle", weight: 700, generic: "sans-serif" },
-  { key: "g_sunflower", label: "해바라기체", family: "Sunflower", weight: 700, generic: "sans-serif" },
-  { key: "g_gaegu", label: "개구체", family: "Gaegu", weight: 700, generic: "cursive" },
-  { key: "g_eastseadokdo", label: "동해독도체", family: "East Sea Dokdo", weight: 400, generic: "cursive" },
-  { key: "g_notoserif", label: "노토세리프체", family: "Noto Serif KR", weight: 900, generic: "serif" },
+  { key: "g_dongle", label: "동글체", family: "Dongle", weight: 700, generic: "sans-serif", previewScale: 1.6 },
+  { key: "g_gaegu", label: "개구체", family: "Gaegu", weight: 700, generic: "cursive", previewScale: 1.4 },
+  { key: "g_eastseadokdo", label: "동해독도체", family: "East Sea Dokdo", weight: 400, generic: "cursive", previewScale: 1.45 },
   { key: "g_hahmlet", label: "함렡체", family: "Hahmlet", weight: 900, generic: "serif" },
   { key: "g_nanummyeongjo", label: "나눔명조체", family: "Nanum Myeongjo", weight: 800, generic: "serif" },
-  { key: "g_gowunbatang", label: "고운바탕체", family: "Gowun Batang", weight: 700, generic: "serif" },
 ];
 const GOOGLE_TEXT_FONT_MAP = Object.fromEntries(GOOGLE_TEXT_FONTS.map((f) => [f.key, f]));
 
@@ -353,6 +346,9 @@ function syncTextFontPreviewButtons() {
     btn.style.setProperty("font-family", family, "important");
     btn.style.setProperty("font-weight", String(getTextFontWeight(type)), "important");
     btn.style.setProperty("letter-spacing", "0", "important");
+    // 글자가 작게 그려지는 폰트(동글체 등)는 버튼 이름표만 조금 키움 (캔버스 글자 크기와는 무관)
+    const previewScale = GOOGLE_TEXT_FONT_MAP[type]?.previewScale;
+    if (previewScale) btn.style.setProperty("font-size", `${previewScale}em`, "important");
   });
 }
 
