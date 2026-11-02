@@ -55,6 +55,13 @@ function renderItemPreviewDataUrl(it) {
     }
   });
 
+  // 시안 리스트에 보여줄 키캡 모양 썸네일 (실제 제작 파일과는 무관한 화면용)
+  if (typeof renderKeycapMockupThumb === "function") {
+    const thumb = renderKeycapMockupThumb(off, it.profile || profileEl?.value || "OEM", it.capType || capTypeEl?.value || "-");
+    it.design.mockupThumbDataUrl = thumb.dataUrl;
+    it.design.mockupThumbAspect = thumb.aspect;
+  }
+
   try {
     return off.toDataURL("image/png");
   } catch (e) {
@@ -136,7 +143,9 @@ function resetEditorStateBeforeLoad() {
   textEnabled = false;
   textValue = "";
   textFontType = "basic";
-  textColor = "#111827";
+  textColor = "#000000";
+  textBold = false;
+  textItalic = false;
   textAlign = "center";
   textSize = "medium";
   textCX = canvasLogicalW / 2;
@@ -215,7 +224,9 @@ async function loadItemToCanvas(it) {
     .map((t) => ({
       value: t.value || "",
       fontType: t.fontType || "basic",
-      color: normalizeHexInput(t.color || "#111827", "#111827"),
+      color: normalizeHexInput(t.color || "#000000", "#000000"),
+      bold: !!t.bold,
+      italic: !!t.italic,
       align: ["left", "center", "right"].includes(t.align) ? t.align : "center",
       size: ["small", "medium", "large"].includes(t.size) ? t.size : "medium",
       cx: Number.isFinite(t.cx) ? t.cx : canvasLogicalW / 2,
@@ -325,7 +336,9 @@ function clearEditor() {
   textEnabled = false;
   textValue = "";
   textFontType = "basic";
-  textColor = "#111827";
+  textColor = "#000000";
+  textBold = false;
+  textItalic = false;
   textAlign = "center";
   textSize = "medium";
   textCX = canvasLogicalW / 2;

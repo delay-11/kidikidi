@@ -162,7 +162,7 @@ function isLayerBarOpen() {
 function renderLayerThumb(entry) {
   if (entry.kind === "text") {
     const label = escapeLayerHtml(Array.from(safeTrim(entry.obj.value || "")).slice(0, 2).join(""));
-    const color = normalizeHexInput(entry.obj.color, "#111827");
+    const color = normalizeHexInput(entry.obj.color, "#000000");
     return `<span class="layerThumb isText" style="color:${color}">${label}</span>`;
   }
   return `<span class="layerThumb"><img alt="" src="${entry.obj.img.src}" draggable="false" /></span>`;

@@ -209,6 +209,21 @@ function makeCartThumb(item) {
   const bg = escapeHtml(getItemBgCss?.(item) || getItemBgColor(item));
   const previewUrl = item?.design?.previewDataUrl || "";
   const rawImgUrl = item?.design?.imgDataUrl || item?.design?.images?.[0]?.imgDataUrl || "";
+  const mockupUrl = item?.design?.mockupThumbDataUrl || "";
+
+  // 키캡 모양 썸네일: 규격 비율 그대로 표시 (스페이스바처럼 아주 긴 키는 카드 위쪽에 한 줄로)
+  if (mockupUrl) {
+    const aspect = Number(item.design.mockupThumbAspect) || 1;
+    const isWide = aspect >= 2;
+    const style = isWide
+      ? `aspect-ratio:${aspect.toFixed(3)};width:min(100%, ${Math.round(aspect * 60)}px);`
+      : `aspect-ratio:${aspect.toFixed(3)};height:64px;width:auto;`;
+    return `
+      <div class="cartThumb cartThumbMockup${isWide ? " is-wide" : ""}" style="${style}">
+        <img src="${mockupUrl}" alt="시안 키캡 목업" />
+      </div>
+    `;
+  }
 
   if (previewUrl) {
     return `

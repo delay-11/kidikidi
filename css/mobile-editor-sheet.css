@@ -1,0 +1,1018 @@
+/* =========================================================
+ * 모바일 시안 제작: [꾸미기] 버튼 + 도구 시트 (js/mobile-editor-sheet.js)
+ * - PC(769px 이상)는 기존 탭 + 도구 패널 그대로 (텍스트 도구 배치만 공통)
+========================================================= */
+.mDecorateBtn,
+.mDecorateMenu,
+.mSheetHead,
+.imgTip,
+.mBtnIcon {
+    display: none;
+}
+
+/* PC 정보줄 한 줄 유지: 그라데이션처럼 배경 값이 길면 말줄임 */
+@media (min-width: 769px) {
+    body.kidikidiBootstrap .pill {
+        flex-wrap: nowrap !important;
+    }
+
+    body.kidikidiBootstrap .pill #bgText,
+    body.kidikidiBootstrap .pill #selText {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    body.kidikidiBootstrap .pill #bgText {
+        max-width: 118px;
+    }
+
+    body.kidikidiBootstrap .pill #selText {
+        max-width: 140px;
+    }
+
+}
+
+
+/* 그라데이션 초기화: PC는 아이콘 + "초기화", 모바일은 아이콘만 */
+#toolBg .gradientResetBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+#toolBg .gradientResetBtn svg {
+    width: 14px;
+    height: 14px;
+}
+
+@media (max-width: 768px) {
+    #toolBg .gradientResetBtn .resetLabel {
+        display: none;
+    }
+}
+
+/* 폰트 버튼 이름표 글자 크기 (각 폰트 모양은 js/editor-text.js에서 지정) */
+body.kidikidiBootstrap .textFontRow .textFontBtn {
+    font-size: 16px !important;
+}
+
+@media (max-width: 768px) {
+    /* 모바일 꾸미기 흐름: [꾸미기] → 이미지/텍스트/배경 메뉴 → 도구 → (텍스트) 폰트 고르기
+       화면 아래에서 올라오는 시트 (PC는 기존 탭 + 도구 패널 그대로) */
+    /* ---------- 아래 고정 바: [꾸미기] [시안 추가] ---------- */
+    body.kidikidiBootstrap[data-step="editor"] .editorActionBar {
+        display: flex !important;
+        gap: 8px !important;
+        padding-bottom: calc(10px + env(safe-area-inset-bottom)) !important;
+    }
+
+    /* [꾸미기] [시안 추가] 1:1 */
+    body.kidikidiBootstrap[data-step="editor"] .editorActionBar #btnAddItem,
+    body[data-step="editor"] .editorActionBar .mDecorateBtn {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    body[data-step="editor"] .mDecorateBtn {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: auto;
+        min-height: 48px;
+        margin: 0;
+        padding: 0 18px;
+        border: 1px solid transparent; /* 옆 [시안 추가] 버튼과 테두리 두께를 맞춰 정확히 1:1 */
+        border-radius: 14px;
+        background: #fdcc63;
+        color: #101828;
+        font-size: 15px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .mDecorateBtn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .mDecorateBtn[aria-expanded="true"] {
+        background: #101828;
+        color: #fdcc63;
+    }
+
+    /* 캔버스 아래에 붙어 있던 도구 영역/구분선은 시트로 옮기므로 자리 차지하지 않게 */
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox + .canvasNotice,
+    body.kidikidiBootstrap[data-step="editor"] .canvasFrame > .divider:last-of-type {
+        margin-top: 0;
+    }
+
+    /* ---------- 공통: 아래에서 올라오는 시트 ---------- */
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox,
+    .mDecorateMenu {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        z-index: 70 !important;
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 46vh !important;
+        margin: 0 !important;
+        padding: 0 14px calc(16px + env(safe-area-inset-bottom)) !important;
+        overflow-y: auto !important;
+        border: 0 !important;
+        border-radius: 22px 22px 0 0 !important;
+        background: #ffffff !important;
+        box-shadow: 0 -8px 30px rgba(16, 24, 40, 0.16) !important;
+        transform: translateY(105%);
+        transition: transform 0.22s ease;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    body.mSheetMenuOpen .mDecorateMenu,
+    body.mSheetToolOpen.kidikidiBootstrap[data-step="editor"] .editorToolBox {
+        transform: translateY(0);
+    }
+
+    /* 스포이드로 캔버스를 누르는 동안은 시트를 내려 둠 */
+    body.mSheetPicking.kidikidiBootstrap[data-step="editor"] .editorToolBox {
+        transform: translateY(105%);
+    }
+
+    /* 시트 위쪽 손잡이 + 머리줄 */
+    .mSheetHead {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: 40px 1fr 40px;
+        align-items: center;
+        margin: 0 -14px 10px;
+        padding: 14px 10px 10px;
+        border-bottom: 1px solid #f2f4f7;
+        background: #ffffff;
+    }
+
+    .mSheetHead::before {
+        content: "";
+        position: absolute;
+        top: 6px;
+        left: 50%;
+        width: 36px;
+        height: 4px;
+        border-radius: 999px;
+        background: #e4e7ec;
+        transform: translateX(-50%);
+    }
+
+    .mSheetHead__title {
+        font-family: "Cafe24 Ssurround", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .mSheetHead__btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px !important;
+        min-height: 40px;
+        height: 40px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: #344054;
+    }
+
+    .mSheetHead__btn svg {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* 꾸미기 메뉴: 큰 타일 3개 */
+    .mDecorateMenu__grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        padding: 4px 0 6px;
+    }
+
+    .mDecorateTile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        padding: 16px 6px 14px;
+        border: 1px solid #fde7b0;
+        border-radius: 18px;
+        background: #fff9ea;
+        color: #101828;
+    }
+
+    .mDecorateTile:active {
+        background: #fdcc63;
+    }
+
+    .mDecorateTile__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        margin-bottom: 4px;
+        border-radius: 14px;
+        background: #fdcc63;
+    }
+
+    .mDecorateTile__icon svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .mDecorateTile b {
+        font-size: 15px;
+        font-weight: 900;
+    }
+
+    .mDecorateTile small {
+        color: #7a4b00;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* ---------- 도구 시트 안 ---------- */
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox .toolTabRow {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox .mSheetHead {
+        display: grid;
+    }
+
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox .toolPanel {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+    }
+
+    /* 폰트 고르기 화면: 폰트 목록만 크게 */
+    body[data-m-sheet="font"] .editorToolBox #toolText .textToolSection:not(.textToolFontSection),
+    body[data-m-sheet="font"] .editorToolBox .mFontRow {
+        display: none !important;
+    }
+
+    body[data-m-sheet="font"] .editorToolBox .textToolFontSection .bgToolSectionTitle {
+        display: none !important;
+    }
+
+    body[data-m-sheet="font"].kidikidiBootstrap .textFontRow {
+        gap: 8px !important;
+    }
+
+    body[data-m-sheet="font"].kidikidiBootstrap .textFontRow .textFontBtn {
+        height: 58px !important;
+        min-height: 58px !important;
+        border: 0 !important;
+        border-radius: 14px !important;
+        background: #f9fafb !important;
+        color: #101828 !important;
+        padding: 0 4px !important;
+        font-size: 14px !important;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    body[data-m-sheet="font"].kidikidiBootstrap .textFontRow .textFontBtn.is-active {
+        background: #fff4d6 !important;
+        box-shadow: inset 0 0 0 2px #fdcc63 !important;
+        color: #101828 !important;
+    }
+
+    /* 시트가 열려 있을 땐 알림을 화면 위쪽에 띄워서 시트 내용을 가리지 않게 */
+    body.mSheetMenuOpen .toastStack,
+    body.mSheetToolOpen .toastStack {
+        top: calc(12px + env(safe-area-inset-top)) !important;
+        bottom: auto !important;
+        z-index: 100 !important;
+    }
+}
+
+/* =========================================================
+ * 모바일 주문정보 / 상단 조작줄
+========================================================= */
+@media (max-width: 768px) {
+    /* 이전 | 제목 | 다음 줄: 로고 헤더(같이 위에 붙어 있음) 바로 아래에 고정
+       (예전엔 top:0이라 로고 헤더 뒤에 가려져 안 보였음) */
+    .kidikidiBootstrap .stepPageHeader,
+    .kidikidiBootstrap .stepTopBar.stepPageHeader {
+        top: var(--siteHeaderH, 0px) !important;
+    }
+
+    /* 주문번호 / 이메일 한 줄 */
+    .kidikidiBootstrap .rowOrderEmail {
+        grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr) !important;
+        column-gap: 10px !important;
+    }
+
+    /* 프로파일 / 규격 / 레이저 한 줄 */
+    .kidikidiBootstrap .optionSelectLine {
+        grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.17fr) minmax(0, 1.05fr) !important;
+        gap: 6px !important;
+    }
+
+    .kidikidiBootstrap .optionSelectLine .form-select {
+        padding-left: 10px !important;
+        padding-right: 26px !important;
+        background-position: right 8px center !important;
+        font-size: 13.5px !important;
+        text-overflow: ellipsis;
+    }
+}
+
+
+/* =========================================================
+ * 시안 제작 도구 간소화
+ * - 정보줄: PC 한 줄 / 모바일 2줄 (모바일은 인쇄 가이드 버튼 없음)
+ * - 텍스트(PC·모바일 공통): 폰트 › · 추가 · 삭제 + 색상·굵기·기울임·정렬 (js/mobile-editor-sheet.js)
+ * - 이미지 / 배경: 모바일만 아이콘 위주로 간소화, PC는 기존 패널 그대로
+========================================================= */
+/* ---------- 정보줄 ---------- */
+@media (max-width: 768px) {
+    body.kidikidiBootstrap .pill {
+        flex-wrap: wrap !important;
+        overflow: visible !important;
+    }
+}
+
+/* 줄바꿈은 모바일에서만 (PC는 한 줄로 쭉) */
+.pill .pillBreak {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .pill .pillBreak {
+        display: block;
+        flex: 0 0 100% !important;
+        height: 0;
+        margin: 0;
+    }
+}
+
+body.kidikidiBootstrap .pill #openPrintGuideBtn {
+    display: none !important;
+}
+
+.pill .keycapMockupToggle {
+    margin-left: auto;
+}
+
+/* 이미지 / 캔버스 옆 안내 칩: 모바일만 간소화 (PC는 기존 패널 그대로) */
+@media (max-width: 768px) {
+    /* ---------- 이미지 ---------- */
+    body.kidikidiBootstrap #toolImage .imageToolActions .toolPanelHead,
+    body.kidikidiBootstrap #toolImage #fileName,
+    body.kidikidiBootstrap #toolImage .imageToolInfo {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap #toolImage .imageToolGrid {
+        display: block !important;
+    }
+
+    body.kidikidiBootstrap #toolImage .uploadRow {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        align-items: center;
+        gap: 8px !important;
+    }
+
+    body.kidikidiBootstrap #toolImage .uploadRow #fileBtn,
+    body.kidikidiBootstrap #toolImage .uploadRow #fileDelBtn {
+        display: inline-flex !important;
+        flex: 0 0 auto !important;
+        align-items: center;
+        justify-content: center;
+        width: 48px !important;
+        min-width: 48px !important;
+        height: 48px !important;
+        min-height: 48px !important;
+        padding: 0 !important;
+        border-radius: 14px !important;
+    }
+
+    #toolImage .mBtnIcon {
+        display: block;
+        width: 22px;
+        height: 22px;
+    }
+
+    #toolImage .mBtnLabel {
+        display: none;
+    }
+
+    /* 버튼 옆 안내: 예전처럼 회색 둥근 칩 */
+    #toolImage .imgTip {
+        display: inline-flex;
+        align-items: center;
+        height: 28px;
+        padding: 0 11px;
+        border-radius: 999px;
+        background: #f2f4f7;
+        color: #475467;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    /* PC: 캔버스 옆 안내 칩은 모바일처럼 숨김 (같은 내용은 인쇄 가이드/목업에 있음) */
+    body.kidikidiBootstrap .canvasInnerNotice {
+        display: none !important;
+    }
+
+    /* PC 도구 패널의 2단 배치 대신 모바일처럼 위아래로 */
+    body.kidikidiBootstrap #toolImage .imageToolActions {
+        border: 0 !important;
+        padding: 0 !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientPanel {
+        display: block !important;
+    }
+}
+
+/* 텍스트: PC는 [폰트 · 추가 · 삭제 | 색상 · 굵게 · 기울임 · 정렬] 한 줄,
+   모바일은 두 줄 (2줄째 버튼은 화면 폭을 고르게 채움) */
+body.kidikidiBootstrap #toolText .textToolGrid {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+    gap: 10px !important;
+}
+
+body.kidikidiBootstrap #toolText .textToolInputSection {
+    display: none !important;
+}
+
+body.kidikidiBootstrap #toolText .textToolFontSection {
+    flex: 0 0 100%;
+    order: 3;
+}
+
+body.kidikidiBootstrap #toolText .textStyleSection {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+}
+
+/* PC: 꾸미기 줄 버튼은 일정한 크기로 */
+body.kidikidiBootstrap #toolText .textStyleBar {
+    display: flex !important;
+    align-items: center;
+    gap: 6px !important;
+}
+
+body.kidikidiBootstrap #toolText .textStyleBar > button {
+    flex: 0 0 auto !important;
+    width: 52px !important;
+    min-width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+}
+
+@media (max-width: 768px) {
+    body.kidikidiBootstrap #toolText .textStyleSection {
+        flex: 0 0 100%;
+    }
+
+    body.kidikidiBootstrap #toolText .textStyleBar {
+        display: flex !important;
+        width: 100% !important;
+        gap: 6px !important;
+    }
+
+    body.kidikidiBootstrap #toolText .textStyleBar > button {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    /* bootstrap-wizard-overrides.css의 ".kidikidiBootstrap .editorToolBox > * { width:100% }"보다 우선하도록 */
+    .kidikidiBootstrap .editorToolBox > .mSheetHead,
+    .mDecorateMenu > .mSheetHead {
+        box-sizing: border-box !important;
+        width: calc(100% + 28px) !important;
+        max-width: none !important;
+        margin-left: -14px !important;
+        margin-right: -14px !important;
+        margin-bottom: 8px !important;
+        padding-top: 12px !important;
+        padding-bottom: 6px !important;
+    }
+
+    /* 꾸미기 타일: 박스 색/보조 문구 없이 아이콘 + 이름 */
+    .mDecorateTile {
+        padding: 10px 6px 8px;
+        border: 0;
+        background: transparent;
+    }
+
+    .mDecorateTile:active {
+        background: #f9fafb;
+    }
+}
+
+/* 폰트 고르기 화면에서는 폰트 목록만 */
+body[data-m-sheet="font"] .editorToolBox .mTextTopRow,
+body[data-m-sheet="font"] .editorToolBox #toolText .textStyleSection {
+    display: none !important;
+}
+
+/* ---------- 텍스트 ---------- */
+body.kidikidiBootstrap #toolText .textCanvasHint,
+body.kidikidiBootstrap #toolText #textCountBadge {
+    display: none !important;
+}
+
+body.kidikidiBootstrap .mTextTopRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    body.kidikidiBootstrap .mTextTopRow {
+        flex: 0 0 100%;
+    }
+}
+
+body.kidikidiBootstrap .mTextTopRow .mFontRow {
+    flex: 0 1 230px;
+    min-width: 0;
+}
+
+body.kidikidiBootstrap #toolText .mTextTopRow .textIconBtn {
+    position: relative;
+    flex: 0 0 auto;
+    width: 52px !important;
+    min-width: 52px !important;
+    height: 52px !important;
+    min-height: 52px !important;
+    border-radius: 14px !important;
+}
+
+/* 텍스트 추가 버튼 위 개수 표시 (현재 0/3개 줄 대신) */
+#toolText .textAddBtn[data-count]::after {
+    content: attr(data-count);
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 26px;
+    padding: 1px 5px;
+    border-radius: 999px;
+    background: #fdcc63;
+    color: #101828;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1.5;
+}
+
+/* 폰트 목록: 모바일은 "폰트 고르기" 화면에서, PC는 폰트 줄을 눌렀을 때 아래에 펼침 */
+body:not([data-m-sheet="font"]):not(.pcFontOpen) .editorToolBox .textToolFontSection {
+    display: none !important;
+}
+
+/* 추가/삭제가 위로 빠졌으니 꾸미기 줄 끝 구분선은 숨김 */
+#toolText .textStyleBar .textStyleBar__sep:last-of-type {
+    display: none;
+}
+
+/* 텍스트: 폰트 버튼 9개 대신 "폰트  지금 폰트 ›" 한 줄 */
+body[data-step="editor"] .mFontRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 52px;
+    margin: 0;
+    padding: 0 14px;
+    border: 1px solid #e4e7ec;
+    border-radius: 14px;
+    background: #ffffff;
+    color: #101828;
+    text-align: left;
+}
+
+.mFontRow:disabled {
+    opacity: 0.5;
+}
+
+.mFontRow__label,
+.mFontRow__name {
+    line-height: 1.2;
+}
+
+.mFontRow__label {
+    flex: 0 0 auto;
+    color: #667085;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+/* 모바일은 "폰트 고르기" 화면에서만 폰트 목록 표시 (PC에서 펼쳐 둔 상태가 남아도 숨김) */
+@media (max-width: 768px) {
+    body:not([data-m-sheet="font"]) .editorToolBox .textToolFontSection {
+        display: none !important;
+    }
+}
+
+.mFontRow__name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1 1 auto;
+    font-size: 13px;
+}
+
+.mFontRow svg {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    color: #98a2b3;
+}
+
+
+
+/* 배경(단색/그라데이션): 모바일 시트에서 스크롤 없이 보이도록 간소화 (PC는 기존 패널 그대로) */
+@media (max-width: 768px) {
+    /* ---------- 배경 공통: 단색/그라데이션 전환 줄 ---------- */
+    body.kidikidiBootstrap #toolBg .bgModeToggle .bgModeBtn {
+        height: 40px !important;
+        min-height: 40px !important;
+    }
+
+    /* ---------- 단색 ---------- */
+    body.kidikidiBootstrap #toolBg .solidSettingTitle {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .solidSettingHeader {
+        margin: 0 0 8px !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .solidColorDirectPanel {
+        width: 100% !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .solidHexInput {
+        height: 44px !important;
+        min-height: 44px !important;
+    }
+
+    body.kidikidiBootstrap #toolBg #bgEyeBtn {
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+    }
+
+    /* 색상판 높이를 줄여서 시트 한 화면에 (색상판 상자와 판 높이를 같이) */
+    body.kidikidiBootstrap #toolBg .solidColorBoardBox {
+        height: 120px !important;
+        min-height: 120px !important;
+    }
+
+    /* ---------- 그라데이션 ---------- */
+    body.kidikidiBootstrap #toolBg .bgToolSectionGradient {
+        position: relative;
+    }
+
+    /* 제목 줄 없이 초기화만 오른쪽 위 아이콘으로 */
+    body.kidikidiBootstrap #toolBg .gradientSectionHeader {
+        position: absolute !important;
+        top: 0;
+        right: 0;
+        z-index: 1;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientSectionHeader .bgToolSectionTitle {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientResetBtn {
+        display: inline-flex !important;
+        align-items: center;
+        justify-content: center;
+        width: 44px !important;
+        min-width: 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 0 !important;
+        border: 1px solid #e4e7ec !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+        color: #475467 !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientResetBtn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* 시작/끝 색: 라벨 없이 한 줄 (스와치 + 값 + 스포이드), 오른쪽은 초기화 자리 */
+    body.kidikidiBootstrap #toolBg .gradientColorGrid {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+        gap: 8px !important;
+        margin: 0 52px 10px 0 !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientColorLabel {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientColorRow {
+        gap: 4px !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientPickBtn {
+        min-width: 0 !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        padding: 0 8px !important;
+        font-size: 12px !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientEyeBtn {
+        width: 40px !important;
+        min-width: 40px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+    }
+
+    /* 방향: "방향 조절" 글자 없이 아이콘 4개 한 줄 */
+    body.kidikidiBootstrap #toolBg .gradientDirectionRow {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 6px !important;
+        margin: 0 0 8px !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientDirectionRow::before {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientDirBtn {
+        height: 40px !important;
+        min-height: 40px !important;
+        border-radius: 12px !important;
+    }
+
+    /* 경계/퍼짐: 상자 없이 "이름 값 ━━●━━" 한 줄 */
+    body.kidikidiBootstrap #toolBg .gradientControlGrid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 2px !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientRangeItem {
+        display: grid !important;
+        grid-template-columns: max-content minmax(0, 1fr) !important;
+        align-items: center;
+        gap: 10px !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 2px !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientRangeTop {
+        display: flex !important;
+        justify-content: space-between;
+        gap: 6px;
+        min-width: 92px;
+        margin: 0 !important;
+        font-size: 12px !important;
+        white-space: nowrap;
+    }
+
+    body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"] {
+        margin: 0 !important;
+    }
+
+    /* 슬라이더를 눌러도 입력칸용 노란 포커스 테두리가 생기지 않게 */
+    body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"]:focus,
+    body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"]:focus-visible {
+        border-color: transparent !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+}
+
+/* =========================================================
+ * 모바일 전용: 하단 시트 / 꾸미기 타일 / 상단 조작줄
+========================================================= */
+@media (max-width: 768px) {
+    /* 시트 안에서 스크롤 없이 도구가 다 보이도록 높이 여유 */
+    body.kidikidiBootstrap[data-step="editor"] .editorToolBox,
+    .mDecorateMenu {
+        max-height: 56vh !important;
+        overflow-x: hidden !important;
+    }
+
+    /* 키캡 윗면 안내 문구: 글자 길이만큼만 */
+    body.kidikidiBootstrap .canvasGuideOverlay {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    body.kidikidiBootstrap .canvasGuideOverlay span {
+        display: inline-block !important;
+        width: auto !important;
+        max-width: 100%;
+    }
+
+    /* 이전 | 시안 제작 | 다음 줄: 평소엔 투명(페이지 배경 그대로),
+       스크롤해서 위에 붙었을 때만 배경을 깔아 아래 내용이 비치지 않게 (js/mobile-editor-sheet.js) */
+    .kidikidiBootstrap .stepPageHeader,
+    .kidikidiBootstrap .stepTopBar.stepPageHeader {
+        background: transparent !important;
+        box-shadow: none !important;
+        transition: background-color 0.15s ease;
+    }
+
+    .kidikidiBootstrap .stepPageHeader.isStuck,
+    .kidikidiBootstrap .stepTopBar.stepPageHeader.isStuck {
+        background: rgba(246, 247, 251, 0.96) !important;
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+    }
+}
+
+/* PC 폰트 목록: 폰트 줄 바로 아래 펼침이라 "폰트 타입" 제목은 생략 */
+body.kidikidiBootstrap .textToolFontSection .bgToolSectionTitle {
+    display: none !important;
+}
+
+/* 주문 옵션 선택 안내 2줄 */
+.optionSelectTips {
+    margin: 6px 0 0;
+    padding-left: 18px;
+    color: #475467;
+    font-size: 12.5px;
+    line-height: 1.6;
+}
+
+.optionSelectTips b {
+    color: #101828;
+}
+
+/* =========================================================
+ * PC 전용: 텍스트 한 줄을 칸 끝까지
+========================================================= */
+@media (min-width: 769px) {
+    body.kidikidiBootstrap #toolText .textToolGrid {
+        flex-wrap: nowrap !important;
+    }
+
+    body.kidikidiBootstrap #toolText .mTextTopRow {
+        flex: 0 0 auto;
+    }
+
+    /* 폰트 이름(예: 프리텐다드, KBL 코트체)이 한 줄로 보이도록 폭 확보 */
+    body.kidikidiBootstrap #toolText .mTextTopRow .mFontRow {
+        flex: 0 0 auto;
+        width: 210px;
+    }
+
+    body.kidikidiBootstrap #toolText .textStyleSection {
+        flex: 5 1 0;
+        min-width: 0;
+    }
+
+    body.kidikidiBootstrap #toolText .textStyleBar {
+        justify-content: space-between !important;
+        width: 100% !important;
+    }
+
+    body.kidikidiBootstrap #toolText .textStyleBar > button {
+        flex: 1 1 0 !important;
+        width: auto !important;
+        min-width: 44px !important;
+    }
+
+
+    /* 폰트 목록이 펼쳐지면 그 줄만 아래로 */
+    body.pcFontOpen.kidikidiBootstrap #toolText .textToolGrid {
+        flex-wrap: wrap !important;
+    }
+}
+
+/* 프로파일/규격 빠른 변경 팝업: PC는 프로파일 · 규격 · 레이저 각인 한 줄 (모바일은 2줄 그대로) */
+@media (min-width: 769px) {
+    .optionQuickDialog {
+        width: min(720px, 100%) !important;
+    }
+
+    .optionQuickGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .optionQuickGrid label:last-child {
+        grid-column: auto !important;
+    }
+}
+
+/* 삭제 버튼은 어디에 있든 빨간색으로 통일 (텍스트 삭제를 1줄로 옮기면서 회색이 됐었음) */
+body.kidikidiBootstrap #textClearBtn {
+    border-color: #fecdca !important;
+    background: #ffffff !important;
+    color: #d92d20 !important;
+}
+
+body.kidikidiBootstrap #textClearBtn:disabled {
+    opacity: 0.45;
+}
+
+/* 그라데이션 경계/퍼짐 슬라이더: 눌러도 입력칸용 노란 포커스 테두리가 생기지 않게 */
+body.kidikidiBootstrap #toolBg input[type="range"]:focus,
+body.kidikidiBootstrap #toolBg input[type="range"]:focus-visible,
+body.kidikidiBootstrap #toolBg .gradientRangeItem:focus-within {
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* 단색/그라데이션 전환: 고르지 않은 쪽은 배경 없이, 고른 쪽만 검정 */
+body.kidikidiBootstrap #toolBg .bgModeToggle {
+    background: transparent !important;
+}
+
+body.kidikidiBootstrap #toolBg .bgModeBtn:not(.is-active) {
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #475467 !important;
+}
+
+/* 폰트 목록 (PC·모바일 공통): 3줄까지만 보이고 옆으로 넘겨서 보기
+   - 세로로 3개씩 채운 뒤 다음 칸으로, 칸 단위로 멈춤
+   - 오른쪽 끝을 살짝 흐리게 해서 더 있다는 걸 표시 */
+body.kidikidiBootstrap .textToolFontSection .textFontRow {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-template-rows: repeat(3, auto) !important;
+    grid-template-columns: none !important;
+    /* 3칸 + 다음 칸이 살짝 보이게 해서 옆으로 넘길 수 있다는 걸 알 수 있게 */
+    grid-auto-columns: calc((100% - 24px) / 3.3) !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding-bottom: 8px !important;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+}
+
+body.kidikidiBootstrap .textToolFontSection .textFontRow.isAtEnd {
+    -webkit-mask-image: none;
+    mask-image: none;
+}
+
+body.kidikidiBootstrap .textToolFontSection .textFontRow .textFontBtn {
+    width: auto !important;
+    min-width: 0 !important;
+    scroll-snap-align: start;
+}

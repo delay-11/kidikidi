@@ -41,6 +41,17 @@ function getPointerDistance(a, b) {
   return Math.hypot((b.clientX || 0) - (a.clientX || 0), (b.clientY || 0) - (a.clientY || 0));
 }
 
+function getPointerAngle(a, b) {
+  return Math.atan2((b.clientY || 0) - (a.clientY || 0), (b.clientX || 0) - (a.clientX || 0));
+}
+
+// 두 손가락 회전: 0° / 90° / 180° / 270° 근처(약 4°)에서는 딱 맞춰 줌
+function snapPinchRotation(rot) {
+  const step = Math.PI / 2;
+  const nearest = Math.round(rot / step) * step;
+  return Math.abs(rot - nearest) < 0.07 ? nearest : rot;
+}
+
 function getPointerMidpointCanvas(a, b) {
   return getCanvasPointFromClient(
     ((a.clientX || 0) + (b.clientX || 0)) / 2,
@@ -77,9 +88,11 @@ function beginPinchDrag() {
     startCY: Number.isFinite(obj.cy) ? obj.cy : canvasLogicalH / 2,
     startScaleX: Number.isFinite(obj.scaleX) ? obj.scaleX : 1,
     startScaleY: Number.isFinite(obj.scaleY) ? obj.scaleY : 1,
+    startAngle: getPointerAngle(pair.a, pair.b),
+    startRot: getObjectRot("image"),
   };
 
-  showCanvasHelpTip("두 손가락을 벌리거나 모아 이미지 크기를 조절합니다.", 2200);
+  showCanvasHelpTip("두 손가락으로 벌리거나 모아 크기를, 비틀어서 각도를 조절합니다.", 2200);
   redraw();
 }
 
@@ -100,7 +113,10 @@ function updatePinchDrag() {
   obj.scaleX = imgScaleX;
   obj.scaleY = imgScaleY;
 
-  // 손가락 위치와 무관하게 이미지 중심을 고정한 채 크기만 조절
+  // 두 손가락을 비튼 만큼 회전
+  setObjectRot("image", snapPinchRotation(pinchDrag.startRot + (getPointerAngle(pair.a, pair.b) - pinchDrag.startAngle)));
+
+  // 손가락 위치와 무관하게 이미지 중심을 고정한 채 크기/각도만 조절
   setObjectCenter("image", pinchDrag.startCX, pinchDrag.startCY);
 
   redraw();
@@ -124,6 +140,8 @@ function endPinchDrag() {
 function trackTouchPointerDown(e) {
   if (uiLocked || e.pointerType !== "touch") return;
   if (e.target.closest?.(".layerSide")) return;
+  // 캔버스 위 텍스트 편집창 안에서 누르는 건 글자 편집용 (드래그로 가로채지 않음)
+  if (e.target.closest?.(".inlineTextEditor")) return;
   touchPointerMap.set(e.pointerId, { clientX: e.clientX, clientY: e.clientY });
 
   if (touchPointerMap.size >= 2) {
@@ -178,7 +196,10 @@ function startMoveDrag(e, type = getActiveObjectType()) {
 
   centerStart.x = center.x;
   centerStart.y = center.y;
+  setSnapGuideActive?.(true);
 }
+
+let textTapCandidate = null;
 
 function onMainPointerDown(e) {
   if (uiLocked) return;
@@ -248,6 +269,8 @@ function onMainPointerDown(e) {
   e.stopPropagation();
 
   activeObjectType = targetType;
+  // 텍스트를 끌지 않고 톡 누르면 그 자리에서 편집 (js/inline-text-editor.js에서 처리)
+  textTapCandidate = targetType === "text" ? { x: e.clientX, y: e.clientY, t: Date.now() } : null;
   (e.currentTarget || canvasWrapEl)?.setPointerCapture?.(e.pointerId);
   showCanvasHelpTip(targetType === "text" ? "텍스트 드래그로 위치를 조절합니다." : "이미지 드래그로 위치를 조절합니다.");
   startMoveDrag(e, targetType);
@@ -363,7 +386,8 @@ document.addEventListener("pointermove", (e) => {
 
   if (draggingMove) {
     const type = getActiveObjectType() || "image";
-    setObjectCenter(type, centerStart.x + (p.x - moveStart.x), centerStart.y + (p.y - moveStart.y));
+    const next = applyCenterSnap(centerStart.x + (p.x - moveStart.x), centerStart.y + (p.y - moveStart.y));
+    setObjectCenter(type, next.x, next.y);
     redraw();
     return;
   }
@@ -444,6 +468,7 @@ document.addEventListener("pointermove", (e) => {
 
 function endPointerInteraction() {
   if (draggingMove || handleDrag || rotateDrag) {
+    setSnapGuideActive?.(false);
     draggingMove = false;
     handleDrag = null;
     rotateDrag = null;
@@ -457,8 +482,15 @@ function endPointerInteraction() {
 
 document.addEventListener("pointerup", (e) => {
   if (uiLocked) return;
+  const tap = textTapCandidate;
+  textTapCandidate = null;
   if (trackTouchPointerEnd(e)) return;
   endPointerInteraction();
+
+  // 거의 안 움직이고 짧게 누른 텍스트 → 그 자리에서 편집
+  if (tap && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 8 && Date.now() - tap.t < 450) {
+    window.openInlineTextEditor?.();
+  }
 });
 
 document.addEventListener("pointercancel", (e) => {

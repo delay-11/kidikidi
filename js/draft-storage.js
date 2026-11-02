@@ -67,6 +67,7 @@ function buildCanvasDraftSnapshot() {
   };
   saveCanvasToItem(snapshot);
   delete snapshot.design.previewDataUrl;
+  delete snapshot.design.mockupThumbDataUrl;
   return snapshot;
 }
 
@@ -185,6 +186,7 @@ async function restoreSavedDraftInner() {
       setCapTypeOptions();
       if (data.form.capType) capTypeEl.value = data.form.capType;
       if (data.form.profile === "OEM" && laserEl) laserEl.value = data.form.laser || "none";
+      window.syncProfileHelper?.();
     }
     if (qtyEl) qtyEl.value = data.form?.qty || "1";
 

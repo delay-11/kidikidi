@@ -4,7 +4,49 @@
 /* =========================================================
  * 텍스트 UI / 렌더 유틸
 ========================================================= */
+/* =========================================================
+ * 추가 폰트 (Google Fonts 한글 폰트, 모두 OFL - 상업적 이용·제품 인쇄 가능)
+ * - 키캡처럼 작은 면에 인쇄해도 또렷한 굵은 폰트 위주로 고름 (여러 굵기가 있으면 가장 굵은 쪽)
+ * - index.html <head>의 Google Fonts 링크, 폰트 버튼과 이 표를 같이 맞춰야 함
+ * - Google Fonts 한글 폰트는 글자 범위별로 잘게 나뉘어 있어서 화면에 쓰인 글자만 받음
+ *   (그래서 ensureTextFontLoaded()는 실제 입력한 글자로 불러온다)
+========================================================= */
+const GOOGLE_TEXT_FONTS = [
+  { key: "g_blackhansans", label: "블랙한산스체", family: "Black Han Sans", weight: 400, generic: "sans-serif" },
+  { key: "g_dohyeon", label: "도현체", family: "Do Hyeon", weight: 400, generic: "sans-serif" },
+  { key: "g_jua", label: "주아체", family: "Jua", weight: 400, generic: "sans-serif" },
+  { key: "g_bagel", label: "베이글체", family: "Bagel Fat One", weight: 400, generic: "sans-serif" },
+  { key: "g_gasoek", label: "가석체", family: "Gasoek One", weight: 400, generic: "sans-serif" },
+  { key: "g_gugi", label: "구기체", family: "Gugi", weight: 400, generic: "sans-serif" },
+  { key: "g_dongle", label: "동글체", family: "Dongle", weight: 700, generic: "sans-serif" },
+  { key: "g_gaegu", label: "개구체", family: "Gaegu", weight: 700, generic: "cursive" },
+  { key: "g_eastseadokdo", label: "동해독도체", family: "East Sea Dokdo", weight: 400, generic: "cursive" },
+  { key: "g_hahmlet", label: "함렡체", family: "Hahmlet", weight: 900, generic: "serif" },
+  { key: "g_nanummyeongjo", label: "나눔명조체", family: "Nanum Myeongjo", weight: 800, generic: "serif" },
+];
+const GOOGLE_TEXT_FONT_MAP = Object.fromEntries(GOOGLE_TEXT_FONTS.map((f) => [f.key, f]));
+
+const TEXT_FONT_LABELS = {
+  basic: "프리텐다드체",
+  bold: "잘난체",
+  round: "써라운드체",
+  hand: "몽토리체",
+  retro: "빙그레체",
+  calli: "가을소풍체",
+  giants: "자이언츠체",
+  court: "KBL 코트체",
+  jump: "KBL 점프체",
+  ...Object.fromEntries(GOOGLE_TEXT_FONTS.map((f) => [f.key, f.label])),
+};
+
+function getTextFontLabel(type = textFontType) {
+  return TEXT_FONT_LABELS[type] || TEXT_FONT_LABELS.basic;
+}
+
 function getTextFontFamily(type = textFontType) {
+  const google = GOOGLE_TEXT_FONT_MAP[type];
+  if (google) return `'${google.family}', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', ${google.generic}`;
+
   const map = {
     basic: "'Pretendard', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
     bold: "'JalnanGothic', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
@@ -20,7 +62,42 @@ function getTextFontFamily(type = textFontType) {
   return map[type] || map.basic;
 }
 
+/* =========================================================
+ * 폰트 늦게 받아오는 문제 처리
+ * 캔버스는 폰트 파일이 아직 안 받아졌으면 대체 글꼴로 그리고, 다 받아진 뒤에도
+ * 다시 그려주지 않아서 폰트를 골라도 화면이 그대로인 것처럼 보였음
+ * (캔버스를 한 번 건드려야 바뀜). 처음 쓰는 폰트는 받아질 때까지 기다렸다가 다시 그림.
+========================================================= */
+const requestedTextFonts = new Set();
+
+// sample: 실제로 그릴 글자. Google Fonts 한글 폰트는 글자 범위별 조각 파일이라
+// "가" 같은 대표 글자만 받으면 나머지 글자는 대체 글꼴로 그려짐 → 입력한 글자 그대로 받는다.
+function ensureTextFontLoaded(type = textFontType, sample = "") {
+  const text = String(sample || "").replace(/\s+/g, "") || "가A";
+  const key = `${type}\n${text}`;
+  if (!document.fonts?.load || requestedTextFonts.has(key)) return;
+  if (requestedTextFonts.size > 400) requestedTextFonts.clear();
+  requestedTextFonts.add(key);
+
+  const spec = `${getTextFontWeight(type)} 40px ${getTextFontFamily(type)}`;
+  try {
+    if (document.fonts.check(spec, text)) return;
+  } catch (e) {
+    // check 미지원 브라우저는 그냥 load 시도
+  }
+  document.fonts
+    .load(spec, text)
+    .then(() => {
+      if (typeof redraw === "function") redraw();
+    })
+    .catch(() => {
+      // 폰트를 못 받아오면 대체 글꼴로 계속 표시 (다음에 다시 시도할 수 있게 표시 해제)
+      requestedTextFonts.delete(key);
+    });
+}
+
 function getTextFontWeight(type = textFontType) {
+  if (GOOGLE_TEXT_FONT_MAP[type]) return GOOGLE_TEXT_FONT_MAP[type].weight;
   // JalnanGothic / Cafe24 Ssurround / GriunMongtori는 단일 굵기 폰트라
   // 그 자체 디자인으로 이미 원하는 인상을 내므로 400을 사용.
   // BinggreIi / HakgyoansimGaeulsopungB / GiantsInline은 Bold(700) 파일 하나만 배포되어 700을 그대로 사용.
@@ -57,6 +134,8 @@ function syncActiveTextFromLegacy() {
   obj.value = textValue;
   obj.fontType = textFontType;
   obj.color = textColor;
+  obj.bold = !!textBold;
+  obj.italic = !!textItalic;
   obj.align = textAlign;
   obj.size = textSize;
   obj.cx = textCX;
@@ -79,7 +158,9 @@ function setActiveTextIndex(index) {
   const obj = activeTextIndex >= 0 ? textObjects[activeTextIndex] : null;
   textValue = obj?.value || "";
   textFontType = obj?.fontType || "basic";
-  textColor = obj?.color || "#111827";
+  textColor = obj?.color || "#000000";
+  textBold = !!obj?.bold;
+  textItalic = !!obj?.italic;
   textAlign = obj?.align || "center";
   textSize = obj?.size || "medium";
   textCX = Number.isFinite(obj?.cx) ? obj.cx : canvasLogicalW / 2;
@@ -106,7 +187,9 @@ function serializeTextObjects() {
       enabled: true,
       value: obj.value || "",
       fontType: obj.fontType || "basic",
-      color: normalizeHexInput(obj.color, "#111827"),
+      color: normalizeHexInput(obj.color, "#000000"),
+      bold: !!obj.bold,
+      italic: !!obj.italic,
       align: ["left", "center", "right"].includes(obj.align) ? obj.align : "center",
       size: ["small", "medium", "large"].includes(obj.size) ? obj.size : "medium",
       cx: Number.isFinite(obj.cx) ? obj.cx : canvasLogicalW / 2,
@@ -156,7 +239,9 @@ function createEmptyTextObject() {
   return {
     value: "",
     fontType: "basic",
-    color: "#111827",
+    color: "#000000",
+    bold: false,
+    italic: false,
     align: "center",
     size: "medium",
     cx: canvasLogicalW / 2,
@@ -173,11 +258,12 @@ function addNewTextSlot() {
 
   syncActiveTextFromLegacy();
 
+  // 아직 비어 있는 텍스트 칸이 있으면 새로 만들지 않고 그 칸을 다시 편집
   const active = getActiveTextObject();
   if (active && !safeTrim(active.value || "")) {
-    showToast("텍스트를 입력해 주세요.", "warn");
-    textInputEl?.focus();
-    return false;
+    applyTextSettings({ value: "텍스트", enabled: true });
+    window.openInlineTextEditor?.({ selectAll: true });
+    return true;
   }
 
   const validCount = Array.isArray(textObjects)
@@ -193,10 +279,10 @@ function addNewTextSlot() {
   setActiveTextIndex(textObjects.length - 1);
   activeObjectType = "text";
 
-  if (textInputEl) textInputEl.value = "";
-  syncTextUI();
+  // 캔버스 가운데에 "텍스트"를 바로 넣고, 그 자리에서 고칠 수 있게 편집창을 띄움
+  applyTextSettings({ value: "텍스트", enabled: true });
   syncTextCountBadge();
-  textInputEl?.focus();
+  window.openInlineTextEditor?.({ selectAll: true });
   return true;
 }
 
@@ -232,37 +318,144 @@ function deleteActiveTextObject() {
 // }
 
 
+// 폰트 버튼 이름표 미리보기용 경량 폰트 (files/font-preview/*.woff2)
+// 로컬 ttf(손글씨 5.6MB, 자이언츠 2.5MB 등)를 텍스트 탭만 열어도 전부 받게 되면 모바일에서 너무 무거워서,
+// 이름표 글자만 뽑아낸 subset(합계 약 17KB)으로 먼저 보여준다. 실제 캔버스 글자는 원래 폰트로 그린다.
+const TEXT_FONT_PREVIEW_FAMILY = {
+  hand: "'KidiPreviewHand'",
+  giants: "'KidiPreviewGiants'",
+  court: "'KidiPreviewCourt'",
+  jump: "'KidiPreviewJump'",
+};
+
 function syncTextFontPreviewButtons() {
-  // 폰트 타입 버튼은 입력값 미리보기가 아니라, 각 폰트 이름표를 해당 폰트로 보여주는 용도입니다.
-  const labels = {
-    basic: "Aa 기본",
-    bold: "Aa 굵게",
-    round: "Aa 둥근",
-    hand: "Aa 손글씨",
-    retro: "Aa 레트로",
-    calli: "Aa 캘리",
-    giants: "Aa 자이언츠",
-    court: "Aa 코트",
-    jump: "Aa 점프",
-  };
+  // 폰트 타입 버튼은 입력값 미리보기가 아니라, 각 폰트 이름(실제 폰트명)을 해당 폰트로 보여주는 용도입니다.
+  // 이름을 바꾸면 files/font-preview/*.woff2(이름표 글자만 뽑은 subset)도 새 글자로 다시 만들어야 함.
+  // (이전에는 bootstrap-wizard-overrides.css의 !important 시스템 폰트 지정에 막혀
+  //  모든 버튼이 같은 글꼴로 보였음 → 버튼마다 inline !important로 실제 폰트를 지정)
 
   textFontBtnEls?.forEach((btn) => {
     const type = btn.dataset.textFont || "basic";
-    const label = labels[type] || labels.basic;
+    const label = getTextFontLabel(type);
     btn.textContent = label;
-    btn.title = label;
-    btn.setAttribute("aria-label", label);
+    btn.title = `${label} 폰트`;
+    btn.setAttribute("aria-label", `${label} 폰트`);
+
+    const preview = TEXT_FONT_PREVIEW_FAMILY[type];
+    const family = preview ? `${preview}, ${getTextFontFamily(type)}` : getTextFontFamily(type);
+    btn.style.setProperty("font-family", family, "important");
+    btn.style.setProperty("font-weight", String(getTextFontWeight(type)), "important");
+    btn.style.setProperty("letter-spacing", "0", "important");
+  });
+  normalizeTextFontPreviewSizes();
+}
+
+/* =========================================================
+ * 폰트 이름 크기 맞추기
+ * 같은 px로 지정해도 폰트마다 실제 글자 크기가 제각각이라(몽토리체는 작고 KBL 점프체는 큼)
+ * 이름표 글자의 실제 높이를 재서, 프리텐다드로 같은 글자를 썼을 때와 같은 높이가 되게 맞춘다.
+ * 버튼 폭을 넘으면 폭에 맞춰 줄임. (캔버스 글자 크기와는 무관 - 이름표 표시용)
+========================================================= */
+const fontLabelMeasureCanvas = document.createElement("canvas");
+const fontLabelMeasureCtx = fontLabelMeasureCanvas.getContext("2d", { willReadFrequently: true });
+
+// 글자를 실제로 그려서 칠해진 픽셀 범위로 높이/폭을 잰다.
+// (measureText의 actualBoundingBox 값은 동글체처럼 폰트에 따라 실제 모양과 크게 다를 수 있어서)
+function measureFontLabelInk(family, weight, size, text) {
+  const c = fontLabelMeasureCtx;
+  if (!c) return { h: 0, w: 0 };
+  const S = 40; // 정밀도를 위해 40px로 그려서 잰 뒤 size 비율로 환산
+  c.font = `${weight} ${S}px ${family}`;
+  const W = Math.ceil(c.measureText(text).width + S * 2);
+  const H = S * 3;
+  fontLabelMeasureCanvas.width = Math.max(1, W);
+  fontLabelMeasureCanvas.height = H;
+  c.font = `${weight} ${S}px ${family}`;
+  c.textBaseline = "alphabetic";
+  c.fillStyle = "#000";
+  c.fillText(text, S, S * 2);
+  const data = c.getImageData(0, 0, W, H).data;
+  let top = H, bottom = -1, left = W, right = -1;
+  for (let y = 0; y < H; y += 1) {
+    for (let x = 0; x < W; x += 1) {
+      if (data[(y * W + x) * 4 + 3] > 40) {
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+        if (x < left) left = x;
+        if (x > right) right = x;
+      }
+    }
+  }
+  if (bottom < 0) return { h: 0, w: 0 };
+  return { h: ((bottom - top + 1) * size) / S, w: ((right - left + 1) * size) / S };
+}
+
+// 글자 하나하나의 높이 평균 (동글체처럼 한 글자 획만 길게 뻗은 폰트는 전체 범위로 재면 크게 나와서)
+function measureFontLabelAvgCharHeight(family, weight, size, text) {
+  const chars = Array.from(String(text || "")).filter((ch) => ch.trim());
+  if (!chars.length) return 0;
+  const heights = chars.map((ch) => measureFontLabelInk(family, weight, size, ch).h).filter((h) => h > 0);
+  return heights.length ? heights.reduce((a, b) => a + b, 0) / heights.length : 0;
+}
+
+// el의 글자 크기를, 프리텐다드로 같은 글자를 baseSize로 썼을 때와 같은 높이가 되도록 지정
+function fitFontLabelSize(el, family, weight, text, baseSize, maxWidth = 0) {
+  if (!el || !text) return;
+  const apply = () => {
+    const refH = measureFontLabelAvgCharHeight("'Pretendard', sans-serif", 700, baseSize, text);
+    const curH = measureFontLabelAvgCharHeight(family, weight, baseSize, text);
+    const cur = measureFontLabelInk(family, weight, baseSize, text);
+    let size = curH > 0 && refH > 0 ? (baseSize * refH) / curH : baseSize;
+    if (maxWidth > 0 && cur.w > 0) {
+      const width = (cur.w * size) / baseSize;
+      if (width > maxWidth) size *= maxWidth / width;
+    }
+    size = Math.max(baseSize * 0.6, Math.min(baseSize * 1.9, size));
+    el.style.setProperty("font-size", `${size.toFixed(1)}px`, "important");
+  };
+  apply();
+  // 폰트 파일이 받아진 뒤 실제 모양으로 다시 잼
+  document.fonts?.load?.(`${weight} ${baseSize}px ${family}`, text).then(apply).catch(() => {});
+}
+
+function normalizeTextFontPreviewSizes() {
+  textFontBtnEls?.forEach((btn) => {
+    const type = btn.dataset.textFont || "basic";
+    if (!btn.dataset.baseFontSize) {
+      btn.style.removeProperty("font-size");
+      btn.dataset.baseFontSize = String(parseFloat(getComputedStyle(btn).fontSize) || 14);
+    }
+    const base = Number(btn.dataset.baseFontSize) || 14;
+    const cs = getComputedStyle(btn);
+    const inner = btn.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0) - 8;
+    fitFontLabelSize(
+      btn,
+      btn.style.getPropertyValue("font-family") || getTextFontFamily(type),
+      btn.style.getPropertyValue("font-weight") || getTextFontWeight(type),
+      getTextFontLabel(type),
+      base,
+      inner > 0 ? inner : 0,
+    );
   });
 }
+window.addEventListener("resize", () => {
+  textFontBtnEls?.forEach((btn) => delete btn.dataset.baseFontSize);
+  normalizeTextFontPreviewSizes();
+});
 
 function syncTextUI() {
   if (textInputEl) textInputEl.value = textValue || "";
-  const color = normalizeHexInput(textColor, "#111827");
+  const color = normalizeHexInput(textColor, "#000000");
   if (textColorSwatchEl) textColorSwatchEl.style.background = color;
   if (textColorValueEl) textColorValueEl.textContent = color;
 
   textFontBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textFont === textFontType));
   textAlignBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textAlign === textAlign));
+  document.querySelectorAll("[data-text-style]").forEach((btn) => {
+    const on = btn.dataset.textStyle === "bold" ? !!textBold : !!textItalic;
+    btn.classList.toggle("is-active", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
   textSizeBtnEls?.forEach((btn) => btn.classList.toggle("is-active", btn.dataset.textSize === textSize));
   syncTextFontPreviewButtons?.();
 
@@ -295,7 +488,9 @@ function applyTextSettings(partial = {}) {
     const obj = textObjects[activeTextIndex];
     textValue = obj?.value || "";
     textFontType = obj?.fontType || "basic";
-    textColor = obj?.color || "#111827";
+    textColor = obj?.color || "#000000";
+    textBold = !!obj?.bold;
+    textItalic = !!obj?.italic;
     textAlign = obj?.align || "center";
     textSize = obj?.size || "medium";
     textCX = Number.isFinite(obj?.cx) ? obj.cx : canvasLogicalW / 2;
@@ -308,7 +503,9 @@ function applyTextSettings(partial = {}) {
     textValue = partial.value.slice(0, 80);
   }
   if (partial.fontType) textFontType = partial.fontType;
-  if (partial.color) textColor = normalizeHexInput(partial.color, textColor || "#111827");
+  if (partial.color) textColor = normalizeHexInput(partial.color, textColor || "#000000");
+  if (typeof partial.bold === "boolean") textBold = partial.bold;
+  if (typeof partial.italic === "boolean") textItalic = partial.italic;
   if (partial.align) textAlign = ["left", "center", "right"].includes(partial.align) ? partial.align : "center";
   if (partial.size) textSize = ["small", "medium", "large"].includes(partial.size) ? partial.size : "medium";
   if (typeof partial.enabled === "boolean") textEnabled = partial.enabled;
@@ -341,7 +538,7 @@ function getTextRenderMetrics(targetCtx, w, h, textState = {}) {
   const lines = getTextLines(textState.value || textValue);
   if (!lines.length) return null;
 
-  const color = normalizeHexInput(textState.color, "#111827");
+  const color = normalizeHexInput(textState.color, "#000000");
   const fontType = textState.fontType || "basic";
   const sizeKey = textState.size || "medium";
   const scale = Number.isFinite(textState.scale) ? textState.scale : 1;
@@ -376,6 +573,8 @@ function getTextRenderMetrics(targetCtx, w, h, textState = {}) {
 function drawTextObjectToContext(targetCtx, w, h, textState = {}) {
   if (!safeTrim(textState?.value || "")) return;
 
+  ensureTextFontLoaded(textState.fontType || "basic", textState.value);
+
   const metrics = getTextRenderMetrics(targetCtx, w, h, textState);
   if (!metrics) return;
 
@@ -394,8 +593,21 @@ function drawTextObjectToContext(targetCtx, w, h, textState = {}) {
   targetCtx.textAlign = align;
   targetCtx.font = `${metrics.weight} ${metrics.fontSize}px ${metrics.family}`;
 
+  // 기울임: 폰트마다 기울임 글꼴이 없어서, 글자를 비스듬히 기울여 똑같이 표현
+  if (textState.italic) targetCtx.transform(1, 0, -0.2, 1, 0, 0);
+
+  // 굵게: 굵기가 하나뿐인 폰트도 똑같이 굵어지도록 같은 색 테두리를 덧그림
+  if (textState.bold) {
+    targetCtx.strokeStyle = metrics.color;
+    targetCtx.lineWidth = Math.max(1, metrics.fontSize * 0.05);
+    targetCtx.lineJoin = "round";
+    targetCtx.miterLimit = 2;
+  }
+
   metrics.lines.forEach((line, idx) => {
-    targetCtx.fillText(line, x, startY + idx * metrics.lineHeight, metrics.widest);
+    const y = startY + idx * metrics.lineHeight;
+    if (textState.bold) targetCtx.strokeText(line, x, y, metrics.widest);
+    targetCtx.fillText(line, x, y, metrics.widest);
   });
 
   targetCtx.restore();
@@ -406,7 +618,9 @@ function getCurrentTextState() {
     enabled: !!textEnabled,
     value: textValue || "",
     fontType: textFontType || "basic",
-    color: normalizeHexInput(textColor, "#111827"),
+    color: normalizeHexInput(textColor, "#000000"),
+    bold: !!textBold,
+    italic: !!textItalic,
     align: textAlign || "center",
     size: textSize || "medium",
     cx: Number.isFinite(textCX) && textCX ? textCX : canvasLogicalW / 2,

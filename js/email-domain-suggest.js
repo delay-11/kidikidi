@@ -1,6 +1,7 @@
 /* =========================================================
  * 이메일 도메인 자동완성
- * - '@' 입력 시 자주 쓰는 도메인 목록을 보여주고, 입력한 만큼 필터링
+ * - 아이디를 입력하기 시작하면('@' 전에도) 자주 쓰는 도메인 목록을 보여주고,
+ *   '@' 뒤에 입력한 만큼 필터링
 ========================================================= */
 const EMAIL_DOMAINS = [
   "naver.com",
@@ -35,8 +36,15 @@ function initEmailDomainSuggest() {
   }
 
   function getMatches() {
-    const value = emailEl.value;
+    const value = emailEl.value.trim();
+    if (!value) return null;
     const at = value.indexOf("@");
+
+    // '@'를 치기 전부터 아이디만 입력해도 바로 "아이디@도메인" 후보를 보여줌
+    if (at === -1) {
+      if (/\s/.test(value)) return null;
+      return { local: value, domains: EMAIL_DOMAINS.slice() };
+    }
     if (at < 1 || value.indexOf("@", at + 1) !== -1) return null;
 
     const local = value.slice(0, at);
