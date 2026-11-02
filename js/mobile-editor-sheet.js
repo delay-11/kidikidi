@@ -92,13 +92,13 @@
   fontRow.type = "button";
   fontRow.className = "mFontRow";
   fontRow.innerHTML =
-    '<span class="mFontRow__label">폰트</span><span class="mFontRow__name" id="mFontRowName">프리텐다드</span>' +
+    '<span class="mFontRow__label">폰트</span><span class="mFontRow__name" id="mFontRowName">프리텐다드체</span>' +
     '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>';
   if (fontSection) fontSection.parentNode.insertBefore(fontRow, fontSection);
   const fontRowName = fontRow.querySelector("#mFontRowName");
 
   /* ---------- 4-1) 텍스트 도구 배치 (PC·모바일 공통)
-   * 1줄: [폰트 프리텐다드 ›] [텍스트 추가] [삭제]
+   * 1줄: [폰트 프리텐다드체 ›] [텍스트 추가] [삭제]
    * 2줄: 색상 | 굵게 · 기울임 | 정렬  (기존 꾸미기 줄에서 추가/삭제만 빼냄) */
   const textAddBtn = document.getElementById("textApplyBtn");
   const textDelBtn = document.getElementById("textClearBtn");
