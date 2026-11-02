@@ -131,6 +131,8 @@
     if (family) fontRowName.style.setProperty("font-family", family, "important");
     const weight = active?.style.getPropertyValue("font-weight");
     if (weight) fontRowName.style.setProperty("font-weight", weight, "important");
+    // 어떤 폰트든 이름이 "폰트" 글자와 같은 크기로 보이게
+    fitFontLabelSize(fontRowName, family || getTextFontFamily(type), weight || getTextFontWeight(type), getTextFontLabel(type), 13);
     fontRow.disabled = !!active?.disabled;
   };
 
@@ -192,9 +194,14 @@
   });
   // 폰트 줄: 모바일은 "폰트 고르기" 화면으로, PC는 아래에 폰트 목록을 펼치고 접음
   fontRow.addEventListener("click", () => {
-    if (isMobile()) return open("font");
-    const opened = document.body.classList.toggle("pcFontOpen");
-    fontRow.setAttribute("aria-expanded", opened ? "true" : "false");
+    if (isMobile()) {
+      open("font");
+    } else {
+      const opened = document.body.classList.toggle("pcFontOpen");
+      fontRow.setAttribute("aria-expanded", opened ? "true" : "false");
+    }
+    // 목록이 보이게 된 뒤 버튼 폭 기준으로 이름 크기 다시 맞춤
+    requestAnimationFrame(() => normalizeTextFontPreviewSizes?.());
   });
 
   // 폰트 목록을 끝까지 넘기면 오른쪽 흐림 표시를 없앰
@@ -231,6 +238,8 @@
   }).observe(document.body, { attributes: true, attributeFilter: ["data-step"] });
   MOBILE_QUERY.addEventListener?.("change", () => {
     if (!isMobile()) close();
+    // PC에서 펼쳐 둔 폰트 목록이 모바일 화면에 남지 않게
+    else document.body.classList.remove("pcFontOpen");
   });
 
   // 모바일 스포이드: 캔버스를 눌러야 하므로 도구 시트를 잠깐 내렸다가, 끝나면 다시 올림
