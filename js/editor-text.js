@@ -281,19 +281,20 @@ const TEXT_FONT_PREVIEW_FAMILY = {
 };
 
 function syncTextFontPreviewButtons() {
-  // 폰트 타입 버튼은 입력값 미리보기가 아니라, 각 폰트 이름표를 해당 폰트로 보여주는 용도입니다.
+  // 폰트 타입 버튼은 입력값 미리보기가 아니라, 각 폰트 이름(실제 폰트명)을 해당 폰트로 보여주는 용도입니다.
+  // 이름을 바꾸면 files/font-preview/*.woff2(이름표 글자만 뽑은 subset)도 새 글자로 다시 만들어야 함.
   // (이전에는 bootstrap-wizard-overrides.css의 !important 시스템 폰트 지정에 막혀
   //  모든 버튼이 같은 글꼴로 보였음 → 버튼마다 inline !important로 실제 폰트를 지정)
   const labels = {
-    basic: "기본",
-    bold: "굵게",
-    round: "둥근",
-    hand: "손글씨",
-    retro: "레트로",
-    calli: "캘리",
+    basic: "프리텐다드",
+    bold: "잘난체",
+    round: "써라운드",
+    hand: "몽토리체",
+    retro: "빙그레체",
+    calli: "가을소풍체",
     giants: "자이언츠",
-    court: "코트",
-    jump: "점프",
+    court: "KBL 코트체",
+    jump: "KBL 점프체",
   };
 
   textFontBtnEls?.forEach((btn) => {

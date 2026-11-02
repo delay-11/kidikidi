@@ -54,7 +54,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v3.0.4
+                v3.0.5
             </div>
         </div>
     </header>
@@ -208,8 +208,8 @@
                                     <span aria-hidden="true" class="pillBreak"></span>
                                     <span class="tag">캔버스</span><b id="canvasText">-</b>
                                     <span class="tag">배경</span><b id="bgText">-</b>
-                                    <button class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
-                                        id="openPrintGuideBtn" type="button">인쇄 가이드 보기</button>
+                                    <button aria-label="인쇄 가이드 보기" class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
+                                        id="openPrintGuideBtn" title="인쇄 가이드 보기" type="button"><svg aria-hidden="true" class="pillGuideIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.6v.4"/><path d="M12 17h.01"/></svg><span class="pillGuideLabel">인쇄 가이드 보기</span></button>
                                     <button aria-pressed="true" class="keycapMockupToggle" id="keycapMockupToggle"
                                         type="button"><span class="keycapMockupToggle__opt is-active"
                                             data-mode="mockup">목업</span><span
@@ -358,7 +358,7 @@
                                                         <div class="bgToolSectionTitle">그라데이션 설정</div>
                                                         <button aria-label="그라데이션 초기화" title="초기화"
                                                             class="gradientResetBtn btn btn-sm btn-outline-secondary"
-                                                            id="gradientResetBtn" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+                                                            id="gradientResetBtn" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="resetLabel">초기화</span></button>
                                                     </div>
                                                     <div class="gradientPanel" id="gradientPanel">
                                                         <div class="gradientColorGrid">
@@ -472,29 +472,29 @@
                                                 <div aria-label="폰트 타입" class="textFontRow">
                                                     <button
                                                         class="textFontBtn is-active textFontPreviewBasic btn btn-sm btn-light"
-                                                        data-text-font="basic" type="button">Aa 기본</button>
+                                                        data-text-font="basic" type="button">프리텐다드</button>
                                                     <button class="textFontBtn textFontPreviewBold btn btn-sm btn-light"
-                                                        data-text-font="bold" type="button">Aa 굵게</button>
+                                                        data-text-font="bold" type="button">잘난체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewRound btn btn-sm btn-light"
-                                                        data-text-font="round" type="button">Aa 둥근</button>
+                                                        data-text-font="round" type="button">써라운드</button>
                                                     <button class="textFontBtn textFontPreviewHand btn btn-sm btn-light"
-                                                        data-text-font="hand" type="button">Aa 손글씨</button>
+                                                        data-text-font="hand" type="button">몽토리체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewRetro btn btn-sm btn-light"
-                                                        data-text-font="retro" type="button">Aa 레트로</button>
+                                                        data-text-font="retro" type="button">빙그레체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewCalli btn btn-sm btn-light"
-                                                        data-text-font="calli" type="button">Aa 캘리</button>
+                                                        data-text-font="calli" type="button">가을소풍체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewGiants btn btn-sm btn-light"
-                                                        data-text-font="giants" type="button">Aa 자이언츠</button>
+                                                        data-text-font="giants" type="button">자이언츠</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewCourt btn btn-sm btn-light"
-                                                        data-text-font="court" type="button">Aa 코트</button>
+                                                        data-text-font="court" type="button">KBL 코트체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewJump btn btn-sm btn-light"
-                                                        data-text-font="jump" type="button">Aa 점프</button>
+                                                        data-text-font="jump" type="button">KBL 점프체</button>
                                                 </div>
                                             </div>
                                             <!-- 텍스트 꾸미기 한 줄: 색상 | 굵게·기울임 | 정렬 (아이콘 위주로 간결하게) -->

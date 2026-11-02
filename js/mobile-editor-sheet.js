@@ -1,11 +1,11 @@
 /* =========================================================
- * 시안 제작 화면: [꾸미기] 버튼 + 도구 시트 (PC·모바일 공통)
+ * 모바일 시안 제작 화면: [꾸미기] 버튼 + 아래에서 올라오는 도구 시트
  *
- * - 이미지/배경/텍스트 도구를 평소에 숨기고, 아래 바의 [꾸미기]를 누르면
- *   ① 꾸미기 메뉴(이미지 / 텍스트 / 배경)가 열리고
- *   ② 하나를 고르면 그 도구가 열린다.
- *   모바일은 화면 아래에서 올라오는 시트(캔버스는 위에 그대로 보임),
- *   PC는 캔버스 아래 칸에 펼쳐진다 (css/mobile-editor-sheet.css 맨 아래 PC 블록).
+ * - 모바일(≤768px)에서는 캔버스를 크게 보도록 이미지/배경/텍스트 도구를
+ *   평소에 숨기고, 아래 고정 바의 [꾸미기]를 누르면
+ *   ① 꾸미기 메뉴(이미지 / 텍스트 / 배경)가 올라오고
+ *   ② 하나를 고르면 그 도구가 시트로 올라온다 (캔버스는 위에 그대로 보임).
+ * - PC는 기존 탭 + 도구 패널 그대로 (텍스트 도구의 한 줄 배치만 공통).
  * - 텍스트 도구에서는 폰트 버튼 9개 대신 "폰트  지금 폰트 ›" 한 줄을 보여주고,
  *   누르면 폰트 고르기 화면으로 바뀐다.
  * - 기존 도구 패널(.editorToolBox)과 버튼을 그대로 옮겨 쓰는 방식이라
@@ -24,15 +24,15 @@
   };
 
   const FONT_NAMES = {
-    basic: "기본",
-    bold: "굵게",
-    round: "둥근",
-    hand: "손글씨",
-    retro: "레트로",
-    calli: "캘리",
+    basic: "프리텐다드",
+    bold: "잘난체",
+    round: "써라운드",
+    hand: "몽토리체",
+    retro: "빙그레체",
+    calli: "가을소풍체",
     giants: "자이언츠",
-    court: "코트",
-    jump: "점프",
+    court: "KBL 코트체",
+    jump: "KBL 점프체",
   };
 
   // 지금 시트 상태: null(닫힘) | "menu" | "image" | "text" | "bg" | "font"
@@ -81,8 +81,7 @@
         <b>배경</b>
       </button>
     </div>`;
-  // PC는 캔버스 아래(도구 칸 자리)에 펼치고, 모바일은 CSS로 화면 아래 고정 시트가 됨
-  toolBox.parentNode.insertBefore(menu, toolBox);
+  document.body.appendChild(menu);
 
   /* ---------- 3) 도구 시트 머리줄 (기존 도구 패널 맨 위에 추가) ---------- */
   const toolHead = document.createElement("div");
@@ -104,13 +103,13 @@
   fontRow.type = "button";
   fontRow.className = "mFontRow";
   fontRow.innerHTML =
-    '<span class="mFontRow__label">폰트</span><span class="mFontRow__name" id="mFontRowName">기본</span>' +
+    '<span class="mFontRow__label">폰트</span><span class="mFontRow__name" id="mFontRowName">프리텐다드</span>' +
     '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>';
   if (fontSection) fontSection.parentNode.insertBefore(fontRow, fontSection);
   const fontRowName = fontRow.querySelector("#mFontRowName");
 
   /* ---------- 4-1) 텍스트 도구 배치 (PC·모바일 공통)
-   * 1줄: [폰트 기본 ›] [텍스트 추가] [삭제]
+   * 1줄: [폰트 프리텐다드 ›] [텍스트 추가] [삭제]
    * 2줄: 색상 | 굵게 · 기울임 | 정렬  (기존 꾸미기 줄에서 추가/삭제만 빼냄) */
   const textAddBtn = document.getElementById("textApplyBtn");
   const textDelBtn = document.getElementById("textClearBtn");
@@ -137,7 +136,7 @@
   const syncFontRow = () => {
     const active = document.querySelector("[data-text-font].is-active");
     const type = active?.dataset.textFont || (typeof textFontType !== "undefined" ? textFontType : "basic");
-    fontRowName.textContent = FONT_NAMES[type] || "기본";
+    fontRowName.textContent = FONT_NAMES[type] || "프리텐다드";
     // 이름을 그 폰트 모양으로 (폰트 버튼에 지정된 글꼴을 그대로 사용)
     const family = active?.style.getPropertyValue("font-family");
     if (family) fontRowName.style.setProperty("font-family", family, "important");
@@ -178,10 +177,10 @@
   };
 
   const open = (next) => {
-    if (!isEditorStep()) return;
+    if (!isMobile() || !isEditorStep()) return;
     const wasClosed = !state;
     setState(next);
-    if (wasClosed && isMobile()) scrollCanvasIntoView();
+    if (wasClosed) scrollCanvasIntoView();
   };
 
   const close = () => setState(null);
@@ -202,7 +201,12 @@
     if (action === "close") close();
     if (action === "back") back();
   });
-  fontRow.addEventListener("click", () => open("font"));
+  // 폰트 줄: 모바일은 "폰트 고르기" 화면으로, PC는 아래에 폰트 목록을 펼치고 접음
+  fontRow.addEventListener("click", () => {
+    if (isMobile()) return open("font");
+    const opened = document.body.classList.toggle("pcFontOpen");
+    fontRow.setAttribute("aria-expanded", opened ? "true" : "false");
+  });
 
   // 폰트를 고르면 이름표 갱신 (고른 뒤에도 폰트 화면에 머물러서 여러 개 비교 가능)
   document.querySelectorAll("[data-text-font]").forEach((btn) => {
@@ -213,6 +217,9 @@
   new MutationObserver(() => {
     if (!isEditorStep()) close();
   }).observe(document.body, { attributes: true, attributeFilter: ["data-step"] });
+  MOBILE_QUERY.addEventListener?.("change", () => {
+    if (!isMobile()) close();
+  });
 
   // 모바일 스포이드: 캔버스를 눌러야 하므로 도구 시트를 잠깐 내렸다가, 끝나면 다시 올림
   const canvasWrap = document.getElementById("canvasWrap");
