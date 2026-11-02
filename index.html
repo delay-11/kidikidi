@@ -54,7 +54,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v3.0.0
+                v3.0.1
             </div>
         </div>
     </header>
@@ -200,6 +200,8 @@
                                         <b id="selText">없음</b><span aria-hidden="true" class="pillCaret">▼</span>
                                     </button>
                                     <span class="quickOptionHint">눌러서 변경</span>
+                                    <!-- 모바일: 프로파일/규격 다음 줄에 캔버스·배경·미리보기 전환 -->
+                                    <span aria-hidden="true" class="pillBreak"></span>
                                     <span class="tag">캔버스</span><b id="canvasText">-</b>
                                     <span class="tag">배경</span><b id="bgText">-</b>
                                     <button class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
@@ -251,14 +253,27 @@
                                                     </div>
                                                 </div>
                                                 <div class="uploadRow">
-                                                    <button class="ghostBtn fileBtn btn btn-outline-secondary"
-                                                        disabled="" id="fileBtn" type="button">
-                                                        이미지 업로드
+                                                    <button aria-label="이미지 업로드" class="ghostBtn fileBtn btn btn-outline-secondary"
+                                                        disabled="" id="fileBtn" title="이미지 업로드" type="button">
+                                                        <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg>
+                                                        <span class="mBtnLabel">이미지 업로드</span>
                                                     </button>
-                                                    <button class="dangerBtn btn btn-outline-danger" disabled=""
-                                                        id="fileDelBtn" type="button">
-                                                        삭제
+                                                    <button aria-label="이미지 삭제" class="dangerBtn btn btn-outline-danger" disabled=""
+                                                        id="fileDelBtn" title="이미지 삭제" type="button">
+                                                        <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+                                                        <span class="mBtnLabel">삭제</span>
                                                     </button>
+                                                    <!-- 모바일: 안내사항은 이 (i) 버튼을 눌렀을 때만 툴팁으로 -->
+                                                    <span class="mInfoTip">
+                                                        <button aria-controls="imageInfoTip" aria-expanded="false" aria-label="이미지 안내사항"
+                                                            class="mInfoTip__btn" type="button">
+                                                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/></svg>
+                                                        </button>
+                                                        <span class="mInfoTip__box" hidden id="imageInfoTip" role="tooltip">
+                                                            올린 이미지는 캔버스에서 끌어서 옮기고, 두 손가락으로 크기를 조절해요.<br />
+                                                            PNG · JPG · WEBP 가능 / 투명 배경 권장
+                                                        </span>
+                                                    </span>
                                                     <button class="ghostBtn btn btn-outline-secondary" disabled=""
                                                         id="imageCenterBtn" type="button">
                                                         캔버스 중앙
@@ -638,8 +653,11 @@
     <div aria-hidden="true" class="print-guide-modal hidden" id="printGuideModal">
         <div aria-label="인쇄 가이드 안내" aria-modal="true" class="print-guide-modal-content" role="dialog">
             <div class="guideSheet print-guide-intro" id="printGuideIntro">
-                <h2 class="guideSheet__title">시안 만들기 전에 체크!</h2>
-                <p class="guideSheet__basis" id="printGuideBasis"></p>
+                <h2 class="guideSheet__title">시안 배치 유의사항</h2>
+                <ul class="guideNote guideNote--list guideNote--top">
+                    <li>CMYK로 인쇄되어 화면에 보이는 색상과 다르게 인쇄될 수 있어요.</li>
+                    <li>승화전사 인쇄 특성상 제작 시 1mm 정도 오차가 있을 수 있어요.</li>
+                </ul>
                 <ol class="guideSteps">
                     <li class="guideStep">
                         <div class="guideStep__head"><span class="guideStep__num">1</span><strong>중요한 그림은 빨간선 안에</strong></div>
@@ -667,11 +685,6 @@
                     </li>
                 </ol>
             </div>
-            <!-- 꼭 읽어야 하는 안내라 스크롤 영역 밖(버튼 바로 위)에 고정 -->
-            <ul class="guideNote guideNote--list guideNote--pinned">
-                <li><b>색상</b> CMYK로 인쇄해서 화면과 조금 다를 수 있어요.</li>
-                <li><b>위치</b> 승화전사 인쇄 특성상 제작 시 1mm 정도 오차가 있을 수 있어요.</li>
-            </ul>
             <div class="print-guide-actions" data-step="0" id="printGuideActions">
                 <button class="print-guide-action-btn print-guide-hide" id="hidePrintGuideBtn" type="button">
                     다시 보지 않기

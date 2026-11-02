@@ -65,19 +65,19 @@
         <span class="mDecorateTile__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg>
         </span>
-        <b>이미지</b><small>사진 올리기</small>
+        <b>이미지</b>
       </button>
       <button type="button" class="mDecorateTile" data-m-tool="text">
         <span class="mDecorateTile__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6V4h14v2"/><path d="M12 4v16"/><path d="M9 20h6"/></svg>
         </span>
-        <b>텍스트</b><small>글자 넣기</small>
+        <b>텍스트</b>
       </button>
       <button type="button" class="mDecorateTile" data-m-tool="bg">
         <span class="mDecorateTile__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5c3.5 4 6 7.2 6 10a6 6 0 0 1-12 0c0-2.8 2.5-6 6-10z"/></svg>
         </span>
-        <b>배경</b><small>색 채우기</small>
+        <b>배경</b>
       </button>
     </div>`;
   document.body.appendChild(menu);
@@ -107,6 +107,46 @@
   if (fontSection) fontSection.parentNode.insertBefore(fontRow, fontSection);
   const fontRowName = fontRow.querySelector("#mFontRowName");
 
+  /* ---------- 4-1) 텍스트 도구 모바일 배치
+   * 1줄: [폰트 기본 ›] [텍스트 추가] [삭제]
+   * 2줄: 색상 | 굵게 · 기울임 | 정렬  (기존 꾸미기 줄에서 추가/삭제만 빼냄)
+   * PC 크기로 바뀌면 추가/삭제 버튼을 원래 자리(꾸미기 줄 끝)로 되돌린다. */
+  const textAddBtn = document.getElementById("textApplyBtn");
+  const textDelBtn = document.getElementById("textClearBtn");
+  const textStyleBar = document.querySelector("#toolText .textStyleBar");
+  const textTopRow = document.createElement("div");
+  textTopRow.className = "mTextTopRow";
+  if (fontSection) fontSection.parentNode.insertBefore(textTopRow, fontSection);
+
+  const syncTextLayout = () => {
+    if (!textAddBtn || !textDelBtn || !textStyleBar) return;
+    if (MOBILE_QUERY.matches) {
+      textTopRow.append(fontRow, textAddBtn, textDelBtn);
+    } else if (textAddBtn.parentNode !== textStyleBar) {
+      textTopRow.parentNode.insertBefore(fontRow, textTopRow);
+      textStyleBar.append(textAddBtn, textDelBtn);
+    }
+  };
+  syncTextLayout();
+  MOBILE_QUERY.addEventListener?.("change", syncTextLayout);
+
+  /* ---------- 4-2) 이미지 안내사항 (i) 툴팁 ---------- */
+  const infoTip = document.querySelector("#toolImage .mInfoTip");
+  const infoBtn = infoTip?.querySelector(".mInfoTip__btn");
+  const infoBox = infoTip?.querySelector(".mInfoTip__box");
+  const setInfoOpen = (openTip) => {
+    if (!infoBtn || !infoBox) return;
+    infoBox.hidden = !openTip;
+    infoBtn.setAttribute("aria-expanded", openTip ? "true" : "false");
+  };
+  infoBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    setInfoOpen(infoBox.hidden);
+  });
+  document.addEventListener("click", (e) => {
+    if (infoBox && !infoBox.hidden && !infoTip.contains(e.target)) setInfoOpen(false);
+  });
+
   const syncFontRow = () => {
     const active = document.querySelector("[data-text-font].is-active");
     const type = active?.dataset.textFont || (typeof textFontType !== "undefined" ? textFontType : "basic");
@@ -132,6 +172,7 @@
 
   const setState = (next) => {
     state = next;
+    setInfoOpen(false);
     const body = document.body;
     body.classList.toggle("mSheetMenuOpen", next === "menu");
     body.classList.toggle("mSheetToolOpen", !!next && next !== "menu");
