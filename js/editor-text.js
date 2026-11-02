@@ -4,7 +4,73 @@
 /* =========================================================
  * 텍스트 UI / 렌더 유틸
 ========================================================= */
+/* =========================================================
+ * 추가 폰트 (Google Fonts 한글 폰트, 모두 OFL - 상업적 이용·제품 인쇄 가능)
+ * - index.html <head>의 Google Fonts 링크, 폰트 버튼과 이 표를 같이 맞춰야 함
+ * - Google Fonts 한글 폰트는 글자 범위별로 잘게 나뉘어 있어서 화면에 쓰인 글자만 받음
+ *   (그래서 ensureTextFontLoaded()는 실제 입력한 글자로 불러온다)
+========================================================= */
+const GOOGLE_TEXT_FONTS = [
+  { key: "g_blackhansans", label: "블랙한산스", family: "Black Han Sans", weight: 400, generic: "sans-serif" },
+  { key: "g_dohyeon", label: "도현", family: "Do Hyeon", weight: 400, generic: "sans-serif" },
+  { key: "g_jua", label: "주아", family: "Jua", weight: 400, generic: "sans-serif" },
+  { key: "g_bagel", label: "베이글", family: "Bagel Fat One", weight: 400, generic: "sans-serif" },
+  { key: "g_gasoek", label: "가석", family: "Gasoek One", weight: 400, generic: "sans-serif" },
+  { key: "g_gugi", label: "구기", family: "Gugi", weight: 400, generic: "sans-serif" },
+  { key: "g_moirai", label: "모이라이", family: "Moirai One", weight: 400, generic: "sans-serif" },
+  { key: "g_gaegu", label: "개구", family: "Gaegu", weight: 700, generic: "cursive" },
+  { key: "g_gamja", label: "감자꽃", family: "Gamja Flower", weight: 400, generic: "cursive" },
+  { key: "g_himelody", label: "하이멜로디", family: "Hi Melody", weight: 400, generic: "cursive" },
+  { key: "g_nanumpen", label: "나눔펜", family: "Nanum Pen Script", weight: 400, generic: "cursive" },
+  { key: "g_nanumbrush", label: "나눔붓", family: "Nanum Brush Script", weight: 400, generic: "cursive" },
+  { key: "g_singleday", label: "싱글데이", family: "Single Day", weight: 400, generic: "cursive" },
+  { key: "g_dokdo", label: "독도", family: "Dokdo", weight: 400, generic: "cursive" },
+  { key: "g_eastseadokdo", label: "동해독도", family: "East Sea Dokdo", weight: 400, generic: "cursive" },
+  { key: "g_cutefont", label: "귀여운폰트", family: "Cute Font", weight: 400, generic: "cursive" },
+  { key: "g_kirang", label: "기랑해랑", family: "Kirang Haerang", weight: 400, generic: "cursive" },
+  { key: "g_poorstory", label: "푸어스토리", family: "Poor Story", weight: 400, generic: "cursive" },
+  { key: "g_yeonsung", label: "연성", family: "Yeon Sung", weight: 400, generic: "cursive" },
+  { key: "g_bwpicture", label: "흑백사진", family: "Black And White Picture", weight: 400, generic: "sans-serif" },
+  { key: "g_dongle", label: "동글", family: "Dongle", weight: 700, generic: "sans-serif" },
+  { key: "g_sunflower", label: "해바라기", family: "Sunflower", weight: 700, generic: "sans-serif" },
+  { key: "g_gowundodum", label: "고운돋움", family: "Gowun Dodum", weight: 400, generic: "sans-serif" },
+  { key: "g_nanumgothic", label: "나눔고딕", family: "Nanum Gothic", weight: 800, generic: "sans-serif" },
+  { key: "g_gothica1", label: "고딕 A1", family: "Gothic A1", weight: 800, generic: "sans-serif" },
+  { key: "g_notosans", label: "노토 산스", family: "Noto Sans KR", weight: 800, generic: "sans-serif" },
+  { key: "g_ibmplex", label: "IBM 플렉스", family: "IBM Plex Sans KR", weight: 700, generic: "sans-serif" },
+  { key: "g_orbit", label: "오르빗", family: "Orbit", weight: 400, generic: "sans-serif" },
+  { key: "g_stylish", label: "스타일리시", family: "Stylish", weight: 400, generic: "sans-serif" },
+  { key: "g_gowunbatang", label: "고운바탕", family: "Gowun Batang", weight: 700, generic: "serif" },
+  { key: "g_nanummyeongjo", label: "나눔명조", family: "Nanum Myeongjo", weight: 800, generic: "serif" },
+  { key: "g_notoserif", label: "노토 세리프", family: "Noto Serif KR", weight: 800, generic: "serif" },
+  { key: "g_songmyung", label: "송명", family: "Song Myung", weight: 400, generic: "serif" },
+  { key: "g_hahmlet", label: "함렡", family: "Hahmlet", weight: 800, generic: "serif" },
+  { key: "g_diphylleia", label: "디필레이아", family: "Diphylleia", weight: 400, generic: "serif" },
+  { key: "g_grandiflora", label: "그랜디플로라", family: "Grandiflora One", weight: 400, generic: "serif" },
+];
+const GOOGLE_TEXT_FONT_MAP = Object.fromEntries(GOOGLE_TEXT_FONTS.map((f) => [f.key, f]));
+
+const TEXT_FONT_LABELS = {
+  basic: "프리텐다드",
+  bold: "잘난체",
+  round: "써라운드",
+  hand: "몽토리체",
+  retro: "빙그레체",
+  calli: "가을소풍체",
+  giants: "자이언츠",
+  court: "KBL 코트체",
+  jump: "KBL 점프체",
+  ...Object.fromEntries(GOOGLE_TEXT_FONTS.map((f) => [f.key, f.label])),
+};
+
+function getTextFontLabel(type = textFontType) {
+  return TEXT_FONT_LABELS[type] || TEXT_FONT_LABELS.basic;
+}
+
 function getTextFontFamily(type = textFontType) {
+  const google = GOOGLE_TEXT_FONT_MAP[type];
+  if (google) return `'${google.family}', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', ${google.generic}`;
+
   const map = {
     basic: "'Pretendard', system-ui, -apple-system, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
     bold: "'JalnanGothic', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif",
@@ -28,28 +94,34 @@ function getTextFontFamily(type = textFontType) {
 ========================================================= */
 const requestedTextFonts = new Set();
 
-function ensureTextFontLoaded(type = textFontType) {
-  if (!document.fonts?.load || requestedTextFonts.has(type)) return;
-  requestedTextFonts.add(type);
+// sample: 실제로 그릴 글자. Google Fonts 한글 폰트는 글자 범위별 조각 파일이라
+// "가" 같은 대표 글자만 받으면 나머지 글자는 대체 글꼴로 그려짐 → 입력한 글자 그대로 받는다.
+function ensureTextFontLoaded(type = textFontType, sample = "") {
+  const text = String(sample || "").replace(/\s+/g, "") || "가A";
+  const key = `${type}\n${text}`;
+  if (!document.fonts?.load || requestedTextFonts.has(key)) return;
+  if (requestedTextFonts.size > 400) requestedTextFonts.clear();
+  requestedTextFonts.add(key);
 
   const spec = `${getTextFontWeight(type)} 40px ${getTextFontFamily(type)}`;
   try {
-    if (document.fonts.check(spec, "가")) return;
+    if (document.fonts.check(spec, text)) return;
   } catch (e) {
     // check 미지원 브라우저는 그냥 load 시도
   }
   document.fonts
-    .load(spec, "가A")
+    .load(spec, text)
     .then(() => {
       if (typeof redraw === "function") redraw();
     })
     .catch(() => {
       // 폰트를 못 받아오면 대체 글꼴로 계속 표시 (다음에 다시 시도할 수 있게 표시 해제)
-      requestedTextFonts.delete(type);
+      requestedTextFonts.delete(key);
     });
 }
 
 function getTextFontWeight(type = textFontType) {
+  if (GOOGLE_TEXT_FONT_MAP[type]) return GOOGLE_TEXT_FONT_MAP[type].weight;
   // JalnanGothic / Cafe24 Ssurround / GriunMongtori는 단일 굵기 폰트라
   // 그 자체 디자인으로 이미 원하는 인상을 내므로 400을 사용.
   // BinggreIi / HakgyoansimGaeulsopungB / GiantsInline은 Bold(700) 파일 하나만 배포되어 700을 그대로 사용.
@@ -285,21 +357,10 @@ function syncTextFontPreviewButtons() {
   // 이름을 바꾸면 files/font-preview/*.woff2(이름표 글자만 뽑은 subset)도 새 글자로 다시 만들어야 함.
   // (이전에는 bootstrap-wizard-overrides.css의 !important 시스템 폰트 지정에 막혀
   //  모든 버튼이 같은 글꼴로 보였음 → 버튼마다 inline !important로 실제 폰트를 지정)
-  const labels = {
-    basic: "프리텐다드",
-    bold: "잘난체",
-    round: "써라운드",
-    hand: "몽토리체",
-    retro: "빙그레체",
-    calli: "가을소풍체",
-    giants: "자이언츠",
-    court: "KBL 코트체",
-    jump: "KBL 점프체",
-  };
 
   textFontBtnEls?.forEach((btn) => {
     const type = btn.dataset.textFont || "basic";
-    const label = labels[type] || labels.basic;
+    const label = getTextFontLabel(type);
     btn.textContent = label;
     btn.title = `${label} 폰트`;
     btn.setAttribute("aria-label", `${label} 폰트`);
@@ -442,7 +503,7 @@ function getTextRenderMetrics(targetCtx, w, h, textState = {}) {
 function drawTextObjectToContext(targetCtx, w, h, textState = {}) {
   if (!safeTrim(textState?.value || "")) return;
 
-  ensureTextFontLoaded(textState.fontType || "basic");
+  ensureTextFontLoaded(textState.fontType || "basic", textState.value);
 
   const metrics = getTextRenderMetrics(targetCtx, w, h, textState);
   if (!metrics) return;

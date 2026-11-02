@@ -107,6 +107,20 @@ async function compressFileForEmailAttachment(
 ========================================================= */
 async function waitForDesignFontsReady() {
   try {
+    // 시안에 쓴 글자 그대로 폰트를 받아 둠 (Google Fonts 한글 폰트는 글자 범위별 조각이라
+    // 미리 받지 않은 글자는 첨부 이미지에서 대체 글꼴로 그려질 수 있음)
+    if (document?.fonts?.load && typeof getTextFontFamily === "function") {
+      const loads = [];
+      (Array.isArray(cartItems) ? cartItems : []).forEach((it) => {
+        (Array.isArray(it?.design?.texts) ? it.design.texts : []).forEach((t) => {
+          const text = String(t?.value || "").replace(/\s+/g, "");
+          if (!text) return;
+          const spec = `${getTextFontWeight(t.fontType)} 40px ${getTextFontFamily(t.fontType)}`;
+          loads.push(document.fonts.load(spec, text).catch(() => null));
+        });
+      });
+      await Promise.all(loads);
+    }
     if (document?.fonts?.ready) {
       await document.fonts.ready;
     }

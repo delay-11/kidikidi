@@ -187,10 +187,8 @@ function drawKeycapMockup() {
 
   // 에디터에서는 키캡 밖도 시안이 비쳐 보이게 옅게만 덮고, "여기도 옆면에 인쇄된다"는 표시를 함께 그림
   // (예전엔 키캡 밖을 거의 가려서, 키캡 모양 안만 채우면 되는 줄 아는 경우가 있었음)
-  // 모바일은 화면이 좁아 캔버스 테두리 점선/옆면 안내 문구가 시안을 가려서 그리지 않음 (같은 내용은 인쇄 가이드에 있음)
   paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY), {
     outsideAlpha: 0.42,
-    sideHint: !window.matchMedia?.("(max-width: 768px)").matches,
   });
   // 중앙 맞춤 가이드는 음영에 가려지지 않게 맨 위에
   if (typeof drawCenterGuide === "function") drawCenterGuide(c);
@@ -334,7 +332,6 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
   }
 
   /* 7) 에디터 전용: 캔버스 끝 점선 + "옆면까지 인쇄" 안내 */
-  if (opts.sideHint) drawSidePrintHint(c, W, H, shape, blurScale);
 }
 
 // 목업 모드에서는 MAO의 회색 바깥/안쪽 선은 음영이 대신하므로 숨기고 빨간 안전선만 남긴다.
@@ -447,14 +444,4 @@ function renderKeycapMockupThumb(source, profile, capType, options = {}) {
     console.warn("키캡 미리보기 썸네일 생성 실패:", e);
     return { dataUrl: "", aspect: 1 };
   }
-}
-
-// 캔버스 테두리에 점선을 둘러 "여기까지 옆면에 인쇄된다"는 범위만 표시 (설명 문구는 인쇄 가이드에 있음)
-function drawSidePrintHint(c, W, H, shape, pxScale = 1) {
-  c.save();
-  c.strokeStyle = "rgba(183, 121, 31, 0.9)";
-  c.lineWidth = 2 / Math.max(0.5, pxScale / (window.devicePixelRatio || 1));
-  c.setLineDash([6, 5]);
-  c.strokeRect(2, 2, W - 4, H - 4);
-  c.restore();
 }

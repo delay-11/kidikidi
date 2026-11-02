@@ -23,17 +23,6 @@
     bg: { panel: "toolBg", title: "배경" },
   };
 
-  const FONT_NAMES = {
-    basic: "프리텐다드",
-    bold: "잘난체",
-    round: "써라운드",
-    hand: "몽토리체",
-    retro: "빙그레체",
-    calli: "가을소풍체",
-    giants: "자이언츠",
-    court: "KBL 코트체",
-    jump: "KBL 점프체",
-  };
 
   // 지금 시트 상태: null(닫힘) | "menu" | "image" | "text" | "bg" | "font"
   let state = null;
@@ -136,7 +125,7 @@
   const syncFontRow = () => {
     const active = document.querySelector("[data-text-font].is-active");
     const type = active?.dataset.textFont || (typeof textFontType !== "undefined" ? textFontType : "basic");
-    fontRowName.textContent = FONT_NAMES[type] || "프리텐다드";
+    fontRowName.textContent = getTextFontLabel(type);
     // 이름을 그 폰트 모양으로 (폰트 버튼에 지정된 글꼴을 그대로 사용)
     const family = active?.style.getPropertyValue("font-family");
     if (family) fontRowName.style.setProperty("font-family", family, "important");
