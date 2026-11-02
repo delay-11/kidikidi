@@ -117,7 +117,7 @@ function normalizeHexInput(value, fallback = "#ffffff") {
 
 function getBgLabelFromState(type, color1, color2, direction) {
   if (normalizeBgMode(type) === "gradient") {
-    return `그라데이션 ${color1 || "#ffffff"} → ${color2 || "#fdcc63"}`;
+    return `${color1 || "#ffffff"} → ${color2 || "#fdcc63"}`;
   }
   return color1 || "#ffffff";
 }

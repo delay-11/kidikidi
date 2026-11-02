@@ -33,45 +33,8 @@
         max-width: 140px;
     }
 
-    /* ▼ 버튼이 같은 뜻이라 PC 한 줄에서는 생략 */
-    body.kidikidiBootstrap .pill .quickOptionHint {
-        display: none !important;
-    }
-
-    /* 인쇄 가이드: 아이콘 버튼 (마우스를 올리면 이름 표시) */
-    body.kidikidiBootstrap .pill #openPrintGuideBtn {
-        display: inline-flex !important;
-        align-items: center;
-        justify-content: center;
-        width: 32px !important;
-        min-width: 32px !important;
-        height: 32px !important;
-        min-height: 32px !important;
-        margin-left: auto !important;
-        padding: 0 !important;
-        border-radius: 50% !important;
-    }
-
-    body.kidikidiBootstrap .pill #openPrintGuideBtn .pillGuideLabel {
-        display: none;
-    }
-
-    body.kidikidiBootstrap .pill #openPrintGuideBtn + .keycapMockupToggle {
-        margin-left: 0;
-    }
 }
 
-.pillGuideIcon {
-    display: none;
-    width: 18px;
-    height: 18px;
-}
-
-@media (min-width: 769px) {
-    .pillGuideIcon {
-        display: block;
-    }
-}
 
 /* 그라데이션 초기화: PC는 아이콘 + "초기화", 모바일은 아이콘만 */
 #toolBg .gradientResetBtn {
@@ -411,10 +374,8 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
     }
 }
 
-@media (max-width: 768px) {
-    body.kidikidiBootstrap .pill #openPrintGuideBtn {
-        display: none !important;
-    }
+body.kidikidiBootstrap .pill #openPrintGuideBtn {
+    display: none !important;
 }
 
 .pill .keycapMockupToggle {
@@ -674,6 +635,7 @@ body[data-step="editor"] .mFontRow {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    font-size: 15px !important;
     flex: 1 1 auto;
     font-size: 18px;
 }
@@ -975,4 +937,36 @@ body.kidikidiBootstrap .textToolFontSection .bgToolSectionTitle {
     .optionQuickGrid label:last-child {
         grid-column: auto !important;
     }
+}
+
+/* 삭제 버튼은 어디에 있든 빨간색으로 통일 (텍스트 삭제를 1줄로 옮기면서 회색이 됐었음) */
+body.kidikidiBootstrap #textClearBtn {
+    border-color: #fecdca !important;
+    background: #ffffff !important;
+    color: #d92d20 !important;
+}
+
+body.kidikidiBootstrap #textClearBtn:disabled {
+    opacity: 0.45;
+}
+
+/* 그라데이션 경계/퍼짐 슬라이더: 눌러도 입력칸용 노란 포커스 테두리가 생기지 않게 */
+body.kidikidiBootstrap #toolBg input[type="range"]:focus,
+body.kidikidiBootstrap #toolBg input[type="range"]:focus-visible,
+body.kidikidiBootstrap #toolBg .gradientRangeItem:focus-within {
+    border-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* 단색/그라데이션 전환: 고르지 않은 쪽은 배경 없이, 고른 쪽만 검정 */
+body.kidikidiBootstrap #toolBg .bgModeToggle {
+    background: transparent !important;
+}
+
+body.kidikidiBootstrap #toolBg .bgModeBtn:not(.is-active) {
+    border-color: transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #475467 !important;
 }

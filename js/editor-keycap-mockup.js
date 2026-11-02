@@ -449,37 +449,12 @@ function renderKeycapMockupThumb(source, profile, capType, options = {}) {
   }
 }
 
-// 캔버스 테두리에 점선을 두르고, 키캡 아래 여백에 안내 문구를 그림
+// 캔버스 테두리에 점선을 둘러 "여기까지 옆면에 인쇄된다"는 범위만 표시 (설명 문구는 인쇄 가이드에 있음)
 function drawSidePrintHint(c, W, H, shape, pxScale = 1) {
-  const o = shape.outerBox;
   c.save();
   c.strokeStyle = "rgba(183, 121, 31, 0.9)";
   c.lineWidth = 2 / Math.max(0.5, pxScale / (window.devicePixelRatio || 1));
   c.setLineDash([6, 5]);
   c.strokeRect(2, 2, W - 4, H - 4);
-  c.restore();
-
-  const below = H - (o.y + o.h);
-  if (below < 26) return;
-
-  const text = "캔버스 끝까지 채워야 옆면까지 인쇄돼요";
-  const fontSize = Math.max(9, Math.min(13, below * 0.2, W * 0.042));
-  c.save();
-  c.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif`;
-  const tw = c.measureText(text).width;
-  const padX = fontSize * 0.8;
-  const pillW = Math.min(W - 8, tw + padX * 2);
-  const pillH = fontSize * 2;
-  const x = (W - pillW) / 2;
-  const y = o.y + o.h + (below - pillH) / 2 + below * 0.12;
-  c.fillStyle = "rgba(16, 24, 40, 0.82)";
-  c.beginPath();
-  if (c.roundRect) c.roundRect(x, y, pillW, pillH, pillH / 2);
-  else c.rect(x, y, pillW, pillH);
-  c.fill();
-  c.fillStyle = "#fdcc63";
-  c.textAlign = "center";
-  c.textBaseline = "middle";
-  c.fillText(text, W / 2, y + pillH / 2, pillW - padX);
   c.restore();
 }
