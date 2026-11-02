@@ -1,14 +1,15 @@
 /* =========================================================
- * 모바일 시안 제작 화면: [꾸미기] 버튼 + 아래에서 올라오는 도구 시트
+ * 시안 제작 화면: [꾸미기] 버튼 + 도구 시트 (PC·모바일 공통)
  *
- * - 모바일(≤768px)에서는 캔버스를 크게 보도록 이미지/배경/텍스트 도구를
- *   평소에 숨기고, 아래 고정 바의 [꾸미기]를 누르면
- *   ① 꾸미기 메뉴(이미지 / 텍스트 / 배경)가 올라오고
- *   ② 하나를 고르면 그 도구가 시트로 올라온다 (캔버스는 위에 그대로 보임).
+ * - 이미지/배경/텍스트 도구를 평소에 숨기고, 아래 바의 [꾸미기]를 누르면
+ *   ① 꾸미기 메뉴(이미지 / 텍스트 / 배경)가 열리고
+ *   ② 하나를 고르면 그 도구가 열린다.
+ *   모바일은 화면 아래에서 올라오는 시트(캔버스는 위에 그대로 보임),
+ *   PC는 캔버스 아래 칸에 펼쳐진다 (css/mobile-editor-sheet.css 맨 아래 PC 블록).
  * - 텍스트 도구에서는 폰트 버튼 9개 대신 "폰트  지금 폰트 ›" 한 줄을 보여주고,
  *   누르면 폰트 고르기 화면으로 바뀐다.
  * - 기존 도구 패널(.editorToolBox)과 버튼을 그대로 옮겨 쓰는 방식이라
- *   기능/검증/잠금 로직은 PC와 완전히 같다. PC 화면은 바뀌지 않음.
+ *   기능/검증/잠금 로직은 기존과 완전히 같다.
 ========================================================= */
 (() => {
   const MOBILE_QUERY = window.matchMedia("(max-width: 768px)");
@@ -80,7 +81,8 @@
         <b>배경</b>
       </button>
     </div>`;
-  document.body.appendChild(menu);
+  // PC는 캔버스 아래(도구 칸 자리)에 펼치고, 모바일은 CSS로 화면 아래 고정 시트가 됨
+  toolBox.parentNode.insertBefore(menu, toolBox);
 
   /* ---------- 3) 도구 시트 머리줄 (기존 도구 패널 맨 위에 추가) ---------- */
   const toolHead = document.createElement("div");
@@ -176,10 +178,10 @@
   };
 
   const open = (next) => {
-    if (!isMobile() || !isEditorStep()) return;
+    if (!isEditorStep()) return;
     const wasClosed = !state;
     setState(next);
-    if (wasClosed) scrollCanvasIntoView();
+    if (wasClosed && isMobile()) scrollCanvasIntoView();
   };
 
   const close = () => setState(null);
@@ -200,12 +202,7 @@
     if (action === "close") close();
     if (action === "back") back();
   });
-  // 폰트 줄: 모바일은 "폰트 고르기" 화면으로, PC는 아래에 폰트 목록을 펼치고 접음
-  fontRow.addEventListener("click", () => {
-    if (isMobile()) return open("font");
-    const opened = document.body.classList.toggle("pcFontOpen");
-    fontRow.setAttribute("aria-expanded", opened ? "true" : "false");
-  });
+  fontRow.addEventListener("click", () => open("font"));
 
   // 폰트를 고르면 이름표 갱신 (고른 뒤에도 폰트 화면에 머물러서 여러 개 비교 가능)
   document.querySelectorAll("[data-text-font]").forEach((btn) => {
@@ -216,9 +213,6 @@
   new MutationObserver(() => {
     if (!isEditorStep()) close();
   }).observe(document.body, { attributes: true, attributeFilter: ["data-step"] });
-  MOBILE_QUERY.addEventListener?.("change", () => {
-    if (!isMobile()) close();
-  });
 
   // 모바일 스포이드: 캔버스를 눌러야 하므로 도구 시트를 잠깐 내렸다가, 끝나면 다시 올림
   const canvasWrap = document.getElementById("canvasWrap");
@@ -236,6 +230,17 @@
   };
   syncHeaderHeight();
   window.addEventListener("resize", syncHeaderHeight);
+
+  // 이전/다음 줄이 스크롤로 위에 붙었을 때만 배경 표시 (평소엔 페이지 배경과 같게 투명)
+  const syncStuckHeaders = () => {
+    const top = siteHeader ? siteHeader.getBoundingClientRect().height : 0;
+    document.querySelectorAll(".stepPageHeader").forEach((el) => {
+      if (!el.offsetParent) return;
+      el.classList.toggle("isStuck", window.scrollY > 4 && el.getBoundingClientRect().top <= top + 1);
+    });
+  };
+  window.addEventListener("scroll", syncStuckHeaders, { passive: true });
+  new MutationObserver(syncStuckHeaders).observe(document.body, { attributes: true, attributeFilter: ["data-step"] });
   if (siteHeader && typeof ResizeObserver !== "undefined") new ResizeObserver(syncHeaderHeight).observe(siteHeader);
 
   window.openMobileDecorateSheet = open;

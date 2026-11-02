@@ -153,8 +153,7 @@
     const notes = document.createElement("ul");
     notes.className = "phNotes";
     notes.innerHTML =
-      "<li>같은 1U라도 줄(R1~R4)마다 높이와 기울기가 달라요. 다른 줄을 고르면 끼웠을 때 높낮이가 어긋나요.</li>" +
-      "<li>키디키디 키캡은 십자(+) 축 키보드용이에요.</li>";
+      "<li>같은 1U라도 줄(R1~R4)마다 높이와 기울기가 달라요. 다른 줄을 고르면 끼웠을 때 높낮이가 어긋나요.</li>";
     root.appendChild(notes);
   };
 
