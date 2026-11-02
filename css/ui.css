@@ -1100,9 +1100,9 @@ button:disabled {
     margin-right: 4px;
 }
 
-.guideNote--pinned {
-    flex: 0 0 auto;
-    margin: 8px 0 0;
+/* 인쇄 유의사항: 제목 바로 아래 */
+.guideNote--top {
+    margin: 4px 0 10px;
 }
 
 /* 휴대폰에서 버튼 위 안내까지 한 화면에 들어오도록 예시 그림을 조금 작게 */

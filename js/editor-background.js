@@ -67,8 +67,13 @@ function positionPickrPanel() {
   const panelWidth = panel.offsetWidth || 260;
   const gap = 10;
 
+  const panelHeight = panel.offsetHeight || 300;
   let left = rect.left;
   let top = rect.bottom + gap;
+  // 아래 공간이 부족하면(모바일 하단 시트 안의 버튼 등) 버튼 위쪽에 띄워서 화면 밖으로 잘리지 않게
+  if (top + panelHeight > window.innerHeight - 8 && rect.top - gap - panelHeight >= 8) {
+    top = rect.top - gap - panelHeight;
+  }
 
   if (left + panelWidth > window.innerWidth - 16) {
     left = Math.max(16, window.innerWidth - panelWidth - 16);
@@ -112,7 +117,7 @@ function normalizeHexInput(value, fallback = "#ffffff") {
 
 function getBgLabelFromState(type, color1, color2, direction) {
   if (normalizeBgMode(type) === "gradient") {
-    return `그라데이션 ${color1 || "#ffffff"} → ${color2 || "#fdcc63"}`;
+    return `${color1 || "#ffffff"} → ${color2 || "#fdcc63"}`;
   }
   return color1 || "#ffffff";
 }

@@ -41,6 +41,17 @@ function getPointerDistance(a, b) {
   return Math.hypot((b.clientX || 0) - (a.clientX || 0), (b.clientY || 0) - (a.clientY || 0));
 }
 
+function getPointerAngle(a, b) {
+  return Math.atan2((b.clientY || 0) - (a.clientY || 0), (b.clientX || 0) - (a.clientX || 0));
+}
+
+// 두 손가락 회전: 0° / 90° / 180° / 270° 근처(약 4°)에서는 딱 맞춰 줌
+function snapPinchRotation(rot) {
+  const step = Math.PI / 2;
+  const nearest = Math.round(rot / step) * step;
+  return Math.abs(rot - nearest) < 0.07 ? nearest : rot;
+}
+
 function getPointerMidpointCanvas(a, b) {
   return getCanvasPointFromClient(
     ((a.clientX || 0) + (b.clientX || 0)) / 2,
@@ -77,9 +88,11 @@ function beginPinchDrag() {
     startCY: Number.isFinite(obj.cy) ? obj.cy : canvasLogicalH / 2,
     startScaleX: Number.isFinite(obj.scaleX) ? obj.scaleX : 1,
     startScaleY: Number.isFinite(obj.scaleY) ? obj.scaleY : 1,
+    startAngle: getPointerAngle(pair.a, pair.b),
+    startRot: getObjectRot("image"),
   };
 
-  showCanvasHelpTip("두 손가락을 벌리거나 모아 이미지 크기를 조절합니다.", 2200);
+  showCanvasHelpTip("두 손가락으로 벌리거나 모아 크기를, 비틀어서 각도를 조절합니다.", 2200);
   redraw();
 }
 
@@ -100,7 +113,10 @@ function updatePinchDrag() {
   obj.scaleX = imgScaleX;
   obj.scaleY = imgScaleY;
 
-  // 손가락 위치와 무관하게 이미지 중심을 고정한 채 크기만 조절
+  // 두 손가락을 비튼 만큼 회전
+  setObjectRot("image", snapPinchRotation(pinchDrag.startRot + (getPointerAngle(pair.a, pair.b) - pinchDrag.startAngle)));
+
+  // 손가락 위치와 무관하게 이미지 중심을 고정한 채 크기/각도만 조절
   setObjectCenter("image", pinchDrag.startCX, pinchDrag.startCY);
 
   redraw();

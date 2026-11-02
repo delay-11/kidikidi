@@ -1,6 +1,7 @@
 /* =========================================================
  * 인쇄 가이드 모달
- * - "시안 만들기 전에 체크!" (HTML) 한 페이지 - 3가지 배치 규칙을
+ * - "시안 배치 유의사항" (HTML) 한 페이지 - 맨 위에 인쇄 유의사항(CMYK 색상, 1mm 오차),
+ *   그 아래 3가지 배치 규칙을
  *   회사 로고 시안 + 키캡 미리보기(목업) 그림으로 바로 보여줌.
  *   그림만으로 충분히 이해돼서 긴 설명 문장과 기존 안내 이미지
  *   (print_guide.png / placement_guide.png) 페이지는 뺐음.
@@ -48,8 +49,6 @@
   exampleLogo.addEventListener("load", () => {
     if (!modal.classList.contains("hidden")) renderPlacementExamples();
   });
-
-  const basisEl = document.getElementById("printGuideBasis");
 
   const getExampleTarget = () => {
     const profile = profileEl?.value || "OEM";
@@ -109,7 +108,6 @@
     // 아주 넓은 키(스페이스바 등)는 좌우 대신 위아래로 배치
     modal.dataset.exampleShape =
       aspect >= 2.8 ? "wide" : aspect >= 1.4 ? "long" : aspect <= 0.7 ? "tall" : "square";
-    if (basisEl) basisEl.textContent = `${profile} / ${getCapTypeDisplayName?.(capType) || capType} 기준 예시`;
 
     modal.querySelectorAll("canvas[data-placement-example]").forEach((el) => {
       const c = el.getContext("2d");

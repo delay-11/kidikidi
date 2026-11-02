@@ -17,6 +17,10 @@
     <!-- Korean Web Fonts for text tool -->
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/gh/fonts-archive/Cafe24Ssurround/Cafe24Ssurround.css" rel="stylesheet" />
+    <!-- 추가 텍스트 폰트 (Google Fonts 한글, OFL: 상업적 이용·제품 인쇄 가능, 굵은 폰트 위주) - js/editor-text.js GOOGLE_TEXT_FONTS와 같이 맞춤 -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&amp;family=Do+Hyeon&amp;family=Jua&amp;family=Bagel+Fat+One&amp;family=Gasoek+One&amp;family=Gugi&amp;family=Gothic+A1:wght@900&amp;family=Noto+Sans+KR:wght@900&amp;family=Nanum+Gothic:wght@800&amp;family=IBM+Plex+Sans+KR:wght@700&amp;family=Dongle:wght@700&amp;family=Sunflower:wght@700&amp;family=Gaegu:wght@700&amp;family=East+Sea+Dokdo&amp;family=Noto+Serif+KR:wght@900&amp;family=Hahmlet:wght@900&amp;family=Nanum+Myeongjo:wght@800&amp;family=Gowun+Batang:wght@700&amp;display=swap" rel="stylesheet" />
     <!-- Bootstrap -->
     <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9Oer+R4pa+loy7c8zWO5VnGz2BbPkZWZ6zfaeVfN11p/2" rel="stylesheet" />
@@ -140,6 +144,10 @@
                             <label class="form-label">주문 옵션 선택 *</label>
                             <p>구매하신 <b>프로파일(OEM,XDA,MAO)</b>, <b>규격(R1~R4)</b>, 레이저 옵션을 선택해 주세요.
                             </p>
+                            <ul class="optionSelectTips">
+                                <li>OEM / XDA / MAO 중 무엇을 골라야 할지 모르겠다면 <b>구매한 상품명</b>에 적혀 있어요.</li>
+                                <li>키링으로 만드시는 분 중 <b>OEM</b>을 구매하셨다면 <b>R4-1U</b>를 선택해 주세요.</li>
+                            </ul>
                         </div>
                         <div class="optionSelectLine">
                             <div>
@@ -200,13 +208,15 @@
                                         <b id="selText">없음</b><span aria-hidden="true" class="pillCaret">▼</span>
                                     </button>
                                     <span class="quickOptionHint">눌러서 변경</span>
+                                    <!-- 프로파일/규격 다음 줄에 캔버스·배경·목업/가이드선 전환 -->
+                                    <span aria-hidden="true" class="pillBreak"></span>
                                     <span class="tag">캔버스</span><b id="canvasText">-</b>
                                     <span class="tag">배경</span><b id="bgText">-</b>
                                     <button class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
                                         id="openPrintGuideBtn" type="button">인쇄 가이드 보기</button>
                                     <button aria-pressed="true" class="keycapMockupToggle" id="keycapMockupToggle"
                                         type="button"><span class="keycapMockupToggle__opt is-active"
-                                            data-mode="mockup">키캡 미리보기</span><span
+                                            data-mode="mockup">목업</span><span
                                             class="keycapMockupToggle__opt" data-mode="guide">가이드선</span></button>
                                 </div>
                                 <div class="divider"></div>
@@ -251,14 +261,19 @@
                                                     </div>
                                                 </div>
                                                 <div class="uploadRow">
-                                                    <button class="ghostBtn fileBtn btn btn-outline-secondary"
-                                                        disabled="" id="fileBtn" type="button">
-                                                        이미지 업로드
+                                                    <button aria-label="이미지 업로드" class="ghostBtn fileBtn btn btn-outline-secondary"
+                                                        disabled="" id="fileBtn" title="이미지 업로드" type="button">
+                                                        <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-9 9"/></svg>
+                                                        <span class="mBtnLabel">이미지 업로드</span>
                                                     </button>
-                                                    <button class="dangerBtn btn btn-outline-danger" disabled=""
-                                                        id="fileDelBtn" type="button">
-                                                        삭제
+                                                    <button aria-label="이미지 삭제" class="dangerBtn btn btn-outline-danger" disabled=""
+                                                        id="fileDelBtn" title="이미지 삭제" type="button">
+                                                        <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+                                                        <span class="mBtnLabel">삭제</span>
                                                     </button>
+                                                    <!-- 업로드 안내: 버튼 바로 옆 말풍선 두 개 -->
+                                                    <span class="imgTip">PNG · JPG · WEBP 가능</span>
+                                                    <span class="imgTip">투명 배경 권장</span>
                                                     <button class="ghostBtn btn btn-outline-secondary" disabled=""
                                                         id="imageCenterBtn" type="button">
                                                         캔버스 중앙
@@ -345,9 +360,9 @@
                                                 <div class="bgToolSection bgToolSectionGradient">
                                                     <div class="bgToolSectionHeader gradientSectionHeader">
                                                         <div class="bgToolSectionTitle">그라데이션 설정</div>
-                                                        <button
+                                                        <button aria-label="그라데이션 초기화" title="초기화"
                                                             class="gradientResetBtn btn btn-sm btn-outline-secondary"
-                                                            id="gradientResetBtn" type="button">초기화</button>
+                                                            id="gradientResetBtn" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="resetLabel">초기화</span></button>
                                                     </div>
                                                     <div class="gradientPanel" id="gradientPanel">
                                                         <div class="gradientColorGrid">
@@ -461,29 +476,47 @@
                                                 <div aria-label="폰트 타입" class="textFontRow">
                                                     <button
                                                         class="textFontBtn is-active textFontPreviewBasic btn btn-sm btn-light"
-                                                        data-text-font="basic" type="button">Aa 기본</button>
+                                                        data-text-font="basic" type="button">프리텐다드체</button>
                                                     <button class="textFontBtn textFontPreviewBold btn btn-sm btn-light"
-                                                        data-text-font="bold" type="button">Aa 굵게</button>
+                                                        data-text-font="bold" type="button">잘난체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewRound btn btn-sm btn-light"
-                                                        data-text-font="round" type="button">Aa 둥근</button>
+                                                        data-text-font="round" type="button">써라운드체</button>
                                                     <button class="textFontBtn textFontPreviewHand btn btn-sm btn-light"
-                                                        data-text-font="hand" type="button">Aa 손글씨</button>
+                                                        data-text-font="hand" type="button">몽토리체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewRetro btn btn-sm btn-light"
-                                                        data-text-font="retro" type="button">Aa 레트로</button>
+                                                        data-text-font="retro" type="button">빙그레체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewCalli btn btn-sm btn-light"
-                                                        data-text-font="calli" type="button">Aa 캘리</button>
+                                                        data-text-font="calli" type="button">가을소풍체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewGiants btn btn-sm btn-light"
-                                                        data-text-font="giants" type="button">Aa 자이언츠</button>
+                                                        data-text-font="giants" type="button">자이언츠체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewCourt btn btn-sm btn-light"
-                                                        data-text-font="court" type="button">Aa 코트</button>
+                                                        data-text-font="court" type="button">KBL 코트체</button>
                                                     <button
                                                         class="textFontBtn textFontPreviewJump btn btn-sm btn-light"
-                                                        data-text-font="jump" type="button">Aa 점프</button>
+                                                        data-text-font="jump" type="button">KBL 점프체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_blackhansans" type="button">블랙한산스체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_dohyeon" type="button">도현체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_jua" type="button">주아체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_bagel" type="button">베이글체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gasoek" type="button">가석체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gugi" type="button">구기체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gothica1" type="button">고딕A1체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_notosans" type="button">노토산스체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanumgothic" type="button">나눔고딕체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_ibmplex" type="button">IBM플렉스체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_dongle" type="button">동글체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_sunflower" type="button">해바라기체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gaegu" type="button">개구체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_eastseadokdo" type="button">동해독도체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_notoserif" type="button">노토세리프체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_hahmlet" type="button">함렡체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_nanummyeongjo" type="button">나눔명조체</button>
+                                                    <button class="textFontBtn btn btn-sm btn-light" data-text-font="g_gowunbatang" type="button">고운바탕체</button>
                                                 </div>
                                             </div>
                                             <!-- 텍스트 꾸미기 한 줄: 색상 | 굵게·기울임 | 정렬 (아이콘 위주로 간결하게) -->
@@ -638,15 +671,18 @@
     <div aria-hidden="true" class="print-guide-modal hidden" id="printGuideModal">
         <div aria-label="인쇄 가이드 안내" aria-modal="true" class="print-guide-modal-content" role="dialog">
             <div class="guideSheet print-guide-intro" id="printGuideIntro">
-                <h2 class="guideSheet__title">시안 만들기 전에 체크!</h2>
-                <p class="guideSheet__basis" id="printGuideBasis"></p>
+                <h2 class="guideSheet__title">시안 배치 유의사항</h2>
+                <ul class="guideNote guideNote--list guideNote--top">
+                    <li>CMYK로 인쇄되어 화면에 보이는 색상과 다르게 인쇄될 수 있어요.</li>
+                    <li>승화전사 인쇄 특성상 제작 시 1mm 정도 오차가 있을 수 있어요.</li>
+                </ul>
                 <ol class="guideSteps">
                     <li class="guideStep">
                         <div class="guideStep__head"><span class="guideStep__num">1</span><strong>중요한 그림은 빨간선 안에</strong></div>
                         <div class="guideStep__pair">
                             <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="good" data-view="flat"></canvas></figure>
                             <span aria-hidden="true" class="guideStep__arrow"></span>
-                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="good" data-view="mockup"></canvas></figure>
+                            <figure><span class="guideTag">목업</span><canvas data-placement-example="good" data-view="mockup"></canvas></figure>
                         </div>
                     </li>
                     <li class="guideStep">
@@ -654,7 +690,7 @@
                         <div class="guideStep__pair">
                             <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="nofill" data-view="flat"></canvas></figure>
                             <span aria-hidden="true" class="guideStep__arrow"></span>
-                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="nofill" data-view="mockup"></canvas></figure>
+                            <figure><span class="guideTag">목업</span><canvas data-placement-example="nofill" data-view="mockup"></canvas></figure>
                         </div>
                     </li>
                     <li class="guideStep">
@@ -662,16 +698,11 @@
                         <div class="guideStep__pair">
                             <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="bad" data-view="flat"></canvas></figure>
                             <span aria-hidden="true" class="guideStep__arrow"></span>
-                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="bad" data-view="mockup"></canvas></figure>
+                            <figure><span class="guideTag">목업</span><canvas data-placement-example="bad" data-view="mockup"></canvas></figure>
                         </div>
                     </li>
                 </ol>
             </div>
-            <!-- 꼭 읽어야 하는 안내라 스크롤 영역 밖(버튼 바로 위)에 고정 -->
-            <ul class="guideNote guideNote--list guideNote--pinned">
-                <li><b>색상</b> CMYK로 인쇄해서 화면과 조금 다를 수 있어요.</li>
-                <li><b>위치</b> 승화전사 인쇄 특성상 제작 시 1mm 정도 오차가 있을 수 있어요.</li>
-            </ul>
             <div class="print-guide-actions" data-step="0" id="printGuideActions">
                 <button class="print-guide-action-btn print-guide-hide" id="hidePrintGuideBtn" type="button">
                     다시 보지 않기

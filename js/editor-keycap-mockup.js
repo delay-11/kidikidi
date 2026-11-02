@@ -189,7 +189,6 @@ function drawKeycapMockup() {
   // (예전엔 키캡 밖을 거의 가려서, 키캡 모양 안만 채우면 되는 줄 아는 경우가 있었음)
   paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY), {
     outsideAlpha: 0.42,
-    sideHint: true,
   });
   // 중앙 맞춤 가이드는 음영에 가려지지 않게 맨 위에
   if (typeof drawCenterGuide === "function") drawCenterGuide(c);
@@ -286,15 +285,8 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
   c.save();
   c.clip(shape.inner);
   if (shape.dish === "sphere") {
-    const cx = i.x + i.w / 2;
-    const cy = i.y + i.h / 2;
-    const r = Math.max(i.w, i.h) * 0.62;
-    const g = c.createRadialGradient(cx + i.w * 0.08, cy + i.h * 0.08, r * 0.08, cx, cy, r);
-    g.addColorStop(0, "rgba(255,255,255,0.18)");
-    g.addColorStop(0.55, "rgba(255,255,255,0)");
-    g.addColorStop(1, "rgba(16,24,40,0.14)");
-    c.fillStyle = g;
-    c.fillRect(i.x, i.y, i.w, i.h);
+    // XDA/MAO: 윗면에 따로 음영을 넣지 않음 (아래 위쪽 가장자리 그늘 + 테두리 하이라이트만)
+    // 예전에는 원형/가장자리 그라데이션이라 윗면 가운데가 동그랗게 밝아 보였음
   } else {
     // OEM 원통형 접시: 좌우 가장자리만 아주 살짝 어둡게 (오목한 느낌만)
     // 예전에는 흰 반사광을 넣었는데 시안 위에 세로 줄처럼 보여서 뺐음
@@ -340,7 +332,6 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
   }
 
   /* 7) 에디터 전용: 캔버스 끝 점선 + "옆면까지 인쇄" 안내 */
-  if (opts.sideHint) drawSidePrintHint(c, W, H, shape, blurScale);
 }
 
 // 목업 모드에서는 MAO의 회색 바깥/안쪽 선은 음영이 대신하므로 숨기고 빨간 안전선만 남긴다.
@@ -384,7 +375,7 @@ function syncKeycapMockupToggleUI() {
   btn.setAttribute("aria-pressed", on ? "true" : "false");
   btn.setAttribute(
     "aria-label",
-    on ? "키캡 미리보기 켜짐 - 눌러서 가이드선만 보기" : "가이드선 보기 - 눌러서 키캡 미리보기"
+    on ? "목업 보기 중 - 눌러서 가이드선만 보기" : "가이드선 보기 중 - 눌러서 목업 보기"
   );
   btn.querySelectorAll(".keycapMockupToggle__opt").forEach((opt) => {
     opt.classList.toggle("is-active", (opt.dataset.mode === "mockup") === on);
@@ -453,39 +444,4 @@ function renderKeycapMockupThumb(source, profile, capType, options = {}) {
     console.warn("키캡 미리보기 썸네일 생성 실패:", e);
     return { dataUrl: "", aspect: 1 };
   }
-}
-
-// 캔버스 테두리에 점선을 두르고, 키캡 아래 여백에 안내 문구를 그림
-function drawSidePrintHint(c, W, H, shape, pxScale = 1) {
-  const o = shape.outerBox;
-  c.save();
-  c.strokeStyle = "rgba(183, 121, 31, 0.9)";
-  c.lineWidth = 2 / Math.max(0.5, pxScale / (window.devicePixelRatio || 1));
-  c.setLineDash([6, 5]);
-  c.strokeRect(2, 2, W - 4, H - 4);
-  c.restore();
-
-  const below = H - (o.y + o.h);
-  if (below < 26) return;
-
-  const text = "캔버스 끝까지 채워야 옆면까지 인쇄돼요";
-  const fontSize = Math.max(9, Math.min(13, below * 0.2, W * 0.042));
-  c.save();
-  c.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", sans-serif`;
-  const tw = c.measureText(text).width;
-  const padX = fontSize * 0.8;
-  const pillW = Math.min(W - 8, tw + padX * 2);
-  const pillH = fontSize * 2;
-  const x = (W - pillW) / 2;
-  const y = o.y + o.h + (below - pillH) / 2 + below * 0.12;
-  c.fillStyle = "rgba(16, 24, 40, 0.82)";
-  c.beginPath();
-  if (c.roundRect) c.roundRect(x, y, pillW, pillH, pillH / 2);
-  else c.rect(x, y, pillW, pillH);
-  c.fill();
-  c.fillStyle = "#fdcc63";
-  c.textAlign = "center";
-  c.textBaseline = "middle";
-  c.fillText(text, W / 2, y + pillH / 2, pillW - padX);
-  c.restore();
 }
