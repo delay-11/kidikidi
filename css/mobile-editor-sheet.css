@@ -627,6 +627,11 @@ body[data-step="editor"] .mFontRow {
     opacity: 0.5;
 }
 
+.mFontRow__label,
+.mFontRow__name {
+    line-height: 1.2;
+}
+
 .mFontRow__label {
     flex: 0 0 auto;
     color: #667085;
@@ -634,13 +639,19 @@ body[data-step="editor"] .mFontRow {
     font-weight: 800;
 }
 
+/* 모바일은 "폰트 고르기" 화면에서만 폰트 목록 표시 (PC에서 펼쳐 둔 상태가 남아도 숨김) */
+@media (max-width: 768px) {
+    body:not([data-m-sheet="font"]) .editorToolBox .textToolFontSection {
+        display: none !important;
+    }
+}
+
 .mFontRow__name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 13px !important;
     flex: 1 1 auto;
-    font-size: 18px;
+    font-size: 13px;
 }
 
 .mFontRow svg {

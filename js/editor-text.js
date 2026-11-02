@@ -18,9 +18,9 @@ const GOOGLE_TEXT_FONTS = [
   { key: "g_bagel", label: "베이글체", family: "Bagel Fat One", weight: 400, generic: "sans-serif" },
   { key: "g_gasoek", label: "가석체", family: "Gasoek One", weight: 400, generic: "sans-serif" },
   { key: "g_gugi", label: "구기체", family: "Gugi", weight: 400, generic: "sans-serif" },
-  { key: "g_dongle", label: "동글체", family: "Dongle", weight: 700, generic: "sans-serif", previewScale: 1.6 },
-  { key: "g_gaegu", label: "개구체", family: "Gaegu", weight: 700, generic: "cursive", previewScale: 1.4 },
-  { key: "g_eastseadokdo", label: "동해독도체", family: "East Sea Dokdo", weight: 400, generic: "cursive", previewScale: 1.45 },
+  { key: "g_dongle", label: "동글체", family: "Dongle", weight: 700, generic: "sans-serif" },
+  { key: "g_gaegu", label: "개구체", family: "Gaegu", weight: 700, generic: "cursive" },
+  { key: "g_eastseadokdo", label: "동해독도체", family: "East Sea Dokdo", weight: 400, generic: "cursive" },
   { key: "g_hahmlet", label: "함렡체", family: "Hahmlet", weight: 900, generic: "serif" },
   { key: "g_nanummyeongjo", label: "나눔명조체", family: "Nanum Myeongjo", weight: 800, generic: "serif" },
 ];
@@ -346,11 +346,68 @@ function syncTextFontPreviewButtons() {
     btn.style.setProperty("font-family", family, "important");
     btn.style.setProperty("font-weight", String(getTextFontWeight(type)), "important");
     btn.style.setProperty("letter-spacing", "0", "important");
-    // 글자가 작게 그려지는 폰트(동글체 등)는 버튼 이름표만 조금 키움 (캔버스 글자 크기와는 무관)
-    const previewScale = GOOGLE_TEXT_FONT_MAP[type]?.previewScale;
-    if (previewScale) btn.style.setProperty("font-size", `${previewScale}em`, "important");
+  });
+  normalizeTextFontPreviewSizes();
+}
+
+/* =========================================================
+ * 폰트 이름 크기 맞추기
+ * 같은 px로 지정해도 폰트마다 실제 글자 크기가 제각각이라(몽토리체는 작고 KBL 점프체는 큼)
+ * 이름표 글자의 실제 높이를 재서, 프리텐다드로 같은 글자를 썼을 때와 같은 높이가 되게 맞춘다.
+ * 버튼 폭을 넘으면 폭에 맞춰 줄임. (캔버스 글자 크기와는 무관 - 이름표 표시용)
+========================================================= */
+const fontLabelMeasureCtx = document.createElement("canvas").getContext("2d");
+
+function measureFontLabelInk(family, weight, size, text) {
+  if (!fontLabelMeasureCtx) return { h: 0, w: 0 };
+  fontLabelMeasureCtx.font = `${weight} ${size}px ${family}`;
+  const m = fontLabelMeasureCtx.measureText(text);
+  return { h: (m.actualBoundingBoxAscent || 0) + (m.actualBoundingBoxDescent || 0), w: m.width || 0 };
+}
+
+// el의 글자 크기를, 프리텐다드로 같은 글자를 baseSize로 썼을 때와 같은 높이가 되도록 지정
+function fitFontLabelSize(el, family, weight, text, baseSize, maxWidth = 0) {
+  if (!el || !text) return;
+  const apply = () => {
+    const ref = measureFontLabelInk("'Pretendard', sans-serif", 700, baseSize, text);
+    const cur = measureFontLabelInk(family, weight, baseSize, text);
+    let size = cur.h > 0 && ref.h > 0 ? (baseSize * ref.h) / cur.h : baseSize;
+    if (maxWidth > 0 && cur.w > 0) {
+      const width = (cur.w * size) / baseSize;
+      if (width > maxWidth) size *= maxWidth / width;
+    }
+    size = Math.max(baseSize * 0.6, Math.min(baseSize * 1.9, size));
+    el.style.setProperty("font-size", `${size.toFixed(1)}px`, "important");
+  };
+  apply();
+  // 폰트 파일이 받아진 뒤 실제 모양으로 다시 잼
+  document.fonts?.load?.(`${weight} ${baseSize}px ${family}`, text).then(apply).catch(() => {});
+}
+
+function normalizeTextFontPreviewSizes() {
+  textFontBtnEls?.forEach((btn) => {
+    const type = btn.dataset.textFont || "basic";
+    if (!btn.dataset.baseFontSize) {
+      btn.style.removeProperty("font-size");
+      btn.dataset.baseFontSize = String(parseFloat(getComputedStyle(btn).fontSize) || 14);
+    }
+    const base = Number(btn.dataset.baseFontSize) || 14;
+    const cs = getComputedStyle(btn);
+    const inner = btn.clientWidth - (parseFloat(cs.paddingLeft) || 0) - (parseFloat(cs.paddingRight) || 0) - 8;
+    fitFontLabelSize(
+      btn,
+      btn.style.getPropertyValue("font-family") || getTextFontFamily(type),
+      btn.style.getPropertyValue("font-weight") || getTextFontWeight(type),
+      getTextFontLabel(type),
+      base,
+      inner > 0 ? inner : 0,
+    );
   });
 }
+window.addEventListener("resize", () => {
+  textFontBtnEls?.forEach((btn) => delete btn.dataset.baseFontSize);
+  normalizeTextFontPreviewSizes();
+});
 
 function syncTextUI() {
   if (textInputEl) textInputEl.value = textValue || "";
