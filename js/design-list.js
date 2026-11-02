@@ -220,7 +220,7 @@ function makeCartThumb(item) {
       : `aspect-ratio:${aspect.toFixed(3)};height:64px;width:auto;`;
     return `
       <div class="cartThumb cartThumbMockup${isWide ? " is-wide" : ""}" style="${style}">
-        <img src="${mockupUrl}" alt="시안 키캡 미리보기" />
+        <img src="${mockupUrl}" alt="시안 키캡 목업" />
       </div>
     `;
   }

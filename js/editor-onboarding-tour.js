@@ -19,7 +19,8 @@
 (() => {
   // v2: 안내를 1개(프로파일/규격 변경 + 여러 규격 수량 안내)로 바꾸면서,
   // 예전 3단계 안내를 이미 닫은 고객도 새 안내를 한 번은 보도록 키를 새로 씀
-  const TOUR_STORAGE_KEY = "kidikidi_editor_tour_hidden_v2";
+  // v3: 목업/가이드선 전환 안내 추가 - 이미 닫은 고객도 한 번은 보도록 키를 새로 씀
+  const TOUR_STORAGE_KEY = "kidikidi_editor_tour_hidden_v3";
   const TOUR_MOBILE_QUERY = "(max-width: 768px)";
   const TARGET_PAD = 8;
 
@@ -30,6 +31,11 @@
       selector: "#optionQuickBtn",
       title: "프로파일/규격은 여기서 바꿀 수 있어요",
       body: "주문한 프로파일·규격이 여러 개라면, 각 규격에 맞춰 시안을 만든 뒤 수량을 설정해 주세요.",
+    },
+    {
+      selector: "#keycapMockupToggle",
+      title: "목업 / 가이드선으로 바꿔 볼 수 있어요",
+      body: "목업은 실제 키캡에 인쇄된 모습을, 가이드선은 빨간 안전선과 키캡 테두리만 보여줘요.",
     },
   ];
 

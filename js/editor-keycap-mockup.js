@@ -187,10 +187,9 @@ function drawKeycapMockup() {
 
   // 에디터에서는 키캡 밖도 시안이 비쳐 보이게 옅게만 덮고, "여기도 옆면에 인쇄된다"는 표시를 함께 그림
   // (예전엔 키캡 밖을 거의 가려서, 키캡 모양 안만 채우면 되는 줄 아는 경우가 있었음)
-  // 모바일은 화면이 좁아 캔버스 테두리 점선/안내 문구가 시안을 가려서 그리지 않음 (같은 내용은 인쇄 가이드에 있음)
+  // 캔버스 테두리 점선/옆면 안내 문구는 시안을 가려서 그리지 않음 (같은 내용은 인쇄 가이드에 있음)
   paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY), {
     outsideAlpha: 0.42,
-    sideHint: !window.matchMedia?.("(max-width: 768px)").matches,
   });
   // 중앙 맞춤 가이드는 음영에 가려지지 않게 맨 위에
   if (typeof drawCenterGuide === "function") drawCenterGuide(c);
@@ -385,7 +384,7 @@ function syncKeycapMockupToggleUI() {
   btn.setAttribute("aria-pressed", on ? "true" : "false");
   btn.setAttribute(
     "aria-label",
-    on ? "키캡 미리보기 켜짐 - 눌러서 가이드선만 보기" : "가이드선 보기 - 눌러서 키캡 미리보기"
+    on ? "목업 보기 중 - 눌러서 가이드선만 보기" : "가이드선 보기 중 - 눌러서 목업 보기"
   );
   btn.querySelectorAll(".keycapMockupToggle__opt").forEach((opt) => {
     opt.classList.toggle("is-active", (opt.dataset.mode === "mockup") === on);

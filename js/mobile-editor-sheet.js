@@ -107,10 +107,9 @@
   if (fontSection) fontSection.parentNode.insertBefore(fontRow, fontSection);
   const fontRowName = fontRow.querySelector("#mFontRowName");
 
-  /* ---------- 4-1) 텍스트 도구 모바일 배치
+  /* ---------- 4-1) 텍스트 도구 배치 (PC·모바일 공통)
    * 1줄: [폰트 기본 ›] [텍스트 추가] [삭제]
-   * 2줄: 색상 | 굵게 · 기울임 | 정렬  (기존 꾸미기 줄에서 추가/삭제만 빼냄)
-   * PC 크기로 바뀌면 추가/삭제 버튼을 원래 자리(꾸미기 줄 끝)로 되돌린다. */
+   * 2줄: 색상 | 굵게 · 기울임 | 정렬  (기존 꾸미기 줄에서 추가/삭제만 빼냄) */
   const textAddBtn = document.getElementById("textApplyBtn");
   const textDelBtn = document.getElementById("textClearBtn");
   const textStyleBar = document.querySelector("#toolText .textStyleBar");
@@ -118,34 +117,20 @@
   textTopRow.className = "mTextTopRow";
   if (fontSection) fontSection.parentNode.insertBefore(textTopRow, fontSection);
 
-  const syncTextLayout = () => {
-    if (!textAddBtn || !textDelBtn || !textStyleBar) return;
-    if (MOBILE_QUERY.matches) {
-      textTopRow.append(fontRow, textAddBtn, textDelBtn);
-    } else if (textAddBtn.parentNode !== textStyleBar) {
-      textTopRow.parentNode.insertBefore(fontRow, textTopRow);
-      textStyleBar.append(textAddBtn, textDelBtn);
-    }
-  };
-  syncTextLayout();
-  MOBILE_QUERY.addEventListener?.("change", syncTextLayout);
+  if (textAddBtn && textDelBtn) textTopRow.append(fontRow, textAddBtn, textDelBtn);
 
-  /* ---------- 4-2) 이미지 안내사항 (i) 툴팁 ---------- */
-  const infoTip = document.querySelector("#toolImage .mInfoTip");
-  const infoBtn = infoTip?.querySelector(".mInfoTip__btn");
-  const infoBox = infoTip?.querySelector(".mInfoTip__box");
-  const setInfoOpen = (openTip) => {
-    if (!infoBtn || !infoBox) return;
-    infoBox.hidden = !openTip;
-    infoBtn.setAttribute("aria-expanded", openTip ? "true" : "false");
+  // "현재 0/3개" 줄 대신 추가 버튼 위 배지로 개수 표시, 사용법은 버튼 설명으로
+  const textCountEl = document.getElementById("textCountBadge");
+  const syncTextCount = () => {
+    const m = /(\d+)\s*\/\s*(\d+)/.exec(textCountEl?.textContent || "");
+    if (textAddBtn && m) textAddBtn.dataset.count = `${m[1]}/${m[2]}`;
   };
-  infoBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    setInfoOpen(infoBox.hidden);
-  });
-  document.addEventListener("click", (e) => {
-    if (infoBox && !infoBox.hidden && !infoTip.contains(e.target)) setInfoOpen(false);
-  });
+  if (textCountEl) {
+    syncTextCount();
+    new MutationObserver(syncTextCount).observe(textCountEl, { childList: true, characterData: true, subtree: true });
+  }
+  if (textAddBtn) textAddBtn.title = "텍스트 추가 (추가한 뒤 캔버스의 글자를 누르면 바로 고칠 수 있어요)";
+
 
   const syncFontRow = () => {
     const active = document.querySelector("[data-text-font].is-active");
@@ -172,7 +157,6 @@
 
   const setState = (next) => {
     state = next;
-    setInfoOpen(false);
     const body = document.body;
     body.classList.toggle("mSheetMenuOpen", next === "menu");
     body.classList.toggle("mSheetToolOpen", !!next && next !== "menu");
@@ -216,7 +200,12 @@
     if (action === "close") close();
     if (action === "back") back();
   });
-  fontRow.addEventListener("click", () => open("font"));
+  // 폰트 줄: 모바일은 "폰트 고르기" 화면으로, PC는 아래에 폰트 목록을 펼치고 접음
+  fontRow.addEventListener("click", () => {
+    if (isMobile()) return open("font");
+    const opened = document.body.classList.toggle("pcFontOpen");
+    fontRow.setAttribute("aria-expanded", opened ? "true" : "false");
+  });
 
   // 폰트를 고르면 이름표 갱신 (고른 뒤에도 폰트 화면에 머물러서 여러 개 비교 가능)
   document.querySelectorAll("[data-text-font]").forEach((btn) => {

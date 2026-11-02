@@ -54,7 +54,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v3.0.1
+                v3.0.2
             </div>
         </div>
     </header>
@@ -200,7 +200,7 @@
                                         <b id="selText">없음</b><span aria-hidden="true" class="pillCaret">▼</span>
                                     </button>
                                     <span class="quickOptionHint">눌러서 변경</span>
-                                    <!-- 모바일: 프로파일/규격 다음 줄에 캔버스·배경·미리보기 전환 -->
+                                    <!-- 프로파일/규격 다음 줄에 캔버스·배경·목업/가이드선 전환 -->
                                     <span aria-hidden="true" class="pillBreak"></span>
                                     <span class="tag">캔버스</span><b id="canvasText">-</b>
                                     <span class="tag">배경</span><b id="bgText">-</b>
@@ -208,7 +208,7 @@
                                         id="openPrintGuideBtn" type="button">인쇄 가이드 보기</button>
                                     <button aria-pressed="true" class="keycapMockupToggle" id="keycapMockupToggle"
                                         type="button"><span class="keycapMockupToggle__opt is-active"
-                                            data-mode="mockup">키캡 미리보기</span><span
+                                            data-mode="mockup">목업</span><span
                                             class="keycapMockupToggle__opt" data-mode="guide">가이드선</span></button>
                                 </div>
                                 <div class="divider"></div>
@@ -263,17 +263,9 @@
                                                         <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
                                                         <span class="mBtnLabel">삭제</span>
                                                     </button>
-                                                    <!-- 모바일: 안내사항은 이 (i) 버튼을 눌렀을 때만 툴팁으로 -->
-                                                    <span class="mInfoTip">
-                                                        <button aria-controls="imageInfoTip" aria-expanded="false" aria-label="이미지 안내사항"
-                                                            class="mInfoTip__btn" type="button">
-                                                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01"/></svg>
-                                                        </button>
-                                                        <span class="mInfoTip__box" hidden id="imageInfoTip" role="tooltip">
-                                                            올린 이미지는 캔버스에서 끌어서 옮기고, 두 손가락으로 크기를 조절해요.<br />
-                                                            PNG · JPG · WEBP 가능 / 투명 배경 권장
-                                                        </span>
-                                                    </span>
+                                                    <!-- 업로드 안내: 버튼 바로 옆 말풍선 두 개 -->
+                                                    <span class="imgTip">PNG · JPG · WEBP 가능</span>
+                                                    <span class="imgTip">투명 배경 권장</span>
                                                     <button class="ghostBtn btn btn-outline-secondary" disabled=""
                                                         id="imageCenterBtn" type="button">
                                                         캔버스 중앙
@@ -360,9 +352,9 @@
                                                 <div class="bgToolSection bgToolSectionGradient">
                                                     <div class="bgToolSectionHeader gradientSectionHeader">
                                                         <div class="bgToolSectionTitle">그라데이션 설정</div>
-                                                        <button
+                                                        <button aria-label="그라데이션 초기화" title="초기화"
                                                             class="gradientResetBtn btn btn-sm btn-outline-secondary"
-                                                            id="gradientResetBtn" type="button">초기화</button>
+                                                            id="gradientResetBtn" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
                                                     </div>
                                                     <div class="gradientPanel" id="gradientPanel">
                                                         <div class="gradientColorGrid">
@@ -664,7 +656,7 @@
                         <div class="guideStep__pair">
                             <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="good" data-view="flat"></canvas></figure>
                             <span aria-hidden="true" class="guideStep__arrow"></span>
-                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="good" data-view="mockup"></canvas></figure>
+                            <figure><span class="guideTag">목업</span><canvas data-placement-example="good" data-view="mockup"></canvas></figure>
                         </div>
                     </li>
                     <li class="guideStep">
@@ -672,7 +664,7 @@
                         <div class="guideStep__pair">
                             <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="nofill" data-view="flat"></canvas></figure>
                             <span aria-hidden="true" class="guideStep__arrow"></span>
-                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="nofill" data-view="mockup"></canvas></figure>
+                            <figure><span class="guideTag">목업</span><canvas data-placement-example="nofill" data-view="mockup"></canvas></figure>
                         </div>
                     </li>
                     <li class="guideStep">
@@ -680,7 +672,7 @@
                         <div class="guideStep__pair">
                             <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="bad" data-view="flat"></canvas></figure>
                             <span aria-hidden="true" class="guideStep__arrow"></span>
-                            <figure><span class="guideTag">키캡 미리보기</span><canvas data-placement-example="bad" data-view="mockup"></canvas></figure>
+                            <figure><span class="guideTag">목업</span><canvas data-placement-example="bad" data-view="mockup"></canvas></figure>
                         </div>
                     </li>
                 </ol>
