@@ -432,19 +432,6 @@
         border-radius: 14px;
     }
 
-    .canvasInnerNotice {
-        top: 8px;
-        left: 8px;
-        right: 8px;
-        gap: 5px !important;
-    }
-
-    .canvasInnerNotice span {
-        min-height: 22px;
-        padding: 3px 7px;
-        font-size: 9px;
-    }
-
     .canvasGuideOverlay {
         top: 8px;
         max-width: calc(100% - 16px);
@@ -710,10 +697,6 @@
    - 그라데이션 시작/끝 색상은 한 줄 유지
 ========================================================= */
 @media (max-width: 767px) {
-    .canvasInnerNotice {
-        display: none !important;
-    }
-
     .canvasWrap {
         flex-direction: column !important;
         gap: 8px;

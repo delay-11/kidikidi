@@ -409,6 +409,10 @@ canvas {
     top: 12px;
     z-index: 3;
     transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
     pointer-events: none;
     opacity: 0.9;
 }
@@ -425,6 +429,12 @@ canvas {
     font-size: 11px;
     font-weight: 800;
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+/* 목업 모양이 아니라 캔버스 전체를 채워야 측면까지 인쇄됨 */
+.canvasGuideOverlay span.canvasGuideOverlay__fill {
+    border-color: rgba(16, 24, 40, 0.14);
+    color: #101828;
 }
 
 .canvasHelpTip {
@@ -721,36 +731,6 @@ canvas {
 .pillCaret, .pillActionBtn:hover .pillCaret, .pillActionBtn:focus-visible .pillCaret {
     background: var(--acc, #fdcc63) !important;
     color: #111827 !important;
-}
-
-.canvasInnerNotice {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    z-index: 4;
-    display: flex;
-    align-items: flex-end !important;
-    justify-content: flex-start !important;
-    gap: 6px !important;
-    pointer-events: none;
-    flex-direction: column !important;
-}
-
-.canvasInnerNotice span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 24px;
-    padding: 4px 9px;
-    border: 1px solid rgba(253, 204, 99, 0.55);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.9) !important;
-    color: #101828 !important;
-    font-size: 10px;
-    font-weight: 900;
-    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
-    border-color: rgba(16, 24, 40, 0.12) !important;
-    width: fit-content !important;
 }
 
 .canvasWrap .canvasHelpTip {
