@@ -115,5 +115,6 @@ const GUIDE_SIZE_MAP = {
 
   XDA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 135, h: 135 } },
   MAO: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
-  STD: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
+  // STD: 프로파일을 아직 안 골랐을 때 쓰는 기본값. 안전선이 윗면(inner)과 겹치지 않게 XDA처럼 안쪽으로
+  STD: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 135, h: 135 } },
 };
