@@ -1474,6 +1474,11 @@ canvas {
     border-color: #101828;
 }
 
+/* PC는 위에 "크기" 제목이 있으므로 칸 안 라벨은 모바일만 */
+.imageNumField .imageNumField__label {
+    display: none;
+}
+
 .imageNumField span {
     flex: 0 0 auto;
     color: #667085;
