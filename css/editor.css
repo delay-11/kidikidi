@@ -1525,6 +1525,25 @@ canvas {
     cursor: not-allowed;
 }
 
+/* 크기 칸 · 캔버스 채우기 · 초기화: 왼쪽 업로드 · 삭제 버튼과 같은 3칸 그리드 →
+   다섯 개 모두 같은 폭 · 같은 높이(38px) (모바일은 mobile-editor-sheet.css에서 따로) */
+.imageSizeRow {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px !important;
+}
+
+.imageSizeRow > .imageNumField,
+.imageSizeRow > .imageFillBtn {
+    width: 100% !important;
+    min-width: 0;
+    box-sizing: border-box;
+    height: 38px !important;
+    min-height: 38px !important;
+    margin: 0 !important;
+    border-radius: 13px !important;
+}
+
 /* 업로드 · 삭제 버튼과 같은 살짝 둥근 네모 */
 .imageFillBtn {
     display: inline-flex !important;
