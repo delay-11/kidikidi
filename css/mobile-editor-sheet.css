@@ -398,6 +398,20 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         display: block !important;
     }
 
+    /* 이미지가 있으면 크기 · 위치 숫자 칸은 모바일 시트에도 보여줌 */
+    body.kidikidiBootstrap #toolImage .imageToolInfo.has-image {
+        display: grid !important;
+        margin-top: 12px;
+    }
+
+    body.kidikidiBootstrap #toolImage .imageToolInfo.has-image .imageSizeHead p {
+        display: none;
+    }
+
+    body.kidikidiBootstrap #toolImage .imageNumField input {
+        font-size: 16px; /* iOS 입력 시 화면 확대 방지 */
+    }
+
     body.kidikidiBootstrap #toolImage .uploadRow {
         display: flex !important;
         flex-wrap: wrap !important;

@@ -1428,3 +1428,147 @@ canvas {
     outline: 2px solid rgba(43, 108, 255, 0.6);
     outline-offset: 2px;
 }
+
+/* =========================================================
+ * 이미지 크기 · 위치 숫자 입력 (js/editor-image-size.js)
+ * 이미지가 있으면 "안내사항" 대신 표시
+========================================================= */
+.imageSizePanel {
+    display: none;
+    gap: 10px;
+}
+
+.imageToolInfo.has-image > .toolPanelHead,
+.imageToolInfo.has-image > .imageHelpLine {
+    display: none !important;
+}
+
+.imageToolInfo.has-image > .imageSizePanel {
+    display: grid;
+}
+
+.imageSizeHead b {
+    display: block;
+    color: #101828;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.imageSizeHead p {
+    margin: 2px 0 0;
+    color: #667085;
+    font-size: 12px;
+    word-break: keep-all;
+}
+
+.imageSizeRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.imageNumField {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    min-width: 0;
+    height: 34px;
+    padding: 0 8px;
+    border: 1px solid var(--line, #eaecf0);
+    border-radius: 10px;
+    background: #fff;
+    gap: 4px;
+    margin: 0;
+    cursor: text;
+}
+
+.imageNumField:focus-within {
+    border-color: #101828;
+}
+
+.imageNumField span {
+    flex: 0 0 auto;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.imageNumField input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #101828;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: right;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.imageNumField input::-webkit-outer-spin-button,
+.imageNumField input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.imageNumField em {
+    flex: 0 0 auto;
+    color: #98a2b3;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.imageNumField:has(input:disabled) {
+    background: #f9fafb;
+    cursor: not-allowed;
+}
+
+.imageRatioLock {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--line, #eaecf0);
+    border-radius: 999px;
+    background: #fff;
+    color: #98a2b3;
+}
+
+.imageRatioLock svg {
+    width: 15px;
+    height: 15px;
+}
+
+.imageRatioLock.is-on {
+    border-color: #101828;
+    background: #101828;
+    color: #fff;
+}
+
+.imageSizeFoot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.imageSizeHint {
+    color: #98a2b3;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.imageFillBtn {
+    flex: 0 0 auto;
+    border-radius: 999px !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
