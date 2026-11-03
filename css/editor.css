@@ -1438,13 +1438,15 @@ canvas {
     gap: 10px;
 }
 
-.imageToolInfo.has-image > .toolPanelHead,
-.imageToolInfo.has-image > .imageHelpLine {
+/* 이미지가 있으면 "안내사항" 제목 · 설명을 숨기고, 그 자리에 크기 · 캔버스 채우기,
+   그 아래에 PNG / 투명 배경 안내 칩 */
+.imageToolInfo.has-image > .toolPanelHead {
     display: none !important;
 }
 
 .imageToolInfo.has-image > .imageSizePanel {
     display: grid;
+    order: -1;
 }
 
 .imageSizeRow {
