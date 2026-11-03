@@ -1458,10 +1458,10 @@ canvas {
     flex: 0 1 140px;
     align-items: center;
     min-width: 0;
-    height: 34px;
-    padding: 0 8px;
+    height: 38px;
+    padding: 0 10px;
     border: 1px solid var(--line, #eaecf0);
-    border-radius: 10px;
+    border-radius: 13px;
     background: #fff;
     gap: 4px;
     margin: 0;
@@ -1514,9 +1514,15 @@ canvas {
     cursor: not-allowed;
 }
 
+/* 업로드 · 삭제 버튼과 같은 살짝 둥근 네모 */
 .imageFillBtn {
+    display: inline-flex !important;
     flex: 0 0 auto;
-    border-radius: 999px !important;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 12px !important;
+    border-radius: 13px !important;
     font-size: 12px !important;
-    font-weight: 800 !important;
+    font-weight: 900 !important;
 }

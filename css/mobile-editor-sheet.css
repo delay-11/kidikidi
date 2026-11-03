@@ -408,6 +408,12 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         font-size: 16px; /* iOS 입력 시 화면 확대 방지 */
     }
 
+    body.kidikidiBootstrap #toolImage .imageNumField,
+    body.kidikidiBootstrap #toolImage .imageFillBtn {
+        height: 44px;
+        border-radius: 14px !important;
+    }
+
     /* 업로드 · 삭제 버튼과 안내 칩 2개를 한 줄로 (줄바꿈 X) */
     body.kidikidiBootstrap #toolImage .uploadRow {
         display: flex !important;
