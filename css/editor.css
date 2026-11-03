@@ -101,6 +101,8 @@
 .canvasWrap {
     position: relative;
     display: flex;
+    flex-direction: column;
+    gap: 8px;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -403,12 +405,17 @@ canvas {
 }
 */
 
+/* 안내 문구는 캔버스 위에 겹치지 않고 캔버스 "위쪽 바깥"에 둔다 (모바일과 동일).
+   가이드/목업/선택박스는 모두 실제 <canvas> 박스 기준으로 위치를 잡으므로 영향 없음. */
 .canvasGuideOverlay {
-    position: absolute;
-    left: 50%;
-    top: 12px;
+    position: static;
+    order: -1;
     z-index: 3;
-    transform: translateX(-50%);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
     pointer-events: none;
     opacity: 0.9;
 }
@@ -425,6 +432,14 @@ canvas {
     font-size: 11px;
     font-weight: 800;
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
+}
+
+/* 목업 모양이 아니라 캔버스 전체를 채워야 측면까지 인쇄됨 */
+.canvasGuideOverlay span.canvasGuideOverlay__fill {
+    border-color: #d92d20;
+    background: #d92d20;
+    color: #fff;
+    font-weight: 900;
 }
 
 .canvasHelpTip {
@@ -721,36 +736,6 @@ canvas {
 .pillCaret, .pillActionBtn:hover .pillCaret, .pillActionBtn:focus-visible .pillCaret {
     background: var(--acc, #fdcc63) !important;
     color: #111827 !important;
-}
-
-.canvasInnerNotice {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    right: 10px;
-    z-index: 4;
-    display: flex;
-    align-items: flex-end !important;
-    justify-content: flex-start !important;
-    gap: 6px !important;
-    pointer-events: none;
-    flex-direction: column !important;
-}
-
-.canvasInnerNotice span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 24px;
-    padding: 4px 9px;
-    border: 1px solid rgba(253, 204, 99, 0.55);
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.9) !important;
-    color: #101828 !important;
-    font-size: 10px;
-    font-weight: 900;
-    box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
-    border-color: rgba(16, 24, 40, 0.12) !important;
-    width: fit-content !important;
 }
 
 .canvasWrap .canvasHelpTip {
@@ -1442,4 +1427,109 @@ canvas {
 .keycapMockupToggle:focus-visible {
     outline: 2px solid rgba(43, 108, 255, 0.6);
     outline-offset: 2px;
+}
+
+/* =========================================================
+ * 이미지 크기 · 위치 숫자 입력 (js/editor-image-size.js)
+ * 이미지가 있으면 "안내사항" 대신 표시
+========================================================= */
+.imageSizePanel {
+    display: none;
+    gap: 10px;
+}
+
+/* 이미지가 있으면 "안내사항" 제목 · 설명을 숨기고, 그 자리에 크기 · 캔버스 채우기,
+   그 아래에 PNG / 투명 배경 안내 칩 */
+.imageToolInfo.has-image > .toolPanelHead {
+    display: none !important;
+}
+
+.imageToolInfo.has-image > .imageSizePanel {
+    display: grid;
+    order: -1;
+}
+
+.imageSizeRow {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.imageNumField {
+    display: flex;
+    flex: 0 1 140px;
+    align-items: center;
+    min-width: 0;
+    height: 38px;
+    padding: 0 10px;
+    border: 1px solid var(--line, #eaecf0);
+    border-radius: 13px;
+    background: #fff;
+    gap: 4px;
+    margin: 0;
+    cursor: text;
+}
+
+.imageNumField:focus-within {
+    border-color: #101828;
+}
+
+/* PC는 위에 "크기" 제목이 있으므로 칸 안 라벨은 모바일만 */
+.imageNumField .imageNumField__label {
+    display: none;
+}
+
+.imageNumField span {
+    flex: 0 0 auto;
+    color: #667085;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.imageNumField input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #101828;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: right;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.imageNumField input::-webkit-outer-spin-button,
+.imageNumField input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.imageNumField em {
+    flex: 0 0 auto;
+    color: #98a2b3;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.imageNumField:has(input:disabled) {
+    background: #f9fafb;
+    cursor: not-allowed;
+}
+
+/* 업로드 · 삭제 버튼과 같은 살짝 둥근 네모 */
+.imageFillBtn {
+    display: inline-flex !important;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 12px !important;
+    border-radius: 13px !important;
+    font-size: 12px !important;
+    font-weight: 900 !important;
 }

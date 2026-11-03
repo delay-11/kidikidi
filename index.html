@@ -58,7 +58,7 @@
                 <span class="systemName">키캡 시안 제작 시스템</span>
             </div>
             <div class="headerVersion">
-                v3.0.0
+                v3.0.1
             </div>
         </div>
     </header>
@@ -213,20 +213,17 @@
                                     <span class="tag">배경</span><b id="bgText">-</b>
                                     <button class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
                                         id="openPrintGuideBtn" type="button">인쇄 가이드 보기</button>
-                                    <button aria-pressed="true" class="keycapMockupToggle" id="keycapMockupToggle"
-                                        type="button"><span class="keycapMockupToggle__opt is-active"
+                                    <button aria-pressed="false" class="keycapMockupToggle" id="keycapMockupToggle"
+                                        type="button"><span class="keycapMockupToggle__opt"
                                             data-mode="mockup">목업</span><span
-                                            class="keycapMockupToggle__opt" data-mode="guide">가이드선</span></button>
+                                            class="keycapMockupToggle__opt is-active" data-mode="guide">가이드선</span></button>
                                 </div>
                                 <div class="divider"></div>
                                 <div class="canvasWrap" id="canvasWrap">
                                     <canvas height="330" id="designCanvas" width="330"></canvas>
-                                    <div aria-label="시안 제작 핵심 안내" class="canvasInnerNotice">
-                                        <span>배경은 빈 공간 없이 채우기</span>
-                                        <span>실제 제작 시 CMYK 기준</span>
-                                    </div>
                                     <div aria-hidden="true" class="canvasGuideOverlay">
                                         <span>키캡 윗면에 보여질 이미지는 빨간선 안쪽에 배치해 주세요</span>
+                                        <span class="canvasGuideOverlay__fill">목업 표시 영역이 아닌, 캔버스 전체를 채워주세요.</span>
                                     </div>
                                     <div aria-live="polite" class="canvasHelpTip" id="canvasHelpTip"></div>
                                     <div class="bbox" id="bbox">
@@ -293,6 +290,20 @@
                                                 <div class="imageHelpLine">
                                                     <span>PNG / JPG / WEBP 가능</span>
                                                     <span>투명 배경 권장</span>
+                                                </div>
+                                                <!-- 이미지가 있으면 안내 대신 크기(%) 입력 + 캔버스 채우기 (js/editor-image-size.js) -->
+                                                <div class="imageSizePanel" id="imageSizePanel">
+                                                    <div class="toolPanelHead compact imageSizeHead">
+                                                        <div>
+                                                            <b>크기</b>
+                                                        </div>
+                                                    </div>
+                                                    <div class="imageSizeRow">
+                                                        <label class="imageNumField" title="100% = 캔버스를 꽉 채우는 크기"><span class="imageNumField__label">크기</span><input id="imgSizePct"
+                                                                inputmode="decimal" min="1" step="1" type="number" /><em>%</em></label>
+                                                        <button class="imageFillBtn btn btn-sm btn-outline-danger" id="imgFillBtn"
+                                                            type="button">캔버스 채우기</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -737,6 +748,7 @@
     <script src="./js/editor-layers.js"></script>
     <script src="./js/editor-pointer-events.js"></script>
     <script src="./js/editor-item-io.js"></script>
+    <script src="./js/editor-image-size.js"></script>
     <script src="./js/draft-storage.js"></script>
     <script src="./js/design-list.js"></script>
     <script src="./js/email-attachments.js"></script>

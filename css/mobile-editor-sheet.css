@@ -398,11 +398,45 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         display: block !important;
     }
 
+    /* 이미지가 있으면 크기 · 위치 숫자 칸은 모바일 시트에도 보여줌 */
+    body.kidikidiBootstrap #toolImage .imageToolInfo.has-image {
+        display: grid !important;
+        margin-top: 12px;
+    }
+
+    body.kidikidiBootstrap #toolImage .imageNumField input {
+        font-size: 16px; /* iOS 입력 시 화면 확대 방지 */
+    }
+
+    /* 모바일은 "크기" 제목 대신 칸 안 라벨 */
+    body.kidikidiBootstrap #toolImage .imageSizeHead {
+        display: none !important;
+    }
+
+    body.kidikidiBootstrap #toolImage .imageNumField .imageNumField__label {
+        display: inline;
+    }
+
+    /* 모바일은 안내 칩이 업로드 버튼 옆에 있으므로 여기서는 숨김 */
+    body.kidikidiBootstrap #toolImage .imageToolInfo.has-image > .imageHelpLine {
+        display: none !important;
+    }
+
+    /* 크기 · 캔버스 채우기: 1:1로 줄 끝까지 */
+    body.kidikidiBootstrap #toolImage .imageNumField,
+    body.kidikidiBootstrap #toolImage .imageFillBtn {
+        flex: 1 1 0 !important;
+        min-width: 0;
+        height: 44px;
+        border-radius: 14px !important;
+    }
+
+    /* 업로드 · 삭제 버튼과 안내 칩 2개를 한 줄로 (줄바꿈 X) */
     body.kidikidiBootstrap #toolImage .uploadRow {
         display: flex !important;
-        flex-wrap: wrap !important;
+        flex-wrap: nowrap !important;
         align-items: center;
-        gap: 8px !important;
+        gap: 6px !important;
     }
 
     body.kidikidiBootstrap #toolImage .uploadRow #fileBtn,
@@ -432,20 +466,28 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
     /* 버튼 옆 안내: 예전처럼 회색 둥근 칩 */
     #toolImage .imgTip {
         display: inline-flex;
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
         align-items: center;
         height: 28px;
-        padding: 0 11px;
+        padding: 0 8px;
         border-radius: 999px;
         background: #f2f4f7;
         color: #475467;
         font-size: 11px;
         font-weight: 700;
+        letter-spacing: -0.02em;
         white-space: nowrap;
     }
 
-    /* PC: 캔버스 옆 안내 칩은 모바일처럼 숨김 (같은 내용은 인쇄 가이드/목업에 있음) */
-    body.kidikidiBootstrap .canvasInnerNotice {
-        display: none !important;
+    /* 아주 좁은 폰(360px 이하)은 칩 글자를 조금 줄여 한 줄 유지 */
+    @media (max-width: 374px) {
+        #toolImage .imgTip {
+            padding: 0 6px;
+            font-size: 10px;
+        }
     }
 
     /* PC 도구 패널의 2단 배치 대신 모바일처럼 위아래로 */
@@ -848,6 +890,9 @@ body[data-step="editor"] .mFontRow {
     /* 키캡 윗면 안내 문구: 글자 길이만큼만 */
     body.kidikidiBootstrap .canvasGuideOverlay {
         display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 4px !important;
         justify-content: center !important;
         width: 100% !important;
         padding: 0 !important;
