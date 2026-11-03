@@ -1470,8 +1470,12 @@ canvas {
     cursor: text;
 }
 
-.imageNumField:focus-within {
-    border-color: #101828;
+/* 숫자 입력 중에도 외곽선 · 노란 테두리 없이 (전역 input:focus 스타일 덮음) */
+.kidikidiBootstrap .imageNumField input:focus,
+.kidikidiBootstrap .imageNumField input:focus-visible {
+    border: 0;
+    outline: 0;
+    box-shadow: none;
 }
 
 /* PC는 위에 "크기" 제목이 있으므로 칸 안 라벨은 모바일만 */
