@@ -404,10 +404,6 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         margin-top: 12px;
     }
 
-    body.kidikidiBootstrap #toolImage .imageToolInfo.has-image .imageSizeHead p {
-        display: none;
-    }
-
     body.kidikidiBootstrap #toolImage .imageNumField input {
         font-size: 16px; /* iOS 입력 시 화면 확대 방지 */
     }

@@ -293,12 +293,8 @@
                                                 </div>
                                                 <!-- 이미지가 있으면 안내 대신 크기(%) 입력 + 캔버스 채우기 (js/editor-image-size.js) -->
                                                 <div class="imageSizePanel" id="imageSizePanel">
-                                                    <div class="imageSizeHead">
-                                                        <b>크기</b>
-                                                        <p>100% = 캔버스를 꽉 채우는 크기 · 같은 %로 여러 시안을 맞출 수 있어요.</p>
-                                                    </div>
                                                     <div class="imageSizeRow">
-                                                        <label aria-label="이미지 크기 (%)" class="imageNumField"><input id="imgSizePct"
+                                                        <label class="imageNumField" title="100% = 캔버스를 꽉 채우는 크기"><span>크기</span><input id="imgSizePct"
                                                                 inputmode="decimal" min="1" step="1" type="number" /><em>%</em></label>
                                                         <button class="imageFillBtn btn btn-sm btn-outline-danger" id="imgFillBtn"
                                                             type="button">캔버스 채우기</button>

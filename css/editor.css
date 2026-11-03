@@ -1447,20 +1447,6 @@ canvas {
     display: grid;
 }
 
-.imageSizeHead b {
-    display: block;
-    color: #101828;
-    font-size: 14px;
-    font-weight: 900;
-}
-
-.imageSizeHead p {
-    margin: 2px 0 0;
-    color: #667085;
-    font-size: 12px;
-    word-break: keep-all;
-}
-
 .imageSizeRow {
     display: flex;
     align-items: center;
