@@ -425,13 +425,22 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         display: none !important;
     }
 
-    /* 크기 · 캔버스 채우기: 1:1로 줄 끝까지 */
-    body.kidikidiBootstrap #toolImage .imageNumField,
-    body.kidikidiBootstrap #toolImage .imageFillBtn {
-        flex: 1 1 0 !important;
-        min-width: 0;
-        height: 44px;
+    /* 크기 · 캔버스 채우기 1:1 + 초기화 아이콘(업로드 · 삭제와 같은 48×48).
+       높이는 모두 업로드 · 삭제 버튼과 같은 48px */
+    body.kidikidiBootstrap #toolImage .imageSizeRow {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px;
+    }
+
+    body.kidikidiBootstrap #toolImage .imageSizeRow > .imageNumField,
+    body.kidikidiBootstrap #toolImage .imageSizeRow > .imageFillBtn {
+        height: 48px !important;
+        min-height: 48px !important;
         border-radius: 14px !important;
+    }
+
+    body.kidikidiBootstrap #toolImage .imageResetBtn {
+        width: 48px !important;
+        padding: 0 !important;
     }
 
     /* 업로드 · 삭제 버튼과 안내 칩 2개를 한 줄로 (줄바꿈 X) */

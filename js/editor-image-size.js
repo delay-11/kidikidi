@@ -8,6 +8,7 @@
  *   이미지가 달라도 같은 %면 캔버스에서 차지하는 크기가 같은 기준으로 맞춰진다.
  * - 크기를 바꿔도 가로세로 비율과 위치(가운데 기준)는 그대로
  * - [캔버스 채우기]: 100%로 키우고 회전을 풀어 가운데 배치
+ * - [초기화]: 처음 올렸을 때 상태로 (업로드 시 배치가 캔버스 채우기와 같아서 동작도 같음)
  *
  * 캔버스에서 끌어서 바꾸면 redraw()에서 syncImageSizePanel()을 불러 숫자도 따라간다.
 ========================================================= */
@@ -19,6 +20,7 @@ const imageSizePanelEl = document.getElementById("imageSizePanel");
 const imageToolInfoEl = imageSizePanelEl?.closest(".imageToolInfo") || null;
 const imgSizePctEl = document.getElementById("imgSizePct");
 const imgFillBtnEl = document.getElementById("imgFillBtn");
+const imgResetBtnEl = document.getElementById("imgResetBtn");
 
 function getSizePanelImage() {
   if (typeof getActiveObjectType !== "function") return null;
@@ -52,6 +54,7 @@ function syncImageSizePanel(force = false) {
   const disabled = !!uiLocked || !!obj.locked;
   if (imgSizePctEl) imgSizePctEl.disabled = disabled;
   if (imgFillBtnEl) imgFillBtnEl.disabled = disabled;
+  if (imgResetBtnEl) imgResetBtnEl.disabled = disabled;
 }
 
 function setImageScale(obj, sx, sy) {
@@ -108,7 +111,8 @@ imgSizePctEl?.addEventListener("keydown", (e) => {
   }
 });
 
-imgFillBtnEl?.addEventListener("click", async () => {
+// 캔버스 꽉 채움 · 가운데 · 회전 0 (= 이미지를 처음 올렸을 때 배치, js/editor-image.js 업로드 참고)
+async function placeImageFillingCanvas(message) {
   const obj = getSizePanelImage();
   if (!obj || !(await canEditSizePanelImage(obj))) return;
 
@@ -117,7 +121,10 @@ imgFillBtnEl?.addEventListener("click", async () => {
   setObjectRot("image", 0);
   setObjectCenter("image", canvasLogicalW / 2, canvasLogicalH / 2);
   commitImageChange();
-  showToast?.("이미지로 캔버스 전체를 채웠어요.", "ok");
-});
+  showToast?.(message, "ok");
+}
+
+imgFillBtnEl?.addEventListener("click", () => placeImageFillingCanvas("이미지로 캔버스 전체를 채웠어요."));
+imgResetBtnEl?.addEventListener("click", () => placeImageFillingCanvas("이미지를 처음 올린 상태로 되돌렸어요."));
 
 syncImageSizePanel();
