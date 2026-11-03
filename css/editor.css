@@ -101,6 +101,8 @@
 .canvasWrap {
     position: relative;
     display: flex;
+    flex-direction: column;
+    gap: 8px;
     align-items: center;
     justify-content: center;
     width: 100%;
@@ -403,12 +405,12 @@ canvas {
 }
 */
 
+/* 안내 문구는 캔버스 위에 겹치지 않고 캔버스 "위쪽 바깥"에 둔다 (모바일과 동일).
+   가이드/목업/선택박스는 모두 실제 <canvas> 박스 기준으로 위치를 잡으므로 영향 없음. */
 .canvasGuideOverlay {
-    position: absolute;
-    left: 50%;
-    top: 12px;
+    position: static;
+    order: -1;
     z-index: 3;
-    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     align-items: center;
