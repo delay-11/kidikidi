@@ -412,11 +412,12 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         font-size: 16px; /* iOS 입력 시 화면 확대 방지 */
     }
 
+    /* 업로드 · 삭제 버튼과 안내 칩 2개를 한 줄로 (줄바꿈 X) */
     body.kidikidiBootstrap #toolImage .uploadRow {
         display: flex !important;
-        flex-wrap: wrap !important;
+        flex-wrap: nowrap !important;
         align-items: center;
-        gap: 8px !important;
+        gap: 6px !important;
     }
 
     body.kidikidiBootstrap #toolImage .uploadRow #fileBtn,
@@ -446,15 +447,28 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
     /* 버튼 옆 안내: 예전처럼 회색 둥근 칩 */
     #toolImage .imgTip {
         display: inline-flex;
+        flex: 0 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
         align-items: center;
         height: 28px;
-        padding: 0 11px;
+        padding: 0 8px;
         border-radius: 999px;
         background: #f2f4f7;
         color: #475467;
         font-size: 11px;
         font-weight: 700;
+        letter-spacing: -0.02em;
         white-space: nowrap;
+    }
+
+    /* 아주 좁은 폰(360px 이하)은 칩 글자를 조금 줄여 한 줄 유지 */
+    @media (max-width: 374px) {
+        #toolImage .imgTip {
+            padding: 0 6px;
+            font-size: 10px;
+        }
     }
 
     /* PC 도구 패널의 2단 배치 대신 모바일처럼 위아래로 */
