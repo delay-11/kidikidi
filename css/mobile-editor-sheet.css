@@ -434,6 +434,13 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         border-radius: 14px !important;
     }
 
+    /* 초기화는 업로드 · 삭제처럼 아이콘만 있는 네모 버튼 */
+    body.kidikidiBootstrap #toolImage .imageResetBtn {
+        flex: 0 0 44px !important;
+        width: 44px;
+        padding: 0 !important;
+    }
+
     /* 업로드 · 삭제 버튼과 안내 칩 2개를 한 줄로 (줄바꿈 X) */
     body.kidikidiBootstrap #toolImage .uploadRow {
         display: flex !important;
