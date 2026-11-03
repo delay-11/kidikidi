@@ -31,6 +31,9 @@
 
     body.kidikidiBootstrap .pill #selText {
         max-width: 140px;
+        /* 말줄임용 inline-block이 되면서 세로 가운데 정렬이 풀려 글자가 위로 붙던 문제:
+           높이(24px)만큼 줄 높이를 줘서 가운데로 */
+        line-height: 24px !important;
     }
 
 }
