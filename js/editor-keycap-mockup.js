@@ -15,7 +15,10 @@
  * designCanvas에서 색을 읽으므로 음영 때문에 색이 틀어지지 않는다.
 ========================================================= */
 
-const KEYCAP_MOCKUP_STORAGE_KEY = "kidikidi_keycap_mockup_v1";
+// v2: 기본 화면을 목업 → 가이드선으로 바꿈. 목업 기준으로 시안을 배치해
+// 캔버스를 다 채우지 않고 접수하는 경우가 많아서, 목업은 직접 눌러야 보이게 한다.
+// (v1에 저장된 예전 기본값 "on"은 무시하고 다시 가이드선부터 시작)
+const KEYCAP_MOCKUP_STORAGE_KEY = "kidikidi_keycap_mockup_v2";
 
 // MAO는 사각형이 아니라서 가이드 SVG(image/guides/mao-*.svg)와 같은 path를 그대로 사용
 const MAO_MOCKUP_PATHS = {
@@ -40,9 +43,9 @@ let keycapMockupHiddenForPick = false;
 
 function loadKeycapMockupPref() {
   try {
-    return localStorage.getItem(KEYCAP_MOCKUP_STORAGE_KEY) !== "off";
+    return localStorage.getItem(KEYCAP_MOCKUP_STORAGE_KEY) === "on";
   } catch (e) {
-    return true;
+    return false;
   }
 }
 

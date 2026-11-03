@@ -213,17 +213,17 @@
                                     <span class="tag">배경</span><b id="bgText">-</b>
                                     <button class="print-guide-open-btn pill-guide-btn btn btn-sm btn-outline-dark"
                                         id="openPrintGuideBtn" type="button">인쇄 가이드 보기</button>
-                                    <button aria-pressed="true" class="keycapMockupToggle" id="keycapMockupToggle"
-                                        type="button"><span class="keycapMockupToggle__opt is-active"
+                                    <button aria-pressed="false" class="keycapMockupToggle" id="keycapMockupToggle"
+                                        type="button"><span class="keycapMockupToggle__opt"
                                             data-mode="mockup">목업</span><span
-                                            class="keycapMockupToggle__opt" data-mode="guide">가이드선</span></button>
+                                            class="keycapMockupToggle__opt is-active" data-mode="guide">가이드선</span></button>
                                 </div>
                                 <div class="divider"></div>
                                 <div class="canvasWrap" id="canvasWrap">
                                     <canvas height="330" id="designCanvas" width="330"></canvas>
                                     <div aria-hidden="true" class="canvasGuideOverlay">
                                         <span>키캡 윗면에 보여질 이미지는 빨간선 안쪽에 배치해 주세요</span>
-                                        <span class="canvasGuideOverlay__fill">목업이 아닌 캔버스 전체를 채워야 측면까지 인쇄돼요</span>
+                                        <span class="canvasGuideOverlay__fill">목업 표시 영역이 아닌, 캔버스 전체를 채워주세요.</span>
                                     </div>
                                     <div aria-live="polite" class="canvasHelpTip" id="canvasHelpTip"></div>
                                     <div class="bbox" id="bbox">

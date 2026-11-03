@@ -433,8 +433,10 @@ canvas {
 
 /* 목업 모양이 아니라 캔버스 전체를 채워야 측면까지 인쇄됨 */
 .canvasGuideOverlay span.canvasGuideOverlay__fill {
-    border-color: rgba(16, 24, 40, 0.14);
-    color: #101828;
+    border-color: #d92d20;
+    background: #d92d20;
+    color: #fff;
+    font-weight: 900;
 }
 
 .canvasHelpTip {
