@@ -1464,12 +1464,12 @@ canvas {
 .imageSizeRow {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
 }
 
 .imageNumField {
     display: flex;
-    flex: 1 1 0;
+    flex: 0 1 140px;
     align-items: center;
     min-width: 0;
     height: 34px;
@@ -1526,44 +1526,6 @@ canvas {
 .imageNumField:has(input:disabled) {
     background: #f9fafb;
     cursor: not-allowed;
-}
-
-.imageRatioLock {
-    display: inline-flex;
-    flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    padding: 0;
-    border: 1px solid var(--line, #eaecf0);
-    border-radius: 999px;
-    background: #fff;
-    color: #98a2b3;
-}
-
-.imageRatioLock svg {
-    width: 15px;
-    height: 15px;
-}
-
-.imageRatioLock.is-on {
-    border-color: #101828;
-    background: #101828;
-    color: #fff;
-}
-
-.imageSizeFoot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.imageSizeHint {
-    color: #98a2b3;
-    font-size: 11px;
-    font-weight: 700;
 }
 
 .imageFillBtn {
