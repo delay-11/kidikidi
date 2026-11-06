@@ -134,7 +134,7 @@
     border: 1px solid var(--line);
     border-radius: var(--radius-lg);
     padding: 24px;
-    box-shadow: var(--shadow);
+    box-shadow: none;
     height: auto;
     min-height: 0;
     align-self: start;
@@ -405,7 +405,6 @@ select option[value=""] {
 input:focus, select:focus, textarea:focus {
     border-color: var(--acc);
     box-shadow: var(--focus-ring);
-    transition: all 0.2s ease;
 }
 
 textarea {
@@ -538,7 +537,7 @@ body[data-step="info"] .stepIntroCard, body[data-step="editor"] .editorStepCard,
     background: #fff;
     border: 1px solid var(--line);
     border-radius: 24px;
-    box-shadow: var(--shadow);
+    box-shadow: none;
 }
 
 body[data-step="confirm"] .stepHeaderConfirm, body[data-step="confirm"] .editorStepCard {

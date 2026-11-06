@@ -40,6 +40,7 @@
     <link href="./css/responsive.css" rel="stylesheet" />
     <link href="./css/responsive-editor.css" rel="stylesheet" />
     <link href="./css/mobile-editor-sheet.css" rel="stylesheet" />
+    <link href="./css/polish.css" rel="stylesheet" />
 
     <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
@@ -150,7 +151,7 @@
                         </div>
                         <div class="optionSelectLine">
                             <div>
-                                <select class="form-select" id="profile" required>
+                                <select aria-label="프로파일" class="form-select" id="profile" required>
                                     <option disabled selected value="">선택하기</option>
                                     <option value="OEM">OEM</option>
                                     <option value="XDA">XDA</option>
@@ -160,10 +161,10 @@
                                 </select>
                             </div>
                             <div>
-                                <select class="form-select" id="capType" required></select>
+                                <select aria-label="규격" class="form-select" id="capType" required></select>
                             </div>
                             <div>
-                                <select class="form-select" id="laser">
+                                <select aria-label="레이저 옵션" class="form-select" id="laser">
                                     <option value="none">레이저 없음</option>
                                     <option value="black">블랙</option>
                                     <option value="white">화이트</option>
@@ -222,7 +223,7 @@
                                 </div>
                                 <div class="divider"></div>
                                 <div class="canvasWrap" id="canvasWrap">
-                                    <canvas height="330" id="designCanvas" width="330"></canvas>
+                                    <canvas aria-label="키캡 시안 편집 캔버스" height="330" id="designCanvas" width="330"></canvas>
                                     <div aria-hidden="true" class="canvasGuideOverlay">
                                         <span>키캡 윗면에 보여질 이미지는 빨간선 안쪽에 배치해 주세요</span>
                                         <span class="canvasGuideOverlay__fill">목업 표시 영역이 아닌, 캔버스 전체를 채워주세요.</span>
@@ -271,13 +272,13 @@
                                                     </button>
                                                     <!-- 선택한 이미지를 같은 위치 · 크기(%) · 회전 그대로 다른 이미지로 바꿈 (js/editor-image.js) -->
                                                     <button aria-label="이미지 교체" class="ghostBtn btn btn-outline-secondary isHiddenReplace" disabled=""
-                                                        id="fileReplaceBtn" title="같은 위치 · 크기로 이미지만 바꾸기" type="button">
+                                                        id="fileReplaceBtn" title="같은 위치와 크기로 이미지만 바꾸기" type="button">
                                                         <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 0 1 2-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 0 1-2 2H3"/></svg>
                                                         <span class="mBtnLabel">교체</span>
                                                     </button>
                                                     <!-- 업로드 안내: 버튼 옆 칩 두 개 (모바일 전용, 위아래로 쌓아 버튼 줄을 한 줄로 유지) -->
                                                     <span class="imgTipGroup">
-                                                        <span class="imgTip">PNG · JPG · WEBP 가능</span>
+                                                        <span class="imgTip">PNG, JPG, WEBP 가능</span>
                                                         <span class="imgTip">투명 배경 권장</span>
                                                     </span>
                                                     <button class="ghostBtn btn btn-outline-secondary" disabled=""
@@ -619,7 +620,7 @@
     <footer class="footer">
         <div class="footerInner">
             <div class="footerLeft">
-                © 2026 KidiKidi. All rights reserved.
+                © 2026 KidiKidi
             </div>
             <div class="footerRight">
                 본 제작 시스템 및 디자인 툴은 KidiKidi의 자산입니다.<br />

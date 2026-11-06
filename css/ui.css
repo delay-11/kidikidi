@@ -684,9 +684,9 @@ button:disabled {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #f2f4f7;
+    background: transparent;
     color: var(--txt);
-    font-size: 12px;
+    font-size: 14px;
     font-weight: 800;
 }
 
@@ -696,7 +696,7 @@ button:disabled {
 }
 
 .toast.ok .toastIcon {
-    background: rgba(253, 204, 99, 0.28);
+    background: transparent;
     color: #8a5a00;
 }
 

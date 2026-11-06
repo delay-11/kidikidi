@@ -7,9 +7,7 @@
 
 .kidikidiBootstrap {
     min-height: 100vh;
-    background:
-        radial-gradient(circle at top left, rgba(253, 204, 99, 0.20), transparent 32rem),
-        #f6f7fb;
+    background: var(--bg);
 }
 
 .kidikidiBootstrap .siteHeader {
@@ -25,17 +23,13 @@
 .kidikidiBootstrap .headerVersion {
     display: inline-flex;
     align-items: center;
-    min-height: 28px;
-    padding: 0 10px;
-    border-radius: 999px;
-    background: #f8fafc;
-    border: 1px solid #e6e9f2;
-    font-weight: 700;
+    color: var(--muted);
+    font-size: var(--fs-12);
+    font-weight: 500;
 }
 
 .kidikidiBootstrap .orderBar {
-    background: rgba(255, 255, 255, 0.86);
-    backdrop-filter: blur(10px);
+    background: var(--card);
 }
 
 .kidikidiBootstrap .orderLine {
@@ -333,7 +327,7 @@ body.kidikidiBootstrap[data-step="confirm"] .editorStepCard {
 
 .kidikidiBootstrap .optionSelectLine {
     display: grid;
-    grid-template-columns: 0.8fr 1.25fr 0.8fr;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.25fr) minmax(0, 0.8fr);
     gap: 12px;
 }
 
