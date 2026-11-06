@@ -154,11 +154,14 @@ function getKeycapMockupShape(
   const innerBox = box(guide.inner);
   const safeBox = box(guide.safe);
 
+  const round = (b, r) => (guide.round ? Math.min(b.w, b.h) / 2 : r); // MOA: 원형 윗면 · 안전선
   return {
-    dish: profile === "XDA" ? "sphere" : "cylinder",
+    dish: profile === "XDA" || profile === "MOA" ? "sphere" : "cylinder",
+    // 윗면이 원형이면 옆면을 4면으로 나누면 꺾인 띠가 생김 → MAO처럼 부드러운 음영
+    smoothWalls: !!guide.round,
     outer: toPath(outerBox, 18),
-    inner: toPath(innerBox, 16),
-    safe: toPath(safeBox, 14),
+    inner: toPath(innerBox, round(innerBox, 16)),
+    safe: toPath(safeBox, round(safeBox, 14)),
     outerBox,
     innerBox,
   };
@@ -258,8 +261,8 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
 
   c.save();
   c.clip(ring, "evenodd");
-  if (shape.isMao) {
-    // MAO는 옆면이 둥글게 이어져 있어서, 면을 나누면 꺾인 선이 생긴다 → 위아래/좌우 부드러운 음영만 겹친다.
+  if (shape.isMao || shape.smoothWalls) {
+    // MAO(·원형 윗면 MOA)는 옆면이 둥글게 이어져 있어서, 면을 나누면 꺾인 선이 생긴다 → 위아래/좌우 부드러운 음영만 겹친다.
     const v = c.createLinearGradient(0, o.y, 0, o.y + o.h);
     v.addColorStop(0, "rgba(255,255,255,0.26)");
     v.addColorStop(0.45, "rgba(16,24,40,0.06)");
