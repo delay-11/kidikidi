@@ -96,8 +96,8 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         padding: 0 18px;
         border: 1px solid transparent; /* 옆 [시안 추가] 버튼과 테두리 두께를 맞춰 정확히 1:1 */
         border-radius: 14px;
-        background: #fdcc63;
-        color: #101828;
+        background: var(--acc);
+        color: var(--gray-900);
         font-size: 15px;
         font-weight: 900;
         cursor: pointer;
@@ -109,8 +109,8 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
     }
 
     .mDecorateBtn[aria-expanded="true"] {
-        background: #101828;
-        color: #fdcc63;
+        background: var(--gray-900);
+        color: var(--acc);
     }
 
     /* 캔버스 아래에 붙어 있던 도구 영역/구분선은 시트로 옮기므로 자리 차지하지 않게 */
@@ -136,7 +136,7 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         overflow-y: auto !important;
         border: 0 !important;
         border-radius: 22px 22px 0 0 !important;
-        background: #ffffff !important;
+        background: var(--white) !important;
         box-shadow: 0 -8px 30px rgba(16, 24, 40, 0.16) !important;
         transform: translateY(105%);
         transition: transform 0.22s ease;
@@ -164,8 +164,8 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         align-items: center;
         margin: 0 -14px 10px;
         padding: 14px 10px 10px;
-        border-bottom: 1px solid #f2f4f7;
-        background: #ffffff;
+        border-bottom: 1px solid var(--gray-100);
+        background: var(--white);
     }
 
     .mSheetHead::before {
@@ -176,7 +176,7 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         width: 36px;
         height: 4px;
         border-radius: 999px;
-        background: #e4e7ec;
+        background: var(--gray-250);
         transform: translateX(-50%);
     }
 
@@ -199,7 +199,7 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         border: 0;
         border-radius: 12px;
         background: transparent;
-        color: #344054;
+        color: var(--gray-700);
     }
 
     .mSheetHead__btn svg {
@@ -227,11 +227,11 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         border: 1px solid #fde7b0;
         border-radius: 18px;
         background: #fff9ea;
-        color: #101828;
+        color: var(--gray-900);
     }
 
     .mDecorateTile:active {
-        background: #fdcc63;
+        background: var(--acc);
     }
 
     .mDecorateTile__icon {
@@ -242,7 +242,7 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         height: 46px;
         margin-bottom: 4px;
         border-radius: 14px;
-        background: #fdcc63;
+        background: var(--acc);
     }
 
     .mDecorateTile__icon svg {
@@ -256,7 +256,7 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
     }
 
     .mDecorateTile small {
-        color: #7a4b00;
+        color: var(--acc-ink-3);
         font-size: 11px;
         font-weight: 700;
     }
@@ -297,8 +297,8 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
         min-height: 58px !important;
         border: 0 !important;
         border-radius: 14px !important;
-        background: #f9fafb !important;
-        color: #101828 !important;
+        background: var(--gray-25) !important;
+        color: var(--gray-900) !important;
         padding: 0 4px !important;
         font-size: 14px !important;
         white-space: nowrap;
@@ -306,9 +306,9 @@ body.kidikidiBootstrap .textFontRow .textFontBtn {
     }
 
     body[data-m-sheet="font"].kidikidiBootstrap .textFontRow .textFontBtn.is-active {
-        background: #fff4d6 !important;
-        box-shadow: inset 0 0 0 2px #fdcc63 !important;
-        color: #101828 !important;
+        background: var(--acc-soft-2) !important;
+        box-shadow: inset 0 0 0 2px var(--acc) !important;
+        color: var(--gray-900) !important;
     }
 
     /* 시트가 열려 있을 땐 알림을 화면 위쪽에 띄워서 시트 내용을 가리지 않게 */
@@ -501,8 +501,8 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
         height: 22px;
         padding: 0 8px;
         border-radius: 999px;
-        background: #f2f4f7;
-        color: #475467;
+        background: var(--gray-100);
+        color: var(--gray-600);
         font-size: 11px;
         font-weight: 700;
         letter-spacing: -0.02em;
@@ -607,7 +607,7 @@ body.kidikidiBootstrap #toolText .textStyleBar > button {
     }
 
     .mDecorateTile:active {
-        background: #f9fafb;
+        background: var(--gray-25);
     }
 }
 
@@ -659,8 +659,8 @@ body.kidikidiBootstrap #toolText .mTextTopRow .textIconBtn {
     min-width: 26px;
     padding: 1px 5px;
     border-radius: 999px;
-    background: #fdcc63;
-    color: #101828;
+    background: var(--acc);
+    color: var(--gray-900);
     font-size: 10px;
     font-weight: 800;
     line-height: 1.5;
@@ -685,10 +685,10 @@ body[data-step="editor"] .mFontRow {
     min-height: 52px;
     margin: 0;
     padding: 0 14px;
-    border: 1px solid #e4e7ec;
+    border: 1px solid var(--gray-250);
     border-radius: 14px;
-    background: #ffffff;
-    color: #101828;
+    background: var(--white);
+    color: var(--gray-900);
     text-align: left;
 }
 
@@ -703,7 +703,7 @@ body[data-step="editor"] .mFontRow {
 
 .mFontRow__label {
     flex: 0 0 auto;
-    color: #667085;
+    color: var(--gray-500);
     font-size: 13px;
     font-weight: 800;
 }
@@ -727,7 +727,7 @@ body[data-step="editor"] .mFontRow {
     flex: 0 0 auto;
     width: 20px;
     height: 20px;
-    color: #98a2b3;
+    color: var(--gray-400);
 }
 
 
@@ -800,10 +800,10 @@ body[data-step="editor"] .mFontRow {
         height: 44px !important;
         min-height: 44px !important;
         padding: 0 !important;
-        border: 1px solid #e4e7ec !important;
+        border: 1px solid var(--gray-250) !important;
         border-radius: 12px !important;
-        background: #ffffff !important;
-        color: #475467 !important;
+        background: var(--white) !important;
+        color: var(--gray-600) !important;
     }
 
     body.kidikidiBootstrap #toolBg .gradientResetBtn svg {
@@ -960,13 +960,13 @@ body.kidikidiBootstrap .textToolFontSection .bgToolSectionTitle {
 .optionSelectTips {
     margin: 6px 0 0;
     padding-left: 18px;
-    color: #475467;
+    color: var(--gray-600);
     font-size: 12.5px;
     line-height: 1.6;
 }
 
 .optionSelectTips b {
-    color: #101828;
+    color: var(--gray-900);
 }
 
 /* 안내 문구가 단어 중간에서 끊기지 않게 */
@@ -1034,8 +1034,8 @@ body.kidikidiBootstrap .textToolFontSection .bgToolSectionTitle {
 /* 삭제 버튼은 어디에 있든 빨간색으로 통일 (텍스트 삭제를 1줄로 옮기면서 회색이 됐었음) */
 body.kidikidiBootstrap #textClearBtn {
     border-color: #fecdca !important;
-    background: #ffffff !important;
-    color: #d92d20 !important;
+    background: var(--white) !important;
+    color: var(--bad) !important;
 }
 
 body.kidikidiBootstrap #textClearBtn:disabled {
@@ -1060,7 +1060,7 @@ body.kidikidiBootstrap #toolBg .bgModeBtn:not(.is-active) {
     border-color: transparent !important;
     background: transparent !important;
     box-shadow: none !important;
-    color: #475467 !important;
+    color: var(--gray-600) !important;
 }
 
 /* 폰트 목록 (PC·모바일 공통): 3줄까지만 보이고 옆으로 넘겨서 보기

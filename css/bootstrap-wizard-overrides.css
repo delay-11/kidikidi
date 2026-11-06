@@ -47,7 +47,7 @@
     border-radius: 0 !important;
     background: transparent !important;
     box-shadow: none !important;
-    color: #98a2b3 !important;
+    color: var(--gray-400) !important;
     text-align: center !important;
 }
 
@@ -55,7 +55,7 @@
 .kidikidiBootstrap .wizardStep.stepChip.is-active,
 .kidikidiBootstrap .stepChip.wizardStep.is-active {
     background: transparent !important;
-    color: #1b2330 !important;
+    color: var(--txt) !important;
 }
 
 .kidikidiBootstrap .wizardStep strong,
@@ -82,7 +82,7 @@
     width: 20px !important;
     height: 1px !important;
     margin-left: 8px !important;
-    background: #d0d5dd !important;
+    background: var(--gray-300) !important;
 }
 
 .kidikidiBootstrap .wizardStep:last-child::after {
@@ -146,7 +146,7 @@
 }
 
 .kidikidiBootstrap .textToolPanel .bgToolSectionTitle {
-    color: #101828 !important;
+    color: var(--gray-900) !important;
     font-size: 14px !important;
     font-weight: 800 !important;
     letter-spacing: -0.02em !important;
@@ -400,9 +400,9 @@
 .kidikidiBootstrap .bgModeBtn.is-active,
 .kidikidiBootstrap .textFontBtn.is-active,
 .kidikidiBootstrap .textIconBtn.is-active {
-    background: #0f172a !important;
-    border-color: #0f172a !important;
-    color: #ffffff !important;
+    background: var(--slate-900) !important;
+    border-color: var(--slate-900) !important;
+    color: var(--white) !important;
 }
 
 .kidikidiBootstrap .textColorBtn {
@@ -484,9 +484,9 @@ body.kidikidiBootstrap[data-step="editor"] .editorToolBox {
 .kidikidiBootstrap .toolTab.is-active,
 .kidikidiBootstrap .bgModeBtn.is-active,
 .kidikidiBootstrap .gradientDirBtn.is-active {
-    border-color: #0f172a !important;
-    background: #0f172a !important;
-    color: #fff !important;
+    border-color: var(--slate-900) !important;
+    background: var(--slate-900) !important;
+    color: var(--white) !important;
     box-shadow: none !important;
 }
 
@@ -536,7 +536,7 @@ body.kidikidiBootstrap[data-step="confirm"] .wizardSteps {
     width: 260px !important;
     min-width: 260px !important;
     padding: 4px 0 !important;
-    color: #98a2b3 !important;
+    color: var(--gray-400) !important;
     text-align: center !important;
     white-space: nowrap !important;
 }
@@ -549,7 +549,7 @@ body.kidikidiBootstrap[data-step="confirm"] .wizardSteps {
     height: 1px !important;
     margin: 0 !important;
     transform: translateY(-50%) !important;
-    background: #d0d5dd !important;
+    background: var(--gray-300) !important;
 }
 
 .kidikidiBootstrap .wizardStep strong {
@@ -565,31 +565,31 @@ body.kidikidiBootstrap[data-step="confirm"] .wizardSteps {
 }
 
 .kidikidiBootstrap .wizardStepNo {
-    background: #eaecf0 !important;
-    color: #667085 !important;
+    background: var(--gray-200) !important;
+    color: var(--gray-500) !important;
 }
 
 .kidikidiBootstrap .wizardStep.is-active {
-    color: #101828 !important;
+    color: var(--gray-900) !important;
 }
 
 .kidikidiBootstrap .wizardStep.is-active .wizardStepNo {
-    background: #fdcc63 !important;
-    color: #111827 !important;
+    background: var(--acc) !important;
+    color: var(--gray-950) !important;
 }
 
 /* 완료 단계 초록색 제거 */
 body.kidikidiBootstrap[data-step="editor"] .wizardStep[data-step-chip="info"],
 body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="info"],
 body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="editor"] {
-    color: #98a2b3 !important;
+    color: var(--gray-400) !important;
 }
 
 body.kidikidiBootstrap[data-step="editor"] .wizardStep[data-step-chip="info"] .wizardStepNo,
 body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="info"] .wizardStepNo,
 body.kidikidiBootstrap[data-step="confirm"] .wizardStep[data-step-chip="editor"] .wizardStepNo {
-    background: #eaecf0 !important;
-    color: #667085 !important;
+    background: var(--gray-200) !important;
+    color: var(--gray-500) !important;
 }
 
 /* 텍스트 탭: 4칸 억지 배치 제거하고 2x2로 넓게 재배치 */
@@ -992,7 +992,7 @@ body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn {
 #toolText .bgToolSectionTitle {
     font-size: 14px !important;
     font-weight: 700 !important;
-    color: #1b2330 !important;
+    color: var(--txt) !important;
 }
 
 #toolBg .bgModeBtn,

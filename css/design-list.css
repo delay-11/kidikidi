@@ -11,7 +11,7 @@
     padding: 10px;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
-    background: #ffffff;
+    background: var(--white);
     cursor: pointer;
     transition: transform 0.08s ease, border-color 0.08s ease;
 }
@@ -22,7 +22,7 @@
 
 .cartItem.active, .cartItem.selected {
     border: 2px solid var(--acc);
-    background: #fffdf5;
+    background: var(--acc-wash);
 }
 
 .cartTop {
@@ -44,7 +44,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     overflow: hidden;
-    background: #ffffff;
+    background: var(--white);
     flex-shrink: 0;
 }
 
@@ -100,7 +100,7 @@
     justify-content: center;
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: #fff;
+    background: var(--white);
     color: var(--txt);
     font-size: 14px;
     font-weight: 700;
@@ -110,7 +110,7 @@
 }
 
 .cartBtn:hover {
-    background: #f8fafc;
+    background: var(--gray-50);
 }
 
 .cartBtn:active {
@@ -131,12 +131,12 @@
 }
 
 .cartThumbRendered {
-    background: #ffffff !important;
+    background: var(--white) !important;
 }
 
 .cartThumbRendered img {
     object-fit: contain;
-    background: #ffffff;
+    background: var(--white);
 }
 
 .cartDesignCard {
@@ -166,7 +166,7 @@
 }
 
 .cartBgMeta {
-    color: #475467;
+    color: var(--gray-600);
     font-weight: 700;
 }
 
@@ -182,8 +182,8 @@
     padding: 0 14px;
     border: 1px solid var(--line);
     border-radius: 999px;
-    background: #f9fafb;
-    color: #475467;
+    background: var(--gray-25);
+    color: var(--gray-600);
     font-size: 12px;
     font-weight: 900;
     cursor: pointer;
@@ -196,8 +196,8 @@
 
 .cartEditBtn:hover {
     border-color: rgba(253, 204, 99, 0.75);
-    background: #fff8e8;
-    color: #111827;
+    background: var(--acc-soft);
+    color: var(--gray-950);
 }
 
 .cartDesignCard .cartQtyRow {
@@ -213,7 +213,7 @@
     padding: 0 8px;
     border: 1px solid var(--line);
     border-radius: 10px;
-    background: #fff;
+    background: var(--white);
     color: var(--txt);
     font-size: 14px;
     font-weight: 700;
@@ -276,7 +276,7 @@ body[data-step="confirm"] .confirmStepActions {
 .cartDesignCard .cartThumb.cartThumbMockup {
     min-width: 28px;
     max-width: 96px;
-    border-color: #eaecf0;
+    border-color: var(--gray-200);
     background: #f4f5f7;
 }
 

@@ -322,7 +322,7 @@
 
     .textToolSection + .textToolSection {
         padding-top: 14px !important;
-        border-top: 1px solid #eaecf0 !important;
+        border-top: 1px solid var(--gray-200) !important;
     }
 
     .textToolSection:nth-child(3) {

@@ -32,8 +32,8 @@
     max-width: 240px;
     padding: 10px 12px;
     border-radius: 12px;
-    background: #ffffff;
-    border: 1px solid #f3d2ce;
+    background: var(--white);
+    border: 1px solid var(--bad-soft);
     color: var(--txt);
     font-size: 13px;
     font-weight: 700;
@@ -48,9 +48,9 @@
     position: absolute;
     width: 10px;
     height: 10px;
-    background: #ffffff;
-    border-left: 1px solid #f3d2ce;
-    border-top: 1px solid #f3d2ce;
+    background: var(--white);
+    border-left: 1px solid var(--bad-soft);
+    border-top: 1px solid var(--bad-soft);
     transform: rotate(45deg);
 }
 
@@ -77,7 +77,7 @@
     padding: 14px 18px;
     border-radius: 14px;
     background: var(--txt);
-    color: #ffffff;
+    color: var(--white);
     font-size: 13px;
     line-height: 1.5;
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
@@ -124,14 +124,14 @@
 }
 
 .editorTourBtnPrimary {
-    background: #fdcc63;
+    background: var(--acc);
     color: var(--txt);
 }
 
 .editorTourBtnGhost {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.4);
-    color: #ffffff;
+    color: var(--white);
 }
 
 @media (max-width: 768px) {
@@ -163,7 +163,7 @@
 .editorTourLabelBody {
     display: block;
     margin-top: 4px;
-    color: #475467;
+    color: var(--gray-600);
     font-size: 13px;
     font-weight: 600;
 }
