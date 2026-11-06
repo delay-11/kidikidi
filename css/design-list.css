@@ -293,3 +293,23 @@ body[data-step="confirm"] .cartCardActions {
 .cartDesignCard .cartQtyRow {
     margin-left: auto;
 }
+
+/* 수량 조절: [-] [1] [+] [x] 높이 맞춤
+   - 입력칸 공통 규칙(.kidikidiBootstrap input:not(...))이 아주 강해서 !important */
+body.kidikidiBootstrap .cartQtyRow .cartBtn,
+body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
+    height: 32px !important;
+    min-height: 32px !important;
+}
+
+body.kidikidiBootstrap .cartQtyRow .cartBtn {
+    width: 32px;
+    min-width: 32px;
+}
+
+body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
+    width: 48px;
+    min-width: 48px;
+    padding: 0 4px !important;
+    border-radius: 8px !important;
+}

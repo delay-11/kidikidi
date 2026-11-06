@@ -946,3 +946,33 @@ body.kidikidiBootstrap #toolText .textFontRow button.textFontBtn {
 /* =========================================================
  * 반응형 규칙은 css/responsive.css에서 통합 관리합니다.
 ========================================================= */
+
+/* 키보드 포커스: 바로 나타나는 진한 테두리
+   - 위에서 입력칸·도구 버튼의 outline을 !important로 지우고 있어서 여기도 !important */
+.kidikidiBootstrap :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--txt) !important;
+    outline-offset: 2px;
+}
+
+/* 비활성 버튼: 흐리게 지우지 않고 회색 면 + 읽히는 글씨 + 금지 커서
+   - 위쪽 도구 버튼 규칙(.is-active 등)보다 뒤에 있어야 해서 이 파일 끝에 둠 */
+.kidikidiBootstrap .confirmBtn:disabled,
+.kidikidiBootstrap .btn-warning:disabled,
+.kidikidiBootstrap .btn-dark:disabled,
+.kidikidiBootstrap .secondaryActionBtn:disabled,
+.kidikidiBootstrap .btn-outline-secondary:disabled,
+.kidikidiBootstrap .btn-outline-danger:disabled,
+.kidikidiBootstrap .ghostBtn:disabled,
+.kidikidiBootstrap .dangerBtn:disabled,
+.kidikidiBootstrap .iconToolBtn:disabled,
+.kidikidiBootstrap #toolBg .gradientResetBtn:disabled,
+.kidikidiBootstrap #toolBg .gradientPickBtn:disabled,
+.kidikidiBootstrap #toolBg .gradientDirBtn:disabled,
+.kidikidiBootstrap .textColorBtn:disabled,
+.kidikidiBootstrap .textIconBtn:disabled {
+    opacity: 1 !important;
+    border-color: var(--line) !important;
+    background: var(--disabled-bg) !important;
+    color: var(--muted) !important;
+    cursor: not-allowed;
+}

@@ -1,3 +1,7 @@
+/* Hallmark · redesign: polish · built: the project · scope: app · genre: playful · brand kept: --acc #fdcc63, KidiKidi logo, Pretendard */
+/* Hallmark · critique: the order screen read as a template (warm wash, glass bar, shadowed card, dead buttons); it now reads as a plain, honest form */
+/* Hallmark · answered 56: the two sticky tops live in different scroll boxes (page header vs. mobile sheet head) */
+
 /* ===== base.css ===== */
 
 :root {
@@ -75,4 +79,22 @@ input, select, textarea, button {
 h1 {
     margin: 0 0 14px;
     font-size: 20px;
+}
+
+/* 가로 넘침 막기: hidden 대신 clip (sticky가 깨지지 않음) */
+html,
+body {
+    overflow-x: clip;
+}
+
+/* 시스템에서 '동작 줄이기'를 켠 사용자는 애니메이션 없이 */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

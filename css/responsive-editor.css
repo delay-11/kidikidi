@@ -356,3 +356,18 @@
         bottom: 84px !important;
     }
 }
+
+/* PC 1단계: 누를 수 없는 [이전] 버튼을 빼고, 제목을 아래 카드 왼쪽 끝에 맞춤 */
+@media (min-width: 769px) {
+    .kidikidiBootstrap .stepHeaderInfo {
+        grid-template-columns: minmax(0, 1fr) 120px;
+    }
+
+    .kidikidiBootstrap .stepPageHeader.stepHeaderInfo {
+        width: min(760px, 100%);
+    }
+
+    .kidikidiBootstrap .stepHeaderInfo .ghostBtn[disabled] {
+        display: none;
+    }
+}

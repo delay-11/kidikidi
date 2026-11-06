@@ -658,11 +658,12 @@ body.kidikidiBootstrap #toolText .mTextTopRow .textIconBtn {
     right: -6px;
     min-width: 26px;
     padding: 1px 5px;
+    border: 1px solid var(--line);
     border-radius: 999px;
-    background: var(--acc);
-    color: var(--gray-900);
+    background: var(--gray-100);
+    color: var(--muted);
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 700;
     line-height: 1.5;
 }
 
@@ -1093,4 +1094,64 @@ body.kidikidiBootstrap .textToolFontSection .textFontRow .textFontBtn {
     width: auto !important;
     min-width: 0 !important;
     scroll-snap-align: start;
+}
+
+/* 모바일: 프로파일 / 규격 두 칸, 레이저는 아래 한 줄 (글자가 잘리지 않게) */
+@media (max-width: 480px) {
+    .kidikidiBootstrap .optionSelectLine {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    }
+
+    .kidikidiBootstrap .optionSelectLine > div:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    /* 로고 줄도 위에 붙여서, 스크롤할 때 "이전 | 시안 제작 | 다음" 줄 위로 내용이 비치지 않게
+       (index.html의 sticky-top은 Bootstrap CSS가 안 불러와져서 적용되지 않음) */
+    body.kidikidiBootstrap .siteHeader {
+        position: sticky;
+        top: 0;
+    }
+
+    /* 위쪽 주문 정보 줄: 두 줄로 넘어가지 않게 한 줄로, 넘치면 옆으로 밀어서 보기 */
+    body.kidikidiBootstrap .orderLine {
+        flex-wrap: nowrap;
+        column-gap: 6px;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: none;
+        font-size: var(--fs-12);
+    }
+
+    body.kidikidiBootstrap .orderLine::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* 이미지 버튼 옆 안내: 칩 대신 작은 글씨 (위아래 두 줄, 오른쪽 정렬은 그대로) */
+    body.kidikidiBootstrap #toolImage .imgTip {
+        height: auto;
+        padding: 0;
+        border-radius: 0;
+        background: transparent;
+        color: var(--muted);
+        font-weight: 500;
+        letter-spacing: 0;
+    }
+
+    /* 꾸미기 메뉴: 흰 타일, 아이콘은 글자색 (노란색은 [꾸미기] 버튼에만) */
+    body.kidikidiBootstrap .mDecorateTile {
+        border-color: var(--line);
+        background: var(--card);
+    }
+
+    body.kidikidiBootstrap .mDecorateTile__icon {
+        background: var(--gray-100);
+        color: var(--txt);
+    }
+
+    body.kidikidiBootstrap .mDecorateTile:active {
+        background: var(--acc-soft);
+    }
 }

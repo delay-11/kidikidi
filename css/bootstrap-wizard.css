@@ -169,7 +169,7 @@ body.kidikidiBootstrap[data-step="editor"] .rightStack {
     margin-bottom: 0;
     border-radius: 999px;
     background: var(--gray-200);
-    color: var(--gray-500);
+    color: var(--muted);
     font-size: 12px;
     font-weight: 900;
 }
@@ -240,7 +240,8 @@ body.kidikidiBootstrap[data-step="confirm"] .stepHeaderConfirm {
     border: 1px solid var(--line);
     border-radius: 24px;
     background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 18px 48px rgba(16, 24, 40, 0.08) !important;
+    /* 테두리 하나로만 구분 (넓은 그림자 없음) */
+    box-shadow: none !important;
 }
 
 .kidikidiBootstrap .stepIntroCard {
@@ -544,4 +545,3 @@ body.kidikidiBootstrap[data-step="confirm"] .cartList {
 .kidikidiBootstrap .footerInner {
     max-width: 1440px;
 }
-
