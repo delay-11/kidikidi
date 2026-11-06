@@ -424,7 +424,7 @@ fileEl?.addEventListener("change", async () => {
   fileEl.multiple = true;
 
   try {
-    setCanvasNotice("이미지를 불러오는 중입니다...", "ok");
+    setCanvasNotice("이미지를 불러오는 중입니다…", "ok");
 
     if (isReplace && getActiveImageObject()?.img) {
       const img = await loadImageFromFile(files[0]);

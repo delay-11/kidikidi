@@ -4,7 +4,7 @@
 ========================================================= */
 let activeToastTimer = null;
 
-function showToast(message = "", type = "info", duration = 2200) {
+function showToast(message = "", type = "info", duration = 2200, options = {}) {
   if (!message) return;
 
   const stack = document.getElementById("toastStack");
@@ -46,6 +46,21 @@ function showToast(message = "", type = "info", duration = 2200) {
 
   toast.appendChild(icon);
   toast.appendChild(text);
+
+  // 선택: 토스트 안 버튼 (예: 시안 삭제 후 [되돌리기])
+  if (options.actionLabel && typeof options.onAction === "function") {
+    const actionBtn = document.createElement("button");
+    actionBtn.type = "button";
+    actionBtn.className = "toastAction";
+    actionBtn.textContent = options.actionLabel;
+    actionBtn.addEventListener("click", () => {
+      if (activeToastTimer) clearTimeout(activeToastTimer);
+      options.onAction();
+      remove();
+    });
+    toast.appendChild(actionBtn);
+  }
+
   stack.appendChild(toast);
 
   requestAnimationFrame(() => {

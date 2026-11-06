@@ -203,3 +203,53 @@ function closeConfirmModal() {
 
   resetConfirmModal();
 }
+
+/* =========================================================
+ * 팝업 키보드 사용성 (프로파일/규격, 시안 확정, 인쇄 가이드 공통)
+ * - 열리면 팝업 안 첫 버튼/입력칸으로 포커스 이동, 닫히면 연 버튼으로 돌아감
+ * - Esc로 닫기 (시안 접수 중에는 닫히지 않음: 취소 버튼이 숨겨져 있을 때)
+ * - aria-hidden 값이 바뀌는 것을 지켜봐서, 각 팝업의 열기/닫기 코드는 그대로 둠
+========================================================= */
+(function setupDialogKeyboard() {
+  const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+  const dialogs = [
+    { id: "optionQuickModal", close: () => document.getElementById("optionQuickClose")?.click() },
+    {
+      id: "confirmModal",
+      close: () => {
+        const cancel = document.getElementById("confirmModalCancel");
+        if (cancel && cancel.style.display !== "none" && !cancel.disabled) cancel.click();
+      },
+    },
+    { id: "printGuideModal", close: () => document.getElementById("confirmPrintGuideBtn")?.click() },
+  ];
+
+  const isOpen = (el) => el && el.getAttribute("aria-hidden") === "false";
+  const returnFocus = new Map();
+
+  dialogs.forEach(({ id }) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    new MutationObserver(() => {
+      if (isOpen(el)) {
+        if (!returnFocus.has(id)) returnFocus.set(id, document.activeElement);
+        const target = el.querySelector('[role="dialog"]') || el;
+        const first = Array.from(target.querySelectorAll(FOCUSABLE)).find((n) => n.offsetParent !== null);
+        (first || target).focus?.({ preventScroll: true });
+      } else if (returnFocus.has(id)) {
+        const back = returnFocus.get(id);
+        returnFocus.delete(id);
+        if (back && document.contains(back)) back.focus?.({ preventScroll: true });
+      }
+    }).observe(el, { attributes: true, attributeFilter: ["aria-hidden"] });
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    const open = dialogs.find(({ id }) => isOpen(document.getElementById(id)));
+    if (!open) return;
+    e.preventDefault();
+    open.close();
+  });
+})();

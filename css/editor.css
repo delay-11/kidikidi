@@ -1535,3 +1535,8 @@ body.kidikidiBootstrap .imageHelpLine span {
     font-size: var(--fs-12);
     font-weight: 500;
 }
+
+/* 프로파일/규격 팝업: 안 스크롤이 뒤 페이지로 넘어가지 않게 */
+.optionQuickDialog {
+    overscroll-behavior: contain;
+}

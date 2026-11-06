@@ -440,8 +440,23 @@ cartListEl?.addEventListener("click", async (e) => {
     if (!item && action !== "delete") return;
 
     if (action === "delete") {
+      // 바로 지우되, 몇 초 동안 [되돌리기]로 같은 자리에 되살릴 수 있게
+      const index = cartItems.findIndex((x) => x.id === id);
+      const removed = index >= 0 ? cartItems[index] : null;
       removeItem(id);
       updateActionLocks?.();
+      if (removed) {
+        showToast("시안을 삭제했습니다.", "info", 5000, {
+          actionLabel: "되돌리기",
+          onAction: () => {
+            if (cartItems.some((x) => x.id === removed.id)) return;
+            cartItems.splice(Math.min(index, cartItems.length), 0, removed);
+            renderCart();
+            updateActionLocks?.();
+            showToast("삭제한 시안을 되돌렸습니다.", "ok", 1600);
+          },
+        });
+      }
       return;
     }
 

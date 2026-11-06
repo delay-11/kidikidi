@@ -98,3 +98,68 @@ body {
         scroll-behavior: auto !important;
     }
 }
+
+/* ---------- 접근성 / 사용성 공통 (Web Interface Guidelines 점검) ---------- */
+
+/* 키보드 사용자용 "본문 바로가기": 평소엔 숨기고 Tab으로 들어왔을 때만 보임 */
+.skipLink {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2000;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: var(--txt);
+    color: var(--white);
+    font-size: var(--fs-14);
+    font-weight: 700;
+    text-decoration: none;
+    transform: translateY(-200%);
+}
+
+.skipLink:focus-visible {
+    transform: none;
+}
+
+main:focus {
+    outline: none;
+}
+
+/* 로고 옆 사이트 이름: 문서 제목(h1)이지만 보이는 모양은 작은 글씨 그대로 */
+h1.systemName {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: normal;
+}
+
+/* 제목은 줄바꿈이 고르게 (한 글자만 다음 줄로 떨어지지 않게) */
+h1, h2, h3 {
+    text-wrap: balance;
+}
+
+/* 숫자 칸은 자릿수 폭을 같게 (수량, 크기 %, 개수) */
+input[type="number"],
+.cartQtyInput,
+#imgSizePct,
+#cartCount,
+#gradientPositionValue,
+#gradientSoftnessValue {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 버튼·입력칸: 두 번 탭 확대 지연 없애기 */
+a,
+button,
+input,
+select,
+textarea,
+label {
+    touch-action: manipulation;
+}
+
+/* Windows 다크 모드에서 기본 드롭다운 색이 뒤바뀌지 않게 */
+select {
+    background-color: var(--card);
+    color: var(--txt);
+}

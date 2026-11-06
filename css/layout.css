@@ -551,3 +551,13 @@ body.kidikidiBootstrap[data-step] .editorStepCard {
     border: 0;
     background: transparent;
 }
+
+/* "주문 옵션 선택 *" 제목: 세 칸 묶음의 제목이라 label 대신 p (보이는 모양은 그대로) */
+.kidikidiBootstrap .optionSelectGuide .optionGroupTitle {
+    display: block;
+    margin: 0 0 6px;
+    color: var(--gray-700);
+    font-size: 12px;
+    font-weight: 800;
+    line-height: normal;
+}

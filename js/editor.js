@@ -3086,7 +3086,7 @@ fileEl?.addEventListener("change", async () => {
   }
 
   try {
-    setCanvasNotice("이미지를 불러오는 중입니다...", "ok");
+    setCanvasNotice("이미지를 불러오는 중입니다…", "ok");
 
     for (const f of files) {
       const img = await loadImageFromFile(f);

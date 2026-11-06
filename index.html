@@ -5,6 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <meta content="#f6f7fb" name="theme-color" />
     <title>키캡디자인 시안 제작 시스템</title>
     <!-- 링크 공유 시 미리보기 -->
     <meta content="키캡디자인 시안 제작 시스템" name="description" />
@@ -15,6 +16,7 @@
     <!-- favicon -->
     <link href="./image/favicon.png" rel="icon" type="image/png" />
     <!-- Korean Web Fonts for text tool -->
+    <link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect" />
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/gh/fonts-archive/Cafe24Ssurround/Cafe24Ssurround.css" rel="stylesheet" />
     <!-- 추가 텍스트 폰트 (Google Fonts 한글, OFL: 상업적 이용·제품 인쇄 가능, 굵은 폰트 위주) - js/editor-text.js GOOGLE_TEXT_FONTS와 같이 맞춤 -->
@@ -50,12 +52,13 @@
 </head>
 
 <body class="kidikidiBootstrap" data-step="info">
+    <a class="skipLink" href="#mainContent">본문 바로가기</a>
     <!-- HEADER -->
     <header class="siteHeader bg-white border-bottom sticky-top">
         <div class="headerInner container-fluid px-3 px-md-4">
             <div class="headerBrand">
-                <img alt="KidiKidi" class="headerLogo" src="./image/favicon.png" />
-                <span class="systemName">키캡 시안 제작 시스템</span>
+                <img alt="KidiKidi" class="headerLogo" height="24" src="./image/favicon.png" width="24" />
+                <h1 class="systemName">키캡 시안 제작 시스템</h1>
             </div>
             <div class="headerVersion">
                 v3.2.0
@@ -98,7 +101,7 @@
         </div>
     </nav>
 
-    <div class="wrap bootstrapWrap container-fluid px-3 px-md-4 pb-5">
+    <main class="wrap bootstrapWrap container-fluid px-3 px-md-4 pb-5" id="mainContent" tabindex="-1">
         <div class="layout2 row justify-content-center g-4">
             <!-- LEFT -->
             <div class="leftStack appStep stepInfo col-12 col-xl-8" data-step-panel="info">
@@ -122,33 +125,33 @@
 
                         <div class="row g-3">
                             <div>
-                                <label class="form-label">주문자명 *</label>
-                                <input class="form-control" id="name" placeholder="홍길동" />
+                                <label class="form-label" for="name">주문자명 *</label>
+                                <input autocomplete="name" class="form-control" id="name" name="name" placeholder="홍길동" />
                             </div>
                             <div>
-                                <label class="form-label">핸드폰번호 *</label>
-                                <input class="form-control" id="phone" placeholder="01012345678" />
+                                <label class="form-label" for="phone">핸드폰번호 *</label>
+                                <input autocomplete="tel" class="form-control" id="phone" inputmode="numeric" name="phone" placeholder="01012345678" type="tel" />
                             </div>
                         </div>
                         <div class="row g-3 rowOrderEmail">
                             <div>
-                                <label class="form-label" id="orderLabel">주문번호 *</label>
-                                <input class="form-control" id="orderNo" placeholder="주문번호" />
+                                <label class="form-label" for="orderNo" id="orderLabel">주문번호 *</label>
+                                <input autocomplete="off" class="form-control" id="orderNo" name="orderNo" placeholder="주문번호" spellcheck="false" />
                             </div>
                             <div>
-                                <label class="form-label">이메일 *</label>
-                                <input class="form-control" id="email" placeholder="customer@email.com" />
+                                <label class="form-label" for="email">이메일 *</label>
+                                <input autocomplete="email" class="form-control" id="email" name="email" placeholder="customer@email.com" spellcheck="false" type="email" />
                             </div>
                         </div>
                         <div class="optionSelectGuide">
-                            <label class="form-label">주문 옵션 선택 *</label>
+                            <p class="form-label optionGroupTitle" id="optionGroupTitle">주문 옵션 선택 *</p>
                             <ul class="optionSelectTips">
                                 <li>구매하신 <b>프로파일(OEM / XDA / MAO)</b>, <b>규격(R1~R4)</b>, <b>레이저 옵션</b>을 선택해 주세요.</li>
                                 <li><b>OEM / XDA / MAO</b> 중 무엇을 골라야 할지 모르겠다면 <b>구매한 상품명</b>에 적혀 있어요.</li>
                                 <li>키링으로 만드시는 분 중 <b>OEM</b>을 구매하셨다면 <b>R4-1U</b>를 선택해 주세요.</li>
                             </ul>
                         </div>
-                        <div class="optionSelectLine">
+                        <div aria-labelledby="optionGroupTitle" class="optionSelectLine" role="group">
                             <div>
                                 <select aria-label="프로파일" class="form-select" id="profile" required>
                                     <option disabled selected value="">선택하기</option>
@@ -448,14 +451,14 @@
                                                         </div>
                                                         <div aria-label="그라데이션 방향" class="gradientDirectionRow">
                                                             <button class="gradientDirBtn btn btn-sm btn-light"
-                                                                data-gradient-dir="to-left" type="button">←</button>
+                                                                aria-label="그라데이션 방향: 왼쪽으로" data-gradient-dir="to-left" type="button">←</button>
                                                             <button
                                                                 class="gradientDirBtn is-active btn btn-sm btn-light"
-                                                                data-gradient-dir="to-right" type="button">→</button>
+                                                                aria-label="그라데이션 방향: 오른쪽으로" data-gradient-dir="to-right" type="button">→</button>
                                                             <button class="gradientDirBtn btn btn-sm btn-light"
-                                                                data-gradient-dir="to-top" type="button">↑</button>
+                                                                aria-label="그라데이션 방향: 위로" data-gradient-dir="to-top" type="button">↑</button>
                                                             <button class="gradientDirBtn btn btn-sm btn-light"
-                                                                data-gradient-dir="to-bottom" type="button">↓</button>
+                                                                aria-label="그라데이션 방향: 아래로" data-gradient-dir="to-bottom" type="button">↓</button>
                                                         </div>
                                                         <div aria-label="그라데이션 경계 조절" class="gradientControlGrid">
                                                             <label class="gradientRangeItem form-label"
@@ -593,7 +596,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="canvasNotice" id="canvasNotice"></div>
+                                <div aria-live="polite" class="canvasNotice" id="canvasNotice"></div>
                             </div>
                             <div class="editorActionBar">
                                 <button class="secondaryActionBtn actionBtn btn btn-dark fw-bold w-100" disabled=""
@@ -614,7 +617,7 @@
                 </section>
             </div>
         </div>
-    </div>
+    </main>
     <div aria-atomic="true" aria-live="polite" class="toastStack" id="toastStack"></div>
     <footer class="footer">
         <div class="footerInner">

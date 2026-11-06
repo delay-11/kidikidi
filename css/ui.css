@@ -1288,3 +1288,34 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
     color: var(--gray-900) !important;
     font-size: 16px !important;
 }
+
+/* 팝업 안 스크롤이 끝나도 뒤 페이지가 같이 스크롤되지 않게 */
+.confirmModalDialog,
+.confirmModalBody,
+.print-guide-modal-content,
+.guideSheet {
+    overscroll-behavior: contain;
+}
+
+/* 토스트 안 버튼 (예: 시안 삭제 후 [되돌리기]) */
+.toast:has(.toastAction) {
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+}
+
+.toastAction {
+    /* 토스트 묶음은 클릭이 통과하게(pointer-events: none) 되어 있어서 버튼만 다시 켬 */
+    pointer-events: auto;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--card);
+    color: var(--txt);
+    font-size: var(--fs-13);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.toastAction:hover {
+    border-color: var(--acc);
+}

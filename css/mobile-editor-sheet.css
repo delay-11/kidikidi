@@ -896,8 +896,7 @@ body[data-step="editor"] .mFontRow {
     }
 
     /* 슬라이더를 눌러도 입력칸용 노란 포커스 테두리가 생기지 않게 */
-    body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"]:focus,
-    body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"]:focus-visible {
+    body.kidikidiBootstrap #toolBg .gradientRangeItem input[type="range"]:focus:not(:focus-visible) {
         border-color: transparent !important;
         box-shadow: none !important;
         outline: none !important;
@@ -1044,8 +1043,7 @@ body.kidikidiBootstrap #textClearBtn:disabled {
 }
 
 /* 그라데이션 경계/퍼짐 슬라이더: 눌러도 입력칸용 노란 포커스 테두리가 생기지 않게 */
-body.kidikidiBootstrap #toolBg input[type="range"]:focus,
-body.kidikidiBootstrap #toolBg input[type="range"]:focus-visible,
+body.kidikidiBootstrap #toolBg input[type="range"]:focus:not(:focus-visible),
 body.kidikidiBootstrap #toolBg .gradientRangeItem:focus-within {
     border-color: transparent !important;
     box-shadow: none !important;
