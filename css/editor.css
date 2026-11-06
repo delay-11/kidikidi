@@ -1574,11 +1574,3 @@ body.kidikidiBootstrap #toolImage .uploadRow #fileReplaceBtn.isHiddenReplace {
 body[data-step="confirm"] .editorActionBar.isInCartPanel {
     display: none !important;
 }
-
-/* PC 이미지 도구: 크기 줄 아래 안내 칩은 오른쪽 정렬 + 위 여백 (왼쪽 업로드 버튼들과 붙어 보이지 않게) */
-@media (min-width: 769px) {
-    .imageToolInfo.has-image > .imageHelpLine {
-        justify-content: flex-end;
-        margin-top: 2px;
-    }
-}
