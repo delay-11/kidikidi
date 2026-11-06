@@ -1,11 +1,6 @@
 /* split from editor.js: 텍스트/이미지 공용 active-object 추상화 */
 
 
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function getImageAxes() {
-//   return getObjectAxes(getActiveObjectType() || "image");
-// }
-
 function getImageHalfSize() {
   return getObjectHalfSize(getActiveObjectType() || "image");
 }
@@ -168,11 +163,6 @@ function screenToCanvasPoint(e) {
     y: ((e.clientY - rect.top) / rect.height) * canvasLogicalH,
   };
 }
-
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function isPointOnImage(px, py) {
-//   return getImageIndexAtPoint(px, py) >= 0;
-// }
 
 function getCanvasPointFromClient(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();

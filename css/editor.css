@@ -115,7 +115,7 @@ canvas {
     margin: 0 auto;
     border: 1px solid var(--line);
     border-radius: var(--radius-sm);
-    border-color: #98a2b3 !important;
+    border-color: var(--gray-400) !important;
     border-width: 1.5px !important;
     box-shadow: 0 0 0 1px rgba(152, 162, 179, 0.18);
 }
@@ -162,7 +162,7 @@ canvas {
     border: 1.5px solid rgba(43, 108, 255, 0.95);
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(16, 24, 40, 0.12);
-    background-color: #ffffff;
+    background-color: var(--white);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 18px 18px;
@@ -190,7 +190,7 @@ canvas {
     height: 12px;
     border: 2px solid rgba(43, 108, 255, 0.95);
     border-radius: 999px;
-    background: #ffffff;
+    background: var(--white);
     pointer-events: auto;
 }
 
@@ -245,43 +245,25 @@ canvas {
 .fileName {
     overflow: hidden;
     max-width: 240px;
-    color: #667085;
+    color: var(--gray-500);
     font-size: var(--fs-13);
     white-space: nowrap;
     text-overflow: ellipsis;
-}
-
-.uploadGuide {
-    flex: 1;
-    color: var(--muted);
-    font-size: var(--fs-12);
-    line-height: 1.55;
-}
-
-.uploadGuide div {
-    display: block;
-}
-
-.canvasControlRow {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    gap: 16px;
 }
 
 .canvasNotice {
     font-size: 13px;
     padding-left: 10px;
     padding-bottom: 10px;
-    color: #5f6b7a;
+    color: var(--muted);
 }
 
 .canvasNotice.isOk {
-    color: #039855;
+    color: var(--ok);
 }
 
 .canvasNotice.isError {
-    color: #d92d20;
+    color: var(--bad);
 }
 
 .editorToolBox {
@@ -296,7 +278,7 @@ canvas {
     padding: 6px;
     border: 1px solid var(--line);
     border-radius: 999px;
-    background: #f9fafb;
+    background: var(--gray-25);
 }
 
 .toolTab {
@@ -312,7 +294,7 @@ canvas {
 
 .toolTab.is-active {
     background: var(--acc);
-    color: #111827;
+    color: var(--gray-950);
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.10);
 }
 
@@ -321,7 +303,7 @@ canvas {
     padding: 16px;
     border: 1px solid var(--line);
     border-radius: var(--radius-md);
-    background: #ffffff;
+    background: var(--white);
 }
 
 .toolPanel.is-active {
@@ -354,56 +336,11 @@ canvas {
     flex: 0 0 auto;
     padding: 5px 8px;
     border-radius: 999px;
-    background: #fff8e8;
-    color: #9a6700;
+    background: var(--acc-soft);
+    color: var(--acc-ink);
     font-size: 11px;
     font-weight: 800;
 }
-
-.toolBadge.muted {
-    background: #f2f4f7;
-    color: var(--muted);
-}
-
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.canvasCoreNotice {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px;
-    color: #344054;
-    font-size: 12px;
-    line-height: 1.45;
-}
-
-.canvasCoreNotice span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 28px;
-    padding: 5px 10px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: #fffdf5;
-    white-space: nowrap;
-}
-
-.canvasCoreNotice span::before {
-    content: "!";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    margin-right: 6px;
-    border-radius: 999px;
-    background: var(--acc);
-    color: #111827;
-    font-size: 10px;
-    font-weight: 900;
-}
-*/
 
 /* 안내 문구는 캔버스 위에 겹치지 않고 캔버스 "위쪽 바깥"에 둔다 (모바일과 동일).
    가이드/목업/선택박스는 모두 실제 <canvas> 박스 기준으로 위치를 잡으므로 영향 없음. */
@@ -428,7 +365,7 @@ canvas {
     border: 1px solid rgba(217, 45, 32, 0.22);
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.86);
-    color: #b42318;
+    color: var(--bad-ink);
     font-size: 11px;
     font-weight: 800;
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.08);
@@ -436,9 +373,9 @@ canvas {
 
 /* 목업 모양이 아니라 캔버스 전체를 채워야 측면까지 인쇄됨 */
 .canvasGuideOverlay span.canvasGuideOverlay__fill {
-    border-color: #d92d20;
-    background: #d92d20;
-    color: #fff;
+    border-color: var(--bad);
+    background: var(--bad);
+    color: var(--white);
     font-weight: 900;
 }
 
@@ -449,8 +386,8 @@ canvas {
     margin: 10px auto 0;
     padding: 7px 11px;
     border-radius: 999px;
-    background: #111827;
-    color: #ffffff;
+    background: var(--gray-950);
+    color: var(--white);
     font-size: 12px;
     line-height: 1.4;
     box-shadow: 0 8px 18px rgba(16, 24, 40, 0.18);
@@ -482,14 +419,14 @@ canvas {
     min-height: 22px;
     padding: 0 8px;
     border-radius: 999px;
-    background: #f2f4f7;
-    color: #667085;
+    background: var(--gray-100);
+    color: var(--gray-500);
     font-size: 12px;
     font-weight: 700;
 }
 
 .pillActionBtn b {
-    color: #101828;
+    color: var(--gray-900);
     font-weight: 900;
     display: inline-flex;
     align-items: center;
@@ -499,8 +436,8 @@ canvas {
 }
 
 .pillActionBtn:hover {
-    border-color: #efc24f;
-    background: #fffdf5;
+    border-color: var(--acc-strong);
+    background: var(--acc-wash);
 }
 
 .optionQuickModal {
@@ -530,7 +467,7 @@ canvas {
     padding: 20px;
     border: 1px solid var(--line);
     border-radius: 24px;
-    background: #ffffff;
+    background: var(--white);
     box-shadow: 0 18px 60px rgba(16, 24, 40, 0.18);
 }
 
@@ -548,8 +485,8 @@ canvas {
     min-height: 24px;
     padding: 0 9px;
     border-radius: 999px;
-    background: #fff8e8;
-    color: #9a6700;
+    background: var(--acc-soft);
+    color: var(--acc-ink);
     font-size: 11px;
     font-weight: 900;
 }
@@ -572,8 +509,8 @@ canvas {
     height: 34px;
     border: 0 !important;
     border-radius: 999px;
-    background: #ffffff;
-    color: #667085;
+    background: var(--white);
+    color: var(--gray-500);
     font-size: 20px;
     line-height: 1;
     cursor: pointer;
@@ -589,7 +526,7 @@ canvas {
 .optionQuickGrid label {
     display: grid;
     gap: 7px;
-    color: #344054;
+    color: var(--gray-700);
     font-size: 12px;
     font-weight: 800;
 }
@@ -604,8 +541,8 @@ canvas {
     padding: 0 12px;
     border: 1px solid var(--line);
     border-radius: 14px;
-    background: #ffffff;
-    color: #101828;
+    background: var(--white);
+    color: var(--gray-900);
     font-weight: 800;
 }
 
@@ -615,7 +552,7 @@ canvas {
     border: 0 !important;
     border-radius: 0 !important;
     background: transparent !important;
-    color: #b42318 !important;
+    color: var(--bad-ink) !important;
     font-size: 12px !important;
     line-height: 1.5 !important;
     margin: 12px 0 0 !important;
@@ -648,24 +585,24 @@ canvas {
     width: 18px;
     height: 18px;
     border-radius: 999px;
-    background: #fff8e8;
-    color: #9a6700;
+    background: var(--acc-soft);
+    color: var(--acc-ink);
     font-size: 10px;
     font-weight: 900;
     transform: translateY(1px);
 }
 
 .pillActionBtn:hover b, .pillActionBtn:focus-visible b {
-    color: #9a6700;
+    color: var(--acc-ink);
 }
 
 .pillActionBtn:hover .pillCaret, .pillActionBtn:focus-visible .pillCaret {
     background: var(--acc);
-    color: #111827;
+    color: var(--gray-950);
 }
 
 .quickOptionHint {
-    color: #98a2b3 !important;
+    color: var(--gray-400) !important;
     font-size: 11px;
     font-weight: 700;
 }
@@ -688,7 +625,7 @@ canvas {
     padding: 14px;
     border: 1px solid var(--line);
     border-radius: 18px;
-    background: #ffffff;
+    background: var(--white);
 }
 
 .toolPanelHead.compact {
@@ -708,8 +645,8 @@ canvas {
     padding: 4px 8px;
     border: 1px solid var(--line);
     border-radius: 999px;
-    background: #f9fafb;
-    color: #667085;
+    background: var(--gray-25);
+    color: var(--gray-500);
     font-size: 11px;
     font-weight: 800;
 }
@@ -730,12 +667,12 @@ canvas {
 }
 
 .pillActionBtn, .pillActionBtn:hover, .pillActionBtn:focus-visible {
-    color: #111827 !important;
+    color: var(--gray-950) !important;
 }
 
 .pillCaret, .pillActionBtn:hover .pillCaret, .pillActionBtn:focus-visible .pillCaret {
     background: var(--acc, #fdcc63) !important;
-    color: #111827 !important;
+    color: var(--gray-950) !important;
 }
 
 .canvasWrap .canvasHelpTip {
@@ -787,7 +724,7 @@ canvas {
 }
 
 .textToolSection:nth-child(3) {
-    border-left: 1px solid #eaecf0;
+    border-left: 1px solid var(--gray-200);
 }
 
 .textToolSection:first-child {
@@ -804,8 +741,8 @@ canvas {
     padding: 12px;
     border: 1px solid var(--line);
     border-radius: 14px;
-    background: #ffffff;
-    color: #101828;
+    background: var(--white);
+    color: var(--gray-900);
     font: inherit;
     font-size: 13px;
     font-weight: 400;
@@ -823,34 +760,7 @@ canvas {
     box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22);
 }
 
-.textActionRow {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 8px;
-    align-items: center;
-}
-
-.textActionRow button {
-    min-height: 40px;
-    border-radius: 14px;
-    font-weight: 900;
-}
-
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.textControlGroup {
-    display: grid;
-    gap: 7px;
-    min-width: 0;
-}
-
-.textControlLabel {
-    color: #667085;
-    font-size: 12px;
-    font-weight: 900;
-}
-*/
-
-.textFontRow, .textAlignRow {
+.textFontRow {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
@@ -861,17 +771,17 @@ canvas {
     padding: 0 10px;
     border: 1px solid var(--line);
     border-radius: 12px;
-    background: #ffffff;
-    color: #344054;
+    background: var(--white);
+    color: var(--gray-700);
     cursor: pointer;
     font-size: 12px;
     font-weight: 900;
 }
 
 .textFontBtn.is-active, .textIconBtn.is-active {
-    border-color: #fdcc63;
-    background: #fff8e8;
-    color: #111827;
+    border-color: var(--acc);
+    background: var(--acc-soft);
+    color: var(--gray-950);
     box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.18);
 }
 
@@ -902,8 +812,8 @@ canvas {
     padding: 8px 12px !important;
     border: 1px solid var(--line) !important;
     border-radius: 14px !important;
-    background: #ffffff !important;
-    color: #101828 !important;
+    background: var(--white) !important;
+    color: var(--gray-900) !important;
     font-weight: 900 !important;
     box-shadow: none !important;
 }
@@ -916,8 +826,8 @@ canvas {
 }
 
 .textColorBtn:disabled {
-    background: #f9fafb !important;
-    color: #98a2b3 !important;
+    background: var(--gray-25) !important;
+    color: var(--gray-400) !important;
     cursor: not-allowed !important;
     opacity: .7;
     box-shadow: none !important;
@@ -930,13 +840,13 @@ canvas {
     height: 24px !important;
     border: 1px solid var(--line) !important;
     border-radius: 999px !important;
-    background: #111827;
-    box-shadow: inset 0 0 0 2px #ffffff;
+    background: var(--gray-950);
+    box-shadow: inset 0 0 0 2px var(--white);
 }
 
 .textColorBtn .colorValue {
     min-width: 64px;
-    color: #344054 !important;
+    color: var(--gray-700) !important;
     font-size: 13px !important;
     font-weight: 800 !important;
     text-align: left;
@@ -994,7 +904,7 @@ canvas {
     font-family: "KBLJump", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
 }
 
-.imageToolActions .uploadRow, .textActionRow {
+.imageToolActions .uploadRow {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 8px !important;
@@ -1033,13 +943,13 @@ canvas {
     transform: none !important;
     scale: 1 !important;
     font-size: inherit !important;
-    color: #101828 !important;
+    color: var(--gray-900) !important;
 }
 
 .pillActionBtn b, .pillActionBtn:hover b, .pillActionBtn:focus-visible b, .pillActionBtn:active b {
     font-size: 13px !important;
     line-height: 1.2 !important;
-    color: #101828 !important;
+    color: var(--gray-900) !important;
     transform: none !important;
     scale: 1 !important;
 }
@@ -1049,8 +959,8 @@ canvas {
     height: 24px !important;
     min-width: 24px !important;
     min-height: 24px !important;
-    background: #fdcc63 !important;
-    color: #111827 !important;
+    background: var(--acc) !important;
+    color: var(--gray-950) !important;
     font-size: 12px !important;
     line-height: 1 !important;
     transform: none !important;
@@ -1113,9 +1023,9 @@ canvas {
     width: 98px;
     overflow-y: auto;
     padding: 6px 6px 4px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--cool-200);
     border-radius: 12px;
-    background: #fff;
+    background: var(--white);
     box-shadow: 0 4px 14px rgba(17, 25, 40, 0.06);
 }
 
@@ -1136,7 +1046,7 @@ canvas {
 
 .layerSide .layerHead b {
     font-size: 13px;
-    color: #111827;
+    color: var(--gray-950);
 }
 
 .layerSide .layerHead svg {
@@ -1156,8 +1066,8 @@ canvas {
 }
 
 .layerRow.isActive, .layerChip.isActive {
-    border-color: #fdcc63;
-    background: #fff8e6;
+    border-color: var(--acc);
+    background: var(--acc-soft-3);
 }
 
 .layerThumb {
@@ -1167,9 +1077,9 @@ canvas {
     width: 30px;
     height: 30px;
     overflow: hidden;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--cool-200);
     border-radius: 6px;
-    background: #fff conic-gradient(#f1f1f1 25%, #fff 0 50%, #f1f1f1 0 75%, #fff 0) 0 0 / 8px 8px;
+    background: var(--white) conic-gradient(var(--gray-f1) 25%, var(--white) 0 50%, var(--gray-f1) 0 75%, var(--white) 0) 0 0 / 8px 8px;
 }
 
 .layerThumb img {
@@ -1179,7 +1089,7 @@ canvas {
 }
 
 .layerThumb.isText {
-    background: #f3f4f6;
+    background: var(--cool-100);
     font-size: 12px;
     font-weight: 800;
     line-height: 1;
@@ -1205,11 +1115,11 @@ canvas {
     border: 0;
     border-radius: 6px;
     background: transparent;
-    color: #4b5563;
+    color: var(--cool-600);
 }
 
 .layerBtn:not([disabled]):hover {
-    background: #f3f4f6;
+    background: var(--cool-100);
 }
 
 .layerBtn[disabled] {
@@ -1218,7 +1128,7 @@ canvas {
 }
 
 .layerBtn.isLocked {
-    color: #d97706;
+    color: var(--amber-600);
 }
 
 .layerBtn svg {
@@ -1249,10 +1159,10 @@ canvas {
     height: 28px;
     min-height: 0 !important;
     padding: 0 10px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--cool-200);
     border-radius: 999px;
-    background: #fff;
-    color: #111827;
+    background: var(--white);
+    color: var(--gray-950);
     font-size: 12px;
     font-weight: 700;
     white-space: nowrap;
@@ -1266,8 +1176,8 @@ canvas {
 .layerCount {
     padding: 0 6px;
     border-radius: 999px;
-    background: #f3f4f6;
-    color: #6b7280;
+    background: var(--cool-100);
+    color: var(--cool-500);
     font-size: 11px;
     font-weight: 600;
 }
@@ -1300,10 +1210,10 @@ canvas {
     place-items: center;
     width: 15px;
     height: 15px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--cool-200);
     border-radius: 50%;
-    background: #fff;
-    color: #d97706;
+    background: var(--white);
+    color: var(--amber-600);
 }
 
 .layerLockBadge svg {
@@ -1329,7 +1239,7 @@ canvas {
 }
 
 .layerActions .layerBtn em {
-    color: #6b7280;
+    color: var(--cool-500);
     font-size: 10px;
     font-style: normal;
     line-height: 1.1;
@@ -1353,8 +1263,8 @@ canvas {
 .layerRow.isDragging, .layerChip.isDragging {
     position: relative;
     z-index: 2;
-    background: #fff;
-    border-color: #fdcc63;
+    background: var(--white);
+    border-color: var(--acc);
     box-shadow: 0 6px 16px rgba(17, 25, 40, 0.16);
     cursor: grabbing;
 }
@@ -1366,7 +1276,7 @@ canvas {
     justify-content: center;
     width: 20px;
     height: 26px;
-    color: #9ca3af;
+    color: var(--cool-400);
     cursor: grab;
     touch-action: none;
 }
@@ -1378,7 +1288,7 @@ canvas {
 }
 
 .layerRow.isDragging .layerGrip {
-    color: #4b5563;
+    color: var(--cool-600);
     cursor: grabbing;
 }
 
@@ -1404,7 +1314,7 @@ canvas {
     padding: 3px;
     border: 1px solid rgba(16, 24, 40, 0.12);
     border-radius: 999px;
-    background: #ffffff;
+    background: var(--white);
     font-weight: 800;
     cursor: pointer;
 }
@@ -1412,7 +1322,7 @@ canvas {
 .keycapMockupToggle__opt {
     padding: 4px 10px;
     border-radius: 999px;
-    color: #667085;
+    color: var(--gray-500);
     font-size: 11px;
     font-weight: 800;
     line-height: 1.2;
@@ -1420,8 +1330,8 @@ canvas {
 }
 
 .keycapMockupToggle__opt.is-active {
-    background: #101828;
-    color: #ffffff;
+    background: var(--gray-900);
+    color: var(--white);
 }
 
 .keycapMockupToggle:focus-visible {
@@ -1464,7 +1374,7 @@ canvas {
     padding: 0 10px;
     border: 1px solid var(--line, #eaecf0);
     border-radius: 13px;
-    background: #fff;
+    background: var(--white);
     gap: 4px;
     margin: 0;
     cursor: text;
@@ -1485,7 +1395,7 @@ canvas {
 
 .imageNumField span {
     flex: 0 0 auto;
-    color: #667085;
+    color: var(--gray-500);
     font-size: 11px;
     font-weight: 800;
 }
@@ -1498,7 +1408,7 @@ canvas {
     border: 0;
     outline: 0;
     background: transparent;
-    color: #101828;
+    color: var(--gray-900);
     font-size: 13px;
     font-weight: 800;
     text-align: right;
@@ -1514,14 +1424,14 @@ canvas {
 
 .imageNumField em {
     flex: 0 0 auto;
-    color: #98a2b3;
+    color: var(--gray-400);
     font-size: 11px;
     font-style: normal;
     font-weight: 700;
 }
 
 .imageNumField:has(input:disabled) {
-    background: #f9fafb;
+    background: var(--gray-25);
     cursor: not-allowed;
 }
 
@@ -1573,4 +1483,60 @@ body.kidikidiBootstrap #toolImage .uploadRow #fileReplaceBtn.isHiddenReplace {
 
 body[data-step="confirm"] .editorActionBar.isInCartPanel {
     display: none !important;
+}
+
+/* 정보줄 라벨(프로파일/규격, 캔버스, 배경, 시안 리스트): 회색 알약 대신 작은 글씨 */
+body.kidikidiBootstrap .pill .tag {
+    padding: 0 !important;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: var(--fs-12) !important;
+}
+
+/* 프로파일/규격 바꾸기: 노란 동그라미 ▼ 대신, 눌러서 고르는 칸처럼 (테두리 + 화살표) */
+body.kidikidiBootstrap .pill .pillActionBtn {
+    gap: 8px !important;
+    min-height: 32px !important;
+    padding: 0 10px 0 12px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: var(--radius-sm);
+    background: var(--card) !important;
+}
+
+body.kidikidiBootstrap .pill .pillActionBtn:hover {
+    border-color: var(--acc) !important;
+}
+
+body.kidikidiBootstrap .pill .pillActionBtn .pillCaret,
+body.kidikidiBootstrap .pill .pillActionBtn:hover .pillCaret,
+body.kidikidiBootstrap .pill .pillActionBtn:focus-visible .pillCaret,
+body.kidikidiBootstrap .pill .pillActionBtn:active .pillCaret {
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: var(--muted) !important;
+}
+
+/* 이미지 탭 안내 "PNG / JPG / WEBP 가능", "투명 배경 권장": 회색 알약 대신 작은 글씨 */
+body.kidikidiBootstrap .imageHelpLine {
+    gap: 4px 12px;
+}
+
+body.kidikidiBootstrap .imageHelpLine span {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: var(--fs-12);
+    font-weight: 500;
+}
+
+/* 프로파일/규격 팝업: 안 스크롤이 뒤 페이지로 넘어가지 않게 */
+.optionQuickDialog {
+    overscroll-behavior: contain;
 }

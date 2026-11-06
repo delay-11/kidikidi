@@ -5,6 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <meta content="#f6f7fb" name="theme-color" />
     <title>키캡디자인 시안 제작 시스템</title>
     <!-- 링크 공유 시 미리보기 -->
     <meta content="키캡디자인 시안 제작 시스템" name="description" />
@@ -15,6 +16,7 @@
     <!-- favicon -->
     <link href="./image/favicon.png" rel="icon" type="image/png" />
     <!-- Korean Web Fonts for text tool -->
+    <link crossorigin="" href="https://cdn.jsdelivr.net" rel="preconnect" />
     <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/gh/fonts-archive/Cafe24Ssurround/Cafe24Ssurround.css" rel="stylesheet" />
     <!-- 추가 텍스트 폰트 (Google Fonts 한글, OFL: 상업적 이용·제품 인쇄 가능, 굵은 폰트 위주) - js/editor-text.js GOOGLE_TEXT_FONTS와 같이 맞춤 -->
@@ -50,15 +52,16 @@
 </head>
 
 <body class="kidikidiBootstrap" data-step="info">
+    <a class="skipLink" href="#mainContent">본문 바로가기</a>
     <!-- HEADER -->
     <header class="siteHeader bg-white border-bottom sticky-top">
         <div class="headerInner container-fluid px-3 px-md-4">
             <div class="headerBrand">
-                <img alt="KidiKidi" class="headerLogo" src="./image/favicon.png" />
-                <span class="systemName">키캡 시안 제작 시스템</span>
+                <img alt="KidiKidi" class="headerLogo" height="24" src="./image/favicon.png" width="24" />
+                <h1 class="systemName">키캡 시안 제작 시스템</h1>
             </div>
             <div class="headerVersion">
-                v3.2.0
+                v3.3.0
             </div>
         </div>
     </header>
@@ -98,7 +101,7 @@
         </div>
     </nav>
 
-    <div class="wrap bootstrapWrap container-fluid px-3 px-md-4 pb-5">
+    <main class="wrap bootstrapWrap container-fluid px-3 px-md-4 pb-5" id="mainContent" tabindex="-1">
         <div class="layout2 row justify-content-center g-4">
             <!-- LEFT -->
             <div class="leftStack appStep stepInfo col-12 col-xl-8" data-step-panel="info">
@@ -122,35 +125,35 @@
 
                         <div class="row g-3">
                             <div>
-                                <label class="form-label">주문자명 *</label>
-                                <input class="form-control" id="name" placeholder="홍길동" />
+                                <label class="form-label" for="name">주문자명 *</label>
+                                <input autocomplete="name" class="form-control" id="name" name="name" placeholder="홍길동" />
                             </div>
                             <div>
-                                <label class="form-label">핸드폰번호 *</label>
-                                <input class="form-control" id="phone" placeholder="01012345678" />
+                                <label class="form-label" for="phone">핸드폰번호 *</label>
+                                <input autocomplete="tel" class="form-control" id="phone" inputmode="numeric" name="phone" placeholder="01012345678" type="tel" />
                             </div>
                         </div>
                         <div class="row g-3 rowOrderEmail">
                             <div>
-                                <label class="form-label" id="orderLabel">주문번호 *</label>
-                                <input class="form-control" id="orderNo" placeholder="주문번호" />
+                                <label class="form-label" for="orderNo" id="orderLabel">주문번호 *</label>
+                                <input autocomplete="off" class="form-control" id="orderNo" name="orderNo" placeholder="주문번호" spellcheck="false" />
                             </div>
                             <div>
-                                <label class="form-label">이메일 *</label>
-                                <input class="form-control" id="email" placeholder="customer@email.com" />
+                                <label class="form-label" for="email">이메일 *</label>
+                                <input autocomplete="email" class="form-control" id="email" name="email" placeholder="customer@email.com" spellcheck="false" type="email" />
                             </div>
                         </div>
                         <div class="optionSelectGuide">
-                            <label class="form-label">주문 옵션 선택 *</label>
+                            <p class="form-label optionGroupTitle" id="optionGroupTitle">주문 옵션 선택 *</p>
                             <ul class="optionSelectTips">
                                 <li>구매하신 <b>프로파일(OEM / XDA / MAO)</b>, <b>규격(R1~R4)</b>, <b>레이저 옵션</b>을 선택해 주세요.</li>
                                 <li><b>OEM / XDA / MAO</b> 중 무엇을 골라야 할지 모르겠다면 <b>구매한 상품명</b>에 적혀 있어요.</li>
                                 <li>키링으로 만드시는 분 중 <b>OEM</b>을 구매하셨다면 <b>R4-1U</b>를 선택해 주세요.</li>
                             </ul>
                         </div>
-                        <div class="optionSelectLine">
+                        <div aria-labelledby="optionGroupTitle" class="optionSelectLine" role="group">
                             <div>
-                                <select class="form-select" id="profile" required>
+                                <select aria-label="프로파일" class="form-select" id="profile" required>
                                     <option disabled selected value="">선택하기</option>
                                     <option value="OEM">OEM</option>
                                     <option value="XDA">XDA</option>
@@ -160,10 +163,10 @@
                                 </select>
                             </div>
                             <div>
-                                <select class="form-select" id="capType" required></select>
+                                <select aria-label="규격" class="form-select" id="capType" required></select>
                             </div>
                             <div>
-                                <select class="form-select" id="laser">
+                                <select aria-label="레이저 옵션" class="form-select" id="laser">
                                     <option value="none">레이저 없음</option>
                                     <option value="black">블랙</option>
                                     <option value="white">화이트</option>
@@ -206,7 +209,7 @@
                                     <span class="tag">프로파일/규격</span>
                                     <button aria-label="프로파일/규격 변경" class="pillActionBtn" id="optionQuickBtn"
                                         type="button">
-                                        <b id="selText">없음</b><span aria-hidden="true" class="pillCaret">▼</span>
+                                        <b id="selText">없음</b><span aria-hidden="true" class="pillCaret"><svg viewBox="0 0 12 8" width="11" height="8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l5 5 5-5"/></svg></span>
                                     </button>
                                     <span class="quickOptionHint">눌러서 변경</span>
                                     <!-- 프로파일/규격 다음 줄에 캔버스·배경·목업/가이드선 전환 -->
@@ -222,7 +225,7 @@
                                 </div>
                                 <div class="divider"></div>
                                 <div class="canvasWrap" id="canvasWrap">
-                                    <canvas height="330" id="designCanvas" width="330"></canvas>
+                                    <canvas aria-label="키캡 시안 편집 캔버스" height="330" id="designCanvas" width="330"></canvas>
                                     <div aria-hidden="true" class="canvasGuideOverlay">
                                         <span>키캡 윗면에 보여질 이미지는 빨간선 안쪽에 배치해 주세요</span>
                                         <span class="canvasGuideOverlay__fill">목업 표시 영역이 아닌, 캔버스 전체를 채워주세요.</span>
@@ -271,13 +274,13 @@
                                                     </button>
                                                     <!-- 선택한 이미지를 같은 위치 · 크기(%) · 회전 그대로 다른 이미지로 바꿈 (js/editor-image.js) -->
                                                     <button aria-label="이미지 교체" class="ghostBtn btn btn-outline-secondary isHiddenReplace" disabled=""
-                                                        id="fileReplaceBtn" title="같은 위치 · 크기로 이미지만 바꾸기" type="button">
+                                                        id="fileReplaceBtn" title="같은 위치와 크기로 이미지만 바꾸기" type="button">
                                                         <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 0 1 2-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 0 1-2 2H3"/></svg>
                                                         <span class="mBtnLabel">교체</span>
                                                     </button>
                                                     <!-- 업로드 안내: 버튼 옆 칩 두 개 (모바일 전용, 위아래로 쌓아 버튼 줄을 한 줄로 유지) -->
                                                     <span class="imgTipGroup">
-                                                        <span class="imgTip">PNG · JPG · WEBP 가능</span>
+                                                        <span class="imgTip">PNG, JPG, WEBP 가능</span>
                                                         <span class="imgTip">투명 배경 권장</span>
                                                     </span>
                                                     <button class="ghostBtn btn btn-outline-secondary" disabled=""
@@ -448,14 +451,14 @@
                                                         </div>
                                                         <div aria-label="그라데이션 방향" class="gradientDirectionRow">
                                                             <button class="gradientDirBtn btn btn-sm btn-light"
-                                                                data-gradient-dir="to-left" type="button">←</button>
+                                                                aria-label="그라데이션 방향: 왼쪽으로" data-gradient-dir="to-left" type="button">←</button>
                                                             <button
                                                                 class="gradientDirBtn is-active btn btn-sm btn-light"
-                                                                data-gradient-dir="to-right" type="button">→</button>
+                                                                aria-label="그라데이션 방향: 오른쪽으로" data-gradient-dir="to-right" type="button">→</button>
                                                             <button class="gradientDirBtn btn btn-sm btn-light"
-                                                                data-gradient-dir="to-top" type="button">↑</button>
+                                                                aria-label="그라데이션 방향: 위로" data-gradient-dir="to-top" type="button">↑</button>
                                                             <button class="gradientDirBtn btn btn-sm btn-light"
-                                                                data-gradient-dir="to-bottom" type="button">↓</button>
+                                                                aria-label="그라데이션 방향: 아래로" data-gradient-dir="to-bottom" type="button">↓</button>
                                                         </div>
                                                         <div aria-label="그라데이션 경계 조절" class="gradientControlGrid">
                                                             <label class="gradientRangeItem form-label"
@@ -593,7 +596,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="canvasNotice" id="canvasNotice"></div>
+                                <div aria-live="polite" class="canvasNotice" id="canvasNotice"></div>
                             </div>
                             <div class="editorActionBar">
                                 <button class="secondaryActionBtn actionBtn btn btn-dark fw-bold w-100" disabled=""
@@ -614,12 +617,12 @@
                 </section>
             </div>
         </div>
-    </div>
+    </main>
     <div aria-atomic="true" aria-live="polite" class="toastStack" id="toastStack"></div>
     <footer class="footer">
         <div class="footerInner">
             <div class="footerLeft">
-                © 2026 KidiKidi. All rights reserved.
+                © 2026 KidiKidi
             </div>
             <div class="footerRight">
                 본 제작 시스템 및 디자인 툴은 KidiKidi의 자산입니다.<br />
@@ -673,7 +676,6 @@
         <div class="confirmModalDim"></div>
         <div aria-labelledby="confirmModalTitle" aria-modal="true" class="confirmModalDialog" role="dialog">
             <div class="confirmModalHeader">
-                <div class="confirmModalBadge">안내</div>
                 <h3 class="confirmModalTitle" id="confirmModalTitle">시안 최종 확정</h3>
             </div>
             <div class="confirmModalBody" id="confirmModalBody"></div>

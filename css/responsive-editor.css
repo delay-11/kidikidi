@@ -175,10 +175,6 @@
             "align" !important;
         gap: 18px !important;
     }
-
-    .kidikidiBootstrap .textAlignRow {
-        max-width: 100% !important;
-    }
 }
 
 @media (max-width: 768px) {
@@ -358,5 +354,20 @@
     /* 토스트가 하단 고정바 뒤에 가려지지 않도록 위치를 올림 */
     .toastStack {
         bottom: 84px !important;
+    }
+}
+
+/* PC 1단계: 누를 수 없는 [이전] 버튼을 빼고, 제목을 아래 카드 왼쪽 끝에 맞춤 */
+@media (min-width: 769px) {
+    .kidikidiBootstrap .stepHeaderInfo {
+        grid-template-columns: minmax(0, 1fr) 120px;
+    }
+
+    .kidikidiBootstrap .stepPageHeader.stepHeaderInfo {
+        width: min(760px, 100%);
+    }
+
+    .kidikidiBootstrap .stepHeaderInfo .ghostBtn[disabled] {
+        display: none;
     }
 }

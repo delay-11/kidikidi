@@ -16,11 +16,6 @@ function setOk(text = "") {
   if (okEl) okEl.textContent = text;
 }
 
-function clearMsgOk() {
-  setMsg("");
-  setOk("");
-}
-
 /* =========================================================
  * 주문자 정보 안내문구 표시
 ========================================================= */
@@ -86,15 +81,6 @@ function numberWithCommas(v) {
 /* =========================================================
  * 파일 / 데이터 변환
 ========================================================= */
-function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const r = new FileReader();
-    r.onload = () => resolve(String(r.result));
-    r.onerror = reject;
-    r.readAsDataURL(file);
-  });
-}
-
 function dataUrlToBase64(dataUrl) {
   return String(dataUrl || "").split(",")[1] || "";
 }
@@ -159,15 +145,6 @@ function drawTransformedImageObject(targetCtx, img, obj = {}, fallbackCx, fallba
   targetCtx.rotate(rot);
   targetCtx.drawImage(img, -w / 2, -h / 2, w, h);
   targetCtx.restore();
-}
-
-/* =========================================================
- * 공통 화면 갱신
-========================================================= */
-function rerenderAll() {
-  redraw();
-  renderCart();
-  updateActionLocks();
 }
 
 /* =========================================================

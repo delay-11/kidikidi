@@ -146,8 +146,6 @@ function markTooltipAsRead(type, isUploadTooltip) {
   const isQuestionTooltip = type === "profile" || type === "capType";
 
   if (isQuestionTooltip) {
-    // 미사용 확인 (2026-07-09) - didReadProfileTooltip 읽는 곳 없음, 필요시 복원
-    // didReadProfileTooltip = true;
 
     if (typeof clearFormNotice === "function") {
       clearFormNotice();
@@ -159,8 +157,6 @@ function markTooltipAsRead(type, isUploadTooltip) {
   }
 
   if (isUploadTooltip) {
-    // 미사용 확인 (2026-07-09) - didReadUploadTooltip 읽는 곳 없음, 필요시 복원
-    // didReadUploadTooltip = true;
 
     if (typeof clearCanvasNotice === "function") {
       clearCanvasNotice();

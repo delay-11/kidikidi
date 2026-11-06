@@ -296,7 +296,10 @@ function buildCartItemHtml(item) {
       ? 1
       : 0;
   const textMeta = textCount ? (textCount > 1 ? `텍스트 ${textCount}개` : "텍스트 있음") : "";
-  const designText = hasDesign(item) ? ["디자인 있음", textMeta].filter(Boolean).join(" · ") : "디자인 없음";
+  const designText = hasDesign(item) ? ["디자인 있음", textMeta].filter(Boolean).join(", ") : "디자인 없음";
+  // 배경 값이 없으면("-") 빈 줄 대신 줄 자체를 빼기
+  const bgText = safeTrim(String(bg ?? ""));
+  const bgLine = bgText && bgText !== "-" ? `<span class="cartBgMeta">${escapeHtml(bgText)}</span>` : "";
 
   return `
     <div class="cartItem cartDesignCard${activeClass}" data-id="${escapeHtml(item.id)}">
@@ -307,7 +310,7 @@ function buildCartItemHtml(item) {
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
           <div class="cartMeta cartMetaStack">
             <span>${escapeHtml(laserText)}</span>
-            <span class="cartBgMeta">${escapeHtml(bg)}</span>
+            ${bgLine}
             <span>${escapeHtml(designText)}</span>
           </div>
         </div>
@@ -437,8 +440,23 @@ cartListEl?.addEventListener("click", async (e) => {
     if (!item && action !== "delete") return;
 
     if (action === "delete") {
+      // 바로 지우되, 몇 초 동안 [되돌리기]로 같은 자리에 되살릴 수 있게
+      const index = cartItems.findIndex((x) => x.id === id);
+      const removed = index >= 0 ? cartItems[index] : null;
       removeItem(id);
       updateActionLocks?.();
+      if (removed) {
+        showToast("시안을 삭제했습니다.", "info", 5000, {
+          actionLabel: "되돌리기",
+          onAction: () => {
+            if (cartItems.some((x) => x.id === removed.id)) return;
+            cartItems.splice(Math.min(index, cartItems.length), 0, removed);
+            renderCart();
+            updateActionLocks?.();
+            showToast("삭제한 시안을 되돌렸습니다.", "ok", 1600);
+          },
+        });
+      }
       return;
     }
 

@@ -109,12 +109,6 @@ function normalizeHexInput(value, fallback = "#ffffff") {
   return /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : fallback;
 }
 
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function isCompleteHexInput(value) {
-//   const v = String(value || "").trim();
-//   return /^#?[0-9a-f]{6}$/i.test(v) || /^#?[0-9a-f]{3}$/i.test(v);
-// }
-
 function getBgLabelFromState(type, color1, color2, direction) {
   if (normalizeBgMode(type) === "gradient") {
     return `${color1 || "#ffffff"} → ${color2 || "#fdcc63"}`;

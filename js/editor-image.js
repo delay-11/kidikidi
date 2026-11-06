@@ -270,16 +270,6 @@ async function isDraftAttachmentTooHeavy() {
   }
 }
 
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function fitImageToCanvas(img) {
-//   const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-//   imgScaleX = scale;
-//   imgScaleY = scale;
-//   imgRot = 0;
-//   imgCX = canvas.width / 2;
-//   imgCY = canvas.height / 2;
-// }
-
 fileBtn?.addEventListener(
   "click",
   (e) => {
@@ -434,7 +424,7 @@ fileEl?.addEventListener("change", async () => {
   fileEl.multiple = true;
 
   try {
-    setCanvasNotice("이미지를 불러오는 중입니다...", "ok");
+    setCanvasNotice("이미지를 불러오는 중입니다…", "ok");
 
     if (isReplace && getActiveImageObject()?.img) {
       const img = await loadImageFromFile(files[0]);

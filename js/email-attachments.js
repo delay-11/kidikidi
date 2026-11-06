@@ -22,21 +22,6 @@ function isLaserOriginalAttachTarget(item) {
   );
 }
 
-function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve("");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () =>
-      resolve(String(reader.result || "").split(",")[1] || "");
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
 /* =========================================================
  * 레이저 원본파일 첨부 압축
  * - 수정 이유: EmailJS 요금제(Professional)의 첨부 용량 한도가 2MB로
@@ -723,11 +708,3 @@ async function packAsZip(orderNo, items, files) {
 
   return params;
 }
-
-// 미사용 확인 (2026-07-10) - 배치 발송 도입으로 email-send.js가
-// buildAttachmentFileList + batchItemsByWeight를 직접 사용하도록 바뀌어
-// 호출부 없음, 필요시 복원
-// async function buildAttachments(orderNo = "order") {
-//   const { items, files } = await buildAttachmentFileList(orderNo);
-//   return packAttachmentParams(orderNo, items, files);
-// }

@@ -66,10 +66,6 @@
         padding: 12px;
     }
 
-    .canvasControlRow {
-        grid-template-columns: 1fr;
-    }
-
     .fileName {
         max-width: 100%;
     }
@@ -94,9 +90,7 @@
        되고, 그 안의 position:sticky 요소가 실제 화면 스크롤을 기준으로
        고정되지 못하는 문제가 있었음. html에만 적용해도 가로 스크롤은
        동일하게 막힘. */
-    html {
-        overflow-x: hidden;
-    }
+
 
     .wrap {
         width: 100%;
@@ -114,9 +108,7 @@
         border-radius: 18px;
     }
 
-    .canvasControlRow,
     .imageToolGrid,
-    #toolBg .bgToolGrid,
     #toolBg .bgToolStack,
     .textToolGrid,
     #toolBg .gradientControlGrid {
@@ -145,14 +137,12 @@
     }
 
     .imageToolGrid,
-    #toolBg .bgToolGrid,
     #toolBg .bgToolStack,
     .textToolGrid {
         gap: 14px !important;
     }
 
-    .imageToolGrid::before,
-    #toolBg .bgToolGrid::before {
+    .imageToolGrid::before {
         display: none !important;
     }
 
@@ -270,8 +260,7 @@
     }
 
     .uploadRow,
-    .imageToolActions .uploadRow,
-    .textActionRow {
+    .imageToolActions .uploadRow {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 8px !important;
@@ -298,7 +287,6 @@
         font-size: 11px !important;
     }
 
-    .uploadGuide,
     .fileName {
         width: 100%;
         max-width: 100%;
@@ -321,7 +309,7 @@
 
     .textToolSection + .textToolSection {
         padding-top: 14px !important;
-        border-top: 1px solid #eaecf0 !important;
+        border-top: 1px solid var(--gray-200) !important;
     }
 
     .textToolSection:nth-child(3) {
@@ -336,10 +324,6 @@
     .textFontBtn {
         min-height: 34px !important;
         font-size: 11px !important;
-    }
-
-    .textAlignRow {
-        gap: 6px;
     }
 
     .textIconBtn {
@@ -446,24 +430,13 @@
         text-align: center;
     }
 
-    .canvasHelpTip,
-    .canvasCmykTip,
-    .canvasFillTip {
+    .canvasHelpTip {
         display: none !important;
     }
 
     .cartTop {
         align-items: flex-start;
     }
-
-    /* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-    .cartActions {
-        justify-content: flex-start;
-        width: 100%;
-        margin-top: 8px;
-        margin-left: 0;
-    }
-    */
 
     .confirmModalDialog {
         width: calc(100vw - 24px);
@@ -536,12 +509,6 @@
         font-size: 11px;
         line-height: 1.5;
     }
-
-    /* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-    .miniBtn {
-        padding: 6px 9px;
-    }
-    */
 
     #bgPickBtn.ghostBtn,
     .colorPick {
@@ -621,11 +588,6 @@
 
     .canvasFrame {
         padding: 8px;
-    }
-
-    .uploadGuide {
-        font-size: 11px;
-        line-height: 1.5;
     }
 
     #toolBg .solidColorBoardBox {
@@ -816,10 +778,6 @@
         width: min(97vw, 600px) !important;
         max-height: 95vh !important;
         padding: 8px !important;
-    }
-
-    .print-guide-image {
-        border-radius: 14px !important;
     }
 
     .print-guide-actions {
