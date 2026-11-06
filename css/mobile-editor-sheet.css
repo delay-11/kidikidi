@@ -5,6 +5,7 @@
 .mDecorateBtn,
 .mDecorateMenu,
 .mSheetHead,
+.imgTipGroup,
 .imgTip,
 .mBtnIcon {
     display: none;
@@ -452,7 +453,8 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
     }
 
     body.kidikidiBootstrap #toolImage .uploadRow #fileBtn,
-    body.kidikidiBootstrap #toolImage .uploadRow #fileDelBtn {
+    body.kidikidiBootstrap #toolImage .uploadRow #fileDelBtn,
+    body.kidikidiBootstrap #toolImage .uploadRow #fileReplaceBtn {
         display: inline-flex !important;
         flex: 0 0 auto !important;
         align-items: center;
@@ -476,14 +478,25 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
     }
 
     /* 버튼 옆 안내: 예전처럼 회색 둥근 칩 */
+    /* 칩 두 개를 위아래로 (버튼 높이 48px 안에) */
+    #toolImage .imgTipGroup {
+        display: flex;
+        flex: 0 1 auto;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        min-width: 0;
+    }
+
     #toolImage .imgTip {
         display: inline-flex;
         flex: 0 1 auto;
+        max-width: 100%;
         min-width: 0;
         overflow: hidden;
         text-overflow: ellipsis;
         align-items: center;
-        height: 28px;
+        height: 22px;
         padding: 0 8px;
         border-radius: 999px;
         background: #f2f4f7;

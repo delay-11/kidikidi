@@ -111,6 +111,36 @@ async function selectItem(id) {
 }
 
 /* =========================================================
+ * 시안 복제
+ * - 이미지 배치 · 위치 · 크기 · 배경 색 · 텍스트까지 그대로 복사해 원본 바로 뒤에 넣고,
+ *   복사본을 바로 편집 화면에 불러옴 → [이미지 교체]로 같은 위치 · 크기에 이미지만 바꾸면 됨
+========================================================= */
+async function duplicateItem(id) {
+  if (uiLocked) return;
+
+  // 지금 편집 중인 시안이면 화면의 최신 상태를 먼저 저장한 뒤 복사
+  if (selectedItemId === id && !(typeof isLoadingItemToCanvas !== "undefined" && isLoadingItemToCanvas)) {
+    const cur = cartItems.find((x) => x.id === id);
+    if (cur && typeof saveCanvasToItem === "function") saveCanvasToItem(cur);
+  }
+
+  const idx = cartItems.findIndex((x) => x.id === id);
+  if (idx < 0) return;
+
+  const src = cartItems[idx];
+  const copy = {
+    ...src,
+    id: "it_" + Math.random().toString(36).slice(2, 10),
+    originalFiles: Array.isArray(src.originalFiles) ? src.originalFiles.slice() : [],
+    design: src.design ? JSON.parse(JSON.stringify(src.design)) : null,
+  };
+  cartItems.splice(idx + 1, 0, copy);
+
+  await selectItem(copy.id);
+  showToast("시안을 복제했어요. [이미지 교체]로 같은 위치 · 크기에 이미지만 바꿀 수 있어요.", "ok", 3200);
+}
+
+/* =========================================================
  * 새 시안 추가
 ========================================================= */
 function addCurrentItemToCart() {
@@ -288,6 +318,13 @@ function buildCartItemHtml(item) {
           data-id="${escapeHtml(item.id)}"
         >시안 수정</button>
 
+        <button
+          type="button"
+          class="cartEditBtn cartDuplicateBtn"
+          data-action="duplicate"
+          data-id="${escapeHtml(item.id)}"
+        >시안 복제</button>
+
         <div class="cartQtyRow">
           <button
             type="button"
@@ -399,6 +436,11 @@ cartListEl?.addEventListener("click", async (e) => {
     if (action === "delete") {
       removeItem(id);
       updateActionLocks?.();
+      return;
+    }
+
+    if (action === "duplicate") {
+      await duplicateItem(id);
       return;
     }
 

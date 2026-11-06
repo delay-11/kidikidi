@@ -474,7 +474,8 @@ body.kidikidiBootstrap[data-step="confirm"] .editorMain {
 }
 
 .kidikidiBootstrap #fileBtn,
-.kidikidiBootstrap #fileDelBtn {
+.kidikidiBootstrap #fileDelBtn,
+.kidikidiBootstrap #fileReplaceBtn {
     width: auto !important;
 }
 

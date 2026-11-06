@@ -719,7 +719,7 @@ canvas {
     gap: 8px;
 }
 
-.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #imageCenterBtn {
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #fileReplaceBtn, .imageToolActions #imageCenterBtn {
     flex: 1 1 0;
     min-width: 0 !important;
     height: 42px;
@@ -1005,7 +1005,7 @@ canvas {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
-.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #imageCenterBtn, #textApplyBtn, #textClearBtn {
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #fileReplaceBtn, .imageToolActions #imageCenterBtn, #textApplyBtn, #textClearBtn {
     width: 100% !important;
     min-width: 0 !important;
     min-height: 38px !important;

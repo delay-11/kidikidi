@@ -267,9 +267,17 @@
                                                         <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
                                                         <span class="mBtnLabel">삭제</span>
                                                     </button>
-                                                    <!-- 업로드 안내: 버튼 바로 옆 말풍선 두 개 -->
-                                                    <span class="imgTip">PNG · JPG · WEBP 가능</span>
-                                                    <span class="imgTip">투명 배경 권장</span>
+                                                    <!-- 선택한 이미지를 같은 위치 · 크기(%) · 회전 그대로 다른 이미지로 바꿈 (js/editor-image.js) -->
+                                                    <button aria-label="이미지 교체" class="ghostBtn btn btn-outline-secondary" disabled=""
+                                                        id="fileReplaceBtn" title="같은 위치 · 크기로 이미지만 바꾸기" type="button">
+                                                        <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 0 1 2-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 0 1-2 2H3"/></svg>
+                                                        <span class="mBtnLabel">이미지 교체</span>
+                                                    </button>
+                                                    <!-- 업로드 안내: 버튼 옆 칩 두 개 (모바일 전용, 위아래로 쌓아 버튼 줄을 한 줄로 유지) -->
+                                                    <span class="imgTipGroup">
+                                                        <span class="imgTip">PNG · JPG · WEBP 가능</span>
+                                                        <span class="imgTip">투명 배경 권장</span>
+                                                    </span>
                                                     <button class="ghostBtn btn btn-outline-secondary" disabled=""
                                                         id="imageCenterBtn" type="button">
                                                         캔버스 중앙
