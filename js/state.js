@@ -13,9 +13,6 @@ let canvasLogicalW = 0;
 let canvasLogicalH = 0;
 
 // 툴팁 확인 상태
-// 미사용 확인 (2026-07-09) - 대입만 되고 읽는 곳 없음, 필요시 복원
-// let didReadProfileTooltip = false;
-// let didReadUploadTooltip = false;
 let didConfirmedPopup = false;
 
 /* =========================================================

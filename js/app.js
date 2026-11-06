@@ -477,11 +477,6 @@ function closeQuickOptionModal() {
   optionQuickModalEl.setAttribute("aria-hidden", "true");
 }
 
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function hasCurrentCanvasWork() {
-//   return !!(userImg || draftBgSet || (typeof textEnabled !== "undefined" && textEnabled && safeTrim(textValue)) || selectedItemId);
-// }
-
 function applyQuickOptionChange() {
   if (uiLocked || !quickProfileEl || !quickCapTypeEl || !quickLaserEl) return;
 

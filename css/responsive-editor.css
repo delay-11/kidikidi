@@ -175,10 +175,6 @@
             "align" !important;
         gap: 18px !important;
     }
-
-    .kidikidiBootstrap .textAlignRow {
-        max-width: 100% !important;
-    }
 }
 
 @media (max-width: 768px) {

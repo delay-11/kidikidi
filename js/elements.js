@@ -13,7 +13,6 @@ const nameEl = $("name");
 const phoneEl = $("phone");
 const orderEl = $("orderNo");
 const emailEl = $("email");
-const orderLabelEl = $("orderLabel");
 
 /* =========================================================
  * 제품 옵션
@@ -30,7 +29,6 @@ const formNoticeEl = $("formNotice");
 const formReadyBoxEl = $("formReadyBox");
 const formReadyTitleEl = $("formReadyTitle");
 const formReadyDescEl = $("formReadyDesc");
-const optionGuideBoxEl = $("optionGuideBox");
 const optionGuideTitleEl = $("optionGuideTitle");
 const optionGuideDescEl = $("optionGuideDesc");
 
@@ -67,7 +65,6 @@ const bgColorValueEl = $("bgColorValue");
 const bgPickMountEl = $("bgPickMount");
 const solidNativeColorEl = $("solidNativeColor");
 const solidHexInputEl = $("solidHexInput");
-const solidInlinePickrMountEl = $("solidInlinePickrMount");
 const solidColorBoardEl = $("solidColorBoard");
 const solidColorBoardMarkerEl = $("solidColorBoardMarker");
 
@@ -149,7 +146,6 @@ const draftProfileEl = $("draftProfile");
 const draftCapEl = $("draftCap");
 const draftLaserEl = $("draftLaser");
 
-const unitPriceText = null;
 
 
 /* =========================================================

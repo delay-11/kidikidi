@@ -439,8 +439,7 @@ body.kidikidiBootstrap[data-step="confirm"] .editorMain {
 .kidikidiBootstrap .toolTabRow,
 .kidikidiBootstrap .bgModeToggle,
 .kidikidiBootstrap .gradientDirectionRow,
-.kidikidiBootstrap .textFontRow,
-.kidikidiBootstrap .textAlignRow {
+.kidikidiBootstrap .textFontRow {
     gap: 8px;
 }
 
@@ -545,5 +544,4 @@ body.kidikidiBootstrap[data-step="confirm"] .cartList {
 .kidikidiBootstrap .footerInner {
     max-width: 1440px;
 }
-
 

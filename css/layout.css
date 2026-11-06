@@ -45,13 +45,6 @@
     object-fit: contain;
 }
 
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.logo {
-    font-size: 16px;
-    font-weight: 700;
-}
-*/
-
 .systemName {
     font-size: 13px;
     color: var(--muted);
@@ -61,23 +54,6 @@
     font-size: 12px;
     color: var(--muted);
 }
-
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.systemStatus {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--muted);
-}
-
-.statusDot {
-    width: 8px;
-    height: 8px;
-    background: #22c55e;
-    border-radius: 50%;
-}
-*/
 
 .orderBar {
     background: var(--card);
@@ -183,23 +159,6 @@
     text-align: right;
 }
 
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.stepProgress {
-    background: var(--card);
-    border-bottom: 1px solid var(--line);
-    display: none !important;
-}
-
-.stepProgressInner {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    max-width: 1920px;
-    margin: 0 auto;
-    padding: 14px 30px;
-}
-*/
-
 .stepChip {
     display: flex;
     align-items: center;
@@ -273,27 +232,12 @@ body[data-step="confirm"] .editorWrap {
     justify-content: center;
 }
 
-body[data-step="editor"] .confirmStepHeader, body[data-step="editor"] .confirmStepActions #btnBackEditor {
-    display: none;
-}
-
-.stepIntro, .stepTitleBlock, .confirmStepHeader {
+.stepTitleBlock {
     display: grid;
     gap: 4px;
 }
 
-.stepIntro {
-    margin-bottom: 18px;
-}
-
-.stepEyebrow {
-    color: #b98600;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-}
-
-.stepIntro h2, .stepTitleBlock h2, .confirmStepHeader h2 {
+.stepTitleBlock h2 {
     margin: 0;
     color: var(--txt);
     font-size: 20px;
@@ -301,7 +245,7 @@ body[data-step="editor"] .confirmStepHeader, body[data-step="editor"] .confirmSt
     letter-spacing: -0.03em;
 }
 
-.stepIntro p, .stepTitleBlock p, .confirmStepHeader p {
+.stepTitleBlock p {
     margin: 0;
     color: var(--muted);
     font-size: 13px;
@@ -321,25 +265,6 @@ body[data-step="editor"] .confirmStepHeader, body[data-step="editor"] .confirmSt
     min-height: 40px;
     border-radius: 999px;
     font-size: 13px;
-}
-
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.stepActions {
-    display: flex;
-    margin-top: 4px;
-}
-
-.stepActions button {
-    width: 100%;
-}
-*/
-
-.confirmStepHeader {
-    margin-bottom: 14px;
-}
-
-body[data-step="editor"] .confirmStepActions {
-    display: none;
 }
 
 .optionSelectGuide {
@@ -365,10 +290,6 @@ body[data-step="editor"] .confirmStepActions {
     display: grid;
     grid-template-columns: 1fr 1.4fr 1fr;
     gap: 8px;
-}
-
-.stepTitleBlock .stepEyebrow, .confirmStepHeader .stepEyebrow {
-    display: none !important;
 }
 
 label {
@@ -553,10 +474,6 @@ body[data-step="confirm"] .editorMain {
 
 body[data-step="confirm"] .cartStepFrame {
     padding: 18px;
-}
-
-body[data-step="confirm"] .confirmStepHeader, body[data-step="confirm"] .confirmStepActions {
-    display: none !important;
 }
 
 .stepPageHeader .miniStepBtn {

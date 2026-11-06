@@ -251,24 +251,6 @@ canvas {
     text-overflow: ellipsis;
 }
 
-.uploadGuide {
-    flex: 1;
-    color: var(--muted);
-    font-size: var(--fs-12);
-    line-height: 1.55;
-}
-
-.uploadGuide div {
-    display: block;
-}
-
-.canvasControlRow {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    align-items: start;
-    gap: 16px;
-}
-
 .canvasNotice {
     font-size: 13px;
     padding-left: 10px;
@@ -359,51 +341,6 @@ canvas {
     font-size: 11px;
     font-weight: 800;
 }
-
-.toolBadge.muted {
-    background: var(--gray-100);
-    color: var(--muted);
-}
-
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.canvasCoreNotice {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px;
-    color: #344054;
-    font-size: 12px;
-    line-height: 1.45;
-}
-
-.canvasCoreNotice span {
-    display: inline-flex;
-    align-items: center;
-    min-height: 28px;
-    padding: 5px 10px;
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    background: #fffdf5;
-    white-space: nowrap;
-}
-
-.canvasCoreNotice span::before {
-    content: "!";
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
-    margin-right: 6px;
-    border-radius: 999px;
-    background: var(--acc);
-    color: #111827;
-    font-size: 10px;
-    font-weight: 900;
-}
-*/
 
 /* 안내 문구는 캔버스 위에 겹치지 않고 캔버스 "위쪽 바깥"에 둔다 (모바일과 동일).
    가이드/목업/선택박스는 모두 실제 <canvas> 박스 기준으로 위치를 잡으므로 영향 없음. */
@@ -823,34 +760,7 @@ canvas {
     box-shadow: 0 0 0 3px rgba(253, 204, 99, 0.22);
 }
 
-.textActionRow {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 8px;
-    align-items: center;
-}
-
-.textActionRow button {
-    min-height: 40px;
-    border-radius: 14px;
-    font-weight: 900;
-}
-
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.textControlGroup {
-    display: grid;
-    gap: 7px;
-    min-width: 0;
-}
-
-.textControlLabel {
-    color: #667085;
-    font-size: 12px;
-    font-weight: 900;
-}
-*/
-
-.textFontRow, .textAlignRow {
+.textFontRow {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
@@ -994,7 +904,7 @@ canvas {
     font-family: "KBLJump", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif !important;
 }
 
-.imageToolActions .uploadRow, .textActionRow {
+.imageToolActions .uploadRow {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 8px !important;

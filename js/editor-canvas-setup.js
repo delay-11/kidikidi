@@ -499,36 +499,6 @@ function drawObjectsInLayerOrder() {
   });
 }
 
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function getImageAABB() {
-//   const type = getActiveObjectType();
-//   if (!type) return null;
-//
-//   const size = getObjectHalfSize(type);
-//   if (!size) return null;
-//
-//   const corners = [
-//     objectLocalToWorldPoint(type, -size.halfW, -size.halfH),
-//     objectLocalToWorldPoint(type, size.halfW, -size.halfH),
-//     objectLocalToWorldPoint(type, size.halfW, size.halfH),
-//     objectLocalToWorldPoint(type, -size.halfW, size.halfH),
-//   ];
-//
-//   let minX = Infinity;
-//   let minY = Infinity;
-//   let maxX = -Infinity;
-//   let maxY = -Infinity;
-//
-//   for (const p of corners) {
-//     minX = Math.min(minX, p.x);
-//     minY = Math.min(minY, p.y);
-//     maxX = Math.max(maxX, p.x);
-//     maxY = Math.max(maxY, p.y);
-//   }
-//
-//   return { minX, minY, maxX, maxY, w: maxX - minX, h: maxY - minY };
-// }
-
 function getHandleSpec(handle) {
   const map = {
     e: { anchorLocal: { x: -1, y: 0 }, signX: 1, signY: 0 },

@@ -244,35 +244,3 @@ function buildItemsSummaryHtml(items = cartItems, allItems = items) {
     </div>
   `;
 }
-
-/* =========================================================
- * 고객 정보 요약 HTML
-========================================================= */
-function buildCustomerSummaryHtml() {
-  const esc = (v) => escapeHtml(String(v ?? "-"));
-
-  return `
-    <div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.7;color:#111;">
-      <h2 style="margin:0 0 12px;">주문자 정보</h2>
-
-      <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
-        <tr>
-          <td style="padding:6px 0;width:120px;font-weight:700;">주문자명</td>
-          <td style="padding:6px 0;">${esc(safeTrim(nameEl?.value))}</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-weight:700;">연락처</td>
-          <td style="padding:6px 0;">${esc(safeTrim(phoneEl?.value))}</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-weight:700;">주문번호</td>
-          <td style="padding:6px 0;">${esc(safeTrim(orderEl?.value))}</td>
-        </tr>
-        <tr>
-          <td style="padding:6px 0;font-weight:700;">이메일</td>
-          <td style="padding:6px 0;">${esc(safeTrim(emailEl?.value))}</td>
-        </tr>
-      </table>
-    </div>
-  `;
-}

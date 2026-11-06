@@ -270,16 +270,6 @@ async function isDraftAttachmentTooHeavy() {
   }
 }
 
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function fitImageToCanvas(img) {
-//   const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-//   imgScaleX = scale;
-//   imgScaleY = scale;
-//   imgRot = 0;
-//   imgCX = canvas.width / 2;
-//   imgCY = canvas.height / 2;
-// }
-
 fileBtn?.addEventListener(
   "click",
   (e) => {

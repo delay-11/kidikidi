@@ -79,16 +79,6 @@
     margin-top: 8px;
 }
 
-/* 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-.cartQtyValue {
-    min-width: 36px;
-    text-align: center;
-    font-size: var(--fs-13);
-    font-weight: 700;
-    color: var(--txt);
-}
-*/
-
 .cartBtn {
     width: 28px;
     min-width: 28px;
@@ -236,10 +226,6 @@ body[data-step="confirm"] .cartStepFrame {
     padding: 20px;
 }
 
-body[data-step="confirm"] .confirmStepHeader {
-    margin-bottom: 12px;
-}
-
 body[data-step="confirm"] .cartList {
     gap: 10px;
 }
@@ -257,11 +243,6 @@ body[data-step="confirm"] .cartDesignCard {
 
 body[data-step="confirm"] .cartCardActions {
     margin-top: 2px;
-}
-
-body[data-step="confirm"] .confirmStepActions {
-    gap: 10px;
-    margin-top: 12px;
 }
 
 /* =========================================================

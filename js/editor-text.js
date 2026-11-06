@@ -304,19 +304,6 @@ function deleteActiveTextObject() {
 }
 
 
-// 미사용 확인 (2026-07-09) - 호출부 없음, 필요시 복원
-// function getTextFontDefaultLabel(type = "basic") {
-//   const map = {
-//     basic: "Aa 기본",
-//     bold: "Aa 굵게",
-//     round: "Aa 둥근",
-//     hand: "Aa 손글씨",
-//     pixel: "Aa 픽셀",
-//     calli: "Aa 캘리",
-//   };
-//   return map[type] || map.basic;
-// }
-
 
 // 폰트 버튼 이름표 미리보기용 경량 폰트 (files/font-preview/*.woff2)
 // 로컬 ttf(손글씨 5.6MB, 자이언츠 2.5MB 등)를 텍스트 탭만 열어도 전부 받게 되면 모바일에서 너무 무거워서,
@@ -650,19 +637,3 @@ function alignTextToCanvas(align = textAlign || "center") {
   textCX = getCanvasAlignedX("text", align);
   if (!Number.isFinite(textCY) || !textCY) textCY = canvasLogicalH / 2;
 }
-
-// 미사용 확인 (다중 텍스트 지원 후) - getTextIndexAtPoint()로 대체됨, 필요시 복원
-// function isPointOnText(px, py) {
-//   if (!hasTextObject()) return false;
-//   const center = getObjectCenter("text");
-//   const dx = px - center.x;
-//   const dy = py - center.y;
-//   const rot = -getObjectRot("text");
-//   const cos = Math.cos(rot);
-//   const sin = Math.sin(rot);
-//   const lx = dx * cos - dy * sin;
-//   const ly = dx * sin + dy * cos;
-//   const size = getTextHalfSize();
-//   if (!size) return false;
-//   return lx >= -size.halfW && lx <= size.halfW && ly >= -size.halfH && ly <= size.halfH;
-// }
