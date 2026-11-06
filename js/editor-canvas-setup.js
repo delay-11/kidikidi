@@ -578,9 +578,50 @@ function updateBBox() {
   bboxEl.style.transform = `rotate(${rot}rad)`;
 
   // 선택 박스는 오브젝트와 같이 회전하되, 회전/삭제 버튼 아이콘은 항상 똑바로 보이게 보정합니다.
-  if (bboxActionGroupEl) {
-    bboxActionGroupEl.style.transform = `translateX(-50%) rotate(${-rot}rad)`;
-  }
+  if (bboxActionGroupEl) placeBBoxActionGroup(offsetX, offsetY, cr, center, w * sx, h * sy, sx, sy, rot);
+}
+
+/* 회전/삭제 버튼 위치
+ * 기본은 선택 박스 위쪽(48px 위). 그런데 이미지가 캔버스 위쪽 끝까지 오면 버튼이 캔버스 밖으로
+ * 나가서 캔버스 위 안내 문구와 겹쳐 가려졌음 → 버튼 묶음이 항상 캔버스 안에 있도록 화면 기준으로
+ * 위치를 잡아 가둔다(남는 공간이 있으면 원래처럼 박스 위, 없으면 캔버스 안쪽 끝).
+ * 버튼은 박스(회전됨) 안의 요소라, 화면 좌표 → 박스 기준 좌표로 되돌려서 넣는다. */
+const BBOX_ACTION_GAP = 48;
+const BBOX_ACTION_EDGE = 6;
+
+function placeBBoxActionGroup(offsetX, offsetY, cr, center, boxW, boxH, sx, sy, rot) {
+  const g = bboxActionGroupEl;
+  const gw = g.offsetWidth || 0;
+  const gh = g.offsetHeight || 0;
+  const cos = Math.cos(rot);
+  const sin = Math.sin(rot);
+
+  // 박스 가운데 (canvasWrap 기준 화면 px)
+  const cx = offsetX + center.x * sx;
+  const cy = offsetY + center.y * sy;
+
+  // 원래 자리: 박스 위쪽 가운데에서 위로 BBOX_ACTION_GAP (박스와 같이 회전)
+  const dy0 = -boxH / 2 - BBOX_ACTION_GAP + gh / 2;
+  let dx = -sin * dy0;
+  let dy = cos * dy0;
+
+  // 캔버스 안으로 가두기
+  const minX = offsetX + gw / 2 + BBOX_ACTION_EDGE;
+  const maxX = offsetX + cr.width - gw / 2 - BBOX_ACTION_EDGE;
+  const minY = offsetY + gh / 2 + BBOX_ACTION_EDGE;
+  const maxY = offsetY + cr.height - gh / 2 - BBOX_ACTION_EDGE;
+  const px = Math.min(Math.max(cx + dx, minX), Math.max(minX, maxX));
+  const py = Math.min(Math.max(cy + dy, minY), Math.max(minY, maxY));
+  dx = px - cx;
+  dy = py - cy;
+
+  // 화면 기준 → 박스(회전 전) 기준
+  const lx = cos * dx + sin * dy;
+  const ly = -sin * dx + cos * dy;
+
+  g.style.left = `${boxW / 2 + lx}px`;
+  g.style.top = `${boxH / 2 + ly}px`;
+  g.style.transform = `translate(-50%, -50%) rotate(${-rot}rad)`;
 }
 
 function redraw() {
