@@ -121,13 +121,13 @@ const GUIDE_SIZE_MAP = {
 
   XDA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 130, h: 130 } },
   MAO: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
-  // MOA: 아직 도면이 없어 XDA와 같은 크기로 잡고, 몸통 · 윗면 · 안전선을 모서리가 크게 둥근 네모로
-  // (도면이 오면 숫자만 바꾸면 됨)
+  // MOA: 아직 도면이 없어 XDA와 같은 크기로 잡음. 윗면 · 안전선은 원형(반지름 = 폭의 절반),
+  // 몸통(바깥선)은 모서리가 크게 둥근 네모 (도면이 오면 숫자만 바꾸면 됨)
   MOA: {
     outer: { w: 180, h: 180 },
     inner: { w: 150, h: 150 },
     safe: { w: 130, h: 130 },
-    radius: { outer: 52, inner: 62, safe: 54 },
+    radius: { outer: 52, inner: 75, safe: 65 },
     soft: true,
   },
   // STD: 프로파일을 아직 안 골랐을 때 쓰는 기본값. 안전선이 윗면(inner)과 겹치지 않게 XDA처럼 안쪽으로
