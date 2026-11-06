@@ -296,3 +296,19 @@ body[data-step="confirm"] .confirmStepActions {
     height: 100%;
     object-fit: contain;
 }
+
+/* [시안 수정] [시안 복제] + 수량 줄이 카드 밖으로 넘치지 않게:
+   버튼 폭을 글자만큼으로 줄이고, 그래도 좁으면 수량 줄을 다음 줄로 */
+.cartCardActions {
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.cartEditBtn {
+    min-width: 0;
+    padding: 0 12px;
+}
+
+.cartDesignCard .cartQtyRow {
+    margin-left: auto;
+}

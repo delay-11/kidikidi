@@ -286,6 +286,7 @@
     .dangerBtn,
     .imageToolActions #fileBtn,
     .imageToolActions #fileDelBtn,
+    .imageToolActions #fileReplaceBtn,
     .imageToolActions #imageCenterBtn,
     #textApplyBtn,
     #textClearBtn {

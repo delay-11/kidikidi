@@ -44,6 +44,8 @@ const CAP_OPTIONS = {
   ],
   XDA: [{ value: "XDA", label: "XDA" }],
   MAO: [{ value: "MAO", label: "MAO" }],
+  // MOA: 준비중 (index.html에서 선택 막아둠). 가이드 · 목업은 미리 준비
+  MOA: [{ value: "MOA", label: "MOA" }],
 };
 
 /* =========================================================
@@ -53,6 +55,7 @@ const SOLD_OUT_OPTIONS = {
   OEM: [],
   XDA: [],
   MAO: [],
+  MOA: [],
 };
 
 /* =========================================================
@@ -82,6 +85,7 @@ const CANVAS_SIZE_MAP = {
 
   XDA: { w: 330, h: 330 },
   MAO: { w: 330, h: 330 },
+  MOA: { w: 330, h: 330 },
   STD: { w: 330, h: 330 },
 };
 
@@ -90,6 +94,8 @@ const CANVAS_SIZE_MAP = {
  * outer = 바깥 가이드선
  * inner = 안쪽 가이드선
  * safe  = 인쇄 안전선
+ * radius = 선마다 모서리 둥글기를 따로 줄 때 (MOA: 모서리가 크게 둥근 네모)
+ * soft = true면 목업 옆면을 부드럽고 옅게 (MOA처럼 말랑한 모양)
 ========================================================= */
 const GUIDE_SIZE_MAP = {
   "R4-1U": { outer: { w: 177, h: 175 }, inner: { w: 130, h: 140 }, safe: { w: 115, h: 125 } },
@@ -115,6 +121,15 @@ const GUIDE_SIZE_MAP = {
 
   XDA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 130, h: 130 } },
   MAO: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
+  // MOA: 아직 도면이 없어 몸통은 XDA와 같게(180), 윗면 · 안전선만 XDA보다 조금 작게 잡음.
+  // 몸통 · 윗면 · 안전선 모두 모서리가 크게 둥근 네모 (도면이 오면 숫자만 바꾸면 됨)
+  MOA: {
+    outer: { w: 180, h: 180 },
+    inner: { w: 140, h: 140 },
+    safe: { w: 120, h: 120 },
+    radius: { outer: 48, inner: 47, safe: 48 },
+    soft: true,
+  },
   // STD: 프로파일을 아직 안 골랐을 때 쓰는 기본값. 안전선이 윗면(inner)과 겹치지 않게 XDA처럼 안쪽으로
   STD: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 130, h: 130 } },
 };

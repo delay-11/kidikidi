@@ -235,6 +235,7 @@ function setAllLocked(locked) {
     fileEl,
     fileBtn,
     fileDelBtn,
+    fileReplaceBtn,
     imageCenterBtn,
     bgPickBtn,
     bgEyeBtn,
@@ -326,6 +327,7 @@ function updateActionLocks() {
     if (fileBtn) fileBtn.disabled = true;
     if (fileEl) fileEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
+    if (fileReplaceBtn) fileReplaceBtn.disabled = true;
     if (imageCenterBtn) imageCenterBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
@@ -361,6 +363,7 @@ function updateActionLocks() {
     if (fileBtn) fileBtn.disabled = true;
     if (fileEl) fileEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
+    if (fileReplaceBtn) fileReplaceBtn.disabled = true;
     if (imageCenterBtn) imageCenterBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
@@ -401,6 +404,7 @@ function updateActionLocks() {
   if (fileBtn) fileBtn.disabled = false;
   if (fileEl) fileEl.disabled = false;
   if (fileDelBtn) fileDelBtn.disabled = false;
+  if (fileReplaceBtn) fileReplaceBtn.disabled = false;
   if (imageCenterBtn) imageCenterBtn.disabled = false;
   if (bgPickBtn) bgPickBtn.disabled = false;
   if (bgEyeBtn) bgEyeBtn.disabled = false;
@@ -432,8 +436,15 @@ function updateActionLocks() {
     updateBgLockUI(profileEl?.value, laserEl?.value);
   }
 
+  // [교체]는 복제한 시안을 편집할 때만 보임
+  if (fileReplaceBtn) {
+    const editingItem = selectedItemId && Array.isArray(cartItems) ? cartItems.find((x) => x.id === selectedItemId) : null;
+    fileReplaceBtn.classList.toggle("isHiddenReplace", !editingItem?.duplicatedFrom);
+  }
+
   if (!(typeof hasImageObject === "function" ? hasImageObject() : userImg)) {
     if (fileDelBtn) fileDelBtn.disabled = true;
+    if (fileReplaceBtn) fileReplaceBtn.disabled = true;
     if (imageCenterBtn) imageCenterBtn.disabled = true;
   }
 

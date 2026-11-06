@@ -325,6 +325,78 @@ fileBtn?.addEventListener(
   true,
 );
 
+/* =========================================================
+ * 이미지 교체: 선택한 이미지를 같은 위치 · 크기(%) · 회전 · 레이어 그대로 새 이미지로 바꿈
+ * (시안 복제 후 이미지만 바꿔서 같은 배치의 시안을 여러 개 만들 때 사용)
+ * - 크기는 "캔버스를 꽉 채우는 크기 대비 %"를 유지 → 비율이 같은 이미지는 완전히 같은 크기
+========================================================= */
+let pendingImageReplace = false;
+
+fileReplaceBtn?.addEventListener(
+  "click",
+  (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    clearCanvasNotice();
+    setMobileEyedropperMode(false);
+
+    if (isOrderConfirmed(safeTrim(orderEl?.value || ""))) {
+      applyConfirmedLockIfNeeded(true);
+      return;
+    }
+    if (!validateUserInfo(true)) {
+      updateActionLocks();
+      return;
+    }
+
+    const obj = getActiveImageObject();
+    if (!obj?.img) {
+      showToast("교체할 이미지를 먼저 선택해 주세요.", "warn");
+      return;
+    }
+    if (obj.locked) {
+      showToast("잠긴 레이어예요. 레이어 잠금을 풀고 교체해 주세요.", "warn");
+      return;
+    }
+    if (!fileEl || fileEl.disabled) return;
+
+    pendingImageReplace = true;
+    fileEl.multiple = false;
+    fileEl.click(); // 사용자 클릭 안에서 동기적으로 열어야 파일창이 뜸
+  },
+  true,
+);
+
+// 파일창을 취소하면 change가 안 오므로, 다음 일반 업로드 전에 교체 상태를 풀어 둠
+fileBtn?.addEventListener("click", () => {
+  pendingImageReplace = false;
+  if (fileEl) fileEl.multiple = true;
+}, true);
+
+function replaceActiveImage(img, file) {
+  const obj = getActiveImageObject();
+  if (!obj?.img) return false;
+
+  const fillOf = (im) => Math.max(canvasLogicalW / im.width, canvasLogicalH / im.height);
+  const sx = obj.scaleX ?? 1;
+  const sy = obj.scaleY ?? 1;
+  const big = Math.max(sx, sy);
+  const nextBig = (big / fillOf(obj.img)) * fillOf(img);
+  const ratio = nextBig / big;
+
+  obj.img = img;
+  obj.file = file || null;
+  obj.scaleX = Math.min(10, Math.max(0.05, sx * ratio));
+  obj.scaleY = Math.min(10, Math.max(0.05, sy * ratio));
+  // cx · cy · rot · z · locked는 그대로
+  userImg = obj.img;
+  userImgFile = obj.file;
+  imgScaleX = obj.scaleX;
+  imgScaleY = obj.scaleY;
+  return true;
+}
+
 fileEl?.addEventListener("change", async () => {
   clearCanvasNotice();
   setMobileEyedropperMode(false);
@@ -357,8 +429,29 @@ fileEl?.addEventListener("change", async () => {
     return;
   }
 
+  const isReplace = pendingImageReplace;
+  pendingImageReplace = false;
+  fileEl.multiple = true;
+
   try {
     setCanvasNotice("이미지를 불러오는 중입니다...", "ok");
+
+    if (isReplace && getActiveImageObject()?.img) {
+      const img = await loadImageFromFile(files[0]);
+      replaceActiveImage(img, files[0]);
+      warnLowResolutionImage(img);
+      activeObjectType = "image";
+      syncImageCountBadge(); // 아래 파일 이름도 새 파일로
+
+      redraw();
+      syncActiveItemDesign?.();
+      updateSelectedInfoText();
+      updateDraftInfo();
+      updateActionLocks();
+      clearCanvasNotice();
+      showToast("같은 위치 · 크기로 이미지를 교체했어요.", "ok");
+      return;
+    }
 
     for (const f of files) {
       const img = await loadImageFromFile(f);
