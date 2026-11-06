@@ -296,7 +296,10 @@ function buildCartItemHtml(item) {
       ? 1
       : 0;
   const textMeta = textCount ? (textCount > 1 ? `텍스트 ${textCount}개` : "텍스트 있음") : "";
-  const designText = hasDesign(item) ? ["디자인 있음", textMeta].filter(Boolean).join(" · ") : "디자인 없음";
+  const designText = hasDesign(item) ? ["디자인 있음", textMeta].filter(Boolean).join(", ") : "디자인 없음";
+  // 배경 값이 없으면("-") 빈 줄 대신 줄 자체를 빼기
+  const bgText = safeTrim(String(bg ?? ""));
+  const bgLine = bgText && bgText !== "-" ? `<span class="cartBgMeta">${escapeHtml(bgText)}</span>` : "";
 
   return `
     <div class="cartItem cartDesignCard${activeClass}" data-id="${escapeHtml(item.id)}">
@@ -307,7 +310,7 @@ function buildCartItemHtml(item) {
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
           <div class="cartMeta cartMetaStack">
             <span>${escapeHtml(laserText)}</span>
-            <span class="cartBgMeta">${escapeHtml(bg)}</span>
+            ${bgLine}
             <span>${escapeHtml(designText)}</span>
           </div>
         </div>

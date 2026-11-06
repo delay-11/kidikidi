@@ -93,3 +93,83 @@ body.kidikidiBootstrap[data-step="info"] .stepIntroCard.shadow-sm {
 .kidikidiBootstrap .wizardStep:not(.is-active) .wizardStepNo {
     color: var(--muted);
 }
+
+/* =========================================================
+ * 2차: 시안 제작(2단계) / 시안 확정(3단계)
+========================================================= */
+
+/* 카드 안의 카드 줄이기: 바깥 큰 카드는 테두리·배경·그림자 없이 틀만 */
+body.kidikidiBootstrap .editorStepCard.shadow-sm,
+body.kidikidiBootstrap[data-step="editor"] .editorStepCard,
+body.kidikidiBootstrap[data-step="confirm"] .editorStepCard {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none !important;
+}
+
+/* 회색 알약 라벨(프로파일/규격, 캔버스, 배경, 시안 리스트) → 그냥 작은 글씨 */
+body.kidikidiBootstrap .pill .tag {
+    padding: 0 !important;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: var(--fs-12) !important;
+}
+
+/* 프로파일/규격 바꾸기: 노란 동그라미 ▼ 대신, 눌러서 고르는 칸처럼 보이게 */
+body.kidikidiBootstrap .pill .pillActionBtn {
+    gap: 8px !important;
+    min-height: 32px !important;
+    padding: 0 10px 0 12px !important;
+    border: 1px solid var(--line) !important;
+    border-radius: var(--radius-sm);
+    background: var(--card) !important;
+}
+
+body.kidikidiBootstrap .pill .pillActionBtn:hover {
+    border-color: var(--acc) !important;
+}
+
+body.kidikidiBootstrap .pill .pillActionBtn .pillCaret,
+body.kidikidiBootstrap .pill .pillActionBtn:hover .pillCaret,
+body.kidikidiBootstrap .pill .pillActionBtn:focus-visible .pillCaret,
+body.kidikidiBootstrap .pill .pillActionBtn:active .pillCaret {
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    color: var(--muted) !important;
+}
+
+/* 비활성 [시안 추가]: 흐린 검정 대신 읽히는 회색 */
+.kidikidiBootstrap .btn-dark:disabled,
+.kidikidiBootstrap .secondaryActionBtn:disabled {
+    opacity: 1;
+    border-color: var(--line) !important;
+    background: var(--disabled-bg) !important;
+    color: var(--muted) !important;
+    cursor: not-allowed;
+}
+
+/* 수량 조절: [-] [1] [+] [x] 높이 맞춤 */
+/* 입력칸 공통 규칙(.kidikidiBootstrap input:not(...))이 아주 강해서 !important */
+body.kidikidiBootstrap .cartQtyRow .cartBtn,
+body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
+    height: 32px !important;
+    min-height: 32px !important;
+}
+
+body.kidikidiBootstrap .cartQtyRow .cartBtn {
+    width: 32px;
+    min-width: 32px;
+}
+
+body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
+    width: 48px;
+    min-width: 48px;
+    padding: 0 4px !important;
+    border-radius: 8px !important;
+}
