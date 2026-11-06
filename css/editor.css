@@ -1556,3 +1556,21 @@ canvas {
     font-size: 12px !important;
     font-weight: 900 !important;
 }
+
+/* [교체]는 복제한 시안을 편집할 때만 (js/validation.js) */
+body.kidikidiBootstrap #toolImage .uploadRow #fileReplaceBtn.isHiddenReplace {
+    display: none !important;
+}
+
+/* PC: 시안 리스트 위로 옮긴 [시안 추가] 줄 (js/design-list.js) */
+.kidikidiBootstrap .editorActionBar.isInCartPanel {
+    position: static !important;
+    margin: 0 0 14px !important;
+    padding: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body[data-step="confirm"] .editorActionBar.isInCartPanel {
+    display: none !important;
+}

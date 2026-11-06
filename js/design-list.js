@@ -133,11 +133,13 @@ async function duplicateItem(id) {
     id: "it_" + Math.random().toString(36).slice(2, 10),
     originalFiles: Array.isArray(src.originalFiles) ? src.originalFiles.slice() : [],
     design: src.design ? JSON.parse(JSON.stringify(src.design)) : null,
+    // 복제한 시안에서만 [교체] 버튼을 보여주기 위한 표시
+    duplicatedFrom: src.id,
   };
   cartItems.splice(idx + 1, 0, copy);
 
   await selectItem(copy.id);
-  showToast("시안을 복제했어요. [이미지 교체]로 같은 위치 · 크기에 이미지만 바꿀 수 있어요.", "ok", 3200);
+  showToast("시안을 복제했어요. 이미지의 [교체]로 같은 위치 · 크기에 이미지만 바꿀 수 있어요.", "ok", 3200);
 }
 
 /* =========================================================
@@ -191,6 +193,7 @@ function addCurrentItemToCart() {
   const editIdx = selectedItemId ? cartItems.findIndex((x) => x.id === selectedItemId) : -1;
   if (editIdx >= 0) {
     item.id = selectedItemId;
+    if (cartItems[editIdx].duplicatedFrom) item.duplicatedFrom = cartItems[editIdx].duplicatedFrom;
     cartItems[editIdx] = item;
     showToast("시안이 수정되었습니다.", "ok");
   } else {
@@ -316,14 +319,14 @@ function buildCartItemHtml(item) {
           class="cartEditBtn"
           data-action="edit"
           data-id="${escapeHtml(item.id)}"
-        >시안 수정</button>
+        >수정</button>
 
         <button
           type="button"
           class="cartEditBtn cartDuplicateBtn"
           data-action="duplicate"
           data-id="${escapeHtml(item.id)}"
-        >시안 복제</button>
+        >복제</button>
 
         <div class="cartQtyRow">
           <button
@@ -522,3 +525,31 @@ cartListEl?.addEventListener("change", (e) => {
   renderCart();
   showToast(`수량을 ${item.qty}개로 변경했습니다.`, "info", 1600);
 });
+/* =========================================================
+ * PC: [시안 추가] 버튼을 오른쪽 시안 리스트 위로
+ * - 왼쪽 맨 아래에 있으면 스크롤해야 보여서, PC 폭(769px 이상)에서는 버튼 줄을
+ *   시안 리스트 패널 맨 위로 옮김. 모바일은 원래 자리(아래 고정 바)로 되돌림
+ *   (같은 버튼을 옮기는 거라 비활성/문구/클릭 동작은 그대로)
+========================================================= */
+(() => {
+  const bar = document.querySelector(".editorActionBar");
+  const cartFrame = document.querySelector(".cartStepFrame");
+  if (!bar || !cartFrame) return;
+
+  const home = bar.parentElement;
+  const homeNext = bar.nextSibling;
+  const pcQuery = window.matchMedia("(min-width: 769px)");
+
+  const place = () => {
+    if (pcQuery.matches) {
+      if (bar.parentElement !== cartFrame) cartFrame.insertBefore(bar, cartFrame.firstChild);
+      bar.classList.add("isInCartPanel");
+    } else {
+      if (bar.parentElement !== home) home.insertBefore(bar, homeNext);
+      bar.classList.remove("isInCartPanel");
+    }
+  };
+
+  place();
+  pcQuery.addEventListener?.("change", place);
+})();

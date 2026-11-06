@@ -436,6 +436,12 @@ function updateActionLocks() {
     updateBgLockUI(profileEl?.value, laserEl?.value);
   }
 
+  // [교체]는 복제한 시안을 편집할 때만 보임
+  if (fileReplaceBtn) {
+    const editingItem = selectedItemId && Array.isArray(cartItems) ? cartItems.find((x) => x.id === selectedItemId) : null;
+    fileReplaceBtn.classList.toggle("isHiddenReplace", !editingItem?.duplicatedFrom);
+  }
+
   if (!(typeof hasImageObject === "function" ? hasImageObject() : userImg)) {
     if (fileDelBtn) fileDelBtn.disabled = true;
     if (fileReplaceBtn) fileReplaceBtn.disabled = true;
