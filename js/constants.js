@@ -94,7 +94,8 @@ const CANVAS_SIZE_MAP = {
  * outer = 바깥 가이드선
  * inner = 안쪽 가이드선
  * safe  = 인쇄 안전선
- * round = true면 윗면(inner) · 안전선(safe)을 원형으로 그림 (MOA)
+ * radius = 선마다 모서리 둥글기를 따로 줄 때 (MOA: 모서리가 크게 둥근 네모)
+ * soft = true면 목업 옆면을 부드럽고 옅게 (MOA처럼 말랑한 모양)
 ========================================================= */
 const GUIDE_SIZE_MAP = {
   "R4-1U": { outer: { w: 177, h: 175 }, inner: { w: 130, h: 140 }, safe: { w: 115, h: 125 } },
@@ -120,8 +121,15 @@ const GUIDE_SIZE_MAP = {
 
   XDA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 130, h: 130 } },
   MAO: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 149.5, h: 149.5 } },
-  // MOA: 아직 도면이 없어 XDA와 같은 크기로 잡고, 윗면 · 안전선만 원형 (도면이 오면 숫자만 바꾸면 됨)
-  MOA: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 130, h: 130 }, round: true },
+  // MOA: 아직 도면이 없어 XDA와 같은 크기로 잡고, 몸통 · 윗면 · 안전선을 모서리가 크게 둥근 네모로
+  // (도면이 오면 숫자만 바꾸면 됨)
+  MOA: {
+    outer: { w: 180, h: 180 },
+    inner: { w: 150, h: 150 },
+    safe: { w: 130, h: 130 },
+    radius: { outer: 30, inner: 46, safe: 40 },
+    soft: true,
+  },
   // STD: 프로파일을 아직 안 골랐을 때 쓰는 기본값. 안전선이 윗면(inner)과 겹치지 않게 XDA처럼 안쪽으로
   STD: { outer: { w: 180, h: 180 }, inner: { w: 150, h: 150 }, safe: { w: 130, h: 130 } },
 };

@@ -469,21 +469,20 @@ function drawGuide() {
   ctx.strokeStyle = "#d2d2d2";
   ctx.lineWidth = 0.8;
   ctx.setLineDash([]);
-  roundRectPath(ctx, outerX, outerY, outerW, outerH, 18);
+  const radius = guide.radius || {};
+  roundRectPath(ctx, outerX, outerY, outerW, outerH, radius.outer ?? 18);
   ctx.stroke();
 
   ctx.strokeStyle = "#b8b8b8";
   ctx.lineWidth = 0.8;
   ctx.setLineDash([]);
-  // 원형 가이드(MOA)는 반지름을 짧은 변의 절반으로 → 동그라미
-  const isRound = !!guide.round;
-  roundRectPath(ctx, innerX, innerY, innerW, innerH, isRound ? Math.min(innerW, innerH) / 2 : 16);
+  roundRectPath(ctx, innerX, innerY, innerW, innerH, radius.inner ?? 16);
   ctx.stroke();
 
   ctx.strokeStyle = "#d92d20";
   ctx.lineWidth = 2;
   ctx.setLineDash([8, 8]);
-  roundRectPath(ctx, safeX, safeY, safeW, safeH, isRound ? Math.min(safeW, safeH) / 2 : 14);
+  roundRectPath(ctx, safeX, safeY, safeW, safeH, radius.safe ?? 14);
   ctx.stroke();
 
   ctx.restore();
