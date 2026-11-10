@@ -31,18 +31,18 @@
     <link href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" rel="stylesheet" />
     <!-- CSS -->
     <!-- 각 CSS/JS 뒤의 ?v=버전 : 배포 후에도 브라우저가 예전 파일을 쓰는 것을 막음. 버전을 올릴 때 같이 바꿔 주세요. -->
-    <link href="./css/base.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/layout.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/ui.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/color-picker.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/editor.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/design-list.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/bootstrap-wizard.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/bootstrap-wizard-overrides.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/editor-tour.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/responsive.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/responsive-editor.css?v=3.4.3" rel="stylesheet" />
-    <link href="./css/mobile-editor-sheet.css?v=3.4.3" rel="stylesheet" />
+    <link href="./css/base.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/layout.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/ui.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/color-picker.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/editor.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/design-list.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/bootstrap-wizard.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/bootstrap-wizard-overrides.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/editor-tour.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/responsive.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/responsive-editor.css?v=3.4.4" rel="stylesheet" />
+    <link href="./css/mobile-editor-sheet.css?v=3.4.4" rel="stylesheet" />
 
     <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
@@ -62,7 +62,7 @@
                 <h1 class="systemName">키캡 시안 제작 시스템</h1>
             </div>
             <div class="headerVersion">
-                v3.4.3
+                v3.4.4
             </div>
         </div>
     </header>
@@ -272,6 +272,12 @@
                                                         <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
                                                         <span class="mBtnLabel">삭제</span>
                                                     </button>
+                                                    <!-- 캔버스 초기화: 이미지 · 텍스트 · 배경을 모두 비워 체크무늬 상태로 (js/editor-image.js) -->
+                                                    <button aria-label="캔버스 초기화" class="dangerBtn btn btn-outline-danger" disabled=""
+                                                        id="canvasResetBtn" title="이미지 · 텍스트 · 배경을 모두 비움" type="button">
+                                                        <svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21h10"/><path d="M5.5 13.5 13 6l5 5-7.5 7.5a2 2 0 0 1-2.8 0l-2.2-2.2a2 2 0 0 1 0-2.8z"/><path d="m9 10 5 5"/></svg>
+                                                        <span class="mBtnLabel">초기화</span>
+                                                    </button>
                                                     <!-- 선택한 이미지를 같은 위치 · 크기(%) · 회전 그대로 다른 이미지로 바꿈 (js/editor-image.js) -->
                                                     <button aria-label="이미지 교체" class="ghostBtn btn btn-outline-secondary isHiddenReplace" disabled=""
                                                         id="fileReplaceBtn" title="같은 위치와 크기로 이미지만 바꾸기" type="button">
@@ -316,8 +322,8 @@
                                                                 inputmode="decimal" min="1" step="1" type="number" /><em>%</em></label>
                                                         <button class="imageFillBtn btn btn-sm btn-outline-secondary" id="imgFillBtn"
                                                             type="button">캔버스 채우기</button>
-                                                        <button aria-label="초기화" class="imageFillBtn imageResetBtn btn btn-sm btn-outline-danger"
-                                                            id="imgResetBtn" title="초기화" type="button"><svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span class="mBtnLabel">초기화</span></button>
+                                                        <button aria-label="설정 초기화 (크기 · 회전)" class="imageFillBtn imageResetBtn btn btn-sm btn-outline-danger"
+                                                            id="imgResetBtn" title="설정 초기화 (크기 · 회전)" type="button"><svg aria-hidden="true" class="mBtnIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span class="mBtnLabel">설정 초기화</span></button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -384,9 +390,9 @@
                                                 <div class="bgToolSection bgToolSectionGradient">
                                                     <div class="bgToolSectionHeader gradientSectionHeader">
                                                         <div class="bgToolSectionTitle">그라데이션 설정</div>
-                                                        <button aria-label="그라데이션 초기화" title="초기화"
+                                                        <button aria-label="그라데이션 설정 초기화" title="설정 초기화"
                                                             class="gradientResetBtn btn btn-sm btn-outline-secondary"
-                                                            id="gradientResetBtn" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="resetLabel">초기화</span></button>
+                                                            id="gradientResetBtn" type="button"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg><span class="resetLabel">설정 초기화</span></button>
                                                     </div>
                                                     <div class="gradientPanel" id="gradientPanel">
                                                         <div class="gradientColorGrid">
@@ -743,38 +749,38 @@
     <script crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="./js/constants.js?v=3.4.3"></script>
-    <script src="./js/utils.js?v=3.4.3"></script>
-    <script src="./js/toast.js?v=3.4.3"></script>
-    <script src="./js/tooltip.js?v=3.4.3"></script>
-    <script src="./js/email-core.js?v=3.4.3"></script>
-    <script src="./js/modal.js?v=3.4.3"></script>
-    <script src="./js/elements.js?v=3.4.3"></script>
-    <script src="./js/state.js?v=3.4.3"></script>
-    <script src="./js/validation.js?v=3.4.3"></script>
-    <script src="./js/email-domain-suggest.js?v=3.4.3"></script>
-    <script src="./js/order-info.js?v=3.4.3"></script>
-    <script src="./js/editor-canvas-setup.js?v=3.4.3"></script>
-    <script src="./js/editor-keycap-mockup.js?v=3.4.3"></script>
-    <script src="./js/editor-background.js?v=3.4.3"></script>
-    <script src="./js/editor-text.js?v=3.4.3"></script>
-    <script src="./js/editor-image.js?v=3.4.3"></script>
-    <script src="./js/editor-object-transform.js?v=3.4.3"></script>
-    <script src="./js/editor-layers.js?v=3.4.3"></script>
-    <script src="./js/editor-pointer-events.js?v=3.4.3"></script>
-    <script src="./js/editor-item-io.js?v=3.4.3"></script>
-    <script src="./js/editor-image-size.js?v=3.4.3"></script>
-    <script src="./js/draft-storage.js?v=3.4.3"></script>
-    <script src="./js/design-list.js?v=3.4.3"></script>
-    <script src="./js/email-attachments.js?v=3.4.3"></script>
-    <script src="./js/email-summary.js?v=3.4.3"></script>
-    <script src="./js/email-send.js?v=3.4.3"></script>
-    <script src="./js/print-guide-modal.js?v=3.4.3"></script>
-    <script src="./js/profile-helper.js?v=3.4.3"></script>
-    <script src="./js/mobile-editor-sheet.js?v=3.4.3"></script>
-    <script src="./js/inline-text-editor.js?v=3.4.3"></script>
-    <script src="./js/editor-onboarding-tour.js?v=3.4.3"></script>
-    <script src="./js/app.js?v=3.4.3"></script>
+    <script src="./js/constants.js?v=3.4.4"></script>
+    <script src="./js/utils.js?v=3.4.4"></script>
+    <script src="./js/toast.js?v=3.4.4"></script>
+    <script src="./js/tooltip.js?v=3.4.4"></script>
+    <script src="./js/email-core.js?v=3.4.4"></script>
+    <script src="./js/modal.js?v=3.4.4"></script>
+    <script src="./js/elements.js?v=3.4.4"></script>
+    <script src="./js/state.js?v=3.4.4"></script>
+    <script src="./js/validation.js?v=3.4.4"></script>
+    <script src="./js/email-domain-suggest.js?v=3.4.4"></script>
+    <script src="./js/order-info.js?v=3.4.4"></script>
+    <script src="./js/editor-canvas-setup.js?v=3.4.4"></script>
+    <script src="./js/editor-keycap-mockup.js?v=3.4.4"></script>
+    <script src="./js/editor-background.js?v=3.4.4"></script>
+    <script src="./js/editor-text.js?v=3.4.4"></script>
+    <script src="./js/editor-image.js?v=3.4.4"></script>
+    <script src="./js/editor-object-transform.js?v=3.4.4"></script>
+    <script src="./js/editor-layers.js?v=3.4.4"></script>
+    <script src="./js/editor-pointer-events.js?v=3.4.4"></script>
+    <script src="./js/editor-item-io.js?v=3.4.4"></script>
+    <script src="./js/editor-image-size.js?v=3.4.4"></script>
+    <script src="./js/draft-storage.js?v=3.4.4"></script>
+    <script src="./js/design-list.js?v=3.4.4"></script>
+    <script src="./js/email-attachments.js?v=3.4.4"></script>
+    <script src="./js/email-summary.js?v=3.4.4"></script>
+    <script src="./js/email-send.js?v=3.4.4"></script>
+    <script src="./js/print-guide-modal.js?v=3.4.4"></script>
+    <script src="./js/profile-helper.js?v=3.4.4"></script>
+    <script src="./js/mobile-editor-sheet.js?v=3.4.4"></script>
+    <script src="./js/inline-text-editor.js?v=3.4.4"></script>
+    <script src="./js/editor-onboarding-tour.js?v=3.4.4"></script>
+    <script src="./js/app.js?v=3.4.4"></script>
 </body>
 
 </html>

@@ -231,6 +231,23 @@ function getDraftBgLabel() {
     : "-";
 }
 
+/* 배경을 아직 안 정했을 때 배경 도구 표시: 색 칸은 체크무늬, 색상 코드는 비움, 컬러보드 표시점 숨김
+ * (예전엔 기본값 #ffffff가 보여서 흰 배경이 이미 정해진 것처럼 보였음) */
+function syncBgUnsetUI() {
+  const panel = document.getElementById("toolBg");
+  const unset = !draftBgSet && !isLaserFixedBg();
+  panel?.classList.toggle("isBgUnset", unset);
+  if (!unset) return;
+
+  if (typeof solidHexInputEl !== "undefined" && solidHexInputEl && document.activeElement !== solidHexInputEl) {
+    solidHexInputEl.value = "";
+  }
+  if (typeof solidHexInputEl !== "undefined" && solidHexInputEl) solidHexInputEl.placeholder = "색상 선택";
+  if (bgColorValueEl) bgColorValueEl.textContent = "-";
+  if (gradientColor1ValueEl) gradientColor1ValueEl.textContent = "선택";
+  if (gradientColor2ValueEl) gradientColor2ValueEl.textContent = "선택";
+}
+
 function syncGradientUI() {
   const isGradient = draftBgType === "gradient";
   const toolBgPanel = document.getElementById("toolBg");
@@ -269,6 +286,7 @@ function syncGradientUI() {
   // 모드 전환 직후 HTML의 disabled 기본값이 남아 있으면
   // 그라데이션 설정이 보이는데도 조작이 막히는 문제가 생길 수 있어 여기서 한 번 더 동기화합니다.
   syncBgControlDisabledState?.();
+  syncBgUnsetUI();
 }
 
 function setSoftDisabled(el, disabled) {
@@ -343,11 +361,10 @@ function applyBgMode(mode) {
 
   draftBgType = normalizeBgMode(mode);
 
-  // [단색] 버튼(또는 배경 색상 버튼)만 누른 건 "흰 배경을 골랐다"가 아님 →
-  // 배경을 아직 안 정했으면 단색 모드로만 바꾸고 배경은 그대로 비워 둠(체크무늬 유지).
-  // 실제로 색을 고르면(컬러보드 · HEX · 스포이드) applyBgColor()에서 배경이 정해짐.
-  // 예전엔 여기서 바로 흰 배경이 정해져서, [단색]만 눌러도 빈 캔버스로 시안 추가가 됐음.
-  if (draftBgType === "solid" && !draftBgSet) {
+  // [단색] / [그라데이션] 버튼(또는 배경 색상 버튼)만 누른 건 "배경을 골랐다"가 아님 →
+  // 배경을 아직 안 정했으면 모드만 바꾸고 배경은 그대로 비워 둠(체크무늬 유지).
+  // 실제로 색 · 그라데이션 설정을 바꾸면(applyBgColor / applyGradientSettings) 그때 배경이 정해짐.
+  if (!draftBgSet) {
     syncGradientUI();
     setBgTextFromCurrentItem();
     redraw();
@@ -704,6 +721,8 @@ function setBgUI(hex) {
       console.warn("Pickr 색상 반영 실패:", e);
     }
   }
+
+  syncBgUnsetUI();
 }
 
 /* =========================================================
@@ -1024,6 +1043,14 @@ function bindEditorToolEvents() {
 
     // 경계 위치와 퍼짐 정도만 기본값으로 되돌립니다.
     // 시작/끝 색상과 방향은 사용자가 선택한 값을 유지합니다.
+    // 배경을 아직 안 정했으면 값만 되돌리고 배경은 비워 둠
+    if (!draftBgSet) {
+      draftGradientPosition = 0.5;
+      draftGradientSoftness = 1;
+      syncGradientUI();
+      showToast?.("경계 위치와 퍼짐 정도를 초기화했습니다.", "ok", 1200);
+      return;
+    }
     applyGradientSettings({ position: 0.5, softness: 1 });
     showToast?.("경계 위치와 퍼짐 정도를 초기화했습니다.", "ok", 1200);
   });

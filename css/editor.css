@@ -656,7 +656,7 @@ canvas {
     gap: 8px;
 }
 
-.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #fileReplaceBtn, .imageToolActions #imageCenterBtn {
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #fileReplaceBtn, .imageToolActions #canvasResetBtn, .imageToolActions #imageCenterBtn {
     flex: 1 1 0;
     min-width: 0 !important;
     height: 42px;
@@ -915,7 +915,7 @@ canvas {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
 }
 
-.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #fileReplaceBtn, .imageToolActions #imageCenterBtn, #textApplyBtn, #textClearBtn {
+.imageToolActions #fileBtn, .imageToolActions #fileDelBtn, .imageToolActions #fileReplaceBtn, .imageToolActions #canvasResetBtn, .imageToolActions #imageCenterBtn, #textApplyBtn, #textClearBtn {
     width: 100% !important;
     min-width: 0 !important;
     min-height: 38px !important;
@@ -1539,4 +1539,25 @@ body.kidikidiBootstrap .imageHelpLine span {
 /* 프로파일/규격 팝업: 안 스크롤이 뒤 페이지로 넘어가지 않게 */
 .optionQuickDialog {
     overscroll-behavior: contain;
+}
+
+/* PC 이미지 버튼 줄: 업로드 · 삭제 · 초기화 3칸, 복제한 시안이라 [교체]가 보이면 4칸 */
+@media (min-width: 769px) {
+    .imageToolActions .uploadRow:has(#fileReplaceBtn:not(.isHiddenReplace)) {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+}
+
+/* 배경을 아직 안 정했을 때: 색 칸은 체크무늬, 컬러보드 표시점 숨김 (js/editor-background.js syncBgUnsetUI) */
+#toolBg.isBgUnset .colorSwatch {
+    background-color: #ffffff !important;
+    background-image:
+        linear-gradient(45deg, #e9ebef 25%, transparent 25%, transparent 75%, #e9ebef 75%),
+        linear-gradient(45deg, #e9ebef 25%, transparent 25%, transparent 75%, #e9ebef 75%) !important;
+    background-size: 8px 8px !important;
+    background-position: 0 0, 4px 4px !important;
+}
+
+#toolBg.isBgUnset .solidColorBoardMarker {
+    display: none !important;
 }

@@ -469,7 +469,8 @@ body.kidikidiBootstrap[data-step="confirm"] .editorMain {
 
 .kidikidiBootstrap #fileBtn,
 .kidikidiBootstrap #fileDelBtn,
-.kidikidiBootstrap #fileReplaceBtn {
+.kidikidiBootstrap #fileReplaceBtn,
+.kidikidiBootstrap #canvasResetBtn {
     width: auto !important;
 }
 
