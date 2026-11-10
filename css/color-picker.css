@@ -460,6 +460,7 @@
 }
 
 #toolBg .gradientPickBtn .colorValue {
+    font-family: inherit; /* 고정폭 글꼴 대신 사이트 기본 글꼴 */
     min-width: 64px;
     text-align: left;
     color: var(--gray-700);
