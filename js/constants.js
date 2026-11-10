@@ -44,7 +44,7 @@ const CAP_OPTIONS = {
   ],
   XDA: [{ value: "XDA", label: "XDA" }],
   MAO: [{ value: "MAO", label: "MAO" }],
-  // MOA: 준비중 (index.html에서 선택 막아둠). 가이드 · 목업은 미리 준비
+  // MOA: 단일 규격 (가이드 · 목업은 GUIDE_SIZE_MAP.MOA)
   MOA: [{ value: "MOA", label: "MOA" }],
 };
 
