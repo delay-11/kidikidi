@@ -154,6 +154,15 @@ function addCurrentItemToCart() {
     return false;
   }
 
+  // 캔버스에 빈 곳(체크무늬)이 있으면 옆면이 하얗게 찍히므로 막음:
+  // 배경색을 정했거나(흰색도 OK) 이미지로 캔버스를 꽉 채웠을 때만 추가 가능. 레이저(흰색 고정) 시안은 제외
+  const laserFixed = typeof isLaserFixedBg === "function" && isLaserFixedBg();
+  if (!draftBgSet && !laserFixed && !isCanvasFullyCoveredByImages()) {
+    showToast("캔버스에 빈 곳(체크무늬)이 있어요. 배경색을 정하거나(흰색도 가능) 이미지로 캔버스를 꽉 채워 주세요.", "warn", 4200);
+    setCanvasNotice?.("빈 곳(체크무늬)은 옆면에 하얗게 찍혀요. [배경]에서 색을 정하거나 이미지의 [캔버스 채우기]를 눌러 주세요.", "error");
+    return false;
+  }
+
   const p = profileEl.value;
   const cap = capTypeEl.value;
   const laser = p === "OEM" ? laserEl.value : "none";
