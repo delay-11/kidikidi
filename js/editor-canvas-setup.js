@@ -347,10 +347,65 @@ function drawBackground() {
   const position = normalizeGradientPosition(draftGradientPosition);
   const softness = normalizeGradientSoftness(draftGradientSoftness);
 
+  // 배경을 안 정했으면 빈 곳을 체크무늬로 (스티커처럼 "투명 = 비어 있음"을 보여줌).
+  // 화면에만 보이고, 접수 이미지 · 썸네일은 따로 그려서 흰색으로 나감.
+  // 레이저(흰색 고정) 시안은 옆면 인쇄가 없어서 예전처럼 흰색.
+  if (!draftBgSet && !(typeof isLaserFixedBg === "function" && isLaserFixedBg())) {
+    drawEmptyCanvasPattern(ctx, canvasLogicalW, canvasLogicalH);
+    return;
+  }
+
   ctx.save();
   ctx.fillStyle = createBackgroundFill(ctx, canvasLogicalW, canvasLogicalH, bgType, color1, color2, direction, position, softness);
   ctx.fillRect(0, 0, canvasLogicalW, canvasLogicalH);
   ctx.restore();
+}
+
+const EMPTY_CANVAS_CELL = 10;
+
+function drawEmptyCanvasPattern(c, W, H) {
+  c.save();
+  c.fillStyle = "#ffffff";
+  c.fillRect(0, 0, W, H);
+  c.fillStyle = "#e9ebef";
+  for (let y = 0; y < H; y += EMPTY_CANVAS_CELL) {
+    for (let x = (y / EMPTY_CANVAS_CELL) % 2 ? EMPTY_CANVAS_CELL : 0; x < W; x += EMPTY_CANVAS_CELL * 2) {
+      c.fillRect(x, y, EMPTY_CANVAS_CELL, EMPTY_CANVAS_CELL);
+    }
+  }
+  c.restore();
+}
+
+/* 이미지만으로 캔버스가 꽉 덮였는지 (배경을 안 정했을 때 [시안 추가] 가능 여부)
+ * - 이미지 레이어만 투명 캔버스에 그려 보고, 덜 덮인 칸이 거의 없으면 OK
+ * - 투명 PNG의 투명한 부분은 비어 있는 것으로 봄 (실제로 흰색으로 찍힘)
+ * - 이미지를 캔버스 크기에 딱 맞춘 경우 가장자리 반 픽셀 번짐은 무시 (바깥 1칸 제외) */
+function isCanvasFullyCoveredByImages() {
+  if (typeof hasImageObject !== "function" || !hasImageObject()) return false;
+  if (typeof syncActiveImageFromLegacy === "function") syncActiveImageFromLegacy();
+
+  const W = Math.max(1, Math.round(canvasLogicalW));
+  const H = Math.max(1, Math.round(canvasLogicalH));
+  const off = document.createElement("canvas");
+  off.width = W;
+  off.height = H;
+  const c = off.getContext("2d", { willReadFrequently: true });
+  if (!c) return true;
+
+  userImages.forEach((obj) => {
+    if (obj?.img) drawTransformedImageObject(c, obj.img, obj, W / 2, H / 2);
+  });
+
+  const data = c.getImageData(0, 0, W, H).data;
+  let empty = 0;
+  let total = 0;
+  for (let y = 1; y < H - 1; y++) {
+    for (let x = 1; x < W - 1; x++) {
+      total++;
+      if (data[(y * W + x) * 4 + 3] < 250) empty++;
+    }
+  }
+  return total > 0 && empty / total < 0.002;
 }
 
 /* =========================================================
