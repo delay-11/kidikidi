@@ -327,6 +327,18 @@ function applyBgMode(mode) {
   }
 
   draftBgType = normalizeBgMode(mode);
+
+  // [단색] 버튼(또는 배경 색상 버튼)만 누른 건 "흰 배경을 골랐다"가 아님 →
+  // 배경을 아직 안 정했으면 단색 모드로만 바꾸고 배경은 그대로 비워 둠(체크무늬 유지).
+  // 실제로 색을 고르면(컬러보드 · HEX · 스포이드) applyBgColor()에서 배경이 정해짐.
+  // 예전엔 여기서 바로 흰 배경이 정해져서, [단색]만 눌러도 빈 캔버스로 시안 추가가 됐음.
+  if (draftBgType === "solid" && !draftBgSet) {
+    syncGradientUI();
+    setBgTextFromCurrentItem();
+    redraw();
+    updateActionLocks();
+    return;
+  }
   draftBgSet = true;
 
   // 그라데이션 전환 시 기본값이 비어 있으면 즉시 채워서
