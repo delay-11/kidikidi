@@ -465,6 +465,11 @@ cartListEl?.addEventListener("click", async (e) => {
       return;
     }
 
+    if (action === "duplicate") {
+      await duplicateItem(id);
+      return;
+    }
+
     if (action === "edit") {
       await selectItem(id);
       showToast("선택한 시안을 불러왔습니다.", "info", 1400);

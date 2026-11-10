@@ -443,6 +443,23 @@ fileEl?.addEventListener("change", async () => {
       return;
     }
 
+    if (isReplace && getActiveImageObject()?.img) {
+      const img = await loadImageFromFile(files[0]);
+      replaceActiveImage(img, files[0]);
+      warnLowResolutionImage(img);
+      activeObjectType = "image";
+      syncImageCountBadge(); // 아래 파일 이름도 새 파일로
+
+      redraw();
+      syncActiveItemDesign?.();
+      updateSelectedInfoText();
+      updateDraftInfo();
+      updateActionLocks();
+      clearCanvasNotice();
+      showToast("같은 위치 · 크기로 이미지를 교체했어요.", "ok");
+      return;
+    }
+
     for (const f of files) {
       const img = await loadImageFromFile(f);
       const scale = Math.max(canvasLogicalW / img.width, canvasLogicalH / img.height);
