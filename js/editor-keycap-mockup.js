@@ -195,7 +195,6 @@ function drawKeycapMockup() {
   // (예전엔 키캡 밖을 거의 가려서, 키캡 모양 안만 채우면 되는 줄 아는 경우가 있었음)
   paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY), {
     outsideAlpha: 0.42,
-    wallSource: canvas,
   });
   // 중앙 맞춤 가이드는 음영에 가려지지 않게 맨 위에
   if (typeof drawCenterGuide === "function") drawCenterGuide(c);
@@ -204,44 +203,6 @@ function drawKeycapMockup() {
 // 이미 시안이 그려진 화면 위에 키캡 음영을 얹는다. c는 논리 좌표(0~W, 0~H)로 스케일된 상태여야 한다.
 // blurScale: 그림자 blur는 transform 영향을 안 받으므로 실제 픽셀 배율을 따로 받는다.
 // opts.showSafe=false: 빨간 안전선 생략 (시안 리스트 썸네일용)
-// source: 시안이 그려진 캔버스/이미지 (논리 크기 W×H를 source.width×source.height 픽셀로 가짐)
-function paintKeycapWallsFromSource(c, W, H, shape, source) {
-  const o = shape.outerBox;
-  const i = shape.innerBox;
-  const rx = (source.width || W) / W;
-  const ry = (source.height || H) / H;
-  const iR = i.x + i.w;
-  const iB = i.y + i.h;
-  const oR = o.x + o.w;
-  const oB = o.y + o.h;
-
-  const ring = new Path2D();
-  ring.addPath(shape.outer);
-  ring.addPath(shape.inner);
-
-  // [옆면 사다리꼴, 원본에서 가져올 영역(논리 좌표), 그려 넣을 영역]
-  const walls = [
-    [[[o.x, o.y], [oR, o.y], [iR, i.y], [i.x, i.y]], [0, 0, W, i.y], [o.x, o.y, o.w, i.y - o.y]],
-    [[[o.x, oB], [oR, oB], [iR, iB], [i.x, iB]], [0, iB, W, H - iB], [o.x, iB, o.w, oB - iB]],
-    [[[o.x, o.y], [i.x, i.y], [i.x, iB], [o.x, oB]], [0, 0, i.x, H], [o.x, o.y, i.x - o.x, o.h]],
-    [[[oR, o.y], [iR, i.y], [iR, iB], [oR, oB]], [iR, 0, W - iR, H], [iR, o.y, oR - iR, o.h]],
-  ];
-
-  // 시안 캔버스는 배경(없으면 흰색)이 깔려 있어서, 빈 곳은 눌러 담아도 그대로 흰 옆면으로 보임.
-  // 윗면 둥근 모서리와 사다리꼴 사이 작은 틈은 아래 원래 시안이 비쳐 보이게 둠
-  c.save();
-  c.clip(ring, "evenodd");
-  walls.forEach(([pts, src, dst]) => {
-    if (src[2] <= 0 || src[3] <= 0 || dst[2] <= 0 || dst[3] <= 0) return;
-    c.save();
-    rectTrapezoid(c, pts);
-    c.clip();
-    c.drawImage(source, src[0] * rx, src[1] * ry, src[2] * rx, src[3] * ry, dst[0], dst[1], dst[2], dst[3]);
-    c.restore();
-  });
-  c.restore();
-}
-
 function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
   const o = shape.outerBox;
   const i = shape.innerBox;
@@ -265,12 +226,6 @@ function paintKeycapMockup(c, W, H, shape, blurScale = 1, opts = {}) {
   c.fillStyle = "#ffffff";
   c.fill(shape.outer);
   c.restore();
-
-  /* 2-1) 옆면에 실제로 찍힐 그림 보여주기
-   * 실제 인쇄에서는 윗면(안쪽 선) 바깥 ~ 캔버스 끝까지가 전부 옆면을 타고 내려가 찍힌다.
-   * 위에서 본 목업의 옆면 띠는 좁으니, 그 넓은 영역을 띠 폭에 맞게 눌러 담아 그린다.
-   * → 목업 선까지만 채운 시안은 옆면이 하얗게 비어 보이고, 캔버스를 꽉 채운 시안은 옆면까지 이어져 보임 */
-  if (opts.wallSource) paintKeycapWallsFromSource(c, W, H, shape, opts.wallSource);
 
   /* 3) 옆면: 바깥~안쪽 사이를 위/아래/좌/우 4개의 경사면으로 나눠 음영 */
   const ring = new Path2D();
@@ -503,7 +458,7 @@ function renderKeycapMockupThumb(source, profile, capType, options = {}) {
 
     c.setTransform(scale, 0, 0, scale, -crop.x * scale, -crop.y * scale);
     c.drawImage(source, 0, 0, size.w, size.h);
-    paintKeycapMockup(c, size.w, size.h, shape, scale, { showSafe: false, wallSource: source });
+    paintKeycapMockup(c, size.w, size.h, shape, scale, { showSafe: false });
 
     return { dataUrl: out.toDataURL("image/png"), aspect: crop.w / crop.h };
   } catch (e) {
