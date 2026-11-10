@@ -610,6 +610,7 @@ button:disabled {
 .toastText {
     min-width: 0;
     word-break: keep-all;
+    white-space: pre-line; /* 문구 안 \n을 줄바꿈으로 */
 }
 
 .print-guide-modal {
