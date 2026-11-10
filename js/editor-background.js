@@ -197,13 +197,28 @@ function getPickrTargetColor(target = activePickrTarget) {
   return normalizeHexInput(draftBgColor, "#ffffff");
 }
 
+/* Pickr는 코드에서 setColor(..., true)로 색만 맞춰도 "change" 이벤트를 보냄.
+ * 그 이벤트가 사용자가 고른 것처럼 처리돼서, 주문정보 입력 후 프로파일만 골라도 흰 배경(#ffffff)이
+ * 저절로 정해졌음. 코드가 색을 맞추는 동안 오는 change는 무시한다. */
+let isSyncingPickrColor = false;
+
+function setPickrColorSilently(pickr, color) {
+  if (!pickr) return;
+  isSyncingPickrColor = true;
+  try {
+    pickr.setColor(color, true);
+  } finally {
+    isSyncingPickrColor = false;
+  }
+}
+
 function setActivePickrTarget(target = "solid", anchor = bgPickBtn) {
   activePickrTarget = target;
   activePickrAnchor = anchor || bgPickBtn;
 
   if (bgPickr) {
     try {
-      bgPickr.setColor(getPickrTargetColor(target), true);
+      setPickrColorSilently(bgPickr, getPickrTargetColor(target));
     } catch (e) {
       console.warn("Pickr 색상 타깃 반영 실패:", e);
     }
@@ -676,7 +691,7 @@ function setBgUI(hex) {
 
   if (solidInlinePickr) {
     try {
-      solidInlinePickr.setColor(v, true);
+      setPickrColorSilently(solidInlinePickr, v);
     } catch (e) {
       console.warn("인라인 Pickr 색상 반영 실패:", e);
     }
@@ -684,7 +699,7 @@ function setBgUI(hex) {
 
   if (bgPickr && activePickrTarget === "solid") {
     try {
-      bgPickr.setColor(v, true);
+      setPickrColorSilently(bgPickr, v);
     } catch (e) {
       console.warn("Pickr 색상 반영 실패:", e);
     }
@@ -1149,6 +1164,7 @@ function initPickr() {
   });
 
   bgPickr.on("change", (color) => {
+    if (isSyncingPickrColor) return; // 코드가 색을 맞추는 중 (사용자가 고른 게 아님)
     if (uiLocked || !color) return;
     if (!validateUserInfo(false)) return;
     if (isLaserFixedBg()) return;
