@@ -454,7 +454,8 @@ body.kidikidiBootstrap .pill #openPrintGuideBtn {
 
     body.kidikidiBootstrap #toolImage .uploadRow #fileBtn,
     body.kidikidiBootstrap #toolImage .uploadRow #fileDelBtn,
-    body.kidikidiBootstrap #toolImage .uploadRow #fileReplaceBtn {
+    body.kidikidiBootstrap #toolImage .uploadRow #fileReplaceBtn,
+    body.kidikidiBootstrap #toolImage .uploadRow #canvasResetBtn {
         display: inline-flex !important;
         flex: 0 0 auto !important;
         align-items: center;

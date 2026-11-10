@@ -236,6 +236,7 @@ function setAllLocked(locked) {
     fileBtn,
     fileDelBtn,
     fileReplaceBtn,
+    canvasResetBtn,
     imageCenterBtn,
     bgPickBtn,
     bgEyeBtn,
@@ -328,6 +329,7 @@ function updateActionLocks() {
     if (fileEl) fileEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
     if (fileReplaceBtn) fileReplaceBtn.disabled = true;
+    if (canvasResetBtn) canvasResetBtn.disabled = true;
     if (imageCenterBtn) imageCenterBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
@@ -364,6 +366,7 @@ function updateActionLocks() {
     if (fileEl) fileEl.disabled = true;
     if (fileDelBtn) fileDelBtn.disabled = true;
     if (fileReplaceBtn) fileReplaceBtn.disabled = true;
+    if (canvasResetBtn) canvasResetBtn.disabled = true;
     if (imageCenterBtn) imageCenterBtn.disabled = true;
     if (bgPickBtn) bgPickBtn.disabled = true;
     if (bgEyeBtn) bgEyeBtn.disabled = true;
@@ -405,6 +408,7 @@ function updateActionLocks() {
   if (fileEl) fileEl.disabled = false;
   if (fileDelBtn) fileDelBtn.disabled = false;
   if (fileReplaceBtn) fileReplaceBtn.disabled = false;
+  if (canvasResetBtn) canvasResetBtn.disabled = false;
   if (imageCenterBtn) imageCenterBtn.disabled = false;
   if (bgPickBtn) bgPickBtn.disabled = false;
   if (bgEyeBtn) bgEyeBtn.disabled = false;
@@ -446,6 +450,15 @@ function updateActionLocks() {
     if (fileDelBtn) fileDelBtn.disabled = true;
     if (fileReplaceBtn) fileReplaceBtn.disabled = true;
     if (imageCenterBtn) imageCenterBtn.disabled = true;
+  }
+
+  // [초기화]는 캔버스에 뭔가(이미지 · 텍스트 · 배경) 있을 때만
+  if (canvasResetBtn) {
+    const hasAnything =
+      (typeof hasImageObject === "function" && hasImageObject()) ||
+      (typeof hasTextObject === "function" && hasTextObject()) ||
+      !!draftBgSet;
+    canvasResetBtn.disabled = !hasAnything;
   }
 
   if (btnAddItemEl) {

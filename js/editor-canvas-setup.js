@@ -350,6 +350,7 @@ function drawBackground() {
   // 배경을 안 정했으면 빈 곳을 체크무늬로 (스티커처럼 "투명 = 비어 있음"을 보여줌).
   // 화면에만 보이고, 접수 이미지 · 썸네일은 따로 그려서 흰색으로 나감.
   // 레이저(흰색 고정) 시안은 옆면 인쇄가 없어서 예전처럼 흰색.
+  if (typeof syncBgUnsetUI === "function") syncBgUnsetUI();
   if (!draftBgSet && !(typeof isLaserFixedBg === "function" && isLaserFixedBg())) {
     drawEmptyCanvasPattern(ctx, canvasLogicalW, canvasLogicalH);
     return;

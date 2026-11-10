@@ -74,7 +74,7 @@ button:disabled {
     align-items: center;
 }
 
-#fileBtn, #fileDelBtn, #fileReplaceBtn {
+#fileBtn, #fileDelBtn, #fileReplaceBtn, #canvasResetBtn {
     width: fit-content !important;
     min-width: 0;
     flex: 0 0 auto;

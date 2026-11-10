@@ -276,6 +276,7 @@
     .imageToolActions #fileBtn,
     .imageToolActions #fileDelBtn,
     .imageToolActions #fileReplaceBtn,
+    .imageToolActions #canvasResetBtn,
     .imageToolActions #imageCenterBtn,
     #textApplyBtn,
     #textClearBtn {

@@ -528,6 +528,88 @@ imageCenterBtn?.addEventListener(
   true,
 );
 
+/* =========================================================
+ * 캔버스 초기화: 이미지 · 텍스트 · 배경을 모두 비워 체크무늬(빈 캔버스) 상태로
+ * - 몇 초 동안 [되돌리기]로 바로 전 상태를 되살릴 수 있음
+========================================================= */
+canvasResetBtn?.addEventListener(
+  "click",
+  async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    clearCanvasNotice();
+    setMobileEyedropperMode(false);
+    if (await applyConfirmedLockIfNeeded(true)) return;
+
+    syncActiveImageFromLegacy();
+    const snapshot = {
+      images: (Array.isArray(userImages) ? userImages : []).map((o) => ({ ...o })),
+      activeImageIndex,
+      texts: (Array.isArray(textObjects) ? textObjects : []).map((o) => ({ ...o })),
+      activeTextIndex,
+      activeObjectType,
+      bg: {
+        set: draftBgSet,
+        type: draftBgType,
+        color: draftBgColor,
+        color2: draftBgColor2,
+        direction: draftBgDirection,
+        position: draftGradientPosition,
+        softness: draftGradientSoftness,
+      },
+    };
+
+    const restoreLayers = (images, imgIdx, texts, txtIdx, objType) => {
+      userImages = images;
+      setActiveImageIndex(images.length ? Math.min(Math.max(imgIdx, 0), images.length - 1) : -1);
+      textObjects = texts;
+      setActiveTextIndex(texts.length ? Math.min(Math.max(txtIdx, 0), texts.length - 1) : -1);
+      activeObjectType = objType;
+    };
+
+    const setBgDraft = (bg) => {
+      draftBgSet = bg.set;
+      draftBgType = bg.type;
+      draftBgColor = bg.color;
+      draftBgColor2 = bg.color2;
+      draftBgDirection = bg.direction;
+      draftGradientPosition = bg.position;
+      draftGradientSoftness = bg.softness;
+    };
+
+    const refreshAll = () => {
+      syncImageCountBadge();
+      syncTextCountBadge?.();
+      syncTextUI?.();
+      setBgUI(draftBgColor || "#ffffff");
+      syncGradientUI?.();
+      redraw();
+      syncActiveItemDesign?.();
+      setBgTextFromCurrentItem?.();
+      updateSelectedInfoText();
+      updateDraftInfo();
+      updateActionLocks();
+    };
+
+    // 비우기
+    restoreLayers([], -1, [], -1, null);
+    setBgDraft({ set: false, type: "solid", color: "#ffffff", color2: "#fdcc63", direction: "to-right", position: 0.5, softness: 1 });
+    refreshAll();
+
+    showToast("캔버스를 초기화했어요. (이미지 · 텍스트 · 배경)", "info", 5000, {
+      actionLabel: "되돌리기",
+      onAction: () => {
+        restoreLayers(snapshot.images, snapshot.activeImageIndex, snapshot.texts, snapshot.activeTextIndex, snapshot.activeObjectType);
+        setBgDraft(snapshot.bg);
+        refreshAll();
+        showToast("초기화 전으로 되돌렸어요.", "ok", 1600);
+      },
+    });
+  },
+  true,
+);
+
 fileDelBtn?.addEventListener(
   "click",
   async (e) => {

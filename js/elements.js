@@ -55,6 +55,7 @@ const fileBtn = $("fileBtn");
 const fileDelBtn = $("fileDelBtn");
 const imageCenterBtn = $("imageCenterBtn");
 const fileReplaceBtn = $("fileReplaceBtn");
+const canvasResetBtn = $("canvasResetBtn");
 const fileNameEl = $("fileName");
 const imageCountBadgeEl = $("imageCountBadge");
 
