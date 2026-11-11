@@ -31,18 +31,18 @@
     <link href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css" rel="stylesheet" />
     <!-- CSS -->
     <!-- 각 CSS/JS 뒤의 ?v=버전 : 배포 후에도 브라우저가 예전 파일을 쓰는 것을 막음. 버전을 올릴 때 같이 바꿔 주세요. -->
-    <link href="./css/base.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/layout.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/ui.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/color-picker.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/editor.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/design-list.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/bootstrap-wizard.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/bootstrap-wizard-overrides.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/editor-tour.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/responsive.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/responsive-editor.css?v=3.4.4-2" rel="stylesheet" />
-    <link href="./css/mobile-editor-sheet.css?v=3.4.4-2" rel="stylesheet" />
+    <link href="./css/base.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/layout.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/ui.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/color-picker.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/editor.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/design-list.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/bootstrap-wizard.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/bootstrap-wizard-overrides.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/editor-tour.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/responsive.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/responsive-editor.css?v=3.4.5" rel="stylesheet" />
+    <link href="./css/mobile-editor-sheet.css?v=3.4.5" rel="stylesheet" />
 
     <!-- Pickr JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
@@ -60,9 +60,6 @@
             <div class="headerBrand">
                 <img alt="KidiKidi" class="headerLogo" height="24" src="./image/favicon.png" width="24" />
                 <h1 class="systemName">키캡 시안 제작 시스템</h1>
-            </div>
-            <div class="headerVersion">
-                v3.4.4
             </div>
         </div>
     </header>
@@ -628,7 +625,7 @@
     <footer class="footer">
         <div class="footerInner">
             <div class="footerLeft">
-                © 2026 KidiKidi
+                © 2026 KidiKidi <span class="footerVersion">v3.4.5</span>
             </div>
             <div class="footerRight">
                 본 제작 시스템 및 디자인 툴은 KidiKidi의 자산입니다.<br />
@@ -712,9 +709,9 @@
                     <li class="guideStep">
                         <div class="guideStep__head"><span class="guideStep__num">2</span><strong>배경은 캔버스 끝까지</strong></div>
                         <div class="guideStep__pair">
-                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="nofill" data-view="flat"></canvas></figure>
+                            <figure><span class="guideTag">시안 배치</span><canvas data-placement-example="fullbg" data-view="flat"></canvas></figure>
                             <span aria-hidden="true" class="guideStep__arrow"></span>
-                            <figure><span class="guideTag">목업</span><canvas data-placement-example="nofill" data-view="mockup"></canvas></figure>
+                            <figure><span class="guideTag">목업</span><canvas data-placement-example="fullbg" data-view="mockup"></canvas></figure>
                         </div>
                     </li>
                     <li class="guideStep">
@@ -749,38 +746,38 @@
     <script crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script src="./js/constants.js?v=3.4.4-2"></script>
-    <script src="./js/utils.js?v=3.4.4-2"></script>
-    <script src="./js/toast.js?v=3.4.4-2"></script>
-    <script src="./js/tooltip.js?v=3.4.4-2"></script>
-    <script src="./js/email-core.js?v=3.4.4-2"></script>
-    <script src="./js/modal.js?v=3.4.4-2"></script>
-    <script src="./js/elements.js?v=3.4.4-2"></script>
-    <script src="./js/state.js?v=3.4.4-2"></script>
-    <script src="./js/validation.js?v=3.4.4-2"></script>
-    <script src="./js/email-domain-suggest.js?v=3.4.4-2"></script>
-    <script src="./js/order-info.js?v=3.4.4-2"></script>
-    <script src="./js/editor-canvas-setup.js?v=3.4.4-2"></script>
-    <script src="./js/editor-keycap-mockup.js?v=3.4.4-2"></script>
-    <script src="./js/editor-background.js?v=3.4.4-2"></script>
-    <script src="./js/editor-text.js?v=3.4.4-2"></script>
-    <script src="./js/editor-image.js?v=3.4.4-2"></script>
-    <script src="./js/editor-object-transform.js?v=3.4.4-2"></script>
-    <script src="./js/editor-layers.js?v=3.4.4-2"></script>
-    <script src="./js/editor-pointer-events.js?v=3.4.4-2"></script>
-    <script src="./js/editor-item-io.js?v=3.4.4-2"></script>
-    <script src="./js/editor-image-size.js?v=3.4.4-2"></script>
-    <script src="./js/draft-storage.js?v=3.4.4-2"></script>
-    <script src="./js/design-list.js?v=3.4.4-2"></script>
-    <script src="./js/email-attachments.js?v=3.4.4-2"></script>
-    <script src="./js/email-summary.js?v=3.4.4-2"></script>
-    <script src="./js/email-send.js?v=3.4.4-2"></script>
-    <script src="./js/print-guide-modal.js?v=3.4.4-2"></script>
-    <script src="./js/profile-helper.js?v=3.4.4-2"></script>
-    <script src="./js/mobile-editor-sheet.js?v=3.4.4-2"></script>
-    <script src="./js/inline-text-editor.js?v=3.4.4-2"></script>
-    <script src="./js/editor-onboarding-tour.js?v=3.4.4-2"></script>
-    <script src="./js/app.js?v=3.4.4-2"></script>
+    <script src="./js/constants.js?v=3.4.5"></script>
+    <script src="./js/utils.js?v=3.4.5"></script>
+    <script src="./js/toast.js?v=3.4.5"></script>
+    <script src="./js/tooltip.js?v=3.4.5"></script>
+    <script src="./js/email-core.js?v=3.4.5"></script>
+    <script src="./js/modal.js?v=3.4.5"></script>
+    <script src="./js/elements.js?v=3.4.5"></script>
+    <script src="./js/state.js?v=3.4.5"></script>
+    <script src="./js/validation.js?v=3.4.5"></script>
+    <script src="./js/email-domain-suggest.js?v=3.4.5"></script>
+    <script src="./js/order-info.js?v=3.4.5"></script>
+    <script src="./js/editor-canvas-setup.js?v=3.4.5"></script>
+    <script src="./js/editor-keycap-mockup.js?v=3.4.5"></script>
+    <script src="./js/editor-background.js?v=3.4.5"></script>
+    <script src="./js/editor-text.js?v=3.4.5"></script>
+    <script src="./js/editor-image.js?v=3.4.5"></script>
+    <script src="./js/editor-object-transform.js?v=3.4.5"></script>
+    <script src="./js/editor-layers.js?v=3.4.5"></script>
+    <script src="./js/editor-pointer-events.js?v=3.4.5"></script>
+    <script src="./js/editor-item-io.js?v=3.4.5"></script>
+    <script src="./js/editor-image-size.js?v=3.4.5"></script>
+    <script src="./js/draft-storage.js?v=3.4.5"></script>
+    <script src="./js/design-list.js?v=3.4.5"></script>
+    <script src="./js/email-attachments.js?v=3.4.5"></script>
+    <script src="./js/email-summary.js?v=3.4.5"></script>
+    <script src="./js/email-send.js?v=3.4.5"></script>
+    <script src="./js/print-guide-modal.js?v=3.4.5"></script>
+    <script src="./js/profile-helper.js?v=3.4.5"></script>
+    <script src="./js/mobile-editor-sheet.js?v=3.4.5"></script>
+    <script src="./js/inline-text-editor.js?v=3.4.5"></script>
+    <script src="./js/editor-onboarding-tour.js?v=3.4.5"></script>
+    <script src="./js/app.js?v=3.4.5"></script>
 </body>
 
 </html>

@@ -260,9 +260,10 @@ function makeCartThumb(item) {
   if (mockupUrl) {
     const aspect = Number(item.design.mockupThumbAspect) || 1;
     const isWide = aspect >= 2;
+    // 썸네일 칸의 남는 부분도 시안 배경색으로 채워서 여백이 배경과 이어지게
     const style = isWide
-      ? `aspect-ratio:${aspect.toFixed(3)};width:min(100%, ${Math.round(aspect * 60)}px);`
-      : `aspect-ratio:${aspect.toFixed(3)};height:64px;width:auto;`;
+      ? `aspect-ratio:${aspect.toFixed(3)};width:min(100%, ${Math.round(aspect * 60)}px);background:${bg};`
+      : `aspect-ratio:${aspect.toFixed(3)};height:64px;width:auto;background:${bg};`;
     return `
       <div class="cartThumb cartThumbMockup${isWide ? " is-wide" : ""}" style="${style}">
         <img src="${mockupUrl}" alt="시안 키캡 목업" />
@@ -298,8 +299,14 @@ function makeCartThumb(item) {
 ========================================================= */
 function buildCartItemHtml(item) {
   const activeClass = selectedItemId === item.id ? " selected" : "";
+  // 스페이스바처럼 아주 긴 키는 시안 확인 화면(2열)에서 한 줄 전체를 차지
+  // 2.25U · 스페이스바처럼 넓은 키는 폭이 좁은 모바일에서만 한 줄 전체 (PC는 2열 그대로)
+  const thumbAspect = Number(item?.design?.mockupThumbAspect) || 0;
+  const fullRowClass = thumbAspect >= 2 ? " cartWideRow" : "";
   const title = `${safeTrim(item.profile) || "-"} / ${getCapTypeDisplayName(item.capType)}`;
   const laserText = labelLaser(item);
+  // 레이저 없음이면 줄 자체를 빼기
+  const laserLine = laserText && laserText !== "레이저 없음" ? `<span>${escapeHtml(laserText)}</span>` : "";
   const qtyNum = normalizeQty(item.qty ?? 1);
   const bg = getItemBgLabel?.(item) || getItemBgColor(item);
   const textCount = Array.isArray(item?.design?.texts)
@@ -314,14 +321,25 @@ function buildCartItemHtml(item) {
   const bgLine = bgText && bgText !== "-" ? `<span class="cartBgMeta">${escapeHtml(bgText)}</span>` : "";
 
   return `
-    <div class="cartItem cartDesignCard${activeClass}" data-id="${escapeHtml(item.id)}">
+    <div class="cartItem cartDesignCard${activeClass}${fullRowClass}" data-id="${escapeHtml(item.id)}">
       <div class="cartTop">
         ${makeCartThumb(item)}
 
         <div class="cartBody">
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
+          <!-- 시안 확인 / 확정 화면 전용 [수정] · [삭제] (CSS로 그 화면에서만 보임) -->
+          <div class="cartMiniActions">
+            <button type="button" class="cartMiniBtn" data-action="edit" data-id="${escapeHtml(item.id)}">
+              <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5l2 2L6 12l-2.8.8L4 10z"/></svg>
+              수정
+            </button>
+            <button type="button" class="cartMiniBtn is-delete" data-action="delete" data-id="${escapeHtml(item.id)}">
+              <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9"/></svg>
+              삭제
+            </button>
+          </div>
           <div class="cartMeta cartMetaStack">
-            <span>${escapeHtml(laserText)}</span>
+            ${laserLine}
             ${bgLine}
             <span>${escapeHtml(designText)}</span>
           </div>

@@ -57,23 +57,16 @@
     return { profile, capType };
   };
 
-  // kind: good(안전선 안) / nofill(배경을 윗면만) / bad(옆면까지 넘침)
+  // kind: good(빨간선 안, 배경 없음) / fullbg(배경을 캔버스 끝까지) / bad(옆면까지 넘침)
   const drawExampleDesign = (c, W, H, shape, kind) => {
     const o = shape.outerBox;
     const i = shape.innerBox;
     const cx = W / 2;
     const cy = H / 2;
 
-    if (kind === "nofill") {
-      c.fillStyle = "#ffffff";
-      c.fillRect(0, 0, W, H);
-      c.fillStyle = EXAMPLE_BG;
-      if (shape.isMao) c.fill(shape.inner);
-      else c.fillRect(i.x - 3, i.y - 3, i.w + 6, i.h + 6);
-    } else {
-      c.fillStyle = EXAMPLE_BG;
-      c.fillRect(0, 0, W, H);
-    }
+    // 1번은 그림 위치만 보이게 배경 없이(흰색), 2·3번은 배경을 캔버스 끝까지 꽉 채움
+    c.fillStyle = kind === "good" ? "#ffffff" : EXAMPLE_BG;
+    c.fillRect(0, 0, W, H);
 
     if (!exampleLogo.complete || !exampleLogo.naturalWidth) return;
     // 로고 png는 둘레에 여백이 있어 그림 자체는 지정 크기의 약 80%
@@ -122,7 +115,8 @@
       drawExampleDesign(c, size.w, size.h, shape, el.dataset.placementExample);
 
       if (el.dataset.view === "mockup") {
-        paintKeycapMockup(c, size.w, size.h, shape, scale);
+        // 키캡 밖(캔버스 부분)도 배경색 그대로
+        paintKeycapMockup(c, size.w, size.h, shape, scale, { outsideAlpha: 0 });
         if (shape.isMao) strokeSafeLine(c, shape, profile);
       } else {
         c.save();

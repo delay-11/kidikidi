@@ -191,10 +191,10 @@ function drawKeycapMockup() {
   const shape = getKeycapMockupShape();
   if (!shape) return;
 
-  // 에디터에서는 키캡 밖도 시안이 비쳐 보이게 옅게만 덮고, "여기도 옆면에 인쇄된다"는 표시를 함께 그림
-  // (예전엔 키캡 밖을 거의 가려서, 키캡 모양 안만 채우면 되는 줄 아는 경우가 있었음)
+  // 에디터에서는 키캡 밖(캔버스 부분)도 덮지 않고 실제 배경색 그대로 보여줌
+  // (예전엔 옅게 덮어서 배경색보다 연한 색으로 보였음)
   paintKeycapMockup(c, canvasLogicalW, canvasLogicalH, shape, Math.min(scale.scaleX, scale.scaleY), {
-    outsideAlpha: 0.42,
+    outsideAlpha: 0,
   });
   // 중앙 맞춤 가이드는 음영에 가려지지 않게 맨 위에
   if (typeof drawCenterGuide === "function") drawCenterGuide(c);
@@ -458,7 +458,8 @@ function renderKeycapMockupThumb(source, profile, capType, options = {}) {
 
     c.setTransform(scale, 0, 0, scale, -crop.x * scale, -crop.y * scale);
     c.drawImage(source, 0, 0, size.w, size.h);
-    paintKeycapMockup(c, size.w, size.h, shape, scale, { showSafe: false });
+    // 키캡 바깥(여백)도 캔버스처럼 실제 배경색 그대로
+    paintKeycapMockup(c, size.w, size.h, shape, scale, { showSafe: false, outsideAlpha: 0 });
 
     return { dataUrl: out.toDataURL("image/png"), aspect: crop.w / crop.h };
   } catch (e) {
