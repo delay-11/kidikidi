@@ -315,14 +315,14 @@ body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
 }
 
 /* 시안 확인 / 확정 화면 전용 요소: 다른 화면에서는 숨김 */
-.cartIndex,
 .cartMiniActions {
     display: none;
 }
 
 /* =========================================================
  * 시안 확인 / 확정 화면: 간단 카드, PC · 모바일 모두 한 줄에 2개씩
- * - [목업 타일] [시안 n / 프로파일·규격 / 수정 · 삭제] [− n +]
+ * - [목업 타일] [프로파일·규격 / 수정 · 삭제] [− n +]
+ * - 목업 타일의 여백은 시안 배경색 (캔버스처럼)
  * - 목업은 같은 크기 타일 안에 맞춰서 카드마다 글자 줄이 같은 위치에 오도록
  * - 레이저 · 배경 · 디자인 정보, 큰 [수정] · [복제], 수량 줄의 ×는 숨김
  * - 2.25U · 스페이스바 같은 넓은 키(.cartWideRow)는 모바일에서만 한 줄 전체
@@ -397,7 +397,8 @@ body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup.is-wide {
     min-width: 0;
     margin: 0;
     aspect-ratio: auto !important;
-    padding: 4px;
+    padding: 0;
+    overflow: hidden;
     border: 0;
     border-radius: 12px;
     background: #f4f5f7;
@@ -416,15 +417,6 @@ body[data-step="confirm"] .cartDesignCard .cartBody {
     flex: 1 1 auto !important;
     min-width: 0;
     width: auto;
-}
-
-body[data-step="confirm"] .cartDesignCard .cartIndex {
-    display: block;
-    margin-bottom: 1px;
-    color: var(--muted);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
 }
 
 body[data-step="confirm"] .cartDesignCard .cartTitle {
@@ -471,11 +463,11 @@ body[data-step="confirm"] .cartDesignCard .cartMiniBtn:hover {
 }
 
 body[data-step="confirm"] .cartDesignCard .cartMiniBtn.is-delete {
-    color: var(--muted);
+    color: var(--bad);
 }
 
 body[data-step="confirm"] .cartDesignCard .cartMiniBtn.is-delete:hover {
-    background: rgba(217, 45, 32, 0.06);
+    background: rgba(217, 45, 32, 0.08);
     color: var(--bad);
 }
 

@@ -458,8 +458,8 @@ function renderKeycapMockupThumb(source, profile, capType, options = {}) {
 
     c.setTransform(scale, 0, 0, scale, -crop.x * scale, -crop.y * scale);
     c.drawImage(source, 0, 0, size.w, size.h);
-    // 키캡 바깥은 배경색이 비치지 않게 완전히 덮음 (희미한 테두리처럼 보여 키캡 경계가 애매했음)
-    paintKeycapMockup(c, size.w, size.h, shape, scale, { showSafe: false, outsideAlpha: 1 });
+    // 키캡 바깥(여백)도 캔버스처럼 실제 배경색 그대로
+    paintKeycapMockup(c, size.w, size.h, shape, scale, { showSafe: false, outsideAlpha: 0 });
 
     return { dataUrl: out.toDataURL("image/png"), aspect: crop.w / crop.h };
   } catch (e) {

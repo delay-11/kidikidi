@@ -260,9 +260,10 @@ function makeCartThumb(item) {
   if (mockupUrl) {
     const aspect = Number(item.design.mockupThumbAspect) || 1;
     const isWide = aspect >= 2;
+    // 썸네일 칸의 남는 부분도 시안 배경색으로 채워서 여백이 배경과 이어지게
     const style = isWide
-      ? `aspect-ratio:${aspect.toFixed(3)};width:min(100%, ${Math.round(aspect * 60)}px);`
-      : `aspect-ratio:${aspect.toFixed(3)};height:64px;width:auto;`;
+      ? `aspect-ratio:${aspect.toFixed(3)};width:min(100%, ${Math.round(aspect * 60)}px);background:${bg};`
+      : `aspect-ratio:${aspect.toFixed(3)};height:64px;width:auto;background:${bg};`;
     return `
       <div class="cartThumb cartThumbMockup${isWide ? " is-wide" : ""}" style="${style}">
         <img src="${mockupUrl}" alt="시안 키캡 목업" />
@@ -296,7 +297,7 @@ function makeCartThumb(item) {
 /* =========================================================
  * 장바구니 1개 카드 HTML
 ========================================================= */
-function buildCartItemHtml(item, index = 0) {
+function buildCartItemHtml(item) {
   const activeClass = selectedItemId === item.id ? " selected" : "";
   // 스페이스바처럼 아주 긴 키는 시안 확인 화면(2열)에서 한 줄 전체를 차지
   // 2.25U · 스페이스바처럼 넓은 키는 폭이 좁은 모바일에서만 한 줄 전체 (PC는 2열 그대로)
@@ -325,7 +326,6 @@ function buildCartItemHtml(item, index = 0) {
         ${makeCartThumb(item)}
 
         <div class="cartBody">
-          <div class="cartIndex">시안 ${index + 1}</div>
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
           <!-- 시안 확인 / 확정 화면 전용 [수정] · [삭제] (CSS로 그 화면에서만 보임) -->
           <div class="cartMiniActions">
