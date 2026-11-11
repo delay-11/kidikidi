@@ -298,6 +298,8 @@ function makeCartThumb(item) {
 ========================================================= */
 function buildCartItemHtml(item) {
   const activeClass = selectedItemId === item.id ? " selected" : "";
+  // 스페이스바처럼 아주 긴 키는 시안 확인 화면(2열)에서 한 줄 전체를 차지
+  const fullRowClass = Number(item?.design?.mockupThumbAspect) >= 4 ? " cartFullRow" : "";
   const title = `${safeTrim(item.profile) || "-"} / ${getCapTypeDisplayName(item.capType)}`;
   const laserText = labelLaser(item);
   const qtyNum = normalizeQty(item.qty ?? 1);
@@ -314,7 +316,7 @@ function buildCartItemHtml(item) {
   const bgLine = bgText && bgText !== "-" ? `<span class="cartBgMeta">${escapeHtml(bgText)}</span>` : "";
 
   return `
-    <div class="cartItem cartDesignCard${activeClass}" data-id="${escapeHtml(item.id)}">
+    <div class="cartItem cartDesignCard${activeClass}${fullRowClass}" data-id="${escapeHtml(item.id)}">
       <div class="cartTop">
         ${makeCartThumb(item)}
 

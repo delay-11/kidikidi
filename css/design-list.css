@@ -325,7 +325,8 @@ body.kidikidiBootstrap[data-step="confirm"] .cartList {
     align-items: stretch;
 }
 
-body[data-step="confirm"] .cartList > .cartEmpty {
+body[data-step="confirm"] .cartList > .cartEmpty,
+body[data-step="confirm"] .cartList > .cartFullRow {
     grid-column: 1 / -1;
 }
 
