@@ -313,3 +313,136 @@ body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
     padding: 0 4px !important;
     border-radius: 8px !important;
 }
+
+/* =========================================================
+ * 시안 확인 / 확정 화면: PC · 모바일 모두 한 줄에 2개씩
+ * - 카드 폭이 좁아지므로 썸네일을 위, 정보를 아래로 세로 배치
+ * - [수정] [복제]는 반반, 수량 줄은 아래 한 줄 전체
+========================================================= */
+body[data-step="confirm"] .cartList,
+body.kidikidiBootstrap[data-step="confirm"] .cartList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
+}
+
+body[data-step="confirm"] .cartList > .cartEmpty {
+    grid-column: 1 / -1;
+}
+
+body[data-step="confirm"] .cartDesignCard {
+    position: relative;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartTop {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    align-items: stretch;
+    gap: 10px;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartThumb {
+    align-self: center;
+    margin: 0 22px;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartThumb:not(.cartThumbMockup) {
+    width: 72px;
+    height: 72px;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup:not(.is-wide) {
+    height: 72px !important;
+    max-width: 100%;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup.is-wide {
+    max-width: calc(100% - 44px);
+}
+
+body[data-step="confirm"] .cartDesignCard .cartBody {
+    width: 100%;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartTitle {
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+
+body[data-step="confirm"] .cartCardActions {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+}
+
+body[data-step="confirm"] .cartCardActions .cartEditBtn {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    padding: 0 6px;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartQtyRow {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    display: flex;
+    gap: 4px;
+}
+
+body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn {
+    flex: 0 0 auto;
+    width: 30px;
+    min-width: 30px;
+}
+
+body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartQtyInput {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+}
+
+/* 삭제(x)는 카드 오른쪽 위로 빼서 좁은 카드에서도 수량칸 폭 확보 */
+body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn.delete {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 26px;
+    min-width: 26px;
+    height: 26px !important;
+    min-height: 26px !important;
+}
+
+@media (max-width: 480px) {
+    body[data-step="confirm"] .cartList,
+    body.kidikidiBootstrap[data-step="confirm"] .cartList {
+        gap: 8px;
+    }
+
+    body[data-step="confirm"] .cartDesignCard,
+    body.kidikidiBootstrap[data-step="confirm"] .cartDesignCard {
+        padding: 10px;
+        gap: 8px;
+    }
+
+    body.kidikidiBootstrap[data-step="confirm"] .cartStepFrame {
+        padding: 12px;
+    }
+
+    body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn {
+        width: 28px;
+        min-width: 28px;
+    }
+
+    body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn.delete {
+        top: 6px;
+        right: 6px;
+        width: 24px;
+        min-width: 24px;
+        height: 24px !important;
+        min-height: 24px !important;
+    }
+}
