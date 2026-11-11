@@ -257,7 +257,7 @@ body[data-step="confirm"] .cartCardActions {
 .cartDesignCard .cartThumb.cartThumbMockup {
     min-width: 28px;
     max-width: 96px;
-    border-color: var(--gray-200);
+    border-color: transparent;
     background: #f4f5f7;
 }
 
@@ -356,8 +356,23 @@ body[data-step="confirm"] .cartDesignCard .cartThumb:not(.cartThumbMockup) {
 }
 
 body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup:not(.is-wide) {
-    height: 72px !important;
+    height: 104px !important;
     max-width: 100%;
+}
+
+/* 넓은 키(2.25U 등)도 확인 화면에서는 조금 크게 */
+body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup.is-wide {
+    width: 100% !important;
+}
+
+@media (max-width: 480px) {
+    body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup:not(.is-wide) {
+        height: 84px !important;
+    }
+
+    body[data-step="confirm"] .cartList > .cartWideRow {
+        grid-column: 1 / -1;
+    }
 }
 
 body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup.is-wide {

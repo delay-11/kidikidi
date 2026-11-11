@@ -57,33 +57,16 @@
     return { profile, capType };
   };
 
-  // kind: good(안전선 안) / nofill(배경을 캔버스 끝까지 안 채움) / bad(옆면까지 넘침)
+  // kind: good(빨간선 안, 배경 없음) / fullbg(배경을 캔버스 끝까지) / bad(옆면까지 넘침)
   const drawExampleDesign = (c, W, H, shape, kind) => {
     const o = shape.outerBox;
     const i = shape.innerBox;
     const cx = W / 2;
     const cy = H / 2;
 
-    if (kind === "nofill") {
-      // 배경을 윗면보다 조금만 넓게, 둥근 사각형으로만 칠함
-      // → 목업 옆면에 둥근 경계선이 보이고 그 바깥(모서리 쪽 옆면)은 흰색 = 인쇄 안 된 부분
-      c.fillStyle = "#ffffff";
-      c.fillRect(0, 0, W, H);
-      const t = 0.8; // 윗면(0) ~ 키캡 바깥(1) 사이 어디까지 칠할지
-      const x = i.x + (o.x - i.x) * t;
-      const y = i.y + (o.y - i.y) * t;
-      const w = i.w + (o.w - i.w) * t;
-      const h = i.h + (o.h - i.h) * t;
-      const r = Math.min(w, h) * 0.3;
-      c.fillStyle = EXAMPLE_BG;
-      c.beginPath();
-      if (typeof c.roundRect === "function") c.roundRect(x, y, w, h, r);
-      else c.rect(x, y, w, h);
-      c.fill();
-    } else {
-      c.fillStyle = EXAMPLE_BG;
-      c.fillRect(0, 0, W, H);
-    }
+    // 1번은 그림 위치만 보이게 배경 없이(흰색), 2·3번은 배경을 캔버스 끝까지 꽉 채움
+    c.fillStyle = kind === "good" ? "#ffffff" : EXAMPLE_BG;
+    c.fillRect(0, 0, W, H);
 
     if (!exampleLogo.complete || !exampleLogo.naturalWidth) return;
     // 로고 png는 둘레에 여백이 있어 그림 자체는 지정 크기의 약 80%
