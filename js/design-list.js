@@ -299,9 +299,9 @@ function makeCartThumb(item) {
 function buildCartItemHtml(item) {
   const activeClass = selectedItemId === item.id ? " selected" : "";
   // 스페이스바처럼 아주 긴 키는 시안 확인 화면(2열)에서 한 줄 전체를 차지
-  // 2.25U처럼 넓은 키는 폭이 좁은 모바일에서만 한 줄 전체 (PC는 2열 그대로)
+  // 2.25U · 스페이스바처럼 넓은 키는 폭이 좁은 모바일에서만 한 줄 전체 (PC는 2열 그대로)
   const thumbAspect = Number(item?.design?.mockupThumbAspect) || 0;
-  const fullRowClass = thumbAspect >= 4 ? " cartFullRow" : thumbAspect >= 2 ? " cartWideRow" : "";
+  const fullRowClass = thumbAspect >= 2 ? " cartWideRow" : "";
   const title = `${safeTrim(item.profile) || "-"} / ${getCapTypeDisplayName(item.capType)}`;
   const laserText = labelLaser(item);
   // 레이저 없음이면 줄 자체를 빼기
