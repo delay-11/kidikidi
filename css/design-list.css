@@ -317,7 +317,7 @@ body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
 /* =========================================================
  * 시안 확인 / 확정 화면: PC · 모바일 모두 한 줄에 2개씩
  * - 카드 폭이 좁아지므로 썸네일을 위, 정보를 아래로 세로 배치
- * - [수정] [복제]는 반반, 수량 줄은 아래 한 줄 전체
+ * - [수정] 한 줄, 수량 줄은 아래 한 줄 전체 ([복제]는 숨김)
 ========================================================= */
 body[data-step="confirm"] .cartList,
 body.kidikidiBootstrap[data-step="confirm"] .cartList {
@@ -377,6 +377,15 @@ body[data-step="confirm"] .cartCardActions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 6px;
+}
+
+/* 확인 / 확정 화면에서는 [복제] 숨김 → [수정]이 한 줄 전체 (시안 제작 화면 리스트에는 그대로) */
+body[data-step="confirm"] .cartCardActions .cartDuplicateBtn {
+    display: none;
+}
+
+body[data-step="confirm"] .cartCardActions .cartEditBtn:not(.cartDuplicateBtn) {
+    grid-column: 1 / -1;
 }
 
 body[data-step="confirm"] .cartCardActions .cartEditBtn {
