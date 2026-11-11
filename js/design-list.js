@@ -296,7 +296,7 @@ function makeCartThumb(item) {
 /* =========================================================
  * 장바구니 1개 카드 HTML
 ========================================================= */
-function buildCartItemHtml(item) {
+function buildCartItemHtml(item, index = 0) {
   const activeClass = selectedItemId === item.id ? " selected" : "";
   // 스페이스바처럼 아주 긴 키는 시안 확인 화면(2열)에서 한 줄 전체를 차지
   // 2.25U · 스페이스바처럼 넓은 키는 폭이 좁은 모바일에서만 한 줄 전체 (PC는 2열 그대로)
@@ -325,9 +325,19 @@ function buildCartItemHtml(item) {
         ${makeCartThumb(item)}
 
         <div class="cartBody">
+          <div class="cartIndex">시안 ${index + 1}</div>
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
-          <!-- 시안 확인 / 확정 화면 전용 작은 [수정] (CSS로 그 화면에서만 보임) -->
-          <button type="button" class="cartEditLink" data-action="edit" data-id="${escapeHtml(item.id)}">수정</button>
+          <!-- 시안 확인 / 확정 화면 전용 [수정] · [삭제] (CSS로 그 화면에서만 보임) -->
+          <div class="cartMiniActions">
+            <button type="button" class="cartMiniBtn" data-action="edit" data-id="${escapeHtml(item.id)}">
+              <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5l2 2L6 12l-2.8.8L4 10z"/></svg>
+              수정
+            </button>
+            <button type="button" class="cartMiniBtn is-delete" data-action="delete" data-id="${escapeHtml(item.id)}">
+              <svg aria-hidden="true" viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M6 4.5V3h4v1.5M4 4.5l.7 9h6.6l.7-9"/></svg>
+              삭제
+            </button>
+          </div>
           <div class="cartMeta cartMetaStack">
             ${laserLine}
             ${bgLine}
