@@ -304,6 +304,8 @@ function buildCartItemHtml(item) {
   const fullRowClass = thumbAspect >= 4 ? " cartFullRow" : thumbAspect >= 2 ? " cartWideRow" : "";
   const title = `${safeTrim(item.profile) || "-"} / ${getCapTypeDisplayName(item.capType)}`;
   const laserText = labelLaser(item);
+  // 레이저 없음이면 줄 자체를 빼기
+  const laserLine = laserText && laserText !== "레이저 없음" ? `<span>${escapeHtml(laserText)}</span>` : "";
   const qtyNum = normalizeQty(item.qty ?? 1);
   const bg = getItemBgLabel?.(item) || getItemBgColor(item);
   const textCount = Array.isArray(item?.design?.texts)
@@ -325,7 +327,7 @@ function buildCartItemHtml(item) {
         <div class="cartBody">
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
           <div class="cartMeta cartMetaStack">
-            <span>${escapeHtml(laserText)}</span>
+            ${laserLine}
             ${bgLine}
             <span>${escapeHtml(designText)}</span>
           </div>

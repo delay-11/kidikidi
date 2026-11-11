@@ -115,7 +115,8 @@
       drawExampleDesign(c, size.w, size.h, shape, el.dataset.placementExample);
 
       if (el.dataset.view === "mockup") {
-        paintKeycapMockup(c, size.w, size.h, shape, scale);
+        // 키캡 밖(캔버스 부분)도 배경색 그대로
+        paintKeycapMockup(c, size.w, size.h, shape, scale, { outsideAlpha: 0 });
         if (shape.isMao) strokeSafeLine(c, shape, profile);
       } else {
         c.save();
