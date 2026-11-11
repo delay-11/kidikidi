@@ -314,17 +314,17 @@ body.kidikidiBootstrap .cartQtyRow .cartQtyInput {
     border-radius: 8px !important;
 }
 /* =========================================================
- * 시안 확인 / 확정 화면: 간단 카드, PC · 모바일 모두 한 줄에 2개씩
- * - 목업 + 프로파일/규격 + [수정] + 수량 + 삭제만 (레이저 · 배경 · 디자인 정보, [복제] 숨김)
- * - PC: 왼쪽(목업 / 프로파일 / [수정]) · 오른쪽(수량 [-][n][+][x])
- * - 모바일: 세로로 쌓고 삭제(x)는 카드 오른쪽 위
+ * 시안 확인 / 확정 화면: 아주 간단한 한 줄 카드, PC · 모바일 모두 한 줄에 2개씩
+ * - [목업] [프로파일/규격 + 수정] [− n +] [×] 만 (레이저 · 배경 · 디자인 정보, [복제] 숨김)
+ * - 수량은 테두리 하나로 묶고, 삭제는 테두리 없는 ×, 수정은 작은 글자 버튼
+ * - 모바일: [목업][프로파일/규격 · 수정] 아래 줄에 [− n +], ×는 카드 오른쪽 위
  * - 스페이스바(.cartFullRow)는 한 줄 전체, 2.25U 같은 넓은 키(.cartWideRow)는 모바일에서만 한 줄 전체
 ========================================================= */
 body[data-step="confirm"] .cartList,
 body.kidikidiBootstrap[data-step="confirm"] .cartList {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: stretch;
-    gap: 10px;
+    gap: 8px;
 }
 
 body[data-step="confirm"] .cartList > .cartEmpty,
@@ -336,120 +336,158 @@ body[data-step="confirm"] .cartDesignCard,
 body.kidikidiBootstrap[data-step="confirm"] .cartDesignCard {
     position: relative;
     min-width: 0;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: auto auto;
+    display: flex;
     align-items: center;
-    column-gap: 14px;
-    row-gap: 6px;
-    padding: 12px 14px;
+    gap: 12px;
+    padding: 10px 12px;
 }
 
-/* 정보 줄 · [복제] 숨김 */
+/* 정보 줄 · [복제] 숨김, 버튼 묶음은 카드에 바로 배치 */
 body[data-step="confirm"] .cartDesignCard .cartMeta,
 body[data-step="confirm"] .cartCardActions .cartDuplicateBtn {
     display: none;
 }
 
-/* 수정 버튼과 수량 줄을 카드 그리드에 바로 배치 */
 body[data-step="confirm"] .cartCardActions {
     display: contents;
 }
 
+/* 목업 + 프로파일/규격 */
 body[data-step="confirm"] .cartDesignCard .cartTop {
-    grid-column: 1;
-    grid-row: 1;
+    flex: 1 1 auto;
+    min-width: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
 }
 
 body[data-step="confirm"] .cartDesignCard .cartThumb {
-    align-self: center;
+    flex: 0 0 auto;
     margin: 0;
-}
-
-body[data-step="confirm"] .cartDesignCard .cartThumb:not(.cartThumbMockup) {
-    width: 64px;
-    height: 64px;
-}
-
-body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup {
     border-color: transparent;
 }
 
+body[data-step="confirm"] .cartDesignCard .cartThumb:not(.cartThumbMockup) {
+    width: 48px;
+    height: 48px;
+}
+
 body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup:not(.is-wide) {
-    height: 72px !important;
-    max-width: 100%;
+    height: 52px !important;
 }
 
 body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup.is-wide {
-    width: 180px !important;
-    max-width: 100%;
+    width: 104px !important;
+    max-width: 40%;
 }
 
 body[data-step="confirm"] .cartDesignCard.cartFullRow .cartThumb.cartThumbMockup.is-wide {
-    width: 360px !important;
+    width: 260px !important;
 }
 
 body[data-step="confirm"] .cartDesignCard .cartBody {
+    flex: 1 1 auto !important;
+    min-width: 0;
     width: auto;
-    text-align: center;
-    flex-basis: auto !important;
 }
 
 body[data-step="confirm"] .cartDesignCard .cartTitle {
     font-size: 13px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* [수정]: 제목 아래 작은 글자 버튼 (확인 화면 전용 .cartEditLink), 아래쪽 큰 [수정]은 숨김 */
+.cartEditLink {
+    display: none;
 }
 
 body[data-step="confirm"] .cartCardActions .cartEditBtn {
-    grid-column: 1;
-    grid-row: 2;
-    justify-self: center;
-    width: auto;
-    min-width: 0;
-    max-width: none;
-    min-height: 28px;
-    padding: 0 14px;
+    display: none;
 }
 
+body[data-step="confirm"] .cartDesignCard .cartEditLink,
+body.kidikidiBootstrap[data-step="confirm"] .cartDesignCard .cartEditLink {
+    display: inline-block;
+    width: auto !important;
+    min-width: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-top: 2px;
+    line-height: 1.4;
+    padding: 0 !important;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    cursor: pointer;
+}
+
+body[data-step="confirm"] .cartDesignCard .cartEditLink:hover {
+    color: var(--txt);
+}
+
+/* 수량: [− n +] 하나의 테두리로 */
 body[data-step="confirm"] .cartDesignCard .cartQtyRow {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    justify-self: center;
+    flex: 0 0 auto;
     margin: 0;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0 2px;
 }
 
-body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn {
-    flex: 0 0 auto;
-    width: 32px;
-    min-width: 32px;
+body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn.qty {
+    width: 28px;
+    min-width: 28px;
+    height: 30px !important;
+    min-height: 30px !important;
+    border: 0;
+    background: transparent;
 }
 
 body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartQtyInput {
-    width: 48px;
-    min-width: 48px;
+    width: 36px;
+    min-width: 36px;
+    height: 30px !important;
+    min-height: 30px !important;
+    border: 0 !important;
+    background: transparent;
+    padding: 0 !important;
 }
 
+/* 삭제: 테두리 없는 × (카드 오른쪽 위) */
 body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn.delete {
-    margin-left: 4px;
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 22px;
+    min-width: 22px;
+    height: 22px !important;
+    min-height: 22px !important;
+    border: 0;
+    background: transparent;
+    color: var(--gray-400, #98a2b3);
+    font-size: 13px;
 }
 
-/* 모바일: 세로로 쌓기 */
+body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn.delete:hover {
+    color: var(--bad);
+    background: transparent;
+}
+
+/* 모바일: 위 [목업][프로파일/규격 · 수정], 아래 [− n +] */
 @media (max-width: 640px) {
     body.kidikidiBootstrap[data-step="confirm"] .cartStepFrame {
-        padding: 12px;
-    }
-
-    body[data-step="confirm"] .cartList,
-    body.kidikidiBootstrap[data-step="confirm"] .cartList {
-        gap: 8px;
+        padding: 10px;
     }
 
     body[data-step="confirm"] .cartList > .cartWideRow {
@@ -458,57 +496,34 @@ body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn.delete {
 
     body[data-step="confirm"] .cartDesignCard,
     body.kidikidiBootstrap[data-step="confirm"] .cartDesignCard {
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: auto;
-        justify-items: center;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
         padding: 10px;
-        row-gap: 8px;
     }
 
-    body[data-step="confirm"] .cartDesignCard .cartTop,
-    body[data-step="confirm"] .cartCardActions .cartEditBtn,
-    body[data-step="confirm"] .cartDesignCard .cartQtyRow {
-        grid-column: 1;
-        grid-row: auto;
+    body[data-step="confirm"] .cartDesignCard .cartTop {
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
     }
 
-    body[data-step="confirm"] .cartDesignCard .cartThumb {
-        margin: 0 22px;
+    body[data-step="confirm"] .cartDesignCard .cartBody {
+        text-align: center;
+        width: 100%;
     }
 
     body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup:not(.is-wide) {
-        height: 64px !important;
+        height: 48px !important;
     }
 
     body[data-step="confirm"] .cartDesignCard .cartThumb.cartThumbMockup.is-wide,
     body[data-step="confirm"] .cartDesignCard.cartFullRow .cartThumb.cartThumbMockup.is-wide {
-        width: 100% !important;
-        max-width: calc(100% - 44px);
+        width: 150px !important;
+        max-width: calc(100% - 40px);
     }
 
     body[data-step="confirm"] .cartDesignCard .cartQtyRow {
-        gap: 4px;
-    }
-
-    body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn {
-        width: 28px;
-        min-width: 28px;
-    }
-
-    body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartQtyInput {
-        width: 44px;
-        min-width: 44px;
-    }
-
-    /* 삭제(x)는 카드 오른쪽 위 */
-    body.kidikidiBootstrap[data-step="confirm"] .cartQtyRow .cartBtn.delete {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        margin: 0;
-        width: 24px;
-        min-width: 24px;
-        height: 24px !important;
-        min-height: 24px !important;
+        align-self: center;
     }
 }

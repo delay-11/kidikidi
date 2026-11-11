@@ -326,6 +326,8 @@ function buildCartItemHtml(item) {
 
         <div class="cartBody">
           <div class="cartTitle"><b>${escapeHtml(title)}</b></div>
+          <!-- 시안 확인 / 확정 화면 전용 작은 [수정] (CSS로 그 화면에서만 보임) -->
+          <button type="button" class="cartEditLink" data-action="edit" data-id="${escapeHtml(item.id)}">수정</button>
           <div class="cartMeta cartMetaStack">
             ${laserLine}
             ${bgLine}

@@ -50,11 +50,6 @@
     color: var(--muted);
 }
 
-.headerVersion {
-    font-size: 12px;
-    color: var(--muted);
-}
-
 .orderBar {
     background: var(--card);
     border-bottom: 1px solid var(--line);
@@ -157,6 +152,12 @@
 
 .footerRight {
     text-align: right;
+}
+
+/* 시안 제작 시스템 버전 (예전엔 헤더 오른쪽에 있었음) */
+.footerVersion {
+    margin-left: 6px;
+    color: var(--gray-400, #98a2b3);
 }
 
 .stepChip {
