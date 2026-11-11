@@ -44,6 +44,9 @@
    *   왼쪽은 캔버스 화면(가이드선), 오른쪽은 키캡 미리보기 음영으로 보여준다.
   ------------------------------------------------------- */
   const EXAMPLE_BG = "#cfe6ff";
+  // 2번(배경은 캔버스 끝까지) 예시: 옆면까지 연한 색, 윗면은 조금 진한 색
+  const EXAMPLE_BG_SIDE = "#d4e8ff";
+  const EXAMPLE_BG_TOP = "#a9cdf8";
   const exampleLogo = new Image();
   exampleLogo.src = "./image/favicon.png";
   exampleLogo.addEventListener("load", () => {
@@ -57,17 +60,19 @@
     return { profile, capType };
   };
 
-  // kind: good(안전선 안) / nofill(배경을 윗면만) / bad(옆면까지 넘침)
+  // kind: good(안전선 안) / fullbg(배경을 캔버스 끝까지 + 윗면은 조금 진하게) / bad(옆면까지 넘침)
   const drawExampleDesign = (c, W, H, shape, kind) => {
     const o = shape.outerBox;
     const i = shape.innerBox;
     const cx = W / 2;
     const cy = H / 2;
 
-    if (kind === "nofill") {
-      c.fillStyle = "#ffffff";
+    if (kind === "fullbg") {
+      // 캔버스 전체(옆면까지)는 연한 하늘색, 윗면만 조금 진한 하늘색
+      // → 목업에서 옆면까지 배경이 이어지는 모습을 보여줌
+      c.fillStyle = EXAMPLE_BG_SIDE;
       c.fillRect(0, 0, W, H);
-      c.fillStyle = EXAMPLE_BG;
+      c.fillStyle = EXAMPLE_BG_TOP;
       if (shape.isMao) c.fill(shape.inner);
       else c.fillRect(i.x - 3, i.y - 3, i.w + 6, i.h + 6);
     } else {
