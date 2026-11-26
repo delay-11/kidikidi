@@ -165,6 +165,36 @@ function openSystemErrorModal(message) {
  *   내려받아 메일로 직접 보낼 수 있는 대체 접수 경로를 제공한다.
  * - [다시 시도]는 기존 [확정하기]와 같은 버튼이라 그대로 재접수된다.
 ========================================================= */
+/* =========================================================
+ * 인앱 브라우저 안내 (접수 실패 팝업 안)
+ * - 수정 이유: 카카오톡/네이버 앱 등 앱 안에서 열린 화면은 파일 다운로드가
+ *   막혀 있는 경우가 많아 [시안 파일 다운로드]를 눌러도 반응이 없을 수
+ *   있음. 이때 다른 브라우저로 여는 방법을 안내한다.
+ * - 작업 중인 시안은 지금 브라우저에만 저장되어 있으므로, 다른 브라우저로
+ *   옮기면 시안을 다시 만들어야 한다는 점도 함께 알려준다.
+========================================================= */
+function buildInAppBrowserNoticeHtml(esc) {
+  const appName = typeof detectInAppBrowser === "function" ? detectInAppBrowser() : "";
+  if (!appName) return "";
+
+  const externalUrl =
+    typeof getOpenExternalBrowserUrl === "function" ? getOpenExternalBrowserUrl() : "";
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+  const menuGuide = isIOS
+    ? "화면 아래(또는 오른쪽 위)의 ⋯ / 공유 메뉴 → \"Safari로 열기\""
+    : "오른쪽 위 ⋮ 메뉴 → \"다른 브라우저로 열기\"";
+
+  return `<div class="submitFailInApp"><b>지금 ${esc(appName)} 안에서 열린 화면이에요</b>
+앱 안에서는 파일 다운로드가 안 될 수 있어요. 다운로드 버튼을 눌러도 반응이 없으면 ${
+    externalUrl ? "아래 버튼이나 " : ""
+  }${esc(menuGuide)}로 사이트를 다시 열어 접수해주세요.
+※ 작업한 시안은 지금 화면에만 저장되어 있어, 다른 브라우저에서는 시안을 다시 만들어야 할 수 있어요.${
+    externalUrl
+      ? `<a class="submitFailExternal btn btn-outline-secondary" href="${esc(externalUrl)}">다른 브라우저로 열기</a>`
+      : ""
+  }</div>`;
+}
+
 function openSubmitFailModal(message, fileList = null) {
   if (!confirmModalEl || !confirmModalBodyEl) return;
 
@@ -181,9 +211,9 @@ function openSubmitFailModal(message, fileList = null) {
   confirmModalBodyEl.innerHTML = `<div class="submitFail"><p class="submitFailMsg">${esc(message || "시안 접수에 실패했습니다.")}</p>${
     canDownload
       ? `<div class="submitFailAlt"><b>그래도 계속 실패한다면</b>
-아래 버튼으로 시안 파일을 내려받아 <b>${esc(COMPANY_EMAIL)}</b> 로 보내주세요.
+아래 버튼으로 시안 파일을 보내거나 내려받아 <b>${esc(COMPANY_EMAIL)}</b> 로 보내주세요.
 메일 제목에 주문번호${orderNo ? `(<b>${esc(orderNo)}</b>)` : ""}를 꼭 적어주세요. 시안을 다시 만들 필요는 없습니다.
-<button type="button" class="submitFailDownload btn btn-outline-dark" id="submitFailDownload">시안 파일 다운로드 (ZIP)</button></div>`
+<button type="button" class="submitFailShare btn btn-warning" id="submitFailShare" hidden>메일·카카오톡으로 바로 보내기</button><button type="button" class="submitFailDownload btn btn-outline-dark" id="submitFailDownload">시안 파일 다운로드 (ZIP)</button></div>${buildInAppBrowserNoticeHtml(esc)}`
       : ""
   }</div>`;
 
@@ -194,6 +224,34 @@ function openSubmitFailModal(message, fileList = null) {
   if (confirmModalCancelEl) confirmModalCancelEl.textContent = "닫기";
   if (confirmModalOkEl) confirmModalOkEl.textContent = "다시 시도";
 
+  // ZIP은 팝업이 열리자마자 미리 만들어 둔다 (모바일 공유는 버튼을 누른
+  // 직후에 바로 호출해야 해서, 누른 뒤에 만들면 공유가 거부될 수 있음)
+  let zipReady = null;
+  const zipPromise = canDownload
+    ? buildDesignFallbackZip(fileList)
+        .then((zip) => {
+          zipReady = zip;
+          const shareBtn = document.getElementById("submitFailShare");
+          if (shareBtn && canShareDesignZip(zip)) shareBtn.hidden = false;
+          return zip;
+        })
+        .catch((err) => {
+          console.warn("[시안 ZIP 미리 만들기 실패]", err);
+          return null;
+        })
+    : Promise.resolve(null);
+
+  const shareBtn = document.getElementById("submitFailShare");
+  shareBtn?.addEventListener("click", () => {
+    if (!zipReady) return;
+    shareDesignZip(zipReady).catch((err) => {
+      if (err?.name === "AbortError") return; // 사용자가 공유 창을 닫음
+      console.warn("[시안 공유 실패 → 다운로드로 대체]", err);
+      showToast?.("공유가 되지 않아 파일 다운로드로 진행합니다.", "warn", 2600);
+      downloadDesignFallbackFiles(fileList, zipReady).catch(() => {});
+    });
+  });
+
   const btn = document.getElementById("submitFailDownload");
   btn?.addEventListener("click", async () => {
     if (btn.disabled) return;
@@ -201,7 +259,7 @@ function openSubmitFailModal(message, fileList = null) {
     const label = btn.textContent;
     btn.textContent = "파일 만드는 중…";
     try {
-      await downloadDesignFallbackFiles(fileList);
+      await downloadDesignFallbackFiles(fileList, await zipPromise);
       btn.textContent = "다운로드 완료 · 다시 받기";
     } catch (err) {
       console.error("[시안 파일 다운로드 실패]", err);

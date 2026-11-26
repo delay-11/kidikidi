@@ -755,43 +755,80 @@ function buildFallbackOrderInfoText(items) {
   return lines.join("\r\n").replace(/\r?\n/g, "\r\n");
 }
 
-async function downloadDesignFallbackFiles(fileList) {
+// 실패 팝업이 열릴 때 미리 만들어 둠 - 모바일 공유(navigator.share)는
+// 버튼을 누른 직후에 바로 호출해야 하는데(특히 아이폰 사파리), 누른 뒤에
+// ZIP을 만들면 그 사이에 "사용자가 누름" 상태가 풀려 공유가 거부될 수 있음.
+async function buildDesignFallbackZip(fileList) {
   const files = Array.isArray(fileList?.files) ? fileList.files : [];
   if (!files.length) throw new Error("내려받을 시안 파일이 없습니다.");
+  if (!window.JSZip) return null;
 
   const orderNo = safeFilePart(safeTrim(orderEl?.value) || "order");
-  const infoText = buildFallbackOrderInfoText(fileList.items || []);
-
-  // 같은 이름의 파일이 있으면 ZIP 안에서 덮어써지지 않도록 번호를 붙인다.
   const usedNames = new Set();
-  const uniqueName = (name) => {
-    let candidate = name;
-    let n = 2;
-    while (usedNames.has(candidate)) {
-      candidate = name.replace(/(\.[^.]*)?$/, (ext) => `_${n}${ext || ""}`);
-      n += 1;
-    }
-    usedNames.add(candidate);
-    return candidate;
-  };
+  const zip = new JSZip();
+  const folder = zip.folder(`${orderNo}_designs`);
+  folder.file("order_info.txt", `\ufeff${buildFallbackOrderInfoText(fileList.items || [])}`);
+  files.forEach((f) => folder.file(makeUniqueFilename(f.filename, usedNames), f.file, { base64: true }));
 
-  if (window.JSZip) {
-    const zip = new JSZip();
-    const folder = zip.folder(`${orderNo}_designs`);
-    folder.file("order_info.txt", `\ufeff${infoText}`);
-    files.forEach((f) => folder.file(uniqueName(f.filename), f.file, { base64: true }));
+  const blob = await zip.generateAsync({ type: "blob", mimeType: "application/zip" });
+  return { blob, filename: `${orderNo}_designs_manual.zip` };
+}
 
-    const blob = await zip.generateAsync({ type: "blob" });
-    triggerBlobDownload(blob, `${orderNo}_designs_manual.zip`);
+// 같은 이름의 파일이 있으면 덮어써지지 않도록 번호를 붙인다.
+function makeUniqueFilename(name, usedNames) {
+  let candidate = name;
+  let n = 2;
+  while (usedNames.has(candidate)) {
+    candidate = name.replace(/(\.[^.]*)?$/, (ext) => `_${n}${ext || ""}`);
+    n += 1;
+  }
+  usedNames.add(candidate);
+  return candidate;
+}
+
+async function downloadDesignFallbackFiles(fileList, prebuiltZip = null) {
+  const zip = prebuiltZip || (await buildDesignFallbackZip(fileList));
+  if (zip) {
+    triggerBlobDownload(zip.blob, zip.filename);
     return;
   }
 
+  // JSZip이 없으면(CDN 로딩 실패) 파일을 하나씩 내려받는다.
+  const orderNo = safeFilePart(safeTrim(orderEl?.value) || "order");
+  const usedNames = new Set();
   triggerBlobDownload(
-    new Blob([`\ufeff${infoText}`], { type: "text/plain;charset=utf-8" }),
+    new Blob([`\ufeff${buildFallbackOrderInfoText(fileList.items || [])}`], { type: "text/plain;charset=utf-8" }),
     `${orderNo}_order_info.txt`,
   );
-  for (const f of files) {
+  for (const f of fileList.files) {
     await wait(400); // 브라우저가 연속 다운로드를 막지 않도록 약간 텀을 둔다
-    triggerBlobDownload(base64ToBlob(f.file), uniqueName(f.filename));
+    triggerBlobDownload(base64ToBlob(f.file), makeUniqueFilename(f.filename, usedNames));
   }
+}
+
+/* =========================================================
+ * 모바일 공유(메일 앱·카카오톡 등으로 ZIP 바로 보내기) 가능 여부
+ * - 휴대폰/태블릿(터치 화면)에서만 사용. PC는 다운로드 후 메일 첨부가
+ *   더 익숙하므로 공유 버튼을 띄우지 않는다.
+========================================================= */
+function canShareDesignZip(zip) {
+  if (!zip?.blob || typeof navigator.share !== "function" || typeof navigator.canShare !== "function") {
+    return false;
+  }
+  if (!window.matchMedia?.("(pointer: coarse)").matches) return false;
+  try {
+    return navigator.canShare({ files: [new File([zip.blob], zip.filename, { type: "application/zip" })] });
+  } catch {
+    return false;
+  }
+}
+
+// 반드시 버튼 클릭 직후 await 없이 호출해야 함 (위 buildDesignFallbackZip 설명 참고)
+function shareDesignZip(zip) {
+  const orderNo = safeTrim(orderEl?.value) || "";
+  return navigator.share({
+    files: [new File([zip.blob], zip.filename, { type: "application/zip" })],
+    title: `키캡 시안${orderNo ? ` (주문번호 ${orderNo})` : ""}`,
+    text: `${COMPANY_EMAIL} 로 보내주세요.${orderNo ? ` 주문번호: ${orderNo}` : ""}`,
+  });
 }
