@@ -1349,7 +1349,7 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
     margin: 0;
 }
 
-/* 상단: 아이콘 + 제목 + 원인 */
+/* 상단: 제목 + 원인 */
 .submitFailHero {
     display: grid;
     justify-items: center;
@@ -1358,21 +1358,7 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
     text-align: center;
 }
 
-.submitFailIcon {
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 48px;
-    margin-bottom: 6px;
-    border-radius: 50%;
-    background: #fef3f2;
-    color: var(--bad);
-}
 
-.submitFailIcon svg {
-    width: 24px;
-    height: 24px;
-}
 
 .submitFailTitle {
     font-size: 19px;
@@ -1583,16 +1569,7 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
         gap: 12px;
     }
 
-    .submitFailIcon {
-        width: 40px;
-        height: 40px;
-        margin-bottom: 2px;
-    }
 
-    .submitFailIcon svg {
-        width: 20px;
-        height: 20px;
-    }
 
     .submitFailTitle {
         font-size: 17px;

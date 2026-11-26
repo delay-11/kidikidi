@@ -174,7 +174,6 @@ function openSystemErrorModal(message) {
  *   옮기면 시안을 다시 만들어야 한다는 점도 함께 알려준다.
 ========================================================= */
 const SUBMIT_FAIL_ICONS = {
-  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5"/><path d="M12 16.5h.01"/><circle cx="12" cy="12" r="9.5"/></svg>',
   share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5"/><path d="M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5v6A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5v-6"/></svg>',
   download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5V15"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 19.5h15"/></svg>',
   copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></svg>',
@@ -227,7 +226,6 @@ function openSubmitFailModal(message, fileList = null) {
 
   const html = `<div class="submitFail">
 <div class="submitFailHero">
-<span class="submitFailIcon">${SUBMIT_FAIL_ICONS.alert}</span>
 <p class="submitFailTitle">시안 접수가 완료되지 않았어요.</p>
 <p class="submitFailMsg">${esc(message || "시안 접수에 실패했어요.").replace(/\n/g, "<br>")}</p>
 </div>
