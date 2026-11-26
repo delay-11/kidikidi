@@ -708,3 +708,128 @@ async function packAsZip(orderNo, items, files) {
 
   return params;
 }
+
+/* =========================================================
+ * 접수 실패 시 시안 파일 직접 다운로드 (대체 접수용)
+ * - 수정 이유: 고객 PC/네트워크 환경(보안 프로그램, 광고 차단, 방화벽 등)
+ *   때문에 메일 서버 연결 자체가 막히면, 브라우저·네트워크를 바꿔도
+ *   계속 실패하는 경우가 있음. 이때 고객이 시안을 처음부터 다시 만들지
+ *   않아도 되도록, 메일에 첨부하려고 이미 만들어 둔 시안 파일(+레이저
+ *   원본파일)과 주문 정보를 ZIP 하나로 내려받게 해서 직접 메일로 보낼
+ *   수 있게 한다.
+ * - JSZip이 없으면(CDN 로딩 실패) 파일을 하나씩 내려받는다.
+========================================================= */
+function base64ToBlob(base64, type = "application/octet-stream") {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type });
+}
+
+function triggerBlobDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+function buildFallbackOrderInfoText(items) {
+  const orderNo = safeTrim(orderEl?.value) || "-";
+  const lines = [
+    "[키디키디 시안 직접 접수]",
+    "사이트 접수가 실패해 고객이 직접 보낸 시안입니다.",
+    "",
+    `주문번호: ${orderNo}`,
+    `주문자명: ${safeTrim(nameEl?.value) || "-"}`,
+    `이메일: ${safeTrim(emailEl?.value) || "-"}`,
+    `작성 시각: ${new Date().toLocaleString("ko-KR")}`,
+    "",
+    "----------------------------------------",
+    "",
+    typeof buildItemsSummaryText === "function" ? buildItemsSummaryText(items, items) : "",
+  ];
+  return lines.join("\r\n").replace(/\r?\n/g, "\r\n");
+}
+
+// 실패 팝업이 열릴 때 미리 만들어 둠 - 모바일 공유(navigator.share)는
+// 버튼을 누른 직후에 바로 호출해야 하는데(특히 아이폰 사파리), 누른 뒤에
+// ZIP을 만들면 그 사이에 "사용자가 누름" 상태가 풀려 공유가 거부될 수 있음.
+async function buildDesignFallbackZip(fileList) {
+  const files = Array.isArray(fileList?.files) ? fileList.files : [];
+  if (!files.length) throw new Error("내려받을 시안 파일이 없습니다.");
+  if (!window.JSZip) return null;
+
+  const orderNo = safeFilePart(safeTrim(orderEl?.value) || "order");
+  const usedNames = new Set();
+  const zip = new JSZip();
+  const folder = zip.folder(`${orderNo}_designs`);
+  folder.file("order_info.txt", `\ufeff${buildFallbackOrderInfoText(fileList.items || [])}`);
+  files.forEach((f) => folder.file(makeUniqueFilename(f.filename, usedNames), f.file, { base64: true }));
+
+  const blob = await zip.generateAsync({ type: "blob", mimeType: "application/zip" });
+  return { blob, filename: `${orderNo}_designs_manual.zip` };
+}
+
+// 같은 이름의 파일이 있으면 덮어써지지 않도록 번호를 붙인다.
+function makeUniqueFilename(name, usedNames) {
+  let candidate = name;
+  let n = 2;
+  while (usedNames.has(candidate)) {
+    candidate = name.replace(/(\.[^.]*)?$/, (ext) => `_${n}${ext || ""}`);
+    n += 1;
+  }
+  usedNames.add(candidate);
+  return candidate;
+}
+
+async function downloadDesignFallbackFiles(fileList, prebuiltZip = null) {
+  const zip = prebuiltZip || (await buildDesignFallbackZip(fileList));
+  if (zip) {
+    triggerBlobDownload(zip.blob, zip.filename);
+    return;
+  }
+
+  // JSZip이 없으면(CDN 로딩 실패) 파일을 하나씩 내려받는다.
+  const orderNo = safeFilePart(safeTrim(orderEl?.value) || "order");
+  const usedNames = new Set();
+  triggerBlobDownload(
+    new Blob([`\ufeff${buildFallbackOrderInfoText(fileList.items || [])}`], { type: "text/plain;charset=utf-8" }),
+    `${orderNo}_order_info.txt`,
+  );
+  for (const f of fileList.files) {
+    await wait(400); // 브라우저가 연속 다운로드를 막지 않도록 약간 텀을 둔다
+    triggerBlobDownload(base64ToBlob(f.file), makeUniqueFilename(f.filename, usedNames));
+  }
+}
+
+/* =========================================================
+ * 모바일 공유(메일 앱·카카오톡 등으로 ZIP 바로 보내기) 가능 여부
+ * - 휴대폰/태블릿(터치 화면)에서만 사용. PC는 다운로드 후 메일 첨부가
+ *   더 익숙하므로 공유 버튼을 띄우지 않는다.
+========================================================= */
+function canShareDesignZip(zip) {
+  if (!zip?.blob || typeof navigator.share !== "function" || typeof navigator.canShare !== "function") {
+    return false;
+  }
+  if (!window.matchMedia?.("(pointer: coarse)").matches) return false;
+  try {
+    return navigator.canShare({ files: [new File([zip.blob], zip.filename, { type: "application/zip" })] });
+  } catch {
+    return false;
+  }
+}
+
+// 반드시 버튼 클릭 직후 await 없이 호출해야 함 (위 buildDesignFallbackZip 설명 참고)
+function shareDesignZip(zip) {
+  const orderNo = safeTrim(orderEl?.value) || "-";
+  const name = safeTrim(nameEl?.value) || "-";
+  return navigator.share({
+    files: [new File([zip.blob], zip.filename, { type: "application/zip" })],
+    title: `키캡 시안 (${name} / 주문번호 ${orderNo})`,
+    text: `${COMPANY_EMAIL} 으로 보내주세요.\n주문자명: ${name} / 주문번호: ${orderNo}`,
+  });
+}

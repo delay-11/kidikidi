@@ -158,3 +158,49 @@ function escapeHtml(v) {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 }
+
+/* =========================================================
+ * 인앱 브라우저(카카오톡/네이버 앱/인스타그램 등) 감지
+ * - 수정 이유: 앱 안에서 열린 화면은 파일 다운로드가 막혀 있는 경우가
+ *   많아, 접수 실패 시 [시안 파일 다운로드]가 동작하지 않을 수 있음.
+ *   이때 "다른 브라우저로 열기" 안내를 따로 보여주기 위해 사용한다.
+ * - 반환: 앱 이름(안내 문구용) 또는 빈 문자열(일반 브라우저)
+========================================================= */
+function detectInAppBrowser(ua = navigator.userAgent || "") {
+  const rules = [
+    [/KAKAOTALK/i, "카카오톡"],
+    [/NAVER\(inapp|NAVER\/|NaverMatome/i, "네이버 앱"],
+    [/Instagram/i, "인스타그램"],
+    [/FBAN|FBAV|FB_IAB/i, "페이스북"],
+    [/\bLine\//i, "라인"],
+    [/DaumApps/i, "다음 앱"],
+    [/BAND\//i, "밴드"],
+    [/everytimeApp/i, "에브리타임"],
+  ];
+  const hit = rules.find(([re]) => re.test(ua));
+  return hit ? hit[1] : "";
+}
+
+/* =========================================================
+ * 인앱 브라우저에서 현재 페이지를 외부 브라우저로 여는 주소
+ * - 카카오톡/라인은 앱 전용 주소, 안드로이드의 그 외 인앱 브라우저는 크롬으로
+ *   여는 주소를 반환. 바로 열 방법이 없으면(아이폰의 네이버 앱 등) 빈 문자열
+========================================================= */
+function getOpenExternalBrowserUrl(ua = navigator.userAgent || "") {
+  const here = location.href;
+  if (/KAKAOTALK/i.test(ua)) {
+    return `kakaotalk://web/openExternal?url=${encodeURIComponent(here)}`;
+  }
+  if (/\bLine\//i.test(ua)) {
+    const u = new URL(here);
+    u.searchParams.set("openExternalBrowser", "1");
+    return u.toString();
+  }
+  // 안드로이드의 다른 인앱 브라우저(네이버 앱, 인스타그램 등)는 크롬으로 연다
+  if (/Android/i.test(ua) && detectInAppBrowser(ua)) {
+    const u = new URL(here);
+    const scheme = u.protocol.replace(":", "");
+    return `intent://${u.host}${u.pathname}${u.search}${u.hash}#Intent;scheme=${scheme};package=com.android.chrome;end`;
+  }
+  return "";
+}

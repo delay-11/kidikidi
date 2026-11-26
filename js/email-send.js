@@ -280,7 +280,13 @@ function getDesignSubmitFailMessage(err) {
     joined.includes("load failed") ||
     joined.includes("네트워크")
   ) {
-    return withDetail("네트워크 연결 문제로 시안 접수에 실패했습니다. 잠시 후 다시 시도해주세요.");
+    // 수정 이유: "Failed to fetch"는 메일 서버가 거절한 게 아니라 브라우저가
+    // 메일 서버에 아예 연결하지 못한 경우라, 특정 고객의 PC/네트워크 환경
+    // (광고 차단 확장프로그램, 회사·학교 보안 프로그램/방화벽, 불안정한
+    // 와이파이)이 원인인 경우가 대부분임. "잠시 후 다시 시도"만으로는
+    // 계속 실패하므로 직접 해볼 수 있는 방법을 함께 안내한다.
+    // (오류 상세는 콘솔의 [시안 접수 상세 오류] 로그에 남으므로 안내 문구에서는 뺌)
+    return "네트워크 연결 문제로 일시적으로 접수가 실패했어요.\n다른 브라우저(크롬·엣지 등) 또는 다른 네트워크에서 다시 시도해 주세요.";
   }
 
   // 수정 이유:
@@ -488,6 +494,9 @@ async function sendOrderEmails(onProgress = null) {
       systemIssue: isEmailSystemIssue(companyError),
       companyError,
       customerError,
+      // 수정 이유: 메일 발송이 실패해도 첨부용 시안 파일은 이미 다 만들어진
+      // 상태이므로, 고객이 직접 내려받아 메일로 보낼 수 있도록 넘겨준다.
+      fallbackFileList: fileList,
     };
   }
 
