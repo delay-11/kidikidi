@@ -21,7 +21,7 @@ function resetConfirmModal() {
     confirmModalOkEl.textContent = "확정하기";
   }
 
-  confirmModalEl?.classList.remove("single", "loading");
+  confirmModalEl?.classList.remove("single", "loading", "isFail");
 }
 
 /* =========================================================
@@ -173,16 +173,25 @@ function openSystemErrorModal(message) {
  * - 작업 중인 시안은 지금 브라우저에만 저장되어 있으므로, 다른 브라우저로
  *   옮기면 시안을 다시 만들어야 한다는 점도 함께 알려준다.
 ========================================================= */
-function buildInAppBrowserNoticeHtml(esc) {
+const SUBMIT_FAIL_ICONS = {
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5"/><path d="M12 16.5h.01"/><circle cx="12" cy="12" r="9.5"/></svg>',
+  share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5"/><path d="M7.5 8 12 3.5 16.5 8"/><path d="M5 12.5v6A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5v-6"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5V15"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M4.5 19.5h15"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="M11 18h2"/></svg>',
+  external: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/><path d="M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/></svg>',
+};
+
+function buildInAppBrowserNoticeHtml() {
   const appName = typeof detectInAppBrowser === "function" ? detectInAppBrowser() : "";
   if (!appName) return "";
 
-  return `<div class="submitFailSection submitFailInApp">
-<p class="submitFailHead">외부 앱을 통해 접속 중이신가요?</p>
-<p>카카오톡, 네이버 등 앱 내 브라우저에서는 파일 다운로드가 제한될 수 있어요.</p>
-<p>다운로드가 되지 않는 경우, 아래 버튼을 통해 다른 브라우저로 접속해 주세요.</p>
-<p class="submitFailNote">※ 작업한 시안은 현재 화면에만 저장되어 있어, 다른 브라우저에서는 시안을 다시 만들어야 할 수 있어요.</p>
-<button type="button" class="submitFailExternal btn btn-outline-secondary" id="submitFailExternal">다른 브라우저로 열기</button>
+  return `<div class="submitFailInApp">
+<p class="submitFailHead">${SUBMIT_FAIL_ICONS.phone}외부 앱을 통해 접속 중이신가요?</p>
+<p>카카오톡, 네이버 등 앱 내 브라우저에서는 파일 다운로드가 제한될 수 있어요. 다운로드가 되지 않는 경우, 아래 버튼을 통해 다른 브라우저로 접속해 주세요.</p>
+<p class="submitFailSub">※ 작업한 시안은 현재 화면에만 저장되어 있어, 다른 브라우저에서는 시안을 다시 만들어야 할 수 있어요.</p>
+<button type="button" class="submitFailBtn isSecondary btn" id="submitFailExternal">다른 브라우저로 열기${SUBMIT_FAIL_ICONS.external}</button>
 </div>`;
 }
 
@@ -217,18 +226,24 @@ function openSubmitFailModal(message, fileList = null) {
     String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
   const html = `<div class="submitFail">
+<div class="submitFailHero">
+<span class="submitFailIcon">${SUBMIT_FAIL_ICONS.alert}</span>
+<p class="submitFailTitle">시안 접수가 완료되지 않았어요.</p>
 <p class="submitFailMsg">${esc(message || "시안 접수에 실패했어요.").replace(/\n/g, "<br>")}</p>
+</div>
 ${
     canDownload
-      ? `<div class="submitFailSection submitFailAlt">
+      ? `<div class="submitFailCard">
 <p class="submitFailHead">계속해서 접수가 안 되나요?</p>
-<p>아래 버튼을 통해 시안 파일을 보내주시거나, 다운로드 후 <b>${esc(COMPANY_EMAIL)}</b>으로 보내주세요.</p>
-<p><b>메일 제목에 주문자명과 주문번호를 반드시 기재해 주세요.</b></p>
-<p>시안을 처음부터 다시 만들 필요는 없어요.</p>
-<button type="button" class="submitFailShare btn btn-warning" id="submitFailShare" hidden>메일·카카오톡으로 시안 보내기</button>
-<button type="button" class="submitFailDownload btn btn-outline-dark" id="submitFailDownload">시안 파일 다운로드 (ZIP)</button>
+<p class="submitFailDesc">아래 버튼을 통해 시안 파일을 보내주시거나, 다운로드 후 <button type="button" class="submitFailEmail" id="submitFailEmail" title="메일 주소 복사">${esc(COMPANY_EMAIL)}${SUBMIT_FAIL_ICONS.copy}</button>으로 보내주세요.</p>
+<p class="submitFailMust">${SUBMIT_FAIL_ICONS.pin}메일 제목에 주문자명과 주문번호를 반드시 기재해 주세요.</p>
+<p class="submitFailSub">시안을 처음부터 다시 만들 필요는 없어요.</p>
+<div class="submitFailBtns">
+<button type="button" class="submitFailBtn isPrimary btn" id="submitFailShare" hidden>${SUBMIT_FAIL_ICONS.share}메일·카카오톡으로 시안 보내기</button>
+<button type="button" class="submitFailBtn isSecondary btn" id="submitFailDownload">${SUBMIT_FAIL_ICONS.download}<span>시안 파일 다운로드 (ZIP)</span></button>
 </div>
-${buildInAppBrowserNoticeHtml(esc)}`
+</div>
+${buildInAppBrowserNoticeHtml()}`
       : ""
   }
 </div>`;
@@ -236,8 +251,16 @@ ${buildInAppBrowserNoticeHtml(esc)}`
   confirmModalBodyEl.innerHTML = html.replace(/>\s*\n\s*</g, "><").replace(/\n/g, "");
 
   document.getElementById("submitFailExternal")?.addEventListener("click", openInExternalBrowser);
+  document.getElementById("submitFailEmail")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(COMPANY_EMAIL);
+      showToast?.("메일 주소를 복사했어요.", "info", 1800);
+    } catch {
+      /* 복사가 막힌 환경이면 주소가 화면에 보이므로 그냥 둔다 */
+    }
+  });
 
-  confirmModalEl.classList.add("show");
+  confirmModalEl.classList.add("show", "isFail");
   confirmModalEl.setAttribute("aria-hidden", "false");
   document.body.classList.add("modal-open");
 
@@ -276,14 +299,15 @@ ${buildInAppBrowserNoticeHtml(esc)}`
   btn?.addEventListener("click", async () => {
     if (btn.disabled) return;
     btn.disabled = true;
-    const label = btn.textContent;
-    btn.textContent = "파일 만드는 중…";
+    const labelEl = btn.querySelector("span") || btn;
+    const label = labelEl.textContent;
+    labelEl.textContent = "파일 만드는 중…";
     try {
       await downloadDesignFallbackFiles(fileList, await zipPromise);
-      btn.textContent = "다운로드 완료 · 다시 받기";
+      labelEl.textContent = "다운로드 완료 · 다시 받기";
     } catch (err) {
       console.error("[시안 파일 다운로드 실패]", err);
-      btn.textContent = label;
+      labelEl.textContent = label;
       showToast?.(`시안 파일 다운로드에 실패했습니다. (${err?.message || err})`, "error", 4000);
     } finally {
       btn.disabled = false;

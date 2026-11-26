@@ -1321,96 +1321,288 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
     border-color: var(--acc);
 }
 
-/* 시안 접수 실패 안내 + 시안 파일 다운로드(대체 접수) */
-.submitFailMsg {
-    margin: 0 0 12px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: #fef2f2;
-    color: #b91c1c;
-    font-size: 13px;
-    line-height: 1.6;
-    white-space: pre-line;
+/* =========================================================
+ * 시안 접수 실패 팝업 (대체 접수: 공유 / 다운로드 / 다른 브라우저)
+========================================================= */
+.confirmModal.isFail .confirmModalHeader {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+}
+
+.confirmModal.isFail .confirmModalBody {
+    margin-top: 0;
+    white-space: normal;
+}
+
+.submitFail {
+    display: grid;
+    gap: 14px;
+    color: var(--txt);
     word-break: keep-all;
     overflow-wrap: anywhere;
 }
 
-.submitFailAlt {
-    padding: 12px 14px;
-    border: 1px solid #fdcc63;
-    border-radius: 12px;
-    background: #fffaeb;
-    font-size: 12px;
+.submitFail p {
+    margin: 0;
+}
+
+/* 상단: 아이콘 + 제목 + 원인 */
+.submitFailHero {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    padding: 4px 4px 2px;
+    text-align: center;
+}
+
+.submitFailIcon {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 6px;
+    border-radius: 50%;
+    background: #fef3f2;
+    color: var(--bad);
+}
+
+.submitFailIcon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.submitFailTitle {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.4;
+}
+
+.submitFailMsg {
+    color: var(--muted);
+    font-size: 13px;
     line-height: 1.65;
 }
 
-.submitFailAlt b {
-    overflow-wrap: anywhere;
-}
-
-.submitFailSection p {
-    margin: 0 0 4px;
-}
-
-.submitFailSection .submitFailHead {
-    margin-bottom: 6px;
+/* 대체 접수 카드 */
+.submitFailCard {
+    display: grid;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 14px;
+    background: var(--gray-50);
     font-size: 13px;
+    line-height: 1.65;
+}
+
+.submitFailHead {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.submitFailDesc {
+    color: var(--gray-600);
+}
+
+.submitFailEmail {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    width: auto;
+    min-height: 0;
+    margin: 0 1px;
+    padding: 1px 8px;
+    border: 1px solid var(--gray-250);
+    border-radius: 999px;
+    background: var(--white);
+    color: var(--txt);
+    font: inherit;
+    font-weight: 700;
+    vertical-align: baseline;
+    cursor: pointer;
+}
+
+.submitFailEmail svg {
+    width: 12px;
+    height: 12px;
+    color: var(--gray-400);
+}
+
+.submitFailEmail:hover {
+    border-color: var(--acc-strong);
+}
+
+.submitFailMust {
+    display: flex;
+    gap: 6px;
+    align-items: flex-start;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--acc-soft-2);
+    color: var(--acc-ink-3);
     font-weight: 700;
 }
 
-.submitFailNote {
-    color: #64748b;
+.submitFailMust svg {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 3px;
 }
 
-
-.submitFailInApp {
-    margin-top: 10px;
-    padding: 12px 14px;
-    border: 1px solid var(--line, #e5e7eb);
-    border-radius: 12px;
-    background: #f8fafc;
+.submitFailSub {
+    color: var(--gray-500);
     font-size: 12px;
-    line-height: 1.65;
 }
 
-
-
-
-.submitFailAlt .submitFailShare,
-.submitFailAlt .submitFailDownload:first-of-type,
-.submitFailInApp .submitFailExternal {
-    margin-top: 10px;
+.submitFailBtns {
+    display: grid;
+    gap: 8px;
+    margin-top: 6px;
 }
 
-.submitFailShare + .submitFailDownload {
-    margin-top: 8px;
-}
-
-/* 실패 팝업 안 버튼 3종 - 사이트 공통 .btn 스타일(폭·색)에 덮이지 않도록 고정 */
-.confirmModalBody .submitFail .submitFailShare,
-.confirmModalBody .submitFail .submitFailDownload,
-.confirmModalBody .submitFail .submitFailExternal {
+.confirmModalBody .submitFail .submitFailBtn {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     width: 100%;
-    min-height: 44px;
+    min-height: 46px;
+    margin: 0;
     padding: 10px 14px;
+    border: 1px solid transparent;
     border-radius: 12px;
-    font-size: 13px;
+    box-shadow: none;
+    font-size: 14px;
     font-weight: 700;
     line-height: 1.3;
     text-decoration: none;
     white-space: normal;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.confirmModalBody .submitFail .submitFailShare[hidden] {
+.confirmModalBody .submitFail .submitFailBtn svg {
+    flex: none;
+    width: 18px;
+    height: 18px;
+}
+
+.confirmModalBody .submitFail .submitFailBtn[hidden] {
     display: none;
 }
 
-.confirmModalBody .submitFail .submitFailDownload,
-.confirmModalBody .submitFail .submitFailExternal {
-    border: 1px solid #1b2330;
-    background: #fff;
-    color: #1b2330;
+.confirmModalBody .submitFail .submitFailBtn.isPrimary {
+    background: var(--acc);
+    color: var(--black-soft);
+}
+
+.confirmModalBody .submitFail .submitFailBtn.isPrimary:hover {
+    background: var(--acc-strong);
+}
+
+.confirmModalBody .submitFail .submitFailBtn.isSecondary {
+    border-color: var(--gray-250);
+    background: var(--white);
+    color: var(--txt);
+}
+
+.confirmModalBody .submitFail .submitFailBtn.isSecondary:hover {
+    border-color: var(--gray-300);
+    background: var(--gray-25);
+}
+
+.confirmModalBody .submitFail .submitFailBtn:focus-visible {
+    outline: 2px solid var(--acc-strong);
+    outline-offset: 2px;
+}
+
+/* 인앱 브라우저 안내 - 보조 정보라 카드 없이 가볍게 */
+.submitFailInApp {
+    display: grid;
+    gap: 4px;
+    padding: 14px 2px 0;
+    border-top: 1px dashed var(--gray-250);
+    color: var(--gray-600);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.submitFailInApp .submitFailHead {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--txt);
+    font-size: 13px;
+}
+
+.submitFailInApp .submitFailHead svg {
+    width: 16px;
+    height: 16px;
+    color: var(--gray-500);
+}
+
+.submitFailInApp .submitFailSub {
+    color: var(--gray-400);
+}
+
+.confirmModalBody .submitFail .submitFailInApp .submitFailBtn {
+    min-height: 40px;
+    margin-top: 8px;
+    font-size: 13px;
+}
+
+/* 내용이 길어 화면보다 커지면 잘리지 않게: 본문만 스크롤, 아래 버튼은 고정 */
+.confirmModal.isFail .confirmModalDialog {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px);
+}
+
+.confirmModal.isFail .confirmModalBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.confirmModal.isFail .confirmModalActions {
+    flex: none;
+}
+
+@media (max-width: 480px) {
+    .confirmModal.isFail .confirmModalBody {
+        padding: 4px 0 6px;
+    }
+
+    .submitFail {
+        gap: 12px;
+    }
+
+    .submitFailIcon {
+        width: 40px;
+        height: 40px;
+        margin-bottom: 2px;
+    }
+
+    .submitFailIcon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .submitFailTitle {
+        font-size: 17px;
+    }
+
+    .submitFailMsg {
+        font-size: 12.5px;
+    }
+
+    .submitFailCard {
+        padding: 14px;
+    }
 }
