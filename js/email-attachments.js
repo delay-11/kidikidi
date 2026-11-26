@@ -825,10 +825,11 @@ function canShareDesignZip(zip) {
 
 // 반드시 버튼 클릭 직후 await 없이 호출해야 함 (위 buildDesignFallbackZip 설명 참고)
 function shareDesignZip(zip) {
-  const orderNo = safeTrim(orderEl?.value) || "";
+  const orderNo = safeTrim(orderEl?.value) || "-";
+  const name = safeTrim(nameEl?.value) || "-";
   return navigator.share({
     files: [new File([zip.blob], zip.filename, { type: "application/zip" })],
-    title: `키캡 시안${orderNo ? ` (주문번호 ${orderNo})` : ""}`,
-    text: `${COMPANY_EMAIL} 로 보내주세요.${orderNo ? ` 주문번호: ${orderNo}` : ""}`,
+    title: `키캡 시안 (${name} / 주문번호 ${orderNo})`,
+    text: `${COMPANY_EMAIL} 으로 보내주세요.\n주문자명: ${name} / 주문번호: ${orderNo}`,
   });
 }

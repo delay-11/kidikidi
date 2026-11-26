@@ -183,7 +183,8 @@ function detectInAppBrowser(ua = navigator.userAgent || "") {
 
 /* =========================================================
  * 인앱 브라우저에서 현재 페이지를 외부 브라우저로 여는 주소
- * - 카카오톡/라인처럼 공식적으로 지원하는 앱만 반환, 그 외는 빈 문자열
+ * - 카카오톡/라인은 앱 전용 주소, 안드로이드의 그 외 인앱 브라우저는 크롬으로
+ *   여는 주소를 반환. 바로 열 방법이 없으면(아이폰의 네이버 앱 등) 빈 문자열
 ========================================================= */
 function getOpenExternalBrowserUrl(ua = navigator.userAgent || "") {
   const here = location.href;
@@ -194,6 +195,12 @@ function getOpenExternalBrowserUrl(ua = navigator.userAgent || "") {
     const u = new URL(here);
     u.searchParams.set("openExternalBrowser", "1");
     return u.toString();
+  }
+  // 안드로이드의 다른 인앱 브라우저(네이버 앱, 인스타그램 등)는 크롬으로 연다
+  if (/Android/i.test(ua) && detectInAppBrowser(ua)) {
+    const u = new URL(here);
+    const scheme = u.protocol.replace(":", "");
+    return `intent://${u.host}${u.pathname}${u.search}${u.hash}#Intent;scheme=${scheme};package=com.android.chrome;end`;
   }
   return "";
 }

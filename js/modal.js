@@ -177,22 +177,31 @@ function buildInAppBrowserNoticeHtml(esc) {
   const appName = typeof detectInAppBrowser === "function" ? detectInAppBrowser() : "";
   if (!appName) return "";
 
-  const externalUrl =
-    typeof getOpenExternalBrowserUrl === "function" ? getOpenExternalBrowserUrl() : "";
-  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
-  const menuGuide = isIOS
-    ? "화면 아래(또는 오른쪽 위)의 ⋯ / 공유 메뉴 → \"Safari로 열기\""
-    : "오른쪽 위 ⋮ 메뉴 → \"다른 브라우저로 열기\"";
+  return `<div class="submitFailSection submitFailInApp">
+<p class="submitFailHead">외부 앱을 통해 접속 중이신가요?</p>
+<p>카카오톡, 네이버 등 앱 내 브라우저에서는 파일 다운로드가 제한될 수 있어요.</p>
+<p>다운로드가 되지 않는 경우, 아래 버튼을 통해 다른 브라우저로 접속해 주세요.</p>
+<p class="submitFailNote">※ 작업한 시안은 현재 화면에만 저장되어 있어, 다른 브라우저에서는 시안을 다시 만들어야 할 수 있어요.</p>
+<button type="button" class="submitFailExternal btn btn-outline-secondary" id="submitFailExternal">다른 브라우저로 열기</button>
+</div>`;
+}
 
-  return `<div class="submitFailInApp"><b>지금 ${esc(appName)} 안에서 열린 화면이에요</b>
-앱 안에서는 파일 다운로드가 안 될 수 있어요. 다운로드 버튼을 눌러도 반응이 없으면 ${
-    externalUrl ? "아래 버튼이나 " : ""
-  }${esc(menuGuide)}로 사이트를 다시 열어 접수해주세요.
-※ 작업한 시안은 지금 화면에만 저장되어 있어, 다른 브라우저에서는 시안을 다시 만들어야 할 수 있어요.${
-    externalUrl
-      ? `<a class="submitFailExternal btn btn-outline-secondary" href="${esc(externalUrl)}">다른 브라우저로 열기</a>`
-      : ""
-  }</div>`;
+// [다른 브라우저로 열기] - 카카오톡/라인/안드로이드는 바로 외부 브라우저로 열고,
+// 그 외(아이폰의 네이버 앱 등 바로 열 방법이 없는 경우)는 주소를 복사해 안내한다.
+async function openInExternalBrowser() {
+  const url = typeof getOpenExternalBrowserUrl === "function" ? getOpenExternalBrowserUrl() : "";
+  if (url) {
+    location.href = url;
+    return;
+  }
+  const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent || "");
+  const where = isIOS ? "Safari" : "크롬 등 다른 브라우저";
+  try {
+    await navigator.clipboard.writeText(location.href);
+    showToast?.(`사이트 주소를 복사했어요. ${where}를 열어 주소창에 붙여넣어 주세요.`, "info", 5000);
+  } catch {
+    showToast?.(`화면 오른쪽 위(또는 아래) 메뉴에서 "${isIOS ? "Safari로 열기" : "다른 브라우저로 열기"}"를 눌러주세요.`, "info", 5000);
+  }
 }
 
 function openSubmitFailModal(message, fileList = null) {
@@ -201,21 +210,32 @@ function openSubmitFailModal(message, fileList = null) {
   resetConfirmModal();
 
   const titleEl = document.getElementById("confirmModalTitle");
-  if (titleEl) titleEl.textContent = "시안 접수 실패";
+  if (titleEl) titleEl.textContent = "시안 접수가 완료되지 않았어요.";
 
   const canDownload = Array.isArray(fileList?.files) && fileList.files.length > 0;
-  const orderNo = safeTrim(orderEl?.value) || "";
   const esc = (v) =>
     String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 
-  confirmModalBodyEl.innerHTML = `<div class="submitFail"><p class="submitFailMsg">${esc(message || "시안 접수에 실패했습니다.")}</p>${
+  const html = `<div class="submitFail">
+<p class="submitFailMsg">${esc(message || "시안 접수에 실패했어요.").replace(/\n/g, "<br>")}</p>
+${
     canDownload
-      ? `<div class="submitFailAlt"><b>그래도 계속 실패한다면</b>
-아래 버튼으로 시안 파일을 보내거나 내려받아 <b>${esc(COMPANY_EMAIL)}</b> 로 보내주세요.
-메일 제목에 주문번호${orderNo ? `(<b>${esc(orderNo)}</b>)` : ""}를 꼭 적어주세요. 시안을 다시 만들 필요는 없습니다.
-<button type="button" class="submitFailShare btn btn-warning" id="submitFailShare" hidden>메일·카카오톡으로 바로 보내기</button><button type="button" class="submitFailDownload btn btn-outline-dark" id="submitFailDownload">시안 파일 다운로드 (ZIP)</button></div>${buildInAppBrowserNoticeHtml(esc)}`
+      ? `<div class="submitFailSection submitFailAlt">
+<p class="submitFailHead">계속해서 접수가 안 되나요?</p>
+<p>아래 버튼을 통해 시안 파일을 보내주시거나, 다운로드 후 <b>${esc(COMPANY_EMAIL)}</b>으로 보내주세요.</p>
+<p><b>메일 제목에 주문자명과 주문번호를 반드시 기재해 주세요.</b></p>
+<p>시안을 처음부터 다시 만들 필요는 없어요.</p>
+<button type="button" class="submitFailShare btn btn-warning" id="submitFailShare" hidden>메일·카카오톡으로 시안 보내기</button>
+<button type="button" class="submitFailDownload btn btn-outline-dark" id="submitFailDownload">시안 파일 다운로드 (ZIP)</button>
+</div>
+${buildInAppBrowserNoticeHtml(esc)}`
       : ""
-  }</div>`;
+  }
+</div>`;
+  // 모달 본문은 white-space: pre-line이라 태그 사이 줄바꿈이 빈 줄로 보이므로 제거
+  confirmModalBodyEl.innerHTML = html.replace(/>\s*\n\s*</g, "><").replace(/\n/g, "");
+
+  document.getElementById("submitFailExternal")?.addEventListener("click", openInExternalBrowser);
 
   confirmModalEl.classList.add("show");
   confirmModalEl.setAttribute("aria-hidden", "false");

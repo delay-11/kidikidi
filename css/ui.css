@@ -1328,8 +1328,9 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
     border-radius: 10px;
     background: #fef2f2;
     color: #b91c1c;
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.6;
+    white-space: pre-line;
     word-break: keep-all;
     overflow-wrap: anywhere;
 }
@@ -1345,6 +1346,20 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
 
 .submitFailAlt b {
     overflow-wrap: anywhere;
+}
+
+.submitFailSection p {
+    margin: 0 0 4px;
+}
+
+.submitFailSection .submitFailHead {
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.submitFailNote {
+    color: #64748b;
 }
 
 
