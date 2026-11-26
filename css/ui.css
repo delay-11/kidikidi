@@ -1320,3 +1320,37 @@ body.kidikidiBootstrap .canvasWrap textarea.inlineTextEditor:focus {
 .toastAction:hover {
     border-color: var(--acc);
 }
+
+/* 시안 접수 실패 안내 + 시안 파일 다운로드(대체 접수) */
+.submitFailMsg {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fef2f2;
+    color: #b91c1c;
+    font-size: 12px;
+    line-height: 1.6;
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+}
+
+.submitFailAlt {
+    padding: 12px 14px;
+    border: 1px solid #fdcc63;
+    border-radius: 12px;
+    background: #fffaeb;
+    font-size: 12px;
+    line-height: 1.65;
+}
+
+.submitFailAlt b {
+    overflow-wrap: anywhere;
+}
+
+.submitFailDownload {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+}

@@ -207,7 +207,13 @@ async function confirmOrder() {
       // 문제는 토스트가 아니라 팝업으로 명확히 "관리자 문의"를 안내한다.
       // 그 외 사유(용량/네트워크 등)는 기존처럼 토스트로 안내하고, 모달은
       // 재시도할 수 있도록 확인 질문 상태로 되돌린다.
-      if (result?.systemIssue && typeof openSystemErrorModal === "function") {
+      if (result?.fallbackFileList && typeof openSubmitFailModal === "function") {
+        // 메일 발송 단계에서 실패(네트워크/시스템 오류 포함) - 시안 파일은 이미
+        // 만들어져 있으므로 실패 안내 + 직접 보낼 수 있는 다운로드 버튼을
+        // 팝업으로 보여준다. 시스템 오류(계정 한도 등)일 때도 고객이 파일로
+        // 대신 보낼 수 있어야 접수가 끊기지 않는다.
+        openSubmitFailModal(failMessage, result.fallbackFileList);
+      } else if (result?.systemIssue && typeof openSystemErrorModal === "function") {
         openSystemErrorModal(failMessage);
       } else {
         if (typeof openConfirmModal === "function") openConfirmModal();

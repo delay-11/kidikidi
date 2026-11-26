@@ -158,6 +158,62 @@ function openSystemErrorModal(message) {
 }
 
 /* =========================================================
+ * 시안 접수 실패 안내 모달 (대체 접수: 시안 파일 다운로드)
+ * - 수정 이유: 기존에는 실패 시 토스트만 잠깐 뜨고 확정 질문으로
+ *   돌아갔는데, 고객 환경 문제로 계속 실패하면 고객이 할 수 있는 게
+ *   없었음. 실패 원인 + 해볼 방법을 팝업으로 보여주고, 시안 파일을
+ *   내려받아 메일로 직접 보낼 수 있는 대체 접수 경로를 제공한다.
+ * - [다시 시도]는 기존 [확정하기]와 같은 버튼이라 그대로 재접수된다.
+========================================================= */
+function openSubmitFailModal(message, fileList = null) {
+  if (!confirmModalEl || !confirmModalBodyEl) return;
+
+  resetConfirmModal();
+
+  const titleEl = document.getElementById("confirmModalTitle");
+  if (titleEl) titleEl.textContent = "시안 접수 실패";
+
+  const canDownload = Array.isArray(fileList?.files) && fileList.files.length > 0;
+  const orderNo = safeTrim(orderEl?.value) || "";
+  const esc = (v) =>
+    String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+
+  confirmModalBodyEl.innerHTML = `<div class="submitFail"><p class="submitFailMsg">${esc(message || "시안 접수에 실패했습니다.")}</p>${
+    canDownload
+      ? `<div class="submitFailAlt"><b>그래도 계속 실패한다면</b>
+아래 버튼으로 시안 파일을 내려받아 <b>${esc(COMPANY_EMAIL)}</b> 로 보내주세요.
+메일 제목에 주문번호${orderNo ? `(<b>${esc(orderNo)}</b>)` : ""}를 꼭 적어주세요. 시안을 다시 만들 필요는 없습니다.
+<button type="button" class="submitFailDownload btn btn-outline-dark" id="submitFailDownload">시안 파일 다운로드 (ZIP)</button></div>`
+      : ""
+  }</div>`;
+
+  confirmModalEl.classList.add("show");
+  confirmModalEl.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+
+  if (confirmModalCancelEl) confirmModalCancelEl.textContent = "닫기";
+  if (confirmModalOkEl) confirmModalOkEl.textContent = "다시 시도";
+
+  const btn = document.getElementById("submitFailDownload");
+  btn?.addEventListener("click", async () => {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    const label = btn.textContent;
+    btn.textContent = "파일 만드는 중…";
+    try {
+      await downloadDesignFallbackFiles(fileList);
+      btn.textContent = "다운로드 완료 · 다시 받기";
+    } catch (err) {
+      console.error("[시안 파일 다운로드 실패]", err);
+      btn.textContent = label;
+      showToast?.(`시안 파일 다운로드에 실패했습니다. (${err?.message || err})`, "error", 4000);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+}
+
+/* =========================================================
  * 시안 접수 완료 주문 안내 모달 열기
 ========================================================= */
 function openNoticeModal(

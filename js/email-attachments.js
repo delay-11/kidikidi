@@ -708,3 +708,90 @@ async function packAsZip(orderNo, items, files) {
 
   return params;
 }
+
+/* =========================================================
+ * 접수 실패 시 시안 파일 직접 다운로드 (대체 접수용)
+ * - 수정 이유: 고객 PC/네트워크 환경(보안 프로그램, 광고 차단, 방화벽 등)
+ *   때문에 메일 서버 연결 자체가 막히면, 브라우저·네트워크를 바꿔도
+ *   계속 실패하는 경우가 있음. 이때 고객이 시안을 처음부터 다시 만들지
+ *   않아도 되도록, 메일에 첨부하려고 이미 만들어 둔 시안 파일(+레이저
+ *   원본파일)과 주문 정보를 ZIP 하나로 내려받게 해서 직접 메일로 보낼
+ *   수 있게 한다.
+ * - JSZip이 없으면(CDN 로딩 실패) 파일을 하나씩 내려받는다.
+========================================================= */
+function base64ToBlob(base64, type = "application/octet-stream") {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type });
+}
+
+function triggerBlobDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+function buildFallbackOrderInfoText(items) {
+  const orderNo = safeTrim(orderEl?.value) || "-";
+  const lines = [
+    "[키디키디 시안 직접 접수]",
+    "사이트 접수가 실패해 고객이 직접 보낸 시안입니다.",
+    "",
+    `주문번호: ${orderNo}`,
+    `주문자명: ${safeTrim(nameEl?.value) || "-"}`,
+    `이메일: ${safeTrim(emailEl?.value) || "-"}`,
+    `작성 시각: ${new Date().toLocaleString("ko-KR")}`,
+    "",
+    "----------------------------------------",
+    "",
+    typeof buildItemsSummaryText === "function" ? buildItemsSummaryText(items, items) : "",
+  ];
+  return lines.join("\r\n").replace(/\r?\n/g, "\r\n");
+}
+
+async function downloadDesignFallbackFiles(fileList) {
+  const files = Array.isArray(fileList?.files) ? fileList.files : [];
+  if (!files.length) throw new Error("내려받을 시안 파일이 없습니다.");
+
+  const orderNo = safeFilePart(safeTrim(orderEl?.value) || "order");
+  const infoText = buildFallbackOrderInfoText(fileList.items || []);
+
+  // 같은 이름의 파일이 있으면 ZIP 안에서 덮어써지지 않도록 번호를 붙인다.
+  const usedNames = new Set();
+  const uniqueName = (name) => {
+    let candidate = name;
+    let n = 2;
+    while (usedNames.has(candidate)) {
+      candidate = name.replace(/(\.[^.]*)?$/, (ext) => `_${n}${ext || ""}`);
+      n += 1;
+    }
+    usedNames.add(candidate);
+    return candidate;
+  };
+
+  if (window.JSZip) {
+    const zip = new JSZip();
+    const folder = zip.folder(`${orderNo}_designs`);
+    folder.file("order_info.txt", `\ufeff${infoText}`);
+    files.forEach((f) => folder.file(uniqueName(f.filename), f.file, { base64: true }));
+
+    const blob = await zip.generateAsync({ type: "blob" });
+    triggerBlobDownload(blob, `${orderNo}_designs_manual.zip`);
+    return;
+  }
+
+  triggerBlobDownload(
+    new Blob([`\ufeff${infoText}`], { type: "text/plain;charset=utf-8" }),
+    `${orderNo}_order_info.txt`,
+  );
+  for (const f of files) {
+    await wait(400); // 브라우저가 연속 다운로드를 막지 않도록 약간 텀을 둔다
+    triggerBlobDownload(base64ToBlob(f.file), uniqueName(f.filename));
+  }
+}
